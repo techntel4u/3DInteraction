@@ -34,7 +34,7 @@ else {
   document.getElementById('crumb').textContent = c.name;
   document.getElementById('title').textContent = c.name;
   document.getElementById('sub').innerHTML = `${esc(c.mode)} · Course code ${esc(c.code)} · <a style="color:#fff" href="${c.collegeUrl}">Course page on the college website</a>`;
-  document.getElementById('courseShare').innerHTML = shareButtons(location.href, c.name + ' – 3D simulations');
+  document.getElementById('courseShare').innerHTML = shareButtons(location.href, c.name + ' – 3D simulations', cat.courseInstructions);
   const sims = cat.sims.filter(s => s.courses.includes(c.id));
   document.getElementById('sims').innerHTML = sims.length ? sims.map(s => simCard(s,cat)).join('')
     : `<div class="empty">No simulations for this course yet. See <a href="area.html?id=${a.id}">all ${esc(a.name)} simulations</a>.</div>`;

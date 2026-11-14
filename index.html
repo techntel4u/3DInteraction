@@ -44,7 +44,7 @@ document.getElementById('areas').innerHTML = cat.areas.map(a => {
 const gen = cat.sims.filter(s => s.general);
 document.getElementById('general').innerHTML = gen.length ? gen.map(s => simCard(s,cat)).join('')
   : '<div class="empty">No cross-curricular simulations yet. Simulations that suit several areas (for example health and safety or digital skills) will appear here.</div>';
-document.getElementById('hubShare').innerHTML = shareButtons(abs('index.html'), '3D Learning Simulations');
+document.getElementById('hubShare').innerHTML = shareButtons(abs('index.html'), '3D Learning Simulations', cat.hubInstructions);
 const q = document.getElementById('q');
 q.oninput = () => {
   const t = q.value.trim().toLowerCase(), box = document.getElementById('results');

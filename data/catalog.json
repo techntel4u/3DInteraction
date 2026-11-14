@@ -314,7 +314,11 @@
    "teacher": "sims/cavity-wall/teacher.html",
    "thumb": "sims/cavity-wall/thumb.jpg",
    "narration": "ElevenLabs (Alice, British)",
-   "updated": "2026-11-14"
+   "updated": "2026-11-14",
+   "classroomTitle": "Cavity wall explorer – 3D simulation",
+   "instructions": "Open the link and work through the 3D cavity wall simulation (20–30 minutes). Use headphones and press Sound on.\n1. Guided tour: watch all 9 stages.\n2. Build it: assemble the wall in the right order and place the wall ties.\n3. Spot the faults: find all 6 faults. For each one, write down what is wrong and what it causes.\n4. Test yourself: answer the 5 questions. Use \"Show me\" if you get stuck.\nHand in your list of faults and your quiz score."
   }
- ]
+ ],
+ "courseInstructions": "Open the link to see the 3D simulations for this course. Work through each one, starting with the Guided tour (use headphones and press Sound on), then try Build it, Spot the faults and Test yourself. Note your quiz score for each simulation.",
+ "hubInstructions": "Open the link to browse the college's 3D learning simulations by curriculum area and course."
 }

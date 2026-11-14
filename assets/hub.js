@@ -27,14 +27,40 @@ export function showQR(url, title){
   d.showModal();
 }
 // share buttons: copy link, Google Classroom, QR
-export function shareButtons(url, title){
+// Google's official Classroom button passes the title and instructions (body) to Classroom.
+// If Google's script can't load, a plain Classroom link (URL only) is shown instead.
+export function shareButtons(url, title, body=''){
   return `<button class="btn" data-copy="${esc(url)}">🔗 Copy link</button>
-  <a class="btn gc" href="${esc(classroomUrl(url))}" target="_blank" rel="noopener">🎓 Share to Google Classroom</a>
+  <span class="btn gc gcwrap" title="Share to Google Classroom with the title and instructions filled in">
+    <span class="g-sharetoclassroom" data-size="32" data-url="${esc(url)}" data-title="${esc(title)}" data-body="${esc(body)}"></span>
+    <span>Share to Classroom</span>
+    <a class="gcfallback" hidden href="${esc(classroomUrl(url))}" target="_blank" rel="noopener">🎓 Share to Google Classroom</a>
+  </span>
   <button class="btn" data-qr="${esc(url)}" data-title="${esc(title)}">▦ QR code</button>`;
+}
+let gapiReady = null;
+function loadClassroom(){
+  if(gapiReady) return gapiReady;
+  window.___gcfg = {parsetags:'explicit'};
+  gapiReady = new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = 'https://apis.google.com/js/platform.js'; s.async = true;
+    s.onload = () => res(); s.onerror = rej; document.head.appendChild(s);
+    setTimeout(() => rej('timeout'), 6000);
+  });
+  return gapiReady;
+}
+function fallback(root){
+  root.querySelectorAll('.gcwrap').forEach(w => { w.querySelector('.g-sharetoclassroom')?.remove(); w.querySelector('span')?.remove();
+    const a = w.querySelector('.gcfallback'); a.hidden = false; w.replaceWith(a); a.className = 'btn gc'; });
 }
 export function wireShare(root=document){
   root.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => copy(b.dataset.copy));
   root.querySelectorAll('[data-qr]').forEach(b => b.onclick = () => showQR(b.dataset.qr, b.dataset.title));
+  if(!root.querySelector('.g-sharetoclassroom')) return;
+  loadClassroom().then(() => {
+    const host = root === document ? undefined : root;
+    try { window.gapi.sharetoclassroom.go(host); } catch(e){ fallback(root); }
+  }).catch(() => fallback(root));
 }
 export function simCard(s, cat){
   const url = abs(s.student);
@@ -49,7 +75,7 @@ export function simCard(s, cat){
       <p class="note">${esc(s.spec)} · ${esc(s.minutes)} · Narration: ${esc(s.narration)}${courseNames?`<br>Used on: ${courseNames}`:''}</p>
       <div class="btns">
         <a class="btn primary" href="${esc(s.student)}">▶ Open simulation</a>
-        ${shareButtons(url, s.title)}
+        ${shareButtons(url, s.classroomTitle||s.title, s.instructions||'')}
         <a class="btn" href="${esc(s.teacher)}" title="Includes model answers and the quiz answer key">📋 Teacher version</a>
       </div>
     </div>
