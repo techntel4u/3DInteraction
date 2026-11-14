@@ -123,7 +123,7 @@ table.mis th{background:#eef3fb}
 <header>
   <a href="../../index.html" title="Back to the simulation hub" aria-label="Back to the simulation hub" style="color:#fff;text-decoration:none;font-weight:700;font-size:18px;padding:6px 8px;margin-right:4px">←</a>
   <h1>Installing an AMD Threadripper CPU <small>sTR5 socket · Level 3 IT</small></h1>
-  <button id="btnSound" aria-pressed="false">🔈 Sound on</button>
+  <button id="btnSound" class="on" aria-pressed="true">🔊 Sound off</button>
   <button id="btnCaps" class="on" aria-pressed="true">Captions</button>
   <button id="btnLearn"><span class="lg">What you'll learn</span><span class="sm">Learn</span></button>
   <button id="btnQuiz"><span class="lg">Test yourself</span><span class="sm">Quiz</span></button>
@@ -561,7 +561,7 @@ for(const [k,n] of GHOSTABLE){
 }
 
 /* ---------------- Sim state ---------------- */
-let simTime=0, playing=!reduce, speed=1, pauseAt=null, lastStage=-1, follow=true, showLabels=false, soundOn=false, frozen=false;
+let simTime=0, playing=!reduce, speed=1, pauseAt=null, lastStage=-1, follow=true, showLabels=false, soundOn=true, frozen=false;
 if(params.has('t')){simTime=clamp(parseFloat(params.get('t'))||0,0,TOTAL-0.001);playing=false;frozen=true;}
 if(params.has('stage')){simTime=clamp((parseInt(params.get('stage'))||0)*D+D*0.8,0,TOTAL-0.001);playing=false;frozen=true;}
 
@@ -722,6 +722,24 @@ $('btnCaps').onclick=e=>tog(e.currentTarget,v=>{$('caption').style.display=v?'':
 $('btnParts').onclick=e=>{const o=!partsEl.classList.contains('open');partsEl.classList.toggle('open',o);e.currentTarget.setAttribute('aria-expanded',String(o));e.currentTarget.classList.toggle('on',o);};
 $('btnSound').onclick=e=>{soundOn=!soundOn;const b=e.currentTarget;b.classList.toggle('on',soundOn);b.setAttribute('aria-pressed',String(soundOn));b.textContent=soundOn?'🔊 Sound off':'🔈 Sound on';
   if(soundOn) speak(STAGES[clamp(Math.floor(simTime/D),0,N-1)].narr); else {__stopClip();try{speechSynthesis.cancel()}catch(e){}}};
+/* Sound is on by default. Browsers block audio until the first tap or key press,
+   so start the narration on that first interaction. */
+(function(){
+  var hint=document.createElement('div'); hint.id='sndHint'; hint.setAttribute('role','status');
+  hint.textContent='🔊 Sound is on – tap anywhere to start the narration';
+  hint.style.cssText='position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:9998;background:rgba(27,42,74,.93);color:#fff;font:600 15px system-ui,sans-serif;padding:10px 16px;border-radius:999px;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.25);max-width:88vw;text-align:center;transition:opacity .3s';
+  var done=false;
+  setTimeout(function(){ if(!done && soundOn && !(__clipPlaying()||(window.speechSynthesis&&speechSynthesis.speaking))) document.body.appendChild(hint); }, 900);
+  function go(e){
+    if(done) return; done=true;
+    removeEventListener('pointerdown',go,true); removeEventListener('keydown',go,true);
+    hint.style.opacity='0'; setTimeout(function(){hint.remove();},300);
+    if(e && e.target && e.target.closest && e.target.closest('#btnSound')) return;
+    if(soundOn && !(__clipPlaying()||(window.speechSynthesis&&speechSynthesis.speaking))) { speak(STAGES[clamp(Math.floor(simTime/D),0,N-1)].narr); }
+  }
+  addEventListener('pointerdown',go,true); addEventListener('keydown',go,true);
+})();
+
 function openModal(id){$(id).classList.add('open');$(id).querySelector('.x').focus();}
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('.modal').classList.remove('open'));
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));

@@ -168,7 +168,7 @@ blockquote{margin:6px 0;padding:6px 10px;border-left:4px solid var(--navy2);back
     <button class="btn" id="bLearn" title="What you'll learn">🎯 <span class="lbltxt">What you'll learn</span></button>
     <button class="btn" id="bQuiz" title="Test yourself">✅ <span class="lbltxt">Test yourself</span></button>
     
-    <button class="btn" id="bSound" aria-pressed="false" title="Narration">🔈 <span class="lbltxt">Sound on</span></button>
+    <button class="btn on" id="bSound" aria-pressed="true" title="Narration">🔊 <span class="lbltxt">Sound off</span></button>
     <button class="btn" id="sideToggle" aria-expanded="false">👁 View</button>
     <button class="btn" id="bHelp" aria-expanded="false" title="Help and shortcuts">?</button>
   </div>
@@ -956,7 +956,7 @@ $('#sideToggle').onclick=()=>{ const o=$('#side').classList.toggle('open'); $('#
 $('#bHelp').onclick=()=>{ const o=$('#help').classList.toggle('open'); $('#bHelp').setAttribute('aria-expanded',o); };
 
 /* ------------------------------ Narration ------------------------------ */
-let soundOn=false, voice=null;
+let soundOn=true, voice=null;
 function pickVoice(){ try{ const vs=speechSynthesis.getVoices(); voice=vs.find(v=>v.lang==='en-GB')||vs.find(v=>v.lang?.startsWith('en'))||null; }catch(e){} }
 try{ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }catch(e){}
 // Recorded narration (ElevenLabs) with the browser voice as a backup
@@ -967,6 +967,24 @@ function speak(t,idx){ if(!soundOn) return; speakStop(); const c=clips[idx];
   if(c && c._ok){ curClip=c; c.currentTime=0; c.playbackRate=Math.min(speed,1.25); c.play().catch(()=>speakTTS(t)); } else speakTTS(t); }
 function speakStop(){ try{speechSynthesis.cancel();}catch(e){} if(curClip){ curClip.pause(); curClip=null; } }
 $('#bSound').onclick=()=>{ soundOn=!soundOn; const b=$('#bSound'); b.setAttribute('aria-pressed',soundOn); b.classList.toggle('on',soundOn); b.innerHTML=soundOn?'🔊 <span class="lbltxt">Sound off</span>':'🔈 <span class="lbltxt">Sound on</span>'; if(soundOn&&mode==='tour') speak(STAGES[curStage()].cap,curStage()); else speakStop(); };
+/* Sound is on by default. Browsers block audio until the first tap or key press,
+   so start the narration on that first interaction. */
+(function(){
+  var hint=document.createElement('div'); hint.id='sndHint'; hint.setAttribute('role','status');
+  hint.textContent='🔊 Sound is on – tap anywhere to start the narration';
+  hint.style.cssText='position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:9998;background:rgba(27,42,74,.93);color:#fff;font:600 15px system-ui,sans-serif;padding:10px 16px;border-radius:999px;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.25);max-width:88vw;text-align:center;transition:opacity .3s';
+  var done=false;
+  setTimeout(function(){ if(!done && soundOn && !((curClip&&!curClip.paused)||(window.speechSynthesis&&speechSynthesis.speaking))) document.body.appendChild(hint); }, 900);
+  function go(e){
+    if(done) return; done=true;
+    removeEventListener('pointerdown',go,true); removeEventListener('keydown',go,true);
+    hint.style.opacity='0'; setTimeout(function(){hint.remove();},300);
+    if(e && e.target && e.target.closest && e.target.closest('#bSound')) return;
+    if(soundOn && !((curClip&&!curClip.paused)||(window.speechSynthesis&&speechSynthesis.speaking))) { if(mode==='tour') speak(STAGES[curStage()].cap,curStage()); }
+  }
+  addEventListener('pointerdown',go,true); addEventListener('keydown',go,true);
+})();
+
 
 /* ------------------------------ Drawer content ------------------------------ */
 const SPEC=`<h3>Specification link</h3>

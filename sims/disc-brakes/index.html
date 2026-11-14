@@ -183,7 +183,7 @@
   <div class="slider"><label for="force">How hard to press</label><input id="force" type="range" min="20" max="100" value="80"><output id="forceOut">Hard</output></div>
   <div class="slider"><label for="speedSet">Car speed</label><input id="speedSet" type="range" min="10" max="70" step="5" value="50"><output id="speedSetOut">50 mph</output></div>
   <div class="slider"><label for="slow">Slow motion</label><input id="slow" type="range" min="0" max="100" value="100"><output id="slowOut">Normal speed</output></div>
-  <button id="soundBtn">🔈 Sound off</button>
+  <button id="soundBtn" class="on">🔊 Sound on</button>
   <button id="explodeBtn">🔧 Take apart</button>
   <button id="quizBtn">✔ Test yourself</button>
   <button id="menuBtn" aria-expanded="false">☰ More</button>
@@ -746,7 +746,7 @@ frameOffset();
 /* =========================================================
    Sound: speech + squeal
 ========================================================= */
-let soundOn = false, voice = null, actx = null, squealOsc = null, squealGain = null;
+let soundOn = true, voice = null, actx = null, squealOsc = null, squealGain = null;
 function pickVoice() { try { const vs = speechSynthesis.getVoices(); voice = vs.find(v => /en[-_]GB/i.test(v.lang)) || vs.find(v => /^en/i.test(v.lang)) || null; } catch (e) {} }
 try { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; } catch (e) {}
 let lastSayAt = 0;
@@ -824,6 +824,24 @@ document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => goView(b
 
 // faults
 $('fWorn').addEventListener('change', e => { S.worn = e.target.checked; say(S.worn ? 'Worn pads added. Brake hard and compare the stopping distance.' : 'New pads fitted.'); });
+/* Sound is on by default. Browsers block audio until the first tap or key press,
+   so start the narration on that first interaction. */
+(function(){
+  var hint=document.createElement('div'); hint.id='sndHint'; hint.setAttribute('role','status');
+  hint.textContent='🔊 Sound is on – tap anywhere to start the narration';
+  hint.style.cssText='position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:9998;background:rgba(27,42,74,.93);color:#fff;font:600 15px system-ui,sans-serif;padding:10px 16px;border-radius:999px;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.25);max-width:88vw;text-align:center;transition:opacity .3s';
+  var done=false;
+  setTimeout(function(){ if(!done && soundOn && !(__clipPlaying()||(window.speechSynthesis&&speechSynthesis.speaking))) document.body.appendChild(hint); }, 900);
+  function go(e){
+    if(done) return; done=true;
+    removeEventListener('pointerdown',go,true); removeEventListener('keydown',go,true);
+    hint.style.opacity='0'; setTimeout(function(){hint.remove();},300);
+    if(e && e.target && e.target.closest && e.target.closest('#soundBtn')) return;
+    if(soundOn && !(__clipPlaying()||(window.speechSynthesis&&speechSynthesis.speaking))) { initAudio(); say(tour >= 0 ? TOUR[tour].text : 'Sound is on. Hold the brake button to press the pedal.'); }
+  }
+  addEventListener('pointerdown',go,true); addEventListener('keydown',go,true);
+})();
+
 $('fAir').addEventListener('change', e => { S.air = e.target.checked; say(S.air ? 'Air added to the brake fluid. Watch the pedal when you brake.' : 'Brakes bled. The air is gone.'); });
 function setFaults(worn, air) { S.worn = worn; S.air = air; $('fWorn').checked = worn; $('fAir').checked = air; }
 
