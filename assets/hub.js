@@ -1,12 +1,13 @@
 // Shared helpers for the simulation hub. Data lives in data/catalog.json.
 export async function loadCatalog(){
-  const r = await fetch('data/catalog.json?v=3', {cache:'no-cache'});
+  const r = await fetch('data/catalog.json?v=4', {cache:'no-cache'});
   return r.json();
 }
 export const qs = k => new URLSearchParams(location.search).get(k);
 export const abs = rel => new URL(rel, location.href).href;
 export const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-export const classroomUrl = url => 'https://classroom.google.com/share?url=' + encodeURIComponent(url);
+export const classroomUrl = (url, title='', body='') => 'https://classroom.google.com/share?url=' + encodeURIComponent(url)
+  + (title ? '&title=' + encodeURIComponent(title) : '') + (body ? '&body=' + encodeURIComponent(body) : '');
 
 export function toast(msg){
   let t = document.querySelector('.toast');
@@ -27,40 +28,15 @@ export function showQR(url, title){
   d.showModal();
 }
 // share buttons: copy link, Google Classroom, QR
-// Google's official Classroom button passes the title and instructions (body) to Classroom.
-// If Google's script can't load, a plain Classroom link (URL only) is shown instead.
+// The Classroom link opens in a new tab with the title and instructions filled in.
 export function shareButtons(url, title, body=''){
   return `<button class="btn" data-copy="${esc(url)}">🔗 Copy link</button>
-  <span class="btn gc gcwrap" title="Share to Google Classroom with the title and instructions filled in">
-    <span class="g-sharetoclassroom" data-size="32" data-url="${esc(url)}" data-title="${esc(title)}" data-body="${esc(body)}"></span>
-    <span>Share to Classroom</span>
-    <a class="gcfallback" hidden href="${esc(classroomUrl(url))}" target="_blank" rel="noopener">🎓 Share to Google Classroom</a>
-  </span>
+  <a class="btn gc" href="${esc(classroomUrl(url, title, body))}" target="_blank" rel="noopener">🎓 Share to Google Classroom</a>
   <button class="btn" data-qr="${esc(url)}" data-title="${esc(title)}">▦ QR code</button>`;
-}
-let gapiReady = null;
-function loadClassroom(){
-  if(gapiReady) return gapiReady;
-  window.___gcfg = {parsetags:'explicit'};
-  gapiReady = new Promise((res, rej) => {
-    const s = document.createElement('script'); s.src = 'https://apis.google.com/js/platform.js'; s.async = true;
-    s.onload = () => res(); s.onerror = rej; document.head.appendChild(s);
-    setTimeout(() => rej('timeout'), 6000);
-  });
-  return gapiReady;
-}
-function fallback(root){
-  root.querySelectorAll('.gcwrap').forEach(w => { w.querySelector('.g-sharetoclassroom')?.remove(); w.querySelector('span')?.remove();
-    const a = w.querySelector('.gcfallback'); a.hidden = false; w.replaceWith(a); a.className = 'btn gc'; });
 }
 export function wireShare(root=document){
   root.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => copy(b.dataset.copy));
   root.querySelectorAll('[data-qr]').forEach(b => b.onclick = () => showQR(b.dataset.qr, b.dataset.title));
-  if(!root.querySelector('.g-sharetoclassroom')) return;
-  loadClassroom().then(() => {
-    const host = root === document ? undefined : root;
-    try { window.gapi.sharetoclassroom.go(host); } catch(e){ fallback(root); }
-  }).catch(() => fallback(root));
 }
 export function simCard(s, cat){
   const url = abs(s.student);

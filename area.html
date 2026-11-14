@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Curriculum area – 3D Learning Simulations</title>
-<link rel="stylesheet" href="assets/hub.css?v=3">
+<link rel="stylesheet" href="assets/hub.css?v=4">
 <script src="vendor/qrcode/qrcode.js"></script>
 </head>
 <body>
@@ -19,7 +19,7 @@
 </main>
 <footer>Course list from <a href="https://www.wolvcoll.ac.uk/">wolvcoll.ac.uk</a>.</footer>
 <script type="module">
-import {loadCatalog, qs, esc, simCard, wireShare} from './assets/hub.js?v=3';
+import {loadCatalog, qs, esc, simCard, wireShare} from './assets/hub.js?v=4';
 const cat = await loadCatalog();
 const a = cat.areas.find(x => x.id === qs('id'));
 if(!a){ document.getElementById('title').textContent = 'Area not found'; }
