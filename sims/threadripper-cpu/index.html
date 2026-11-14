@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Installing an AMD Threadripper CPU (sTR5)</title>
+<script type="importmap">
+{ "imports": {
+  "three": "../../vendor/three/three.module.js",
+  "three/addons/": "../../vendor/three/addons/"
+} }
+</script>
+<style>
+:root{--navy:#1b2a4a;--navy2:#2c4170;--ink:#1d2330;--muted:#4a5466;--bg:#eef1f5;--card:#ffffff;--line:#d5dbe4;--focus:#0077c8;--warn:#b42318;--warnbg:#fdecea;--ok:#146c2e;--okbg:#e6f4ea}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);font-family:Inter,system-ui,sans-serif;color:var(--ink);overflow:hidden}
+#app{position:fixed;inset:0;display:grid;grid-template-columns:1fr 380px;grid-template-rows:auto 1fr auto}
+header{grid-column:1/3;display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--navy);color:#fff;flex-wrap:wrap}
+header h1{font-size:17px;margin:0 auto 0 0;font-weight:700}
+header h1 small{font-weight:400;opacity:.85;font-size:13px;margin-left:6px}
+#view{position:relative;grid-row:2;grid-column:1;min-height:0}
+#view canvas{display:block}
+#side{grid-row:2/4;grid-column:2;background:var(--card);border-left:1px solid var(--line);overflow:auto;padding:14px 16px}
+#bar{grid-row:3;grid-column:1;background:var(--card);border-top:1px solid var(--line);padding:8px 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,.btn{min-height:44px;min-width:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);font:600 14px Inter,system-ui,sans-serif;cursor:pointer}
+button:hover{border-color:var(--navy2)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+button.on{background:#dfe8f7;border-color:var(--navy2)}
+header button{background:transparent;color:#fff;border-color:rgba(255,255,255,.45)}
+header button.on{background:rgba(255,255,255,.18)}
+.grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.sep{width:1px;height:30px;background:var(--line)}
+label.sl{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+input[type=range]{width:120px;accent-color:var(--navy)}
+#stageName{font-size:20px;font-weight:700;margin:4px 0 6px;color:var(--navy)}
+#stageNum{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+#strip{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin:8px 0 12px}
+#strip button{min-height:30px;min-width:0;padding:0;font-size:11px;border-radius:6px;background:#e7ebf1;border:1px solid #cfd6e0;color:var(--muted)}
+#strip button.done{background:#c9d6ec;color:var(--navy)}
+#strip button.cur{background:var(--navy);color:#fff;border-color:var(--navy)}
+#caption{font-size:16px;line-height:1.5;margin:0 0 10px}
+.card{border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.45;margin:8px 0}
+.warn{background:var(--warnbg);border-left:5px solid var(--warn)}
+.warn b{color:var(--warn)}
+.note{background:#eef3fb;border-left:5px solid var(--navy2)}
+#legend{font-size:13px;color:var(--muted);margin-top:12px}
+#legend div{display:flex;align-items:center;gap:8px;margin:4px 0}
+.sw{width:18px;height:12px;border-radius:3px;display:inline-block;border:1px solid rgba(0,0,0,.25)}
+#torque{position:absolute;right:12px;top:12px;background:rgba(27,42,74,.94);color:#fff;border-radius:12px;padding:10px 14px;font-size:14px;display:none;min-width:200px}
+#torque .big{font-size:24px;font-weight:700}
+#torque .meter{height:10px;background:rgba(255,255,255,.2);border-radius:5px;margin-top:6px;overflow:hidden}
+#torque .meter i{display:block;height:100%;background:#5fd0ff;width:0}
+#simnote{position:absolute;left:12px;bottom:10px;font-size:12px;color:var(--muted);background:rgba(255,255,255,.85);padding:4px 8px;border-radius:6px}
+#tip{position:absolute;pointer-events:none;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;max-width:260px;box-shadow:0 4px 14px rgba(0,0,0,.12);display:none;z-index:5}
+#tip b{display:block;color:var(--navy)}
+.lbl{background:rgba(255,255,255,.95);color:var(--ink);border:1px solid var(--navy2);border-radius:6px;padding:3px 7px;font:600 12px Inter,system-ui,sans-serif;white-space:nowrap;pointer-events:none}
+.lbl.hot{background:var(--navy);color:#fff;border-color:#5fd0ff;box-shadow:0 0 0 2px #5fd0ff}
+.lbl.danger{background:var(--warn);color:#fff;border-color:#fff}
+.modal{position:fixed;inset:0;background:rgba(15,22,38,.55);display:none;align-items:center;justify-content:center;z-index:20;padding:12px}
+.modal.open{display:flex}
+.modal .box{background:#fff;border-radius:14px;max-width:720px;width:100%;max-height:90vh;overflow:auto;padding:18px 22px;position:relative}
+.modal h2{margin:0 40px 8px 0;color:var(--navy);font-size:20px}
+.modal h3{color:var(--navy);font-size:16px;margin:16px 0 6px}
+.modal .x{position:absolute;right:12px;top:12px}
+.modal li{margin:5px 0;line-height:1.45}
+table.mis{border-collapse:collapse;width:100%;font-size:14px}
+table.mis td,table.mis th{border:1px solid var(--line);padding:7px 9px;vertical-align:top;text-align:left}
+table.mis th{background:#eef3fb}
+.q{border:1px solid var(--line);border-radius:10px;padding:12px;margin:10px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.q .opts{display:grid;gap:6px}
+.q .opts button{text-align:left;font-weight:400}
+.q .opts button.right{background:var(--okbg);border-color:var(--ok)}
+.q .opts button.wrong{background:var(--warnbg);border-color:var(--warn)}
+.q .fb{margin-top:8px;font-size:14px}
+.kbd{display:inline-block;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 6px;font-family:monospace;font-size:13px;background:#f7f8fa}
+#parts{display:none;position:absolute;left:12px;top:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;z-index:4;width:240px}
+#parts.open{display:block}
+#parts .row{display:flex;justify-content:space-between;align-items:center;margin:4px 0;font-size:14px;gap:8px}
+#parts .row button{min-height:36px;font-size:13px;padding:0 10px}
+@media (max-width:900px){
+  #app{grid-template-columns:1fr;grid-template-rows:auto 52vh auto 1fr}
+  #view{grid-row:2;grid-column:1}
+  #bar{grid-row:3;grid-column:1}
+  #side{grid-row:4;grid-column:1;border-left:0;border-top:1px solid var(--line)}
+  header{grid-column:1}
+  header h1 small{display:none}
+  input[type=range]{width:90px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <a href="../../index.html" title="Back to the simulation hub" aria-label="Back to the simulation hub" style="color:#fff;text-decoration:none;font-weight:700;font-size:18px;padding:6px 8px;margin-right:4px">←</a>
+  <h1>Installing an AMD Threadripper CPU <small>sTR5 socket · Level 3 IT</small></h1>
+  <button id="btnSound" aria-pressed="false">🔈 Sound on</button>
+  <button id="btnCaps" class="on" aria-pressed="true">Captions</button>
+  <button id="btnLearn">What you'll learn</button>
+  <button id="btnQuiz">Test yourself</button>
+  <button id="btnHelp" aria-label="Keyboard shortcuts and help">?</button>
+</header>
+<div id="view">
+  <div id="tip" role="tooltip"></div>
+  <div id="torque" aria-live="polite"><div id="tqScrew">Screw 1</div><div class="big"><span id="tqVal">0.0</span> N·m</div><div style="font-size:12px;opacity:.85">Target ≈ 1.6 N·m (14 lbf·in) – check the board manual</div><div class="meter"><i id="tqBar"></i></div></div>
+  <div id="parts" aria-label="Show or ghost parts"></div>
+  <div id="simnote">Drag to rotate · scroll/pinch to zoom · right-drag to pan. Simplified model – not to scale.</div>
+</div>
+<div id="bar">
+  <div class="grp">
+    <button id="btnPrev" aria-label="Previous step">◀</button>
+    <button id="btnPlay" class="primary" aria-label="Play or pause">▶ Play tour</button>
+    <button id="btnNext" aria-label="Next step">▶▶</button>
+  </div>
+  <label class="sl">Speed <input id="speed" type="range" min="0.25" max="2" step="0.25" value="1" aria-label="Animation speed"><span id="speedVal">1×</span></label>
+  <div class="sep"></div>
+  <div class="grp">
+    <button class="cam" data-cam="overview">1 Overview</button>
+    <button class="cam" data-cam="socket">2 Socket</button>
+    <button class="cam" data-cam="side">3 Side</button>
+    <button class="cam" data-cam="top">4 Top</button>
+  </div>
+  <div class="sep"></div>
+  <div class="grp">
+    <button id="btnFollow" class="on" aria-pressed="true">Follow camera</button>
+    <button id="btnLabels" aria-pressed="false">Labels</button>
+    <button id="btnParts" aria-expanded="false">Parts</button>
+  </div>
+</div>
+<aside id="side" aria-live="polite">
+  <div id="stageNum">Step 1 of 12</div>
+  <div id="stageName">Prepare safely</div>
+  <div id="strip" role="group" aria-label="Steps"></div>
+  <p id="caption"></p>
+  <div id="warnCard" class="card warn"></div>
+  <div id="extraCard" class="card note" style="display:none"></div>
+  <div id="legend">
+    <strong style="color:var(--ink)">Key</strong>
+    <div><span class="sw" style="background:#36c6ff"></span>Glowing + dark label = the part to look at in this step</div>
+    <div><span class="sw" style="background:#e5484d"></span>Red label = danger: easily damaged</div>
+    <div><span class="sw" style="background:#ff7a1a"></span>Orange = carrier frame (always stays on the CPU)</div>
+    <div><span class="sw" style="background:#a9adb3"></span>Grey beads = thermal paste</div>
+  </div>
+</aside>
+</div>
+
+<div class="modal" id="mLearn" role="dialog" aria-modal="true" aria-labelledby="hLearn"><div class="box">
+  <button class="x" data-close aria-label="Close">✕</button>
+  <h2 id="hLearn">What you'll learn</h2>
+  <h3>Learning outcomes – by the end, you can…</h3>
+  <ul>
+    <li>Name each part of the sTR5 retention system (force frame, rail frame, external cap, carrier frame, PnP cover cap) and explain what it does.</li>
+    <li>Install a Threadripper CPU in the correct order, including the screw sequences (loosen 3→2→1, tighten 1→2→3) and using a torque-limiting T20 driver.</li>
+    <li>Explain why you isolate the power and use ESD precautions before handling the CPU and motherboard.</li>
+    <li>Apply thermal paste sensibly and fit a cooler, then connect it to the CPU_FAN header.</li>
+    <li>Spot the common mistakes and explain the damage each one can cause.</li>
+  </ul>
+  <h3>Common misconceptions</h3>
+  <table class="mis">
+    <tr><th>Misconception</th><th>Correct idea</th></tr>
+    <tr><td>"The pins are on the CPU, like older AMD chips."</td><td>sTR5 is an LGA socket. The contacts are in the motherboard socket; the CPU has flat pads. Bent contacts damage the <em>board</em>.</td></tr>
+    <tr><td>"Take the plastic socket cover off first."</td><td>Leave the PnP cover cap on until the carrier and CPU are in the rail frame, so the contacts are exposed for as little time as possible.</td></tr>
+    <tr><td>"Screw order doesn't matter as long as it's tight."</td><td>Tighten 1→2→3 to the set torque (about 1.6 N·m; check the manual). The wrong order or over-tightening can seriously damage the socket or CPU.</td></tr>
+    <tr><td>"Take the CPU out of the orange frame to fit it."</td><td>Never separate them. The carrier frame holds the CPU in the only correct orientation.</td></tr>
+    <tr><td>"More thermal paste means better cooling."</td><td>Too much paste lowers heat conductivity. If the cooler has paste pre-applied, don't add more.</td></tr>
+  </table>
+  <h3>Specification link</h3>
+  <p style="font-size:14px;line-height:1.5">Pearson BTEC Level 3 Nationals (QCF) in Information Technology – <strong>Unit 2: Computer Systems</strong> (unit code M/601/7261).<br>
+  Learning outcome 1: “Understand the components of computer systems”<br>
+  Learning outcome 3: “Be able to set up and maintain computer systems.”<br>
+  Criterion P1: “explain the function of computer hardware components”</p>
+  <div class="card warn" style="font-size:13px"><b>Check your unit:</b> this is the QCF unit published by Pearson. I couldn't confirm an exact matching unit in the current BTEC Nationals in IT suite, so check this wording against the unit your course uses.</div>
+  <h3>About this model</h3>
+  <p style="font-size:14px;line-height:1.5">The parts are simplified and not to scale. Screw positions are illustrative; always follow the numbers printed on the force frame and your motherboard's manual. The paste pattern shown is one example only.</p>
+</div></div>
+
+<div class="modal" id="mQuiz" role="dialog" aria-modal="true" aria-labelledby="hQuiz"><div class="box">
+  <button class="x" data-close aria-label="Close">✕</button>
+  <h2 id="hQuiz">Test yourself</h2>
+  <p style="margin:0 0 6px;color:var(--muted);font-size:14px">Choose an answer. Use “Show me” to jump to the step that answers it.</p>
+  <div id="quizList"></div>
+  <p id="quizScore" style="font-weight:700;color:var(--navy)"></p>
+</div></div>
+
+<div class="modal" id="mHelp" role="dialog" aria-modal="true" aria-labelledby="hHelp"><div class="box" style="max-width:480px">
+  <button class="x" data-close aria-label="Close">✕</button>
+  <h2 id="hHelp">Controls</h2>
+  <ul style="list-style:none;padding:0">
+    <li><span class="kbd">Space</span> Play / pause</li>
+    <li><span class="kbd">←</span> <span class="kbd">→</span> Previous / next step</li>
+    <li><span class="kbd">1</span>–<span class="kbd">4</span> Camera: overview, socket, side, top</li>
+    <li><span class="kbd">L</span> Show all labels</li>
+    <li><span class="kbd">?</span> This help</li>
+    <li>Hover over or tap a part to see its name and job.</li>
+    <li><strong>Parts</strong> lets you ghost a part (see-through) to look underneath it.</li>
+  </ul>
+</div></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+/* ---------------- Content ---------------- */
+const D = 7; // seconds per step at 1x
+const STAGES = [
+ {name:'Prepare safely', cam:'overview', focus:['plug','strap'],
+  cap:'Switch off and unplug the mains cable from the power supply. Work on an antistatic mat, wear an ESD wrist strap connected to ground, and handle parts by their edges.',
+  narr:'Step one. Switch off and unplug the mains cable. Work on an antistatic mat, wear an E S D wrist strap connected to ground, and handle parts by their edges.',
+  warn:'Skipping the wrist strap: a static discharge too small to feel can still damage the CPU or motherboard.'},
+ {name:'Loosen screws 3 → 2 → 1', cam:'socket', focus:['screws','driver'],
+  cap:'Use a Torx T20 driver to loosen the three captive force-frame screws in reverse order: 3, then 2, then 1. The numbers are printed on the force frame.',
+  narr:'Use a Torx T20 driver to loosen the three force frame screws in reverse order: three, two, then one.',
+  warn:'Using the wrong bit size can strip the Torx heads. Use a T20.'},
+ {name:'Force frame springs open', cam:'side', focus:['force'],
+  cap:'The force frame is spring-loaded, so it pops up as the last screw is released. Lift it to the fully open position.',
+  narr:'The force frame is spring loaded, so it pops up when the last screw is released. Lift it fully open.',
+  warn:'Keep fingers, tools and loose items away from the socket area while it is open.'},
+ {name:'Lift the rail frame', cam:'side', focus:['rail'],
+  cap:'Pull up the tabs on both sides of the rail frame to release it, then lift it to its upright position. It is spring-loaded too, so keep hold of it.',
+  narr:'Pull up the tabs on both sides of the rail frame to release it, then lift it upright. Keep hold of it, because it is spring loaded.',
+  warn:'Letting the rail frame snap up or down can knock the socket. Move it gently.'},
+ {name:'Remove the external cap', cam:'side', focus:['ext'],
+  cap:'Slide the clear external cap up and out of the rail frame. Keep it: it goes back in if the board is ever stored or returned without a CPU.',
+  narr:'Slide the clear external cap up and out of the rail frame. Keep it safe for later.',
+  warn:'The external cap is not the socket cover. The PnP cover cap on the socket stays on for now.'},
+ {name:'Slide in the carrier and CPU', cam:'side', focus:['carrier','cpu'],
+  cap:'Hold the orange carrier frame by its tab and slide it down the rails until it clicks into place. It only fits one way: the tab faces up and away from the socket.',
+  narr:'Hold the orange carrier frame by its tab and slide it down the rails until it clicks. It only fits one way.',
+  warn:'Never take the CPU out of the orange carrier frame, and never force it into the rails.'},
+ {name:'Remove the PnP cover cap', cam:'socketTop', focus:['pnp','socket'],
+  cap:'Now lift the PnP cover cap off the socket using its tabs. The exposed socket contacts are extremely fragile: don’t touch them or let anything drop onto them.',
+  narr:'Now lift the P n P cover cap off the socket. The exposed contacts are extremely fragile. Do not touch them.',
+  warn:'Removing the cap too early leaves the contacts exposed for longer. On this socket the contacts are in the motherboard, so bent contacts usually mean a damaged board.'},
+ {name:'Close both frames', cam:'side', focus:['rail','force'],
+  cap:'Lower the rail frame gently until it latches onto the socket housing, then lower the force frame over it.',
+  narr:'Lower the rail frame gently until it latches, then lower the force frame over it.',
+  warn:'Never press down on the CPU with your fingers to seat it. The force frame does the clamping.'},
+ {name:'Tighten screws 1 → 2 → 3', cam:'socket', focus:['screws','driver'],
+  cap:'Start all three screws in the order 1, 2, 3, then tighten them fully in the same order with a torque-limiting T20 driver. Stop at the click: about 1.6 N·m (14 lbf·in). Check your motherboard manual.',
+  narr:'Start all three screws in the order one, two, three. Then tighten them fully in the same order with a torque limiting T20 driver. Stop at the click.',
+  warn:'Tightening in the wrong order, or over-tightening, can cause serious damage to the socket or the CPU.'},
+ {name:'Apply thermal paste', cam:'top', focus:['paste'],
+  cap:'If the cooler has paste pre-applied, don’t add more. Otherwise apply paste as the cooler or paste maker’s guide shows. This large lid needs a pattern that spreads across the whole surface, not one small dot.',
+  narr:'If the cooler has paste already applied, do not add more. Otherwise, follow the maker’s pattern. This large lid needs paste across the whole surface.',
+  warn:'Too much paste lowers heat conductivity and cooling performance.', extra:'The pattern shown is one example only. Follow the guide for your cooler or paste.'},
+ {name:'Fit the cooler', cam:'cooler', focus:['cooler','paste'],
+  cap:'Remove the protective film from the cooler base, lower the cooler straight down onto the CPU, then tighten its screws evenly in a diagonal pattern, a little at a time. Use the cooler’s own instructions and torque, not the socket value.',
+  narr:'Remove the protective film from the cooler base. Lower the cooler straight down, then tighten its screws evenly in a diagonal pattern, a little at a time.',
+  warn:'Leaving the protective film on the cooler base blocks heat transfer, so the CPU can overheat.'},
+ {name:'Connect CPU_FAN', cam:'cable', focus:['header'],
+  cap:'Plug the cooler fan into the CPU_FAN header on the motherboard so the board can read its speed and control it. Then reconnect power and check the CPU temperature and fan speed in the BIOS/UEFI.',
+  narr:'Plug the cooler fan into the C P U fan header. Then reconnect power and check the CPU temperature and fan speed in the BIOS.',
+  warn:'Forgetting to connect the fan, or using the wrong header, means the board can’t properly monitor or control the CPU fan, and the CPU can overheat.'}
+];
+const N = STAGES.length, TOTAL = N*D;
+
+const PARTS = {
+ mat:{name:'Antistatic mat', job:'A dissipative work surface connected to ground, so static drains away safely.'},
+ board:{name:'Motherboard (TRX50)', job:'The main circuit board. The sTR5 socket connects the CPU to it.'},
+ socket:{name:'sTR5 socket contacts (LGA)', job:'Thousands of fragile spring contacts that touch the flat pads under the CPU.'},
+ pnp:{name:'PnP cover cap', job:'Protects the socket contacts until the CPU is ready to go in.'},
+ force:{name:'Force frame', job:'A metal frame screwed down to clamp the CPU evenly onto the contacts.'},
+ rail:{name:'Rail frame', job:'A spring-loaded hinged frame with rails that hold the carrier frame and CPU.'},
+ ext:{name:'External cap', job:'A clear cover that protects the rail frame when no CPU is fitted.'},
+ carrier:{name:'Carrier frame (orange)', job:'Holds the CPU the right way round. Never separate it from the CPU.'},
+ cpu:{name:'CPU (Threadripper, sTR5)', job:'The processor. It has flat gold pads underneath; the metal lid on top is the IHS (heat spreader).'},
+ screws:{name:'Captive Torx T20 screws (1–3)', job:'Hold the force frame down. Loosen 3→2→1 and tighten 1→2→3.'},
+ driver:{name:'Torque screwdriver (T20)', job:'Clicks when it reaches the set torque, so you know when to stop.'},
+ paste:{name:'Thermal paste', job:'Fills the tiny gaps between the CPU lid and the cooler base so heat moves across.'},
+ cooler:{name:'CPU cooler', job:'Carries heat from the CPU through its base and heat pipes to the fins, where the fan blows it away.'},
+ header:{name:'CPU_FAN header', job:'A 4-pin connector the board uses to power, monitor and control the CPU cooler fan.'},
+ strap:{name:'ESD wrist strap', job:'Keeps you at the same electrical potential as ground, so static can’t discharge into the parts.'},
+ plug:{name:'Mains power cable (unplugged)', job:'Unplug it before you start so no power can reach the board.'},
+ psu:{name:'Power supply unit (PSU)', job:'Converts mains electricity into the voltages the PC uses.'}
+};
+
+const QUIZ = [
+ {q:'In which order do you loosen the force frame screws?', o:['1 → 2 → 3','3 → 2 → 1','Any order','2 → 1 → 3'], a:1, s:1,
+  why:'Loosen in reverse order, 3 → 2 → 1, then tighten 1 → 2 → 3.'},
+ {q:'When do you remove the PnP cover cap from the socket?', o:['Before opening the force frame','After the carrier frame and CPU are in the rail frame','After the cooler is fitted','You never remove it'], a:1, s:6,
+  why:'It stays on until the CPU is in the rail frame, so the contacts are exposed for the shortest possible time.'},
+ {q:'On an sTR5 system, where are the fragile contacts (pins)?', o:['On the underside of the CPU','In the motherboard socket','On the carrier frame','On the force frame'], a:1, s:6,
+  why:'sTR5 is an LGA socket: the contacts are in the socket on the motherboard, and the CPU has flat pads.'},
+ {q:'How do you tighten the force frame screws?', o:['In the order 1 → 2 → 3 until the torque driver clicks (about 1.6 N·m)','As tight as possible with a normal screwdriver','3 → 2 → 1, by hand only','Any order, to about 5 N·m'], a:0, s:8,
+  why:'Start them 1 → 2 → 3, then tighten 1 → 2 → 3 to the torque in the manual (about 1.6 N·m / 14 lbf·in). Stop at the click.'},
+ {q:'Your new cooler has thermal paste already applied. What do you do?', o:['Add a large blob on top for extra cooling','Fit it as supplied without adding more paste','Wipe it off and use one pea-sized dot','Put paste on the motherboard instead'], a:1, s:9,
+  why:'Pre-applied paste is already the right amount. Adding more lowers heat conductivity and cooling performance.'}
+];
+
+/* ---------------- Helpers ---------------- */
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const ss=x=>{x=clamp(x);return x*x*(3-2*x)};
+const seg=(t,a,b)=>ss((t-a)/(b-a));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const deg=THREE.MathUtils.degToRad;
+const params=new URLSearchParams(location.search);
+const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------------- Renderer & scene ---------------- */
+const view=document.getElementById('view');
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio));
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.05;
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+view.appendChild(renderer.domElement);
+const labelR=new CSS2DRenderer();
+labelR.domElement.style.position='absolute';labelR.domElement.style.top='0';labelR.domElement.style.left='0';labelR.domElement.style.pointerEvents='none';
+view.appendChild(labelR.domElement);
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color('#e9edf2');
+scene.fog=new THREE.Fog('#e9edf2',90,170);
+const camera=new THREE.PerspectiveCamera(40,1,0.1,500);
+camera.position.set(28,24,32);
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=0.08;
+controls.maxPolarAngle=deg(86);controls.minDistance=5;controls.maxDistance=95;
+controls.target.set(0,1,0);
+
+scene.add(new THREE.HemisphereLight('#ffffff','#9aa4b2',1.1));
+const sun=new THREE.DirectionalLight('#ffffff',2.0);
+sun.position.set(18,34,22);sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-35,right:35,top:35,bottom:-35,near:1,far:100});
+sun.shadow.bias=-0.0004;sun.shadow.radius=4;
+scene.add(sun);
+
+/* ---------------- Part registry ---------------- */
+const parts={}; const pickables=[];
+function part(key){ if(!parts[key]) parts[key]={key,mats:[],objs:[],fade:1,ghost:false,label:null}; return parts[key]; }
+function M(key,color,o={}){
+  const m=new THREE.MeshStandardMaterial(Object.assign({color,roughness:0.55,metalness:0.1},o));
+  m.userData.baseOpacity=o.opacity??1; m.userData.baseTransparent=!!o.transparent;
+  part(key).mats.push(m); return m;
+}
+function mesh(key,geo,mat,parent,pos=[0,0,0],shadow=true){
+  const m=new THREE.Mesh(geo,mat); m.position.set(...pos);
+  m.castShadow=shadow; m.receiveShadow=true; m.userData.part=key;
+  parent.add(m); pickables.push(m); part(key).objs.push(m); return m;
+}
+const box=(x,y,z)=>new THREE.BoxGeometry(x,y,z);
+function tex(w,h,draw){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t;}
+function addLabel(key,parent,pos,text){
+  const d=document.createElement('div'); d.className='lbl'; d.textContent=text||PARTS[key].name;
+  const o=new CSS2DObject(d); o.position.set(...pos); parent.add(o); part(key).label=o; o.visible=false; return o;
+}
+
+/* ---------------- Build: mat, board, PSU, strap ---------------- */
+const matMesh=mesh('mat',box(64,0.2,48),M('mat','#9fb3c8',{roughness:0.9}),scene,[0,-0.3,2],false);
+const boardTex=tex(1024,800,(g,w,h)=>{g.fillStyle='#24303d';g.fillRect(0,0,w,h);g.strokeStyle='rgba(140,170,200,0.18)';g.lineWidth=2;
+  for(let i=0;i<70;i++){g.beginPath();let x=Math.random()*w,y=Math.random()*h;g.moveTo(x,y);for(let k=0;k<4;k++){if(k%2)x+=(Math.random()-.5)*300;else y+=(Math.random()-.5)*300;g.lineTo(x,y)}g.stroke()}
+  g.fillStyle='rgba(220,230,240,0.55)';g.font='bold 28px Inter, sans-serif';g.fillText('TRX50',w*0.73,h*0.92);});
+const board=mesh('board',box(44,0.18,34),M('board','#ffffff',{map:boardTex,roughness:0.7}),scene,[0,-0.09,0]);
+// DIMM slots (decorative, part of board)
+for(const sx of [-1,1]) for(let i=0;i<4;i++){
+  mesh('board',box(0.7,0.9,13.5),M('board','#30353d'),scene,[sx*(9.5+i*1.25),0.45,0]);
+}
+// Socket bolster + housing + contacts
+mesh('socket',box(11.4,0.25,14),M('socket','#9aa3ad',{metalness:0.6,roughness:0.4}),scene,[0,0.12,0]);
+mesh('socket',box(9.4,0.3,11.6),M('socket','#1b1d22'),scene,[0,0.35,0]);
+const contactTex=tex(512,640,(g,w,h)=>{g.fillStyle='#2a2216';g.fillRect(0,0,w,h);for(let y=6;y<h;y+=9)for(let x=(y/9|0)%2?6:10;x<w;x+=9){g.fillStyle='#d9b45a';g.fillRect(x,y,4,4);}});
+const contacts=mesh('socket',new THREE.PlaneGeometry(6.4,8.0),M('socket','#ffffff',{map:contactTex,metalness:0.5,roughness:0.35}),scene,[0,0.505,0],false);
+contacts.rotation.x=-Math.PI/2;
+addLabel('socket',scene,[-4.5,0.8,3.2],'Socket contacts – fragile');
+
+// PnP cover cap
+const pnp=new THREE.Group(); scene.add(pnp);
+const pnpTex=tex(512,640,(g,w,h)=>{g.fillStyle='#2b2f36';g.fillRect(0,0,w,h);g.fillStyle='#e8eaee';g.font='bold 54px Inter, sans-serif';g.textAlign='center';g.fillText('REMOVE',w/2,h/2-10);g.font='32px Inter, sans-serif';g.fillText('PnP cap',w/2,h/2+40);});
+mesh('pnp',box(6.7,0.14,8.2),[M('pnp','#2b2f36'),M('pnp','#2b2f36'),M('pnp','#ffffff',{map:pnpTex}),M('pnp','#2b2f36'),M('pnp','#2b2f36'),M('pnp','#2b2f36')],pnp,[0,0.57,0]);
+for(const sx of [-1,1]) mesh('pnp',box(0.9,0.35,0.5),M('pnp','#3a3f48'),pnp,[sx*1.2,0.75,0]);
+addLabel('pnp',pnp,[0,1.2,0]);
+
+// Rail frame (hinged at back)
+const RAIL_PIVOT=new THREE.Vector3(0,0.6,-5.4);
+const rail=new THREE.Group(); rail.position.copy(RAIL_PIVOT); scene.add(rail);
+const railM=M('rail','#b9c1ca',{metalness:0.7,roughness:0.35});
+for(const sx of [-1,1]){
+  mesh('rail',box(0.5,0.25,10.6),railM,rail,[sx*3.75,0.05,5.4]);
+  mesh('rail',box(0.25,0.12,10.2),railM,rail,[sx*3.45,0.22,5.4]); // rail lip
+  mesh('rail',box(0.35,0.45,1.0),M('rail','#d9dee4',{metalness:0.5}),rail,[sx*4.15,0.15,9.2]); // release tab
+}
+mesh('rail',box(8.0,0.25,0.5),railM,rail,[0,0.05,10.55]);
+mesh('rail',box(8.0,0.25,0.5),railM,rail,[0,0.05,0.25]);
+mesh('rail',new THREE.CylinderGeometry(0.28,0.28,8.2,16),railM,rail,[0,0.05,0]).rotation.z=Math.PI/2;
+addLabel('rail',rail,[4.6,0.6,6]);
+
+// External cap (child of rail)
+const ext=new THREE.Group(); rail.add(ext);
+mesh('ext',box(5.9,0.12,9.6),M('ext','#cfe8ff',{transparent:true,opacity:0.5,roughness:0.15,metalness:0}),ext,[0,0.15,5.4],false);
+mesh('ext',box(2.4,0.5,0.5),M('ext','#a9cbe8',{transparent:true,opacity:0.8}),ext,[0,0.4,9.9],false);
+addLabel('ext',ext,[0,0.9,7.5]);
+
+// Carrier frame + CPU (child of rail)
+const carrier=new THREE.Group(); rail.add(carrier);
+const orange=M('carrier','#ff7a1a',{roughness:0.5});
+for(const sx of [-1,1]) mesh('carrier',box(0.35,0.22,9.2),orange,carrier,[sx*3.3,0.0,5.4]);
+mesh('carrier',box(6.95,0.22,0.35),orange,carrier,[0,0,9.85]);
+mesh('carrier',box(6.95,0.22,0.35),orange,carrier,[0,0,0.95]);
+mesh('carrier',box(1.8,0.6,0.35),orange,carrier,[0,0.3,10.1]); // tab
+addLabel('carrier',carrier,[-4.4,0.5,9.6]);
+const cpuG=new THREE.Group(); carrier.add(cpuG); cpuG.position.set(0,0.08,5.4);
+const padTex=tex(256,320,(g,w,h)=>{g.fillStyle='#2f4a35';g.fillRect(0,0,w,h);for(let y=5;y<h;y+=6)for(let x=5;x<w;x+=6){g.fillStyle='#d4ad55';g.fillRect(x,y,3,3);}});
+mesh('cpu',box(6.4,0.12,8.0),[M('cpu','#355a3e'),M('cpu','#355a3e'),M('cpu','#355a3e'),M('cpu','#ffffff',{map:padTex,metalness:0.4}),M('cpu','#355a3e'),M('cpu','#355a3e')],cpuG,[0,0,0]);
+const ihsTex=tex(512,640,(g,w,h)=>{const gr=g.createLinearGradient(0,0,w,h);gr.addColorStop(0,'#d7dce1');gr.addColorStop(1,'#b8bec6');g.fillStyle=gr;g.fillRect(0,0,w,h);
+  g.fillStyle='#4b5260';g.font='bold 46px Inter, sans-serif';g.textAlign='center';g.fillText('sTR5 CPU',w/2,h*0.46);g.font='28px Inter, sans-serif';g.fillText('IHS (heat spreader)',w/2,h*0.55);
+  g.beginPath();g.moveTo(24,h-24);g.lineTo(80,h-24);g.lineTo(24,h-80);g.closePath();g.fill();});
+const IHS_TOP_LOCAL=0.06+0.35;
+mesh('cpu',box(5.4,0.35,6.8),[M('cpu','#c4cad1',{metalness:0.7,roughness:0.3}),M('cpu','#c4cad1',{metalness:0.7,roughness:0.3}),M('cpu','#ffffff',{map:ihsTex,metalness:0.55,roughness:0.35}),M('cpu','#c4cad1'),M('cpu','#c4cad1',{metalness:0.7}),M('cpu','#c4cad1',{metalness:0.7})],cpuG,[0,0.235,0]);
+addLabel('cpu',cpuG,[0,1.0,-1.5]);
+
+// Force frame (hinged at back)
+const FORCE_PIVOT=new THREE.Vector3(0,0.9,-6.4);
+const force=new THREE.Group(); force.position.copy(FORCE_PIVOT); scene.add(force);
+const fm=M('force','#8d96a0',{metalness:0.75,roughness:0.35});
+for(const sx of [-1,1]) mesh('force',box(2.0,0.25,12.4),fm,force,[sx*4.0,0,6.2]);
+mesh('force',box(6.0,0.25,2.3),fm,force,[0,0,11.25]);
+mesh('force',box(6.0,0.25,2.3),fm,force,[0,0,1.15]);
+mesh('force',new THREE.CylinderGeometry(0.35,0.35,4.2,16),fm,force,[1.6,0,0]).rotation.z=Math.PI/2;
+addLabel('force',force,[5.6,0.7,8]);
+// screws (children of force frame) + numbers
+const SCREW_LOCAL=[[3.9,11.6],[-3.9,11.6],[-3.9,0.9]]; // #1 front-right, #2 front-left, #3 back-left (illustrative)
+const screws=[];
+const torxTex=tex(128,128,(g,w,h)=>{g.fillStyle='#b0b6bd';g.fillRect(0,0,w,h);g.fillStyle='#3b3f46';g.translate(64,64);g.beginPath();for(let i=0;i<12;i++){const r=i%2?22:40,a=i*Math.PI/6;g.lineTo(Math.cos(a)*r,Math.sin(a)*r);}g.closePath();g.fill();});
+SCREW_LOCAL.forEach(([x,z],i)=>{
+  const s=new THREE.Group(); s.position.set(x,0,z); force.add(s);
+  const hm=M('screws','#b0b6bd',{metalness:0.8,roughness:0.3});
+  mesh('screws',new THREE.CylinderGeometry(0.5,0.5,0.32,24),[hm,M('screws','#ffffff',{map:torxTex,metalness:0.6}),hm],s,[0,0.28,0]);
+  mesh('screws',new THREE.CylinderGeometry(0.2,0.2,1.0,12),M('screws','#9aa1a9',{metalness:0.8}),s,[0,-0.3,0]);
+  const nt=tex(64,64,(g)=>{g.fillStyle='#1b2a4a';g.beginPath();g.arc(32,32,30,0,7);g.fill();g.fillStyle='#fff';g.font='bold 40px Inter, sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(String(i+1),32,34);});
+  const n=new THREE.Mesh(new THREE.PlaneGeometry(0.8,0.8),new THREE.MeshBasicMaterial({map:nt,transparent:true}));
+  n.rotation.x=-Math.PI/2; n.position.set(x+(x>0?-1.2:1.2),0.14,z+(z>6?-0.1:0.3)); s.parent.add(n);
+  const ld=document.createElement('div');ld.className='lbl';ld.textContent='Screw '+(i+1);
+  const lo=new CSS2DObject(ld);lo.position.set(0,1.0,0);s.add(lo);lo.visible=false;
+  s.userData.label=lo; screws.push(s);
+});
+part('screws').label=null;
+
+// Torque driver
+const driver=new THREE.Group(); scene.add(driver); const DRIVER_SCALE=0.6;
+mesh('driver',new THREE.CylinderGeometry(0.85,0.95,4.2,24),M('driver','#2a5bd7',{roughness:0.45}),driver,[0,6.1,0]);
+mesh('driver',new THREE.CylinderGeometry(0.98,0.98,0.6,24),M('driver','#1c2433'),driver,[0,4.1,0]);
+mesh('driver',new THREE.CylinderGeometry(0.15,0.15,3.6,12),M('driver','#c3c9d0',{metalness:0.9,roughness:0.25}),driver,[0,2.0,0]);
+mesh('driver',new THREE.CylinderGeometry(0.22,0.12,0.4,6),M('driver','#9aa1a9',{metalness:0.9}),driver,[0,0.2,0]);
+addLabel('driver',driver,[1.6,6.5,0],'Torque driver (T20)');
+
+// PSU + plug
+const psu=new THREE.Group(); scene.add(psu); psu.position.set(-27,0,-14);
+mesh('psu',box(9,5,7),M('psu','#2c3038'),psu,[0,2.5,0]);
+const psuTex=tex(256,128,(g,w,h)=>{g.fillStyle='#2c3038';g.fillRect(0,0,w,h);g.fillStyle='#d0d4da';g.font='bold 54px Inter, sans-serif';g.textAlign='center';g.fillText('PSU',w/2,h/2+18)});
+const pl=new THREE.Mesh(new THREE.PlaneGeometry(4,2),new THREE.MeshBasicMaterial({map:psuTex}));pl.rotation.x=-Math.PI/2;pl.position.set(0,5.01,0);psu.add(pl);
+mesh('psu',box(1.6,1.2,0.2),M('psu','#111316'),psu,[2.2,2.5,3.55]); // inlet
+addLabel('psu',psu,[0,6.4,0],'PSU');
+const plug=new THREE.Group(); scene.add(plug);
+mesh('plug',box(1.5,1.1,1.8),M('plug','#f3f4f6'),plug,[0,0,0]);
+const cableCurve=new THREE.CatmullRomCurve3([new THREE.Vector3(0,0,0.9),new THREE.Vector3(0,-0.8,3),new THREE.Vector3(-1,-2.2,6),new THREE.Vector3(-3,-2.4,9)]);
+mesh('plug',new THREE.TubeGeometry(cableCurve,24,0.22,8),M('plug','#1f2329'),plug,[0,0,0]);
+addLabel('plug',plug,[0,1.5,0],'Mains cable – unplug');
+const PLUG_IN=new THREE.Vector3(-24.8,2.5,-10.1), PLUG_OUT=new THREE.Vector3(-24.8,2.5,-5.5);
+
+// ESD strap + cord to mat stud
+const strap=new THREE.Group(); scene.add(strap); strap.position.set(17,1.6,11);
+const band=mesh('strap',new THREE.TorusGeometry(1.2,0.38,14,32),M('strap','#2a5bd7',{roughness:0.7}),strap,[0,0,0]); band.rotation.x=Math.PI/2.4;
+mesh('strap',new THREE.CylinderGeometry(0.45,0.45,0.3,16),M('strap','#c3c9d0',{metalness:0.8}),strap,[1.25,0,0]).rotation.z=Math.PI/2;
+const cordPts=[];for(let i=0;i<=60;i++){const t=i/60;cordPts.push(new THREE.Vector3(1.4+t*6+Math.cos(t*40)*0.35,-1.5*t+Math.sin(t*40)*0.35,t*5));}
+mesh('strap',new THREE.TubeGeometry(new THREE.CatmullRomCurve3(cordPts),200,0.08,6),M('strap','#2d3a55'),strap,[0,0,0],false);
+mesh('strap',box(0.9,0.5,0.6),M('strap','#d43f3a'),strap,[7.4,-1.6,5]); // clip on ground stud
+addLabel('strap',strap,[0,1.8,0],'ESD wrist strap → ground');
+
+// Thermal paste: instanced beads + spread layer + syringe
+const pastePts=[];
+const pushLine=(a,b,n)=>{for(let i=0;i<n;i++){const t=i/(n-1);pastePts.push(new THREE.Vector3(lerp(a[0],b[0],t),0,lerp(a[1],b[1],t)));}};
+pushLine([-2.1,-2.8],[2.1,2.8],22); pushLine([2.1,-2.8],[-2.1,2.8],22);
+for(const p of [[0,-2.2],[0,2.2],[-1.7,0],[1.7,0]]) pastePts.push(new THREE.Vector3(p[0],0,p[1]));
+const pasteM=M('paste','#a9adb3',{roughness:0.35,metalness:0.2});
+const beads=new THREE.InstancedMesh(new THREE.SphereGeometry(0.2,12,8),pasteM,pastePts.length);
+beads.userData.part='paste'; part('paste').objs.push(beads); pickables.push(beads); beads.castShadow=true;
+scene.add(beads);
+const pasteLayer=mesh('paste',new THREE.PlaneGeometry(5.2,6.6),M('paste','#a9adb3',{transparent:true,opacity:0.95,roughness:0.4}),scene,[0,0,0],false);
+pasteLayer.rotation.x=-Math.PI/2;
+const syringe=new THREE.Group(); scene.add(syringe);
+mesh('paste',new THREE.CylinderGeometry(0.55,0.55,4,16),M('paste','#e6edf5',{transparent:true,opacity:0.7}),syringe,[0,2.9,0]);
+mesh('paste',new THREE.CylinderGeometry(0.12,0.3,0.9,12),M('paste','#cfd5dc'),syringe,[0,0.45,0]);
+mesh('paste',new THREE.CylinderGeometry(0.3,0.3,1.6,12),M('paste','#2a5bd7'),syringe,[0,5.6,0]);
+const pasteLabelHolder=new THREE.Object3D(); scene.add(pasteLabelHolder);
+addLabel('paste',pasteLabelHolder,[0,0,0],'Thermal paste (example pattern)');
+
+// Cooler
+const cooler=new THREE.Group(); scene.add(cooler);
+const copper=M('cooler','#c77b4a',{metalness:0.8,roughness:0.3});
+mesh('cooler',box(5.6,0.5,6.6),copper,cooler,[0,0.25,0]);
+const film=mesh('cooler',box(5.4,0.03,6.4),M('cooler','#bfe3ff',{transparent:true,opacity:0.6}),cooler,[0,-0.02,0],false);
+for(const sz of [-1,1]){
+  mesh('cooler',box(10.4,0.35,1.6),M('cooler','#5b636e',{metalness:0.6}),cooler,[0,0.6,sz*4.6]);
+}
+const coolerScrews=[];
+for(const [x,z] of [[4.4,4.6],[-4.4,-4.6],[-4.4,4.6],[4.4,-4.6]]){ // diagonal order
+  const s=mesh('cooler',new THREE.CylinderGeometry(0.35,0.35,0.6,16),M('cooler','#c3c9d0',{metalness:0.8}),cooler,[x,1.0,z]); coolerScrews.push(s);
+}
+for(let i=0;i<4;i++) mesh('cooler',new THREE.CylinderGeometry(0.3,0.3,10,12),copper,cooler,[-2.1+i*1.4,5.3,0]);
+const finTex=tex(512,256,(g,w,h)=>{g.fillStyle='#c9cfd6';g.fillRect(0,0,w,h);g.fillStyle='#9ea6b0';for(let y=0;y<h;y+=8)g.fillRect(0,y,w,3);});
+mesh('cooler',box(12,9,5.4),[M('cooler','#c9cfd6',{metalness:0.6}),M('cooler','#c9cfd6',{metalness:0.6}),M('cooler','#d4d9df',{metalness:0.6}),M('cooler','#c9cfd6'),M('cooler','#ffffff',{map:finTex,metalness:0.5}),M('cooler','#ffffff',{map:finTex,metalness:0.5})],cooler,[0,6.8,0]);
+const fan=new THREE.Group(); cooler.add(fan); fan.position.set(0,6.8,3.9);
+const fanM=M('cooler','#353a43');
+for(const [w,h,x,y] of [[12,0.8,0,5.6],[12,0.8,0,-5.6],[0.8,12,5.6,0],[0.8,12,-5.6,0]]) mesh('cooler',box(w,h,2.2),fanM,fan,[x,y,0]);
+const rotor=new THREE.Group(); fan.add(rotor);
+mesh('cooler',new THREE.CylinderGeometry(1.6,1.6,1.8,24),fanM,rotor,[0,0,0]).rotation.x=Math.PI/2;
+for(let i=0;i<7;i++){const b=mesh('cooler',box(1.8,4.2,0.12),M('cooler','#4a5260'),rotor,[0,0,0]);b.position.set(Math.cos(i*Math.PI*2/7)*3.2,Math.sin(i*Math.PI*2/7)*3.2,0);b.rotation.z=i*Math.PI*2/7-Math.PI/2;b.rotation.y=0.4;}
+addLabel('cooler',cooler,[7.2,9,0]);
+
+// CPU_FAN header + cable
+const HEADER_POS=new THREE.Vector3(11,0.3,-11.5);
+mesh('header',box(1.6,0.6,0.7),M('header','#16181c'),scene,[HEADER_POS.x,HEADER_POS.y,HEADER_POS.z]);
+for(let i=0;i<4;i++) mesh('header',box(0.12,0.5,0.12),M('header','#d9b45a',{metalness:0.6}),scene,[HEADER_POS.x-0.55+i*0.37,0.8,HEADER_POS.z]);
+const hdrTag=tex(256,64,(g,w,h)=>{g.fillStyle='#24303d';g.fillRect(0,0,w,h);g.fillStyle='#e8eef5';g.font='bold 40px Inter, sans-serif';g.textAlign='center';g.fillText('CPU_FAN',w/2,46);});
+const ht=new THREE.Mesh(new THREE.PlaneGeometry(3.2,0.8),new THREE.MeshBasicMaterial({map:hdrTag}));ht.rotation.x=-Math.PI/2;ht.position.set(HEADER_POS.x,0.02,HEADER_POS.z+1.2);scene.add(ht);
+addLabel('header',scene,[HEADER_POS.x,2.2,HEADER_POS.z],'CPU_FAN header');
+let fanCable=null, fanPlug=null;
+
+/* ---------------- Ghost menu ---------------- */
+const GHOSTABLE=[['force','Force frame'],['rail','Rail frame'],['ext','External cap'],['pnp','PnP cover cap'],['carrier','Carrier + CPU'],['cooler','Cooler']];
+const partsEl=document.getElementById('parts');
+partsEl.innerHTML='<strong style="font-size:14px">Show or ghost parts</strong>';
+for(const [k,n] of GHOSTABLE){
+  const r=document.createElement('div');r.className='row';r.innerHTML=`<span>${n}</span>`;
+  const b=document.createElement('button');b.textContent='Shown';b.setAttribute('aria-pressed','false');
+  b.onclick=()=>{const g=!part(k).ghost;part(k).ghost=g;if(k==='carrier')part('cpu').ghost=g;b.textContent=g?'Ghost':'Shown';b.classList.toggle('on',g);b.setAttribute('aria-pressed',String(g));};
+  r.appendChild(b);partsEl.appendChild(r);
+}
+
+/* ---------------- Sim state ---------------- */
+let simTime=0, playing=!reduce, speed=1, pauseAt=null, lastStage=-1, follow=true, showLabels=false, soundOn=false, frozen=false;
+if(params.has('t')){simTime=clamp(parseFloat(params.get('t'))||0,0,TOTAL-0.001);playing=false;frozen=true;}
+if(params.has('stage')){simTime=clamp((parseInt(params.get('stage'))||0)*D+D*0.8,0,TOTAL-0.001);playing=false;frozen=true;}
+
+const tmpV=new THREE.Vector3();
+function screwWorld(i,out){return screws[i].getWorldPosition(out);}
+
+function applyState(T){
+  const st=i=>clamp((T-i*D)/D);
+  const s=STAGES.map((_,i)=>st(i));
+  // 0: plug + strap
+  plug.position.lerpVectors(PLUG_IN,PLUG_OUT,seg(s[0],0.1,0.45));
+  const sOn=seg(s[0],0.45,0.85); part('strap').fade=sOn; strap.scale.setScalar(0.6+0.4*sOn);
+  // screws rise (loosen 3,2,1) then lower (tighten 1,2,3)
+  const order=[2,1,0], rise=[0,0,0];
+  order.forEach((idx,p)=>{rise[idx]=seg(s[1],0.05+p*0.31+0.31*0.35,0.05+p*0.31+0.31*0.85);});
+  for(let i=0;i<3;i++){
+    const start=seg(s[8],0.03+i*0.12+0.06,0.03+i*0.12+0.12);
+    const tight=seg(s[8],0.42+i*0.18+0.05,0.42+i*0.18+0.15);
+    let r=rise[i]*(1-start*0.7)-(rise[i]*0.3)*tight; // 1 -> 0.3 -> 0
+    if(T>=8*D) r=1-0.7*start-0.3*tight;
+    screws[i].position.y=0.55*clamp(r);
+    screws[i].rotation.y=(rise[i]-start-tight)*Math.PI*6;
+  }
+  // force frame: pop + open (stage 2), close (stage 7)
+  let fa=25*(1-Math.pow(1-clamp((s[2]-0.05)/0.12),3))+80*seg(s[2],0.4,0.9);
+  fa*=1-seg(s[7],0.5,0.95);
+  force.rotation.x=-deg(fa);
+  // rail frame: upright (stage 3), down (stage 7)
+  let ra=82*seg(s[3],0.2,0.85); ra*=1-seg(s[7],0.05,0.45);
+  rail.rotation.x=-deg(ra);
+  // external cap slides out (stage 4)
+  const ec=seg(s[4],0.15,0.7); ext.position.z=ec*12; ext.position.y=ec*0.3; part('ext').fade=1-seg(s[4],0.65,0.9);
+  // carrier slides in (stage 5)
+  const ci=seg(s[5],0.12,0.8); carrier.position.z=(1-ci)*12; carrier.position.y=-0.03;
+  part('carrier').fade=part('cpu').fade=seg(s[5],0.0,0.12);
+  // PnP cap removed (stage 6)
+  const pc=seg(s[6],0.2,0.7); pnp.position.set(pc*9,pc*4,pc*2); pnp.rotation.z=-pc*0.4; part('pnp').fade=1-seg(s[6],0.7,0.92);
+  // driver
+  let dv=0, dpos=new THREE.Vector3(14,6,10), dspin=0;
+  force.updateMatrixWorld(true);
+  const park=new THREE.Vector3(9,1,9);
+  const driverPath=(local,seq,ranges)=>{
+    // seq: list of screw indices; ranges: [a,b] windows
+    for(let p=0;p<seq.length;p++){
+      const [a,b]=ranges[p]; if(local<a||local>b) continue;
+      const w=(local-a)/(b-a);
+      const prev=p===0?park.clone():screwWorld(seq[p-1],new THREE.Vector3()).add(new THREE.Vector3(0,0.45,0));
+      const cur=screwWorld(seq[p],new THREE.Vector3()).add(new THREE.Vector3(0,0.45,0));
+      const tr=ss(w/0.3);
+      dpos.lerpVectors(prev,cur,tr);
+      dpos.y+=2.5*Math.sin(Math.PI*clamp(w/0.3));
+      if(w>0.9) dpos.y+=1.5*ss((w-0.9)/0.1);
+      dspin=w>0.35&&w<0.9?(w-0.35)*30:0; return true;
+    }
+    return false;
+  };
+  if(T>=1*D && T<2*D){
+    dv=seg(s[1],0,0.05)*(1-seg(s[1],0.96,1));
+    driverPath(s[1],[2,1,0],[[0.05,0.36],[0.36,0.67],[0.67,0.98]]);
+    if(s[1]<0.05) dpos.copy(park);
+  } else if(T>=8*D && T<9*D){
+    dv=seg(s[8],0,0.03)*(1-seg(s[8],0.97,1));
+    const ok=driverPath(s[8],[0,1,2,0,1,2],[[0.03,0.15],[0.15,0.27],[0.27,0.39],[0.42,0.60],[0.60,0.78],[0.78,0.96]]);
+    if(!ok){ dpos.copy(screwWorld(s[8]<0.42?2:2,new THREE.Vector3()).add(new THREE.Vector3(0,3,0))); }
+  }
+  driver.position.copy(dpos); driver.rotation.y=dspin; driver.scale.setScalar(DRIVER_SCALE); part('driver').fade=dv;
+  // torque readout (stage 8 tighten pass)
+  const tq=document.getElementById('torque');
+  if(T>=8*D && T<9*D && s[8]>0.42){
+    const k=clamp(Math.floor((s[8]-0.42)/0.18),0,2); const w=clamp((s[8]-0.42-k*0.18)/0.18);
+    const val=1.6*ss((w-0.35)/0.5);
+    tq.style.display='block'; document.getElementById('tqScrew').textContent='Tightening screw '+(k+1)+(w>0.85?' – click!':'');
+    document.getElementById('tqVal').textContent=val.toFixed(1); document.getElementById('tqBar').style.width=(val/1.6*100)+'%';
+  } else tq.style.display='none';
+  // paste
+  carrier.updateMatrixWorld(true);
+  const ihsTop=cpuG.getWorldPosition(new THREE.Vector3()).y+IHS_TOP_LOCAL-0.06+0.06;
+  const pp=seg(s[9],0.1,0.85); const nShow=pp*pastePts.length;
+  const spread=seg(s[10],0.45,0.62);
+  const mtx=new THREE.Matrix4(), q=new THREE.Quaternion(), sc=new THREE.Vector3();
+  for(let i=0;i<pastePts.length;i++){
+    const a=clamp(nShow-i); const p=pastePts[i];
+    const sXZ=a*(1+spread*1.5), sY=a*(1-spread*0.85);
+    sc.set(sXZ||1e-4,sY||1e-4,sXZ||1e-4);
+    mtx.compose(tmpV.set(p.x,ihsTop+0.12*sY,p.z),q,sc); beads.setMatrixAt(i,mtx);
+  }
+  beads.instanceMatrix.needsUpdate=true;
+  part('paste').fade=T>=9*D?1:0;
+  pasteLayer.position.set(0,ihsTop+0.015,0); pasteLayer.userData.want=spread>0.01;
+  pasteLayer.material.userData.baseOpacity=0.95*spread; pasteLayer.scale.setScalar(0.4+0.6*spread);
+  beads.userData.want=T>=9*D && spread<0.98;
+  const sy=s[9]>0&&s[9]<1; syringe.visible=sy;
+  if(sy){const idx=clamp(Math.floor(nShow),0,pastePts.length-1);const p=pastePts[idx];syringe.position.set(p.x,ihsTop+0.25+(1-seg(s[9],0,0.1))*3+seg(s[9],0.88,1)*4,p.z);}
+  pasteLabelHolder.position.set(-3.6,ihsTop+1.2,-2.6);
+  // cooler
+  const cd=seg(s[10],0.08,0.6);
+  const filmOff=seg(s[10],0.0,0.1);
+  film.userData.want=filmOff<0.99; film.position.y=-0.02-filmOff*3; film.position.x=filmOff*6;
+  cooler.position.set(0,ihsTop+lerp(16,0.02,cd),0);
+  part('cooler').fade=T>=10*D?seg(s[10],0,0.06):0;
+  coolerScrews.forEach((cs,i)=>{const tt=seg(s[10],0.62+i*0.04,0.70+i*0.04)*0.5+seg(s[10],0.8+i*0.04,0.88+i*0.04)*0.5;cs.position.y=1.0-0.5*tt;cs.rotation.y=tt*20;});
+  // fan cable
+  buildCable();
+  const cp=seg(s[11],0.1,0.8);
+  const total=fanCable.geometry.index.count; fanCable.geometry.setDrawRange(0,Math.floor(total*cp/6)*6);
+  fanCable.userData.want=cp>0.001; fanPlug.userData.want=cp>0.98;
+  rotor.rotation.z=0;
+}
+
+function buildCable(){
+  if(fanCable) return;
+  const start=new THREE.Vector3(5.6,5.0,3.9+0.02);
+  const pts=[start,new THREE.Vector3(7.5,4.5,3),new THREE.Vector3(10,3,-2),new THREE.Vector3(12,2.5,-8),new THREE.Vector3(HEADER_POS.x,1.6,HEADER_POS.z)];
+  // cable in world coords relative to final cooler position; cooler only moves before stage 11
+  const curve=new THREE.CatmullRomCurve3(pts.map(p=>p.clone()));
+  fanCable=mesh('header',new THREE.TubeGeometry(curve,80,0.13,8),M('header','#15171b'),scene,[0,0,0],false);
+  fanPlug=mesh('header',box(1.5,0.7,0.6),M('header','#2a2d33'),scene,[HEADER_POS.x,1.25,HEADER_POS.z]);
+}
+
+/* ---------------- Camera presets ---------------- */
+const CAMS={
+  overview:{p:[30,26,34],t:[-2,1,0]},
+  socket:{p:[11,13,15],t:[0,1,0]},
+  side:{p:[25,15,11],t:[0,4.5,-1.5]},
+  top:{p:[0.01,22,6],t:[0,1,0]},
+  socketTop:{p:[6,13,11],t:[0,1,0]},
+  cooler:{p:[24,18,26],t:[0,6,0]},
+  cable:{p:[24,16,10],t:[5,4,-5]}
+};
+let camTween=null;
+function goCam(name,instant){
+  const c=CAMS[name]; if(!c) return;
+  const to={p:new THREE.Vector3(...c.p),t:new THREE.Vector3(...c.t)};
+  // fit distance for narrow screens
+  if(camera.aspect<1){const dir=to.p.clone().sub(to.t);to.p.copy(to.t).add(dir.multiplyScalar(1.45));}
+  if(instant||reduce&&false){camera.position.copy(to.p);controls.target.copy(to.t);camTween=null;return;}
+  camTween={fp:camera.position.clone(),ft:controls.target.clone(),tp:to.p,tt:to.t,k:0,dur:reduce?0.35:1.4};
+}
+
+/* ---------------- UI ---------------- */
+const $=id=>document.getElementById(id);
+const strip=$('strip');
+STAGES.forEach((s,i)=>{const b=document.createElement('button');b.textContent=i+1;b.title=s.name;b.setAttribute('aria-label','Step '+(i+1)+': '+s.name);b.onclick=()=>gotoStage(i,true);strip.appendChild(b);});
+function setPlaying(p){playing=p;$('btnPlay').textContent=p?'❚❚ Pause':'▶ Play tour';$('btnPlay').setAttribute('aria-pressed',String(p));}
+function gotoStage(i,stepMode){
+  __stopClip(); i=clamp(i,0,N-1); simTime=i*D+0.0001; lastStage=-1; pauseAt=stepMode?(i+1)*D-0.001:null; setPlaying(true); frozen=false;
+}
+$('btnPlay').onclick=()=>{ if(simTime>=TOTAL-0.01){simTime=0;lastStage=-1;} pauseAt=null; setPlaying(!playing); frozen=false; };
+$('btnPrev').onclick=()=>{const i=Math.floor(simTime/D); gotoStage((simTime-i*D)<0.6?i-1:i,true);};
+$('btnNext').onclick=()=>gotoStage(Math.floor(simTime/D)+1,true);
+$('speed').oninput=e=>{speed=parseFloat(e.target.value);$('speedVal').textContent=speed+'× ('+(D/speed).toFixed(1)+' s per step)';};
+$('speedVal').textContent='1× (7.0 s per step)';
+document.querySelectorAll('.cam').forEach(b=>b.onclick=()=>{goCam(b.dataset.cam);});
+const tog=(btn,fn)=>{const on=!btn.classList.contains('on');btn.classList.toggle('on',on);btn.setAttribute('aria-pressed',String(on));fn(on);};
+$('btnFollow').onclick=e=>tog(e.currentTarget,v=>{follow=v;});
+$('btnLabels').onclick=e=>tog(e.currentTarget,v=>{showLabels=v;});
+$('btnCaps').onclick=e=>tog(e.currentTarget,v=>{$('caption').style.display=v?'':'none';});
+$('btnParts').onclick=e=>{const o=!partsEl.classList.contains('open');partsEl.classList.toggle('open',o);e.currentTarget.setAttribute('aria-expanded',String(o));e.currentTarget.classList.toggle('on',o);};
+$('btnSound').onclick=e=>{soundOn=!soundOn;const b=e.currentTarget;b.classList.toggle('on',soundOn);b.setAttribute('aria-pressed',String(soundOn));b.textContent=soundOn?'🔊 Sound off':'🔈 Sound on';
+  if(soundOn) speak(STAGES[clamp(Math.floor(simTime/D),0,N-1)].narr); else {__stopClip();try{speechSynthesis.cancel()}catch(e){}}};
+function openModal(id){$(id).classList.add('open');$(id).querySelector('.x').focus();}
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('.modal').classList.remove('open'));
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+$('btnLearn').onclick=()=>openModal('mLearn');
+$('btnQuiz').onclick=()=>openModal('mQuiz');
+$('btnHelp').onclick=()=>openModal('mHelp');
+
+// speech
+let voice=null;
+function pickVoice(){try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>v.lang==='en-GB')||vs.find(v=>v.lang&&v.lang.startsWith('en-GB'))||vs.find(v=>v.lang&&v.lang.startsWith('en'))||null;}catch(e){}}
+try{pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}catch(e){}
+const NARR={"Step one. Switch off and unplug the mains cable. Work on an antistatic mat, wear an E S D wrist strap connected to ground, and handle parts by their edges.":"audio/threadripper-step1.mp3","Use a Torx T20 driver to loosen the three force frame screws in reverse order: three, two, then one.":"audio/threadripper-step2.mp3","The force frame is spring loaded, so it pops up when the last screw is released. Lift it fully open.":"audio/threadripper-step3.mp3","Pull up the tabs on both sides of the rail frame to release it, then lift it upright. Keep hold of it, because it is spring loaded.":"audio/threadripper-step4.mp3","Slide the clear external cap up and out of the rail frame. Keep it safe for later.":"audio/threadripper-step5.mp3","Hold the orange carrier frame by its tab and slide it down the rails until it clicks. It only fits one way.":"audio/threadripper-step6.mp3","Now lift the P n P cover cap off the socket. The exposed contacts are extremely fragile. Do not touch them.":"audio/threadripper-step7.mp3","Lower the rail frame gently until it latches, then lower the force frame over it.":"audio/threadripper-step8.mp3","Start all three screws in the order one, two, three. Then tighten them fully in the same order with a torque limiting T20 driver. Stop at the click.":"audio/threadripper-step9.mp3","If the cooler has paste already applied, do not add more. Otherwise, follow the maker’s pattern. This large lid needs paste across the whole surface.":"audio/threadripper-step10.mp3","Remove the protective film from the cooler base. Lower the cooler straight down, then tighten its screws evenly in a diagonal pattern, a little at a time.":"audio/threadripper-step11.mp3","Plug the cooler fan into the C P U fan header. Then reconnect power and check the CPU temperature and fan speed in the BIOS.":"audio/threadripper-step12.mp3"};
+const __clipCache={};let __cur=null;
+function __stopClip(){ if(__cur){ try{__cur.pause();__cur.currentTime=0;}catch(e){} __cur=null; } }
+function __playClip(text){ const src=NARR[__norm(text)]; if(!src) return false;
+  __stopClip(); try{speechSynthesis.cancel()}catch(e){}
+  let a=__clipCache[src]; if(!a){a=new Audio(src);a.preload='auto';__clipCache[src]=a;}
+  __cur=a; try{a.currentTime=0;}catch(e){} const p=a.play(); if(p&&p.catch)p.catch(()=>{}); return true; }
+function __norm(t){return String(t).replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();}
+function __clipPlaying(){return !!(__cur&&!__cur.paused&&!__cur.ended);}
+function speak(text){ if(!soundOn) return; if(__playClip(text)) return; __stopClip(); try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';if(voice)u.voice=voice;u.rate=0.95;speechSynthesis.speak(u);}catch(e){} }
+
+// quiz
+let score=0, answered=0;
+QUIZ.forEach((qq,qi)=>{
+  const d=document.createElement('div');d.className='q';
+  d.innerHTML=`<p>${qi+1}. ${qq.q}</p><div class="opts"></div><div class="fb" aria-live="polite"></div>`;
+  const opts=d.querySelector('.opts'), fb=d.querySelector('.fb'); let done=false;
+  qq.o.forEach((t,oi)=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>{
+    if(done) return; done=true; answered++;
+    const right=oi===qq.a; if(right) score++;
+    b.classList.add(right?'right':'wrong'); if(!right) opts.children[qq.a].classList.add('right');
+    fb.innerHTML=`<strong style="color:${right?'var(--ok)':'var(--warn)'}">${right?'Correct.':'Not quite.'}</strong> ${qq.why} `;
+    const sm=document.createElement('button');sm.textContent='Show me (step '+(qq.s+1)+')';sm.style.marginTop='6px';
+    sm.onclick=()=>{$('mQuiz').classList.remove('open');gotoStage(qq.s,true);};fb.appendChild(document.createElement('br'));fb.appendChild(sm);
+    if(answered===QUIZ.length) $('quizScore').textContent=`Score: ${score} / ${QUIZ.length}`;
+  };opts.appendChild(b);});
+  $('quizList').appendChild(d);
+});
+
+// keyboard
+window.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT') return;
+  const open=document.querySelector('.modal.open');
+  if(e.key==='Escape'&&open){open.classList.remove('open');return;}
+  if(open) return;
+  if(e.code==='Space'){e.preventDefault();$('btnPlay').click();}
+  else if(e.key==='ArrowRight'){$('btnNext').click();}
+  else if(e.key==='ArrowLeft'){$('btnPrev').click();}
+  else if(['1','2','3','4'].includes(e.key)){goCam(['overview','socket','side','top'][+e.key-1]);}
+  else if(e.key==='l'||e.key==='L'){$('btnLabels').click();}
+  else if(e.key==='?'){openModal('mHelp');}
+});
+
+// hover / tap tooltip
+const ray=new THREE.Raycaster(), ptr=new THREE.Vector2(), tip=$('tip');
+let hoverKey=null;
+function pick(ev){
+  const r=renderer.domElement.getBoundingClientRect();
+  ptr.set(((ev.clientX-r.left)/r.width)*2-1,-((ev.clientY-r.top)/r.height)*2+1);
+  ray.setFromCamera(ptr,camera);
+  const hits=ray.intersectObjects(pickables,false).filter(h=>{let o=h.object;while(o){if(!o.visible)return false;o=o.parent;}const p=parts[h.object.userData.part];return p&&p.fade>0.2;});
+  const k=hits.length?hits[0].object.userData.part:null;
+  if(k&&PARTS[k]){hoverKey=k;tip.innerHTML=`<b>${PARTS[k].name}</b>${PARTS[k].job}`;tip.style.display='block';
+    let x=ev.clientX-r.left+14,y=ev.clientY-r.top+14; if(x>r.width-270)x-=290; tip.style.left=x+'px';tip.style.top=y+'px';}
+  else{hoverKey=null;tip.style.display='none';}
+}
+renderer.domElement.addEventListener('pointermove',e=>{if(e.buttons===0)pick(e);});
+renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse')pick(e);});
+renderer.domElement.addEventListener('pointerleave',()=>{tip.style.display='none';hoverKey=null;});
+
+/* ---------------- Per-frame visual updates ---------------- */
+const SOFT={cooler:0.35,force:0.6,rail:0.6,carrier:0.3,cpu:0.5,socket:0.6};
+const CYAN=new THREE.Color('#36c6ff'), RED=new THREE.Color('#ff2a3a');
+function updateParts(stage,t){
+  const st=STAGES[stage]; const focus=new Set(st.focus);
+  const pulse=0.22+0.16*(0.5+0.5*Math.sin(t*4));
+  for(const k in parts){
+    const p=parts[k]; const f=p.fade*(p.ghost?0.15:1);
+    const isFocus=focus.has(k)&&p.fade>0.05;
+    const danger=(k==='socket'&&stage===6);
+    for(const m of p.mats){
+      const op=m.userData.baseOpacity*f;
+      m.opacity=op; m.transparent=m.userData.baseTransparent||op<0.999; m.depthWrite=op>0.5;
+      if(isFocus){m.emissive.copy(danger?RED:CYAN);m.emissiveIntensity=(danger?pulse*0.8:pulse)*(SOFT[k]||1);} else {m.emissiveIntensity=0;}
+    }
+    for(const o of p.objs) o.visible=f>0.01 && o.userData.want!==false;
+    if(p.label){
+      const show=(showLabels||isFocus)&&p.fade>0.3;
+      p.label.visible=show; p.label.element.classList.toggle('hot',isFocus&&!danger); p.label.element.classList.toggle('danger',danger&&isFocus);
+    }
+  }
+  // screw labels
+  screws.forEach(s=>{const lb=s.userData.label;lb.visible=(showLabels||focus.has('screws'))&&!(stage>=10);lb.element.classList.toggle('hot',focus.has('screws'));});
+  // hide socket label when covered
+  if(parts.socket.label) parts.socket.label.visible=(stage===6&&simTime%D>D*0.45)||(showLabels&&stage>=6&&stage<7);
+  // label visibility for cooler-hidden things
+  if(stage>=10 && parts.cpu.label) parts.cpu.label.visible=showLabels&&false;
+  if(part('pnp').fade<0.3) part('pnp').label.visible=false;
+  if((stage>=10 && simTime-10*D>D*0.5)||(stage===9&&simTime-9*D<D*0.2)) part('paste').label.visible=false;
+}
+
+function updateStageUI(i){
+  const st=STAGES[i];
+  $('stageNum').textContent=`Step ${i+1} of ${N}`;
+  $('stageName').textContent=st.name;
+  $('caption').textContent=st.cap;
+  $('warnCard').innerHTML='<b>Common mistake:</b> '+st.warn;
+  $('extraCard').style.display=st.extra?'block':'none'; $('extraCard').textContent=st.extra||'';
+  [...strip.children].forEach((b,k)=>{b.classList.toggle('cur',k===i);b.classList.toggle('done',k<i);});
+}
+
+/* ---------------- Loop ---------------- */
+function resize(){
+  const r=view.getBoundingClientRect();
+  renderer.setSize(r.width,r.height); labelR.setSize(r.width,r.height);
+  camera.aspect=r.width/Math.max(1,r.height); camera.updateProjectionMatrix();
+}
+window.addEventListener('resize',resize); resize();
+
+const clock=new THREE.Clock(); let elapsed=0;
+const initStage=clamp(Math.floor(simTime/D),0,N-1);
+goCam(STAGES[initStage].cam,true);
+if(reduce&&!frozen) setPlaying(false); else setPlaying(playing);
+function frame(){
+  const dt=Math.min(clock.getDelta(),0.1); elapsed+=dt;
+  if(playing){
+    const __nb=(Math.floor(simTime/D)+1)*D;
+    simTime+=dt*speed;
+    if(soundOn&&speed<=1.5&&pauseAt===null&&__clipPlaying()&&simTime>=__nb&&__nb<TOTAL) simTime=__nb-0.0005;
+    if(pauseAt!==null && simTime>=pauseAt){simTime=pauseAt;pauseAt=null;setPlaying(false);}
+    if(simTime>=TOTAL-0.001){simTime=TOTAL-0.001;setPlaying(false);}
+  }
+  const stage=clamp(Math.floor(simTime/D),0,N-1);
+  if(stage!==lastStage){
+    lastStage=stage; updateStageUI(stage);
+    if(follow&&!frozen) goCam(STAGES[stage].cam,false);
+    if(playing){ speak(speed>1.5?STAGES[stage].name:STAGES[stage].narr); }
+  }
+  applyState(simTime);
+  updateParts(stage,elapsed);
+  if(camTween){camTween.k+=dt/camTween.dur;const e=ss(camTween.k);camera.position.lerpVectors(camTween.fp,camTween.tp,e);controls.target.lerpVectors(camTween.ft,camTween.tt,e);if(camTween.k>=1)camTween=null;}
+  controls.update();
+  renderer.render(scene,camera); labelR.render(scene,camera);
+  requestAnimationFrame(frame);
+}
+frame();
+window.__sim={get t(){return simTime}};
+</script>
+</body>
+</html>

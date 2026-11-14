@@ -285,6 +285,36 @@
    "code": "CP4054",
    "mode": "Part-time 19+",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/electrical-installation-450-cg-level-3-advanced-technical-diploma-4/"
+  },
+  {
+   "id": "automotive",
+   "areaId": "automotive",
+   "name": "Automotive",
+   "code": "X0058",
+   "mode": "Full-time",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/automotive/"
+  },
+  {
+   "id": "automotive-transport-maintenance-l1",
+   "areaId": "automotive",
+   "name": "Automotive Transport Maintenance IMI Level 1 Award",
+   "code": "Q1490",
+   "mode": "Part-time (19+)",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/automotive-transport-maintenance-imi-level-1-award/"
+  },
+  {
+   "id": "it-l3-extended-diploma",
+   "areaId": "computing-and-digital",
+   "name": "IT Pearson Level 3 Extended Diploma",
+   "mode": "Full-time (16–18)",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/it-pearson-level-3-extended-diploma/"
+  },
+  {
+   "id": "digital-support-services-t-level",
+   "areaId": "computing-and-digital",
+   "name": "Digital Support Services T Level",
+   "mode": "Full-time (16–18)",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/digital-support-services-t-level/"
   }
  ],
  "sims": [
@@ -317,6 +347,66 @@
    "updated": "2026-11-14",
    "classroomTitle": "Cavity wall explorer – 3D simulation",
    "instructions": "Open the link and work through the 3D cavity wall simulation (20–30 minutes). Use headphones and press Sound on.\n1. Guided tour: watch all 9 stages.\n2. Build it: assemble the wall in the right order and place the wall ties.\n3. Spot the faults: find all 6 faults. For each one, write down what is wrong and what it causes.\n4. Test yourself: answer the 5 questions. Use \"Show me\" if you get stuck.\nHand in your list of faults and your quiz score."
+  },
+  {
+   "id": "disc-brakes",
+   "title": "Disc brakes & hydraulics",
+   "summary": "See inside a car's disc brake in 3D. Press the pedal and watch fluid pressure push the caliper piston and clamp the pads. Inspect each part, add worn pads or air in the fluid, and spot the fault from the pedal feel and stopping distance.",
+   "level": "Entry Level 3",
+   "spec": "IMI Entry Level 3 – vehicle braking systems",
+   "minutes": "20–30 min",
+   "tags": [
+    "Hydraulics",
+    "Master cylinder",
+    "Caliper",
+    "Brake pads",
+    "Bleeding"
+   ],
+   "areas": [
+    "automotive"
+   ],
+   "courses": [
+    "automotive",
+    "automotive-transport-maintenance-l1"
+   ],
+   "general": false,
+   "student": "sims/disc-brakes/index.html",
+   "teacher": "",
+   "thumb": "sims/disc-brakes/thumb.jpg",
+   "narration": "ElevenLabs (Alice, British)",
+   "updated": "2026-11-14",
+   "classroomTitle": "Disc brakes & hydraulics – 3D simulation",
+   "instructions": "Open the link and work through the 3D disc brake simulation (20–30 minutes). Use headphones and press Sound on.\n1. Guided tour: follow all 9 steps.\n2. Hold to brake: watch the fluid, the piston and the pads. Try slow motion.\n3. Inspect: tap each part and note what it does and what to check.\n4. Spot the fault: add worn pads, then air in the fluid. Describe the pedal feel and stopping distance for each.\n5. Test yourself: answer the 5 questions.\nHand in your fault notes and your quiz score."
+  },
+  {
+   "id": "threadripper-cpu",
+   "title": "Installing an AMD Threadripper CPU",
+   "summary": "Step through installing a Threadripper processor in an sTR5 socket in 3D: safe preparation, opening the force and rail frames, fitting the CPU in its carrier, torquing the screws in sequence, thermal paste and the cooler.",
+   "level": "Level 3",
+   "spec": "Pearson BTEC Level 3 IT, Unit 2 (check against your current spec)",
+   "minutes": "15–20 min",
+   "tags": [
+    "ESD safety",
+    "sTR5 socket",
+    "Torque sequence",
+    "Thermal paste",
+    "Cooler"
+   ],
+   "areas": [
+    "computing-and-digital"
+   ],
+   "courses": [
+    "it-l3-extended-diploma",
+    "digital-support-services-t-level"
+   ],
+   "general": false,
+   "student": "sims/threadripper-cpu/index.html",
+   "teacher": "",
+   "thumb": "sims/threadripper-cpu/thumb.jpg",
+   "narration": "ElevenLabs (Alice, British)",
+   "updated": "2026-11-14",
+   "classroomTitle": "Installing an AMD Threadripper CPU – 3D simulation",
+   "instructions": "Open the link and work through the 3D CPU installation simulation (15–20 minutes). Use headphones and press Sound on.\n1. Play the tour and watch all 12 steps. Use the step buttons to go back to anything you missed.\n2. For each step, write down the action and the common mistake shown.\n3. Note the screw torque and the order the screws are tightened in.\n4. Open \"What you'll learn\", then press Test yourself and answer the questions.\nHand in your step-by-step notes and your quiz score."
   }
  ],
  "courseInstructions": "Open the link to see the 3D simulations for this course. Work through each one, starting with the Guided tour (use headphones and press Sound on), then try Build it, Spot the faults and Test yourself. Note your quiz score for each simulation.",

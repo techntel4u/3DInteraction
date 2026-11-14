@@ -1,6 +1,6 @@
 // Shared helpers for the simulation hub. Data lives in data/catalog.json.
 export async function loadCatalog(){
-  const r = await fetch('data/catalog.json?v=4', {cache:'no-cache'});
+  const r = await fetch('data/catalog.json?v=5', {cache:'no-cache'});
   return r.json();
 }
 export const qs = k => new URLSearchParams(location.search).get(k);
@@ -52,7 +52,7 @@ export function simCard(s, cat){
       <div class="btns">
         <a class="btn primary" href="${esc(s.student)}">▶ Open simulation</a>
         ${shareButtons(url, s.classroomTitle||s.title, s.instructions||'')}
-        <a class="btn" href="${esc(s.teacher)}" title="Includes model answers and the quiz answer key">📋 Teacher version</a>
+        ${s.teacher?`<a class="btn" href="${esc(s.teacher)}" title="Includes model answers and the quiz answer key">📋 Teacher version</a>`:''}
       </div>
     </div>
   </article>`;

@@ -10,7 +10,7 @@ A self-contained hub of interactive 3D learning simulations, organised by **curr
 | `area.html?id=…` | One curriculum area: its courses and all of its simulations |
 | `course.html?id=…` | One course: its simulations, with sharing buttons |
 | `data/catalog.json` | The list of areas, courses and simulations. **Edit this to add things.** |
-| `sims/<name>/` | Each simulation: `student.html`, `teacher.html`, `audio/`, `thumb.jpg` |
+| `sims/<name>/` | Each simulation: `student.html` + `teacher.html` (or a single `index.html` with teacher notes built in), `audio/`, `thumb.jpg`. Every asset lives in the repo so each page is standalone. |
 | `vendor/` | three.js r160 and qrcode-generator (MIT licences included) |
 
 Curriculum areas and Construction courses were taken from [wolvcoll.ac.uk](https://www.wolvcoll.ac.uk/) on 14 November 2026.

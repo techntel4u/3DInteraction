@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Disc Brakes &amp; Hydraulics – Interactive 3D</title>
+<script type="importmap">
+{ "imports": {
+  "three": "../../vendor/three/three.module.js",
+  "three/addons/": "../../vendor/three/addons/"
+} }
+</script>
+<style>
+  :root{--navy:#1d3364;--navy2:#2c4a85;--ink:#14203a;--muted:#46536b;--line:#cdd5e1;--card:rgba(255,255,255,.95);
+    --ok:#147a3d;--bad:#b42318;--amber:#b86e00}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:#eef2f7;color:var(--ink);
+    font-family:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:17px;line-height:1.4}
+  #scene{position:fixed;inset:0;touch-action:none}
+  #scene canvas{display:block}
+  .labels{position:absolute;inset:0;pointer-events:none}
+  .tag span{display:inline-block;white-space:nowrap;background:#fff;color:var(--ink);border:2px solid var(--navy);border-radius:999px;
+    padding:3px 10px;font-size:14px;font-weight:700;box-shadow:0 2px 8px rgba(20,40,80,.15)}
+  .tag.left span{transform:translateX(-55%)} .tag.right span{transform:translateX(55%)} .tag.up span{transform:translateY(-70%)} .tag.down span{transform:translateY(70%)}
+  .card{background:var(--card);border-radius:16px;box-shadow:0 8px 28px rgba(20,40,80,.14);backdrop-filter:blur(8px)}
+  button{font:inherit;font-weight:700;min-height:44px;min-width:44px;padding:0 14px;border-radius:12px;border:2px solid var(--line);
+    background:#fff;color:var(--ink);cursor:pointer}
+  button:hover{border-color:var(--navy2)} button:disabled{opacity:.45;cursor:default}
+  button:focus-visible,input:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+  button.primary{background:var(--navy);border-color:var(--navy);color:#fff}
+  button.on{background:#e6edfb;border-color:var(--navy)}
+  h3{margin:8px 0 6px;font-size:18px}
+  /* left panel */
+  #panel{position:fixed;left:16px;top:16px;width:min(420px,calc(100vw - 32px));padding:14px 16px 16px;max-height:calc(100vh - 160px);overflow:auto}
+  #title{font-size:15px;color:var(--muted);font-weight:700;letter-spacing:.02em}
+  #stepName{font-size:25px;font-weight:700;line-height:1.15;margin-top:2px}
+  #caption{margin:8px 0 10px;font-size:18px}
+  #steps{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+  #steps div{border:2px solid var(--line);border-radius:10px;text-align:center;font-size:12.5px;font-weight:700;padding:5px 2px;background:#fff;line-height:1.15}
+  #steps div b{display:block;font-size:16px}
+  #steps div.active{background:var(--navy);border-color:var(--navy);color:#fff}
+  #steps div.done{border-color:var(--navy2);color:var(--navy2)}
+  #read{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+  .rd{border:2px solid var(--line);border-radius:10px;padding:5px 9px;background:#fff;font-size:13.5px;color:var(--muted);font-weight:700}
+  .rd b{display:block;font-size:19px;color:var(--ink)}
+  .bar{height:8px;border-radius:5px;background:#e6eaf1;margin-top:4px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f2b233,#ff6a00);border-radius:5px}
+  .rd.warn{border-color:#e28a00;background:#fff6e5} .rd.hot{border-color:#d0451b;background:#fff0ea}
+  #squeal{display:none;margin-top:8px;padding:6px 10px;border-radius:10px;background:#fff1c2;border:2px solid #e2a400;font-weight:700}
+  #results{margin-top:10px;font-size:15px}
+  #results table{width:100%;border-collapse:collapse}
+  #results td{padding:3px 4px;border-bottom:1px solid #e3e8f0} #results td:last-child{text-align:right;font-weight:700}
+  #tourBox{display:none} #tourBox.show{display:block} #mainBox.hide{display:none}
+  #tourNo{font-size:14px;color:var(--muted);font-weight:700}
+  #tourTitle{font-size:22px;font-weight:700;margin:2px 0 6px}
+  #tourText{font-size:18px;margin:0 0 12px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  /* controls */
+  #controls{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;
+    padding:10px 12px;width:max-content;max-width:calc(100vw - 20px)}
+  #brakeBtn{min-height:64px;min-width:150px;font-size:19px;background:var(--navy);color:#fff;border-color:var(--navy);touch-action:none;user-select:none;-webkit-user-select:none}
+  #brakeBtn.down{background:#0f1e40;transform:scale(.97)}
+  .slider{display:flex;flex-direction:column;gap:1px;font-size:13px;color:var(--muted);font-weight:700}
+  .slider output{color:var(--ink)}
+  input[type=range]{width:124px;height:28px;accent-color:var(--navy)}
+  /* drawer */
+  #drawer{position:fixed;right:16px;top:16px;width:min(380px,calc(100vw - 32px));max-height:calc(100vh - 170px);overflow:auto;padding:12px 16px 16px;display:none}
+  #drawer.show{display:block}
+  #tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:8px}
+  #tabs button{font-size:14px;padding:0 4px}
+  .pane{display:none}.pane.show{display:block}
+  .toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #e3e8f0}
+  .toggle label{font-weight:700}.toggle small{display:block;color:var(--muted);font-weight:400;font-size:14px}
+  .toggle input{width:26px;height:26px;accent-color:var(--navy);flex:none}
+  .views{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .opts{display:grid;gap:8px}
+  .opts button{text-align:left;padding:8px 12px}
+  .opts button.right{border-color:var(--ok);background:#e7f6ec}.opts button.wrong{border-color:var(--bad);background:#fdecea}
+  .feed{margin:10px 0;font-size:16px}.feed.ok b{color:var(--ok)}.feed.no b{color:var(--bad)}
+  #qText{font-size:19px;font-weight:700;margin:4px 0 10px}
+  .note{color:var(--muted);font-size:15px}
+  ul.help{padding-left:18px;margin:6px 0} ul.help li{margin:4px 0}
+  kbd{border:1.5px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:0 6px;font-family:inherit;font-weight:700;background:#fff}
+  #tip{position:fixed;pointer-events:none;background:var(--ink);color:#fff;padding:8px 12px;border-radius:10px;font-size:15px;max-width:270px;display:none;z-index:6}
+  #tip b{display:block;font-size:16px}
+  #inspect{position:fixed;right:16px;bottom:120px;width:min(340px,calc(100vw - 32px));padding:14px 16px;display:none;z-index:4}
+  #inspect.show{display:block}
+  #inspect h4{margin:0 0 4px;font-size:20px}
+  #inspect .chk{margin-top:8px;padding:8px 10px;background:#eef4ff;border-radius:10px;border-left:5px solid var(--navy)}
+  #inspect .x{position:absolute;right:8px;top:8px;min-height:36px;min-width:36px;padding:0}
+  @media (max-width:760px){
+    body{font-size:16px}
+    #panel{left:8px;top:8px;width:calc(100vw - 16px);padding:10px 12px;max-height:40vh}
+    #stepName{font-size:20px}#caption{font-size:15.5px;margin:4px 0 8px}#tourText{font-size:15.5px}
+    #steps div{font-size:10.5px;padding:3px 1px}#steps div b{font-size:13px}
+    #read{grid-template-columns:repeat(3,1fr)} .rd{font-size:11px;padding:3px 6px} .rd b{font-size:14px}
+    #results{display:none}
+    #controls{bottom:8px;gap:6px;padding:8px} input[type=range]{width:110px} .slider output{display:none}
+    #brakeBtn{min-height:56px;min-width:120px;font-size:17px}
+    #drawer{left:8px;right:8px;top:auto;bottom:170px;width:auto;max-height:44vh}
+    #inspect{left:8px;right:8px;width:auto;bottom:170px}
+    .tag span{font-size:11.5px;padding:2px 7px}
+  }
+</style>
+</head>
+<body>
+<a id="hubBack" href="../../index.html" title="Back to the simulation hub" aria-label="Back to the simulation hub">← Hub</a>
+<style>#hubBack{position:fixed;left:10px;bottom:10px;z-index:9999;background:#1f2a44;color:#fff;font:600 13px system-ui,sans-serif;text-decoration:none;padding:7px 11px;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,.25);opacity:.92}#hubBack:focus{outline:3px solid #ffd54a}</style>
+<div id="scene"></div>
+
+<section id="panel" class="card" aria-live="polite">
+  <div id="mainBox">
+    <div id="title">DISC BRAKES &amp; HYDRAULICS</div>
+    <div id="stepName">Ready to brake</div>
+    <p id="caption"></p>
+    <div id="steps"></div>
+    <div id="read">
+      <div class="rd" id="rdSpeed">Car speed<b>50 mph</b></div>
+      <div class="rd" id="rdPress">Fluid pressure<b>0 bar</b><div class="bar"><i id="pressBar"></i></div></div>
+      <div class="rd" id="rdPedal">Pedal feel<b>–</b></div>
+      <div class="rd" id="rdTemp">Disc temperature<b>20 °C</b></div>
+      <div class="rd" id="rdPad">Pad thickness<b>10 mm</b></div>
+      <div class="rd" id="rdStop">Last stop<b>–</b></div>
+    </div>
+    <div id="squeal">⚠ Squeal! The pad wear indicator is touching the disc.</div>
+    <div id="results"></div>
+    <div class="row" style="margin-top:10px"><button class="primary" id="tourBtn">▶ Start guided tour</button></div>
+  </div>
+  <div id="tourBox">
+    <div id="tourNo"></div>
+    <div id="tourTitle"></div>
+    <p id="tourText"></p>
+    <div class="row">
+      <button id="tourBack">◀ Back</button><button class="primary" id="tourNext">Next ▶</button>
+      <button id="tourAgain">↻ Replay</button><button id="tourEnd">End tour</button>
+    </div>
+  </div>
+</section>
+
+<nav id="controls" class="card" aria-label="Brake controls">
+  <button id="brakeBtn" aria-label="Hold to press the brake pedal">🦶 Hold to brake</button>
+  <div class="slider"><label for="force">How hard to press</label><input id="force" type="range" min="20" max="100" value="80"><output id="forceOut">Hard</output></div>
+  <div class="slider"><label for="speedSet">Car speed</label><input id="speedSet" type="range" min="10" max="70" step="5" value="50"><output id="speedSetOut">50 mph</output></div>
+  <div class="slider"><label for="slow">Slow motion</label><input id="slow" type="range" min="0" max="100" value="100"><output id="slowOut">Normal speed</output></div>
+  <button id="soundBtn">🔈 Sound off</button>
+  <button id="explodeBtn">🔧 Take apart</button>
+  <button id="quizBtn">✔ Test yourself</button>
+  <button id="menuBtn" aria-expanded="false">☰ More</button>
+</nav>
+
+<aside id="drawer" class="card" aria-label="More options">
+  <div id="tabs">
+    <button data-tab="faults">Faults</button><button data-tab="parts">Parts</button><button data-tab="views">Views</button>
+    <button data-tab="quiz">Quiz</button><button data-tab="teacher">Teacher</button><button data-tab="help">Help</button>
+  </div>
+  <div class="pane" id="pane-faults">
+    <h3>Add a fault</h3>
+    <div class="toggle"><label for="fWorn">Worn brake pads<small>Pads worn thin (about 2 mm)</small></label><input type="checkbox" id="fWorn"></div>
+    <div class="toggle"><label for="fAir">Air in the brake line<small>Bubbles in the brake fluid</small></label><input type="checkbox" id="fAir"></div>
+    <p class="note">Tip: set the same car speed, brake hard, and compare the stopping distances.</p>
+    <h3>Spot the fault challenge</h3>
+    <p class="note" id="chIntro">A hidden fault (or no fault) will be added. Brake, watch the pedal, the readings and the parts, then decide.</p>
+    <button class="primary" id="chStart">🕵 Start challenge</button>
+    <div id="chBox" style="display:none">
+      <p style="font-weight:700;margin:10px 0 6px">What is wrong with this brake?</p>
+      <div class="opts" id="chOpts"></div>
+      <div class="feed" id="chFeed"></div>
+      <div class="row"><button id="chAgain">↻ Try another</button><button id="chStop">End challenge</button></div>
+    </div>
+  </div>
+  <div class="pane" id="pane-parts">
+    <h3>Show or hide</h3>
+    <div id="toggles"></div>
+  </div>
+  <div class="pane" id="pane-views">
+    <h3>Camera views</h3>
+    <div class="views">
+      <button data-view="overview">1 · Whole system</button><button data-view="pedal">2 · Pedal &amp; master cylinder</button>
+      <button data-view="caliper">3 · Inside the caliper</button><button data-view="disc">4 · Disc &amp; pads</button>
+    </div>
+    <p class="note">Drag to turn it round. Scroll or pinch to zoom.</p>
+  </div>
+  <div class="pane" id="pane-quiz">
+    <div class="note" style="font-weight:700" id="qNo"></div>
+    <div id="qText"></div>
+    <div class="opts" id="qOpts"></div>
+    <div class="feed" id="qFeed"></div>
+    <div class="row"><button id="qShow">👁 Show me</button><button class="primary" id="qNext">Next question ▶</button></div>
+  </div>
+  <div class="pane" id="pane-teacher">
+    <h3>Learning outcomes</h3>
+    <ul class="help">
+      <li>State the job of a braking system (to slow and stop the vehicle).</li>
+      <li>Identify the main parts: pedal, master cylinder, reservoir, pipes, caliper, piston, seal, pads, disc, slide pins.</li>
+      <li>Describe in simple steps how pressing the pedal makes the pads squeeze the disc.</li>
+      <li>Explain that friction turns movement into heat.</li>
+      <li>Recognise the signs of worn pads and air in the system.</li>
+    </ul>
+    <h3>Specification links</h3>
+    <p class="note" style="margin:0">Matches typical Entry Level 3 braking unit criteria: <i>state the function of a vehicle braking system</i>, <i>identify the main components</i>, and preparation for <i>remove and refit a set of disc pads</i>. Check the wording against your IMI unit.</p>
+    <h3>Misconceptions to tackle</h3>
+    <ul class="help">
+      <li>"The pedal pulls a cable to the pads." It pushes fluid.</li>
+      <li>"Fluid flows round and round." It barely moves; pressure carries the push.</li>
+      <li>"Only one pad moves." The piston pushes one pad; the caliper slides to pull the other.</li>
+      <li>"A spongy pedal means worn pads." Usually air in the fluid.</li>
+    </ul>
+    <h3>Questions to ask the class</h3>
+    <ul class="help">
+      <li>Why must brake fluid not contain air?</li>
+      <li>Why does the disc get hot? Where does the energy come from?</li>
+      <li>What would happen if a slide pin seized?</li>
+      <li>Why does the fluid level drop as pads wear?</li>
+    </ul>
+    <h3>Safety reminders</h3>
+    <ul class="help">
+      <li>Wear PPE. Brake fluid harms skin and eyes and strips paint.</li>
+      <li>Never blow brake dust with an air line.</li>
+      <li>Always check manufacturer data for minimum pad and disc thickness.</li>
+    </ul>
+    <p class="note">Gaps and movements are exaggerated so they can be seen. Temperatures and stopping distances are for illustration only.</p>
+  </div>
+  <div class="pane" id="pane-help">
+    <h3>How to use it</h3>
+    <ul class="help">
+      <li><b>Hold</b> the brake button (or the <kbd>Space</kbd> bar) to press the pedal.</li>
+      <li><b>Drag</b> to turn the model. <b>Scroll</b> or <b>pinch</b> to zoom.</li>
+      <li><b>Point at</b> or <b>tap</b> a part to inspect it.</li>
+      <li>Use <b>Slow motion</b> to watch each step happen.</li>
+    </ul>
+    <h3>Keyboard</h3>
+    <ul class="help">
+      <li><kbd>Space</kbd> hold to brake · <kbd>1</kbd>–<kbd>4</kbd> views</li>
+      <li><kbd>E</kbd> take apart · <kbd>L</kbd> labels · <kbd>S</kbd> sound · <kbd>T</kbd> tour</li>
+    </ul>
+  </div>
+</aside>
+
+<div id="inspect" class="card" role="dialog" aria-label="Part details">
+  <button class="x" id="inspX" aria-label="Close">✕</button>
+  <h4 id="inspName"></h4>
+  <div id="inspJob"></div>
+  <div class="chk"><b>What to check:</b> <span id="inspChk"></span></div>
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+/* =========================================================
+   Content (IMI Entry Level 3 wording)
+========================================================= */
+const STEPS = [
+  { short:'Press', name:'1. Press the pedal',
+    cap:'Your foot pushes the brake pedal. The pedal pushes a rod into the <b>master cylinder</b>.',
+    say:'Step one. Your foot pushes the brake pedal. The pedal pushes a rod into the master cylinder.' },
+  { short:'Pressure', name:'2. Fluid carries the push',
+    cap:'The master cylinder pushes <b>brake fluid</b> along the pipe. Fluid cannot be squashed, so it carries the push to the wheel.',
+    say:'Step two. The master cylinder pushes brake fluid along the pipe. Fluid cannot be squashed, so it carries the push to the wheel.' },
+  { short:'Clamp', name:'3. The pads squeeze the disc',
+    cap:'The fluid pushes the <b>caliper piston</b> out. It pushes the inner pad onto the disc. The caliper slides and pulls the outer pad on too.',
+    say:'Step three. The fluid pushes the caliper piston out. The piston pushes the inner pad onto the disc, and the caliper slides to pull the outer pad on too.' },
+  { short:'Friction', name:'4. Friction slows the car',
+    cap:'The pads rub on the spinning disc. <b>Friction</b> slows the disc and the car. The movement turns into <b>heat</b>.',
+    say:'Step four. The pads rub on the spinning disc. Friction slows the car, and the movement turns into heat.' },
+  { short:'Release', name:'5. Let go of the pedal',
+    cap:'The fluid pressure drops. The <b>piston seal</b> pulls the piston back a little, so the pads let go of the disc.',
+    say:'Step five. You let go. The pressure drops, and the piston seal pulls the piston back a little, so the pads let go of the disc.' },
+];
+const IDLE_CAP = 'Hold the <b>brake</b> button to press the pedal. Watch the fluid, the piston and the pads.';
+
+const INFO = {
+  pedal:    { name:'Brake pedal', job:'The driver presses it with their foot. It works like a lever to make the push bigger.', chk:'The pedal should feel firm and stop well above the floor.' },
+  mc:       { name:'Master cylinder', job:'Turns the push from the pedal into brake fluid pressure.', chk:'No fluid leaks around the master cylinder.' },
+  reservoir:{ name:'Brake fluid reservoir', job:'Holds spare brake fluid for the system.', chk:'Fluid level between MIN and MAX. A low level can mean worn pads or a leak.' },
+  line:     { name:'Brake pipe and hose', job:'Carry the brake fluid from the master cylinder to the caliper.', chk:'No leaks, rust or damage. Flexible hoses must not be cracked or bulging.' },
+  caliper:  { name:'Caliper', job:'Holds the piston and pads. It slides on its pins so both pads squeeze the disc.', chk:'No fluid leaks. The caliper should slide freely.' },
+  piston:   { name:'Caliper piston', job:'Brake fluid pushes it out. It pushes the inner pad onto the disc.', chk:'Moves freely. Not seized, rusty or leaking.' },
+  seal:     { name:'Piston seal', job:'A rubber ring. It stops fluid leaking out, and pulls the piston back a little when you let go.', chk:'No fluid leaking past the piston.' },
+  pins:     { name:'Caliper slide pins', job:'Let the caliper slide in and out so both pads press evenly.', chk:'Slide freely, greased, and rubber boots not split.' },
+  pads:     { name:'Brake pads', job:'Squeeze the disc. The friction between pad and disc slows the wheel.', chk:'Enough friction material left (usually at least 3 mm – check the data). No cracks. Even wear.' },
+  disc:     { name:'Brake disc (rotor)', job:'Turns with the wheel. The pads squeeze it to slow the car.', chk:'Smooth surface. No deep scores, cracks or big lip on the edge.' },
+  carrier:  { name:'Caliper carrier', job:'Bolted to the car. Holds the pads and the slide pins.', chk:'Bolts tight. Pads slide in it freely.' },
+  bleed:    { name:'Bleed nipple', job:'A small valve used to let air out of the brake fluid. This is called bleeding the brakes.', chk:'Not seized, and the dust cap is fitted.' },
+};
+
+const QUIZ = [
+  { q:'What does the brake pedal push?', opts:['The brake disc','A rod into the master cylinder','The brake pads directly','The wheel'], a:1,
+    why:'The pedal pushes a rod into the master cylinder. That turns the push into fluid pressure.', show:{ view:'pedal', press:0.6, dur:4 } },
+  { q:'Why is brake fluid used to carry the push to the wheel?', opts:['It is cheap','It cannot be squashed','It cools the engine','It makes the car lighter'], a:1,
+    why:'A liquid cannot be squashed, so a push at the pedal end comes out just as strong at the caliper.', show:{ view:'overview', press:0.7, dur:4 } },
+  { q:'What pushes the brake pads onto the disc?', opts:['The caliper piston','The slide pins','The bleed nipple','The reservoir'], a:0,
+    why:'Fluid pressure pushes the caliper piston out, and the piston pushes the pad onto the disc.', show:{ view:'caliper', press:0.7, dur:4, slow:0.3 } },
+  { q:'When the pads squeeze the disc, the car’s movement is turned into…', opts:['Light','Electricity','Heat','Air'], a:2,
+    why:'Friction turns the movement into heat. Hard braking can make the disc glow red hot.', show:{ view:'disc', press:1, dur:5, speed:70, delay:1 } },
+  { q:'The pedal feels spongy and sinks nearly to the floor. What is the most likely fault?', opts:['Worn brake pads','Air in the brake line','A hot disc','Low tyre pressure'], a:1,
+    why:'Air can be squashed, so the pedal sinks and the brakes are weak. The fix is to bleed the brakes.', show:{ view:'overview', press:0.8, dur:5, air:true, delay:1 } },
+];
+
+const TOUR = [
+  { title:'Welcome', view:'overview', labels:true, speed:40,
+    text:'This is the disc brake from one wheel of a car, with the brake pedal and master cylinder. Some parts are cut in half so you can see inside. Drag to turn it. Pinch or scroll to zoom.' },
+  { title:'1. Press the pedal', view:'pedal', hl:['pedal','mc'], slow:0.4, script:t => (t > 1 && t % 7 < 4.5) ? 0.6 : 0,
+    text:'When you press the brake pedal, it pushes a rod into the master cylinder. The pedal works like a lever, so a small push from your foot becomes a big push.' },
+  { title:'2. Brake fluid carries the push', view:'overview', hl:['line','mc','reservoir'], slow:0.5, script:t => (t > 1 && t % 7 < 4.5) ? 0.7 : 0,
+    text:'The master cylinder pushes brake fluid (orange) along the pipe. A liquid cannot be squashed, so the push at the pedal comes out just as strong at the wheel. The arrows show the pressure travelling to the caliper.' },
+  { title:'3. The piston pushes the pads', view:'caliper', hl:['piston','pads','caliper'], slow:0.3, script:t => (t > 1 && t % 8 < 5) ? 0.7 : 0,
+    text:'The fluid pushes the caliper piston out. The piston pushes the inner pad onto the disc. The caliper then slides on its pins and pulls the outer pad onto the other side.' },
+  { title:'4. Friction slows the car', view:'disc', hl:['disc','pads'], speed:70, script:t => (t > 1.5 && t < 7) ? 1 : 0,
+    text:'The pads rub on the spinning disc. This friction slows the wheel. The movement of the car turns into heat. Hard braking from high speed can make the disc glow red hot.' },
+  { title:'5. Let go of the pedal', view:'caliper', hl:['seal','piston'], slow:0.3, speed:0, script:t => (t % 8 < 3) ? 0.7 : 0,
+    text:'When you let go, the fluid pressure drops. The rubber piston seal pulls the piston back a little, so the pads stop touching the disc and the wheel can turn freely.' },
+  { title:'Fault: worn brake pads', view:'caliper', worn:true, speed:50, script:t => (t > 1.5 && t < 9) ? 0.8 : 0,
+    text:'These pads are worn thin. The piston has to come out further, so the pedal goes down further. Thin pads grip less, so the car takes longer to stop. Listen for the squeal of the wear indicator.' },
+  { title:'Fault: air in the brake line', view:'overview', air:true, speed:50, script:t => (t > 1.5 && t < 9) ? 0.8 : 0,
+    text:'There is air (white bubbles) in the brake fluid. Air can be squashed, so the pedal feels spongy and sinks towards the floor. The brakes are much weaker. The fix is to bleed the brakes at the bleed nipple.' },
+  { title:'Inspect the parts', view:'explode', explode:true,
+    text:'The brake is now taken apart. Tap or click any part to see what it does and what to check. Look at the pads, the disc, the slide pins and the piston seal.' },
+];
+
+/* =========================================================
+   Helpers
+========================================================= */
+const $ = id => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+const params = new URLSearchParams(location.search);
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* =========================================================
+   Renderer
+========================================================= */
+const wrap = $('scene');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.localClippingEnabled = true;
+wrap.appendChild(renderer.domElement);
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.setSize(innerWidth, innerHeight);
+labelRenderer.domElement.className = 'labels';
+wrap.appendChild(labelRenderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xeef2f7);
+const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.1, 300);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.minDistance = 3; controls.maxDistance = 34; controls.maxPolarAngle = 1.62;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0xc9d3e0, 1.35));
+const sun = new THREE.DirectionalLight(0xffffff, 2.1);
+sun.position.set(6, 14, 12); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -14, right: 10, top: 10, bottom: -8, near: 1, far: 50 });
+sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.02; scene.add(sun);
+const fillL = new THREE.DirectionalLight(0xdfe8ff, 0.7); fillL.position.set(10, 3, -2); scene.add(fillL);
+const ground = new THREE.Mesh(new THREE.CircleGeometry(16, 64), new THREE.MeshStandardMaterial({ color: 0xdde3ec, roughness: 1 }));
+ground.rotation.x = -Math.PI / 2; ground.position.set(-4, -3.0, -1); ground.receiveShadow = true; scene.add(ground);
+
+/* =========================================================
+   Parts registry
+========================================================= */
+const PARTS = {};
+const cutMats = [];
+const caliperCut = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);    // removes x > 0 of caliper parts
+const mcCut = new THREE.Plane(new THREE.Vector3(0, 0, -1), -2.2);      // removes z > -2.2 of master cylinder
+function part(key) { const g = new THREE.Group(); g.name = key; scene.add(g); return (PARTS[key] = { key, group: g, mats: [] }); }
+function mat(p, color, o = {}) { const m = new THREE.MeshStandardMaterial({ color, roughness: .5, metalness: .3, ...o }); p.mats.push(m); return m; }
+function cmat(p, color, plane, o = {}) { const m = mat(p, color, { side: THREE.DoubleSide, clippingPlanes: [plane], clipShadows: true, ...o }); m.userData.plane = plane; cutMats.push(m); return m; }
+function add(p, geo, m, parent) { const x = new THREE.Mesh(geo, m); x.castShadow = x.receiveShadow = true; x.userData.part = p.key; (parent || p.group).add(x); return x; }
+const zCyl = (r, d, s = 32) => new THREE.CylinderGeometry(r, r, d, s).rotateX(Math.PI / 2);
+const xCyl = (r, d, s = 32) => new THREE.CylinderGeometry(r, r, d, s).rotateZ(Math.PI / 2);
+
+/* Geometry constants (exaggerated for visibility) */
+const DISC_R = 2.6, DISC_T = 0.3, GAP = 0.16, PAD_Y = 2.2;
+const THICK_NEW = 0.32, THICK_WORN = 0.08;
+const HOUSING_FRONT = -(DISC_T / 2) - GAP - THICK_NEW - 0.1;   // -0.73
+const PISTON_LEN = 0.7;
+const MC_Y = 3.6, MC_Z = -2.2, MC_REAR = -8.6, MC_FRONT = -5.5;
+const PIVOT = new THREE.Vector3(-10.0, 5.2, MC_Z);
+
+/* ---------- Disc ---------- */
+const pDisc = part('disc');
+const discSpin = new THREE.Group(); pDisc.group.add(discSpin);
+const discMat = mat(pDisc, 0x9aa3ae, { metalness: .7, roughness: .38, emissive: 0x000000 });
+add(pDisc, zCyl(DISC_R, DISC_T, 72), discMat, discSpin);
+{
+  const hat = mat(pDisc, 0x6f7886, { metalness: .6 });
+  add(pDisc, zCyl(1.15, 0.55, 48), hat, discSpin).position.z = 0.42;
+  const stud = mat(pDisc, 0xc8ced6, { metalness: .8 });
+  for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; add(pDisc, zCyl(0.09, 0.6, 10), stud, discSpin).position.set(Math.cos(a) * .78, Math.sin(a) * .78, 0.95); }
+  add(pDisc, zCyl(0.3, 0.6, 24), mat(pDisc, 0x3b4354), discSpin).position.z = 0.45;
+  const slotM = mat(pDisc, 0x5c6573, { metalness: .5 });
+  for (let i = 0; i < 6; i++) for (const z of [DISC_T / 2 + .003, -DISC_T / 2 - .003]) {
+    const s = add(pDisc, new THREE.BoxGeometry(0.9, 0.06, 0.006), slotM, discSpin);
+    const a = i / 6 * Math.PI * 2; s.position.set(Math.cos(a) * 1.95, Math.sin(a) * 1.95, z); s.rotation.z = a + 0.5;
+  }
+}
+/* ---------- Carrier (fixed) ---------- */
+const pCarrier = part('carrier');
+{
+  const m = cmat(pCarrier, 0x59616e, caliperCut, { metalness: .5, roughness: .55 });
+  for (const sx of [-1, 1]) {
+    for (const z of [-0.55, 0.55]) add(pCarrier, new THREE.BoxGeometry(0.32, 0.95, 0.42), m).position.set(sx * 1.32, 2.12, z);
+    add(pCarrier, new THREE.BoxGeometry(0.32, 0.18, 1.52), m).position.set(sx * 1.32, 2.68, 0);
+    add(pCarrier, new THREE.BoxGeometry(0.5, 0.5, 0.5), m).position.set(sx * 1.35, 2.0, -0.95);
+  }
+}
+/* ---------- Slide pins (fixed) ---------- */
+const pPins = part('pins');
+{
+  const m = cmat(pPins, 0xd2d8e0, caliperCut, { metalness: .85, roughness: .25 });
+  const boot = cmat(pPins, 0x24272e, caliperCut, { metalness: 0, roughness: .9 });
+  for (const sx of [-1, 1]) {
+    add(pPins, zCyl(0.11, 1.15, 14), m).position.set(sx * 1.35, 2.0, -1.62);
+    add(pPins, zCyl(0.17, 0.22, 14), boot).position.set(sx * 1.35, 2.0, -1.28);
+  }
+}
+/* ---------- Caliper body (slides) ---------- */
+const pCal = part('caliper');
+const calMat = cmat(pCal, 0x2c4a85, caliperCut, { metalness: .35, roughness: .5 });
+{
+  const prof = [[0, -1.75], [0.64, -1.75], [0.64, HOUSING_FRONT], [0.45, HOUSING_FRONT], [0.45, -1.6], [0, -1.6]].map(([r, y]) => new THREE.Vector2(r, y));
+  const housing = add(pCal, new THREE.LatheGeometry(prof, 48).rotateX(Math.PI / 2), calMat);
+  housing.position.y = PAD_Y;
+  add(pCal, new THREE.BoxGeometry(1.3, 0.42, 2.75), calMat).position.set(0, 2.95, -0.37);
+  add(pCal, new THREE.BoxGeometry(1.7, 1.15, 0.27), calMat).position.set(0, 2.35, 0.865);
+  for (const sx of [-1, 1]) {
+    add(pCal, new THREE.BoxGeometry(0.85, 0.36, 0.42), calMat).position.set(sx * 0.98, 2.0, -1.5);
+  }
+}
+/* ---------- Bleed nipple (on caliper) ---------- */
+const pBleed = part('bleed');
+{
+  const m = mat(pBleed, 0xc9a24a, { metalness: .8, roughness: .3 });
+  const b = add(pBleed, new THREE.CylinderGeometry(0.08, 0.1, 0.45, 12), m); b.position.set(-0.25, 3.25, -1.5); b.rotation.x = -0.4;
+  const cap = add(pBleed, new THREE.CylinderGeometry(0.1, 0.1, 0.12, 12), mat(pBleed, 0x24272e, { metalness: 0 })); cap.position.set(-0.25, 3.5, -1.6); cap.rotation.x = -0.4;
+}
+/* ---------- Piston + seal ---------- */
+const pPiston = part('piston');
+{
+  const prof = [[0, -PISTON_LEN], [0.43, -PISTON_LEN], [0.43, 0], [0.3, 0], [0.3, -0.55], [0, -0.55]].map(([r, y]) => new THREE.Vector2(r, y));
+  const pm = cmat(pPiston, 0xd8dde4, caliperCut, { metalness: .85, roughness: .22 });
+  add(pPiston, new THREE.LatheGeometry(prof, 40).rotateX(Math.PI / 2), pm).position.set(0, PAD_Y, HOUSING_FRONT);
+}
+const pSeal = part('seal');
+add(pSeal, new THREE.TorusGeometry(0.455, 0.05, 10, 40), cmat(pSeal, 0x1c1f26, caliperCut, { metalness: 0, roughness: .9 })).position.set(0, PAD_Y, -1.0);
+/* ---------- Pads ---------- */
+const pPads = part('pads');
+function makePad(sign) {
+  const g = new THREE.Group(); pPads.group.add(g);
+  const fric = add(pPads, new THREE.BoxGeometry(1.9, 0.72, 1), cmat(pPads, 0x4b4038, caliperCut, { metalness: 0, roughness: .95, emissive: 0x000000 }), g);
+  const back = add(pPads, new THREE.BoxGeometry(2.1, 0.8, 0.1), cmat(pPads, 0x6a7280, caliperCut, { metalness: .6 }), g);
+  g.position.set(0, PAD_Y, sign * (DISC_T / 2 + GAP));
+  return { g, fric, back, sign };
+}
+const padIn = makePad(-1), padOut = makePad(1);
+function setPadThickness(pad, th) {
+  pad.fric.scale.z = th; pad.fric.position.z = pad.sign * th / 2; pad.back.position.z = pad.sign * (th + 0.05);
+}
+/* ---------- Caliper fluid chamber ---------- */
+const fluidMats = [];
+function fluidMat(plane) { const m = new THREE.MeshStandardMaterial({ color: 0xf2b233, roughness: .35, metalness: 0, emissive: 0xff6a00, emissiveIntensity: 0, side: THREE.DoubleSide, clippingPlanes: plane ? [plane] : [] }); fluidMats.push(m); return m; }
+const chamberFluid = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.44, 1, 32).rotateX(Math.PI / 2).translate(0, 0, 0.5), fluidMat(caliperCut));
+chamberFluid.userData.cutFluid = true; pCal.group.add(chamberFluid);
+
+/* ---------- Pedal ---------- */
+const pPedal = part('pedal');
+const pedalArm = new THREE.Group(); pedalArm.position.copy(PIVOT); pPedal.group.add(pedalArm);
+{
+  const m = mat(pPedal, 0x3b4354, { metalness: .5 });
+  add(pPedal, new THREE.BoxGeometry(0.16, 3.9, 0.3), m, pedalArm).position.y = -1.95;
+  add(pPedal, new THREE.BoxGeometry(0.28, 0.75, 1.1), mat(pPedal, 0x1c1f26, { metalness: 0, roughness: .9 }), pedalArm).position.set(-0.1, -3.85, 0);
+  add(pPedal, zCyl(0.16, 0.5, 16), mat(pPedal, 0x8d96a3, { metalness: .7 }), pedalArm);
+  add(pPedal, new THREE.BoxGeometry(0.7, 0.7, 0.9), mat(pPedal, 0x8d96a3, { metalness: .4 })).position.set(PIVOT.x, PIVOT.y + 0.3, PIVOT.z);
+}
+const pushrod = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1, 10), mat(pPedal, 0xc8ced6, { metalness: .8 }));
+pushrod.userData.part = 'pedal'; pushrod.castShadow = true; pPedal.group.add(pushrod);
+// bulkhead
+const bulk = new THREE.Mesh(new THREE.BoxGeometry(0.14, 3.6, 1.8), new THREE.MeshStandardMaterial({ color: 0xc5ccd7, roughness: .9 }));
+bulk.position.set(-8.85, 3.6, MC_Z); bulk.receiveShadow = bulk.castShadow = true; scene.add(bulk);
+
+/* ---------- Master cylinder ---------- */
+const pMC = part('mc');
+{
+  const prof = [[0.36, 0], [0.5, 0], [0.5, 3.1], [0, 3.1], [0, 2.95], [0.36, 2.95], [0.36, 0]].map(([r, y]) => new THREE.Vector2(r, y));
+  const body = add(pMC, new THREE.LatheGeometry(prof, 40).rotateZ(-Math.PI / 2), cmat(pMC, 0xb7c0cc, mcCut, { metalness: .55, roughness: .4 }));
+  body.position.set(MC_REAR, MC_Y, MC_Z);
+  add(pMC, xCyl(0.12, 0.4, 14), mat(pMC, 0x8d96a3, { metalness: .7 })).position.set(MC_FRONT + 0.15, MC_Y, MC_Z);
+}
+const mcPiston = add(pMC, xCyl(0.35, 0.7, 28), cmat(pMC, 0x1d3364, mcCut, { metalness: .4 }));
+const mcFluid = new THREE.Mesh(xCyl(0.34, 1, 28).translate(0.5, 0, 0), fluidMat(mcCut)); pMC.group.add(mcFluid);
+class Helix extends THREE.Curve { constructor(r, n) { super(); this.r = r; this.n = n; } getPoint(t, o = new THREE.Vector3()) { const a = t * Math.PI * 2 * this.n; return o.set(t, Math.cos(a) * this.r, Math.sin(a) * this.r); } }
+const mcSpring = add(pMC, new THREE.TubeGeometry(new Helix(0.22, 7), 160, 0.025, 6, false), cmat(pMC, 0x8d96a3, mcCut, { metalness: .7 }));
+mcSpring.position.set(0, MC_Y, MC_Z);
+/* ---------- Reservoir ---------- */
+const pRes = part('reservoir');
+{
+  add(pRes, new THREE.BoxGeometry(1.5, 0.85, 0.85), new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: .35, roughness: .2, depthWrite: false })).position.set(-7.0, 4.62, MC_Z);
+  pRes.mats.push(pRes.group.children[0].material);
+  const lvl = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.5, 0.75), fluidMat(null)); lvl.position.set(-7.0, 4.47, MC_Z); lvl.userData.part = 'reservoir'; pRes.group.add(lvl);
+  add(pRes, new THREE.CylinderGeometry(0.28, 0.28, 0.16, 20), mat(pRes, 0x1d3364)).position.set(-7.0, 5.12, MC_Z);
+  for (const x of [-7.4, -6.6]) add(pRes, new THREE.CylinderGeometry(0.08, 0.08, 0.35, 10), mat(pRes, 0xb7c0cc, { metalness: .6 })).position.set(x, 4.08, MC_Z);
+}
+/* ---------- Brake line ---------- */
+const pLine = part('line');
+const lineCurve = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(MC_FRONT + 0.3, MC_Y, MC_Z), new THREE.Vector3(-4.0, MC_Y, MC_Z), new THREE.Vector3(-2.6, 4.1, -2.35),
+  new THREE.Vector3(-1.1, 3.75, -2.45), new THREE.Vector3(-0.1, 3.0, -2.25), new THREE.Vector3(0, PAD_Y, -1.98), new THREE.Vector3(0, PAD_Y, -1.76)]);
+add(pLine, new THREE.TubeGeometry(lineCurve, 160, 0.15, 16), new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: .28, roughness: .15, depthWrite: false }));
+pLine.mats.push(pLine.group.children[0].material);
+const lineFluid = new THREE.Mesh(new THREE.TubeGeometry(lineCurve, 160, 0.095, 12), fluidMat(null)); lineFluid.userData.part = 'line'; pLine.group.add(lineFluid);
+// pressure arrows + bubbles
+const N_ARROWS = 16;
+const arrows = new THREE.InstancedMesh(new THREE.ConeGeometry(0.11, 0.26, 12), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, depthTest: false }), N_ARROWS);
+arrows.renderOrder = 5; arrows.frustumCulled = false; scene.add(arrows);
+const N_BUB = 9;
+const bubbles = new THREE.InstancedMesh(new THREE.SphereGeometry(0.13, 16, 10), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .1, metalness: 0, transparent: true, opacity: .92 }), N_BUB);
+bubbles.frustumCulled = false; scene.add(bubbles);
+
+/* =========================================================
+   Labels
+========================================================= */
+const labels = [];
+function label(text, parent, pos, side, partKey, near = false) {
+  const el = document.createElement('div'); el.className = 'tag ' + (side || ''); el.innerHTML = `<span>${text}</span>`;
+  const o = new CSS2DObject(el); o.position.copy(pos); parent.add(o); labels.push({ o, partKey, near });
+}
+label('Brake pedal', pedalArm, new THREE.Vector3(-0.3, -4.3, 0), 'down', 'pedal');
+label('Master cylinder', pMC.group, new THREE.Vector3(-6.4, MC_Y - 0.6, MC_Z), 'down', 'mc');
+label('Fluid reservoir', pRes.group, new THREE.Vector3(-7.0, 5.3, MC_Z), 'up', 'reservoir');
+label('Brake pipe', pLine.group, lineCurve.getPoint(0.4).add(new THREE.Vector3(0, 0.3, 0)), 'up', 'line');
+label('Caliper', pCal.group, new THREE.Vector3(0, 3.2, -0.4), 'up', 'caliper');
+label('Brake disc', pDisc.group, new THREE.Vector3(1.9, -1.8, 0.2), 'right', 'disc');
+label('Brake pads', pPads.group, new THREE.Vector3(1.05, 1.75, 0.6), 'right', 'pads');
+label('Piston', pPiston.group, new THREE.Vector3(0.15, PAD_Y - 0.55, HOUSING_FRONT - 0.35), 'down', 'piston', true);
+label('Piston seal', pSeal.group, new THREE.Vector3(0.2, PAD_Y + 0.5, -1.0), 'up', 'seal', true);
+label('Slide pin', pPins.group, new THREE.Vector3(1.35, 1.75, -1.9), 'right', 'pins', true);
+label('Bleed nipple', pBleed.group, new THREE.Vector3(-0.3, 3.65, -1.6), 'left', 'bleed', true);
+
+/* =========================================================
+   State + physics
+========================================================= */
+const S = {
+  userPress: false, force: 0.8, scriptPress: 0, p: 0, disp: 0, P: 0, c: 0, F: 0, prevP: 0,
+  speed: 50, target: 50, temp: 20, sinceRelease: 99, hadBrake: false, arrowPhase: 0, discAngle: 0,
+  worn: false, air: false, explode: 0, explodeTarget: 0, timeScale: 1,
+  event: null, results: {}, lastStop: null, challenge: null,
+};
+const faultKey = () => S.challenge ? 'mystery' : (S.worn && S.air ? 'both' : S.worn ? 'worn' : S.air ? 'air' : 'none');
+const FAULT_NAMES = { none: 'No fault', worn: 'Worn pads', air: 'Air in line', both: 'Worn pads + air', mystery: 'Mystery brake' };
+const thick = () => (S.worn ? THICK_WORN : THICK_NEW);
+
+function physics(dt) {
+  const pressing = (S.userPress ? S.force : 0);
+  const target = S.explodeTarget > 0 ? 0 : Math.max(pressing, S.scriptPress);
+  S.p += (target - S.p) * Math.min(1, dt * 6);
+  const p = S.p;
+  let disp, P;
+  if (S.air) { disp = 0.95 * p; P = smooth(0.45, 1, p) * p * 0.65; }
+  else if (S.worn) { disp = 0.6 * smooth(0, 0.45, p) + 0.08 * p; P = smooth(0.12, 0.5, p) * p; }
+  else { disp = 0.38 * smooth(0, 0.4, p) + 0.07 * p; P = smooth(0.06, 0.4, p) * p; }
+  S.disp = disp; S.prevP = S.P; S.P = P;
+  S.c = smooth(0, 0.1, P);
+  const mu = S.worn ? 0.6 : 1;
+  S.F = S.c * P * mu;
+  // speed
+  const v0 = S.speed;
+  S.speed = Math.max(0, S.speed - 22 * S.F * dt);
+  if (target > 0.02) { S.sinceRelease = 0; } else S.sinceRelease += dt;
+  if (target <= 0.02 && S.sinceRelease > 1.2) {
+    const d = S.target - S.speed; S.speed += Math.sign(d) * Math.min(Math.abs(d), 8 * dt);
+  }
+  // heat
+  S.temp += S.F * ((v0 + S.speed) / 2) * 0.447 * 16 * dt;
+  S.temp -= (S.temp - 20) * 0.05 * dt;
+  S.temp = Math.min(S.temp, 900);
+  S.discAngle += S.speed * 0.12 * dt;
+  S.arrowPhase += (S.P - S.prevP) * 2.2;
+  // stopping events
+  if (!S.event && S.F > 0.03 && S.speed > 1) S.event = { v0: S.speed, d: 0, t: 0, key: faultKey() };
+  if (S.event) {
+    S.event.d += (v0 + S.speed) / 2 * 0.447 * dt; S.event.t += dt;
+    if (S.speed <= 0.01) {
+      S.lastStop = S.event; S.results[S.event.key] = S.event; S.event = null; renderResults();
+      if (tour < 0 && !demo) say(`Stopped from ${Math.round(S.lastStop.v0)} miles per hour in ${Math.round(S.lastStop.d)} metres.`);
+    } else if (target <= 0.02 && S.F < 0.01) S.event = null;
+  }
+  if (target > 0.02 && S.c > 0.1) S.hadBrake = true;
+}
+
+/* =========================================================
+   Visual update
+========================================================= */
+const tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3(), dummy = new THREE.Object3D(), up = new THREE.Vector3(0, 1, 0);
+const fluidLow = new THREE.Color(0xf2b233), fluidHigh = new THREE.Color(0xff6a00);
+const heatA = new THREE.Color(0x5a0800), heatB = new THREE.Color(0xd42000), heatC = new THREE.Color(0xff6a20);
+const EXPLODE = {
+  caliper: [0, 2.6, -0.2], bleed: [0, 2.6, -0.2], pads_out: [0, 1.5, 1.2], pads_in: [0, 1.5, -0.9],
+  piston: [0, 1.5, -2.2], seal: [0, 1.5, -3.0], pins: [0, 0.6, -0.6],
+};
+function poseScene(now) {
+  const th = thick();
+  setPadThickness(padIn, th); setPadThickness(padOut, th);
+  const e = ease(S.explode);
+  const ex = k => new THREE.Vector3(...EXPLODE[k]).multiplyScalar(e);
+  // sliding caliper geometry
+  const zb = -GAP * S.c - (THICK_NEW - th);
+  pCal.group.position.copy(ex('caliper')).add(tmp.set(0, 0, zb));
+  pBleed.group.position.copy(pCal.group.position);
+  pSeal.group.position.copy(ex('seal')).add(tmp.set(0, 0, zb));
+  padOut.g.position.set(0, PAD_Y, DISC_T / 2 + GAP + zb + (THICK_NEW - th)).add(ex('pads_out'));
+  const innerFace = -(DISC_T / 2) - GAP * (1 - S.c);
+  padIn.g.position.set(0, PAD_Y, innerFace).add(ex('pads_in'));
+  const pistonFront = innerFace - th - 0.1;
+  pPiston.group.position.copy(ex('piston')).add(tmp.set(0, 0, pistonFront - HOUSING_FRONT));
+  // pins slide out sideways when exploded
+  pPins.group.children.forEach(m => { const s = Math.sign(m.position.x); m.userData.base ??= m.position.clone(); m.position.copy(m.userData.base).add(tmp.set(s * 0.9 * e, 0.6 * e, -0.6 * e)); });
+  // chamber fluid: from bore back (-1.6) to piston back, in caliper-local space
+  const backLocal = -1.6, pistonBackLocal = pistonFront - PISTON_LEN - zb;
+  chamberFluid.position.set(0, PAD_Y, backLocal);
+  chamberFluid.scale.z = Math.max(0.02, pistonBackLocal - backLocal);
+  chamberFluid.visible = e < 0.05;
+  // disc spin + heat
+  discSpin.rotation.z = -S.discAngle;
+  const T = S.temp;
+  if (T > 200) {
+    const k = clamp((T - 200) / 450);
+    discMat.emissive.copy(k < .5 ? heatA.clone().lerp(heatB, k * 2) : heatB.clone().lerp(heatC, (k - .5) * 2));
+    discMat.emissiveIntensity = 0.15 + 0.85 * k;
+  } else discMat.emissiveIntensity = 0;
+  [padIn, padOut].forEach(pd => { pd.fric.material.emissive.setHex(0xff4000); pd.fric.material.emissiveIntensity = clamp((T - 300) / 500) * 0.5; });
+  // pedal + pushrod
+  const a = Math.asin(clamp(S.disp / 1.6, 0, 0.99));
+  pedalArm.rotation.z = a;
+  const A = tmp.set(PIVOT.x + 1.6 * Math.sin(a), PIVOT.y - 1.6 * Math.cos(a), PIVOT.z);
+  const rear = MC_REAR + 0.15 + S.disp;
+  const Rr = tmp2.set(rear, MC_Y, MC_Z);
+  pushrod.position.copy(A).add(Rr).multiplyScalar(0.5);
+  pushrod.scale.y = A.distanceTo(Rr);
+  pushrod.quaternion.setFromUnitVectors(up, Rr.clone().sub(A).normalize());
+  mcPiston.position.set(rear + 0.35, MC_Y, MC_Z);
+  const front = rear + 0.7;
+  mcFluid.position.set(front, MC_Y, MC_Z); mcFluid.scale.x = MC_FRONT - 0.15 - front;
+  mcSpring.position.x = front; mcSpring.scale.x = MC_FRONT - 0.15 - front;
+  // fluid colour = pressure
+  const col = fluidLow.clone().lerp(fluidHigh, clamp(S.P / 0.8));
+  fluidMats.forEach(m => { m.color.copy(col); m.emissiveIntensity = S.P * 0.55; });
+  // arrows
+  const vis = $('tg-fluid').checked && e < 0.05;
+  for (let i = 0; i < N_ARROWS; i++) {
+    const u = ((i / N_ARROWS + S.arrowPhase) % 1 + 1) % 1;
+    const s = vis ? clamp(S.P * 2.2) * (0.75 + 0.25 * Math.sin(now * 0.008 + i)) : 0;
+    lineCurve.getPointAt(u, tmp); lineCurve.getTangentAt(u, tmp2);
+    dummy.position.copy(tmp); dummy.quaternion.setFromUnitVectors(up, tmp2); dummy.scale.setScalar(s);
+    dummy.updateMatrix(); arrows.setMatrixAt(i, dummy.matrix);
+  }
+  arrows.instanceMatrix.needsUpdate = true;
+  // bubbles (air fault) – squashed as the pedal is pressed
+  const showBub = S.air && !S.challenge;
+  for (let i = 0; i < N_BUB; i++) {
+    const u = 0.12 + i / N_BUB * 0.75 + Math.sin(i * 7.3) * 0.02;
+    lineCurve.getPointAt(u, tmp);
+    dummy.position.copy(tmp); dummy.quaternion.identity();
+    dummy.scale.setScalar(showBub ? (0.9 + 0.2 * Math.sin(i * 3.1)) * (1 - 0.7 * smooth(0, 0.85, S.p)) : 0);
+    dummy.updateMatrix(); bubbles.setMatrixAt(i, dummy.matrix);
+  }
+  bubbles.instanceMatrix.needsUpdate = true;
+}
+
+/* =========================================================
+   Camera views
+========================================================= */
+const VIEWS = {
+  overview: { p: [6.2, 8.4, 19.5], t: [-4.2, 1.3, -1.2] },
+  pedal:    { p: [-5.2, 5.6, 6.8], t: [-7.8, 3.6, -2.2] },
+  caliper:  { p: [7.4, 4.3, 0.6], t: [0, 2.15, -0.55] },
+  disc:     { p: [3.6, 2.8, 10.5], t: [0, 0.6, 0] },
+  explode:  { p: [7.6, 6.4, 8.6], t: [0, 3.1, -0.8] },
+};
+let tween = null;
+function goView(name, instant) {
+  const v = VIEWS[name]; if (!v) return;
+  const to = { p: new THREE.Vector3(...v.p), t: new THREE.Vector3(...v.t) };
+  if (innerWidth < 760) to.p.sub(to.t).multiplyScalar(1.5).add(to.t);
+  if (instant) { camera.position.copy(to.p); controls.target.copy(to.t); controls.update(); tween = null; return; }
+  tween = { from: { p: camera.position.clone(), t: controls.target.clone() }, to, start: performance.now(), dur: reduced ? 400 : 1100 };
+}
+function frameOffset() {
+  const w = innerWidth, h = innerHeight;
+  if (w >= 760) camera.setViewOffset(w, h, -Math.min(220, w * 0.17), 0, w, h);
+  else camera.setViewOffset(w, h, 0, -h * 0.1, w, h);
+}
+frameOffset();
+
+/* =========================================================
+   Sound: speech + squeal
+========================================================= */
+let soundOn = false, voice = null, actx = null, squealOsc = null, squealGain = null;
+function pickVoice() { try { const vs = speechSynthesis.getVoices(); voice = vs.find(v => /en[-_]GB/i.test(v.lang)) || vs.find(v => /^en/i.test(v.lang)) || null; } catch (e) {} }
+try { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; } catch (e) {}
+let lastSayAt = 0;
+const NARR={"This is the disc brake from one wheel of a car, with the brake pedal and master cylinder. Some parts are cut in half so you can see inside. Drag to turn it. Pinch or scroll to zoom.":"audio/discbrakes-tour1.mp3","When you press the brake pedal, it pushes a rod into the master cylinder. The pedal works like a lever, so a small push from your foot becomes a big push.":"audio/discbrakes-tour2.mp3","The master cylinder pushes brake fluid (orange) along the pipe. A liquid cannot be squashed, so the push at the pedal comes out just as strong at the wheel. The arrows show the pressure travelling to the caliper.":"audio/discbrakes-tour3.mp3","The fluid pushes the caliper piston out. The piston pushes the inner pad onto the disc. The caliper then slides on its pins and pulls the outer pad onto the other side.":"audio/discbrakes-tour4.mp3","The pads rub on the spinning disc. This friction slows the wheel. The movement of the car turns into heat. Hard braking from high speed can make the disc glow red hot.":"audio/discbrakes-tour5.mp3","When you let go, the fluid pressure drops. The rubber piston seal pulls the piston back a little, so the pads stop touching the disc and the wheel can turn freely.":"audio/discbrakes-tour6.mp3","These pads are worn thin. The piston has to come out further, so the pedal goes down further. Thin pads grip less, so the car takes longer to stop. Listen for the squeal of the wear indicator.":"audio/discbrakes-tour7.mp3","There is air (white bubbles) in the brake fluid. Air can be squashed, so the pedal feels spongy and sinks towards the floor. The brakes are much weaker. The fix is to bleed the brakes at the bleed nipple.":"audio/discbrakes-tour8.mp3","The brake is now taken apart. Tap or click any part to see what it does and what to check. Look at the pads, the disc, the slide pins and the piston seal.":"audio/discbrakes-tour9.mp3","Step one. Your foot pushes the brake pedal. The pedal pushes a rod into the master cylinder.":"audio/discbrakes-step1.mp3","Step two. The master cylinder pushes brake fluid along the pipe. Fluid cannot be squashed, so it carries the push to the wheel.":"audio/discbrakes-step2.mp3","Step three. The fluid pushes the caliper piston out. The piston pushes the inner pad onto the disc, and the caliper slides to pull the outer pad on too.":"audio/discbrakes-step3.mp3","Step four. The pads rub on the spinning disc. Friction slows the car, and the movement turns into heat.":"audio/discbrakes-step4.mp3","Step five. You let go. The pressure drops, and the piston seal pulls the piston back a little, so the pads let go of the disc.":"audio/discbrakes-step5.mp3","Brake pedal. The driver presses it with their foot. It works like a lever to make the push bigger. What to check: The pedal should feel firm and stop well above the floor.":"audio/discbrakes-part-pedal.mp3","Master cylinder. Turns the push from the pedal into brake fluid pressure. What to check: No fluid leaks around the master cylinder.":"audio/discbrakes-part-mc.mp3","Brake fluid reservoir. Holds spare brake fluid for the system. What to check: Fluid level between MIN and MAX. A low level can mean worn pads or a leak.":"audio/discbrakes-part-reservoir.mp3","Brake pipe and hose. Carry the brake fluid from the master cylinder to the caliper. What to check: No leaks, rust or damage. Flexible hoses must not be cracked or bulging.":"audio/discbrakes-part-line.mp3","Caliper. Holds the piston and pads. It slides on its pins so both pads squeeze the disc. What to check: No fluid leaks. The caliper should slide freely.":"audio/discbrakes-part-caliper.mp3","Caliper piston. Brake fluid pushes it out. It pushes the inner pad onto the disc. What to check: Moves freely. Not seized, rusty or leaking.":"audio/discbrakes-part-piston.mp3","Piston seal. A rubber ring. It stops fluid leaking out, and pulls the piston back a little when you let go. What to check: No fluid leaking past the piston.":"audio/discbrakes-part-seal.mp3","Caliper slide pins. Let the caliper slide in and out so both pads press evenly. What to check: Slide freely, greased, and rubber boots not split.":"audio/discbrakes-part-pins.mp3","Brake pads. Squeeze the disc. The friction between pad and disc slows the wheel. What to check: Enough friction material left (usually at least 3 mm – check the data). No cracks. Even wear. These pads: about 2 mm – WORN, replace them.":"audio/discbrakes-part-pads-worn.mp3","Brake pads. Squeeze the disc. The friction between pad and disc slows the wheel. What to check: Enough friction material left (usually at least 3 mm – check the data). No cracks. Even wear. These pads: about 10 mm – good.":"audio/discbrakes-part-pads-good.mp3","Brake disc (rotor). Turns with the wheel. The pads squeeze it to slow the car. What to check: Smooth surface. No deep scores, cracks or big lip on the edge.":"audio/discbrakes-part-disc.mp3","Caliper carrier. Bolted to the car. Holds the pads and the slide pins. What to check: Bolts tight. Pads slide in it freely.":"audio/discbrakes-part-carrier.mp3","Bleed nipple. A small valve used to let air out of the brake fluid. This is called bleeding the brakes. What to check: Not seized, and the dust cap is fitted.":"audio/discbrakes-part-bleed.mp3","Correct. The pedal pushes a rod into the master cylinder. That turns the push into fluid pressure.":"audio/discbrakes-quiz1-right.mp3","Not quite. The pedal pushes a rod into the master cylinder. That turns the push into fluid pressure.":"audio/discbrakes-quiz1-wrong.mp3","Correct. A liquid cannot be squashed, so a push at the pedal end comes out just as strong at the caliper.":"audio/discbrakes-quiz2-right.mp3","Not quite. A liquid cannot be squashed, so a push at the pedal end comes out just as strong at the caliper.":"audio/discbrakes-quiz2-wrong.mp3","Correct. Fluid pressure pushes the caliper piston out, and the piston pushes the pad onto the disc.":"audio/discbrakes-quiz3-right.mp3","Not quite. Fluid pressure pushes the caliper piston out, and the piston pushes the pad onto the disc.":"audio/discbrakes-quiz3-wrong.mp3","Correct. Friction turns the movement into heat. Hard braking can make the disc glow red hot.":"audio/discbrakes-quiz4-right.mp3","Not quite. Friction turns the movement into heat. Hard braking can make the disc glow red hot.":"audio/discbrakes-quiz4-wrong.mp3","Correct. Air can be squashed, so the pedal sinks and the brakes are weak. The fix is to bleed the brakes.":"audio/discbrakes-quiz5-right.mp3","Not quite. Air can be squashed, so the pedal sinks and the brakes are weak. The fix is to bleed the brakes.":"audio/discbrakes-quiz5-wrong.mp3","Worn pads added. Brake hard and compare the stopping distance.":"audio/discbrakes-fault-worn-on.mp3","New pads fitted.":"audio/discbrakes-fault-worn-off.mp3","Air added to the brake fluid. Watch the pedal when you brake.":"audio/discbrakes-fault-air-on.mp3","Brakes bled. The air is gone.":"audio/discbrakes-fault-air-off.mp3","Sound is on. Hold the brake button to press the pedal.":"audio/discbrakes-sound-on.mp3","Spot the fault. Brake hard and decide what is wrong.":"audio/discbrakes-challenge-start.mp3","Well spotted. The pedal was firm, the pads were thick and the car stopped in a normal distance.":"audio/discbrakes-challenge-none-right.mp3","Not this time. The pedal was firm, the pads were thick and the car stopped in a normal distance.":"audio/discbrakes-challenge-none-wrong.mp3","Well spotted. The pads were thin, the pedal went down further, the brakes squealed and the car took longer to stop.":"audio/discbrakes-challenge-worn-right.mp3","Not this time. The pads were thin, the pedal went down further, the brakes squealed and the car took longer to stop.":"audio/discbrakes-challenge-worn-wrong.mp3","Well spotted. The pedal was spongy and sank nearly to the floor, and the car took much longer to stop. Air can be squashed.":"audio/discbrakes-challenge-air-right.mp3","Not this time. The pedal was spongy and sank nearly to the floor, and the car took much longer to stop. Air can be squashed.":"audio/discbrakes-challenge-air-wrong.mp3"};
+const __clipCache={};let __cur=null;
+function __stopClip(){ if(__cur){ try{__cur.pause();__cur.currentTime=0;}catch(e){} __cur=null; } }
+function __playClip(text){ const src=NARR[__norm(text)]; if(!src) return false;
+  __stopClip(); try{speechSynthesis.cancel()}catch(e){}
+  let a=__clipCache[src]; if(!a){a=new Audio(src);a.preload='auto';__clipCache[src]=a;}
+  __cur=a; try{a.currentTime=0;}catch(e){} const p=a.play(); if(p&&p.catch)p.catch(()=>{}); return true; }
+function __norm(t){return String(t).replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();}
+function __clipPlaying(){return !!(__cur&&!__cur.paused&&!__cur.ended);}
+function say(text) {
+  if (!soundOn) return;
+  if (__playClip(text)) { lastSayAt = performance.now(); return; }
+  __stopClip();
+  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g, '')); if (voice) u.voice = voice; u.lang = 'en-GB'; u.rate = 0.95; speechSynthesis.speak(u); lastSayAt = performance.now(); } catch (e) {}
+}
+function initAudio() {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (!squealOsc) {
+      squealOsc = actx.createOscillator(); squealOsc.type = 'triangle'; squealOsc.frequency.value = 3100;
+      const lfo = actx.createOscillator(); lfo.frequency.value = 9; const lg = actx.createGain(); lg.gain.value = 120; lfo.connect(lg); lg.connect(squealOsc.frequency); lfo.start();
+      squealGain = actx.createGain(); squealGain.gain.value = 0; squealOsc.connect(squealGain); squealGain.connect(actx.destination); squealOsc.start();
+    }
+    actx.resume();
+  } catch (e) {}
+}
+
+/* =========================================================
+   UI wiring
+========================================================= */
+const stepsEl = $('steps');
+STEPS.forEach((s, i) => { const d = document.createElement('div'); d.innerHTML = `<b>${i + 1}</b>${s.short}`; stepsEl.appendChild(d); });
+const brakeBtn = $('brakeBtn');
+const pressOn = e => { e.preventDefault(); S.userPress = true; brakeBtn.classList.add('down'); try { brakeBtn.setPointerCapture(e.pointerId); } catch (_) {} };
+const pressOff = () => { S.userPress = false; brakeBtn.classList.remove('down'); };
+brakeBtn.addEventListener('pointerdown', pressOn);
+brakeBtn.addEventListener('pointerup', pressOff); brakeBtn.addEventListener('pointercancel', pressOff); brakeBtn.addEventListener('lostpointercapture', pressOff);
+brakeBtn.addEventListener('contextmenu', e => e.preventDefault());
+brakeBtn.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.repeat) { S.userPress = true; brakeBtn.classList.add('down'); } });
+brakeBtn.addEventListener('keyup', e => { if (e.key === 'Enter') pressOff(); });
+$('force').addEventListener('input', e => { S.force = +e.target.value / 100; forceLbl(); });
+function forceLbl() { $('forceOut').textContent = S.force < 0.45 ? 'Light' : S.force < 0.75 ? 'Medium' : 'Hard'; }
+$('speedSet').addEventListener('input', e => { S.target = +e.target.value; $('speedSetOut').textContent = S.target + ' mph'; });
+function setTarget(v, now = true) { S.target = v; $('speedSet').value = v; $('speedSetOut').textContent = v + ' mph'; if (now) S.speed = v; }
+const slowToScale = v => 0.1 * Math.pow(10, v / 100);
+function setSlow(scale) { S.timeScale = scale; $('slow').value = Math.round(100 * Math.log10(scale / 0.1)); slowLbl(); }
+function slowLbl() { $('slowOut').textContent = S.timeScale > 0.95 ? 'Normal speed' : `${Math.round(S.timeScale * 100) / 100}× (slow motion)`; }
+$('slow').addEventListener('input', e => { S.timeScale = slowToScale(+e.target.value); slowLbl(); });
+$('soundBtn').onclick = () => {
+  soundOn = !soundOn; $('soundBtn').innerHTML = soundOn ? '🔊 Sound on' : '🔈 Sound off'; $('soundBtn').classList.toggle('on', soundOn);
+  if (soundOn) { initAudio(); say(tour >= 0 ? TOUR[tour].text : 'Sound is on. Hold the brake button to press the pedal.'); }
+  else { __stopClip(); try { speechSynthesis.cancel(); } catch (e) {} if (squealGain) squealGain.gain.value = 0; }
+};
+function setExplode(on) {
+  S.explodeTarget = on ? 1 : 0; $('explodeBtn').innerHTML = on ? '🔧 Put back together' : '🔧 Take apart'; $('explodeBtn').classList.toggle('on', on);
+  goView(on ? 'explode' : 'overview');
+  if (on) setTarget(S.target, false);
+}
+$('explodeBtn').onclick = () => setExplode(S.explodeTarget === 0);
+
+function openDrawer(tab) {
+  $('drawer').classList.add('show'); $('menuBtn').setAttribute('aria-expanded', 'true');
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('show', p.id === 'pane-' + tab));
+  if (tab === 'quiz') renderQuiz();
+}
+function closeDrawer() { $('drawer').classList.remove('show'); $('menuBtn').setAttribute('aria-expanded', 'false'); }
+$('menuBtn').onclick = () => $('drawer').classList.contains('show') ? closeDrawer() : openDrawer('faults');
+$('quizBtn').onclick = () => openDrawer('quiz');
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => openDrawer(b.dataset.tab));
+document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => goView(b.dataset.view));
+
+// faults
+$('fWorn').addEventListener('change', e => { S.worn = e.target.checked; say(S.worn ? 'Worn pads added. Brake hard and compare the stopping distance.' : 'New pads fitted.'); });
+$('fAir').addEventListener('change', e => { S.air = e.target.checked; say(S.air ? 'Air added to the brake fluid. Watch the pedal when you brake.' : 'Brakes bled. The air is gone.'); });
+function setFaults(worn, air) { S.worn = worn; S.air = air; $('fWorn').checked = worn; $('fAir').checked = air; }
+
+// toggles
+const TOGGLES = [
+  { id: 'cut', name: 'Cut-away view', desc: 'Cut the caliper and master cylinder in half', on: true },
+  { id: 'labels', name: 'Labels', on: true },
+  { id: 'fluid', name: 'Pressure arrows', desc: 'Show the push travelling along the pipe', on: true },
+  { id: 'pedal', name: 'Pedal & master cylinder', keys: ['pedal', 'mc', 'reservoir'], on: true },
+  { id: 'line', name: 'Brake pipe', keys: ['line'], on: true },
+  { id: 'caliper', name: 'Caliper body', keys: ['caliper', 'bleed'], on: true },
+  { id: 'pads', name: 'Brake pads', keys: ['pads'], on: true },
+  { id: 'piston', name: 'Piston & seal', keys: ['piston', 'seal'], on: true },
+  { id: 'carrier', name: 'Carrier & slide pins', keys: ['carrier', 'pins'], on: true },
+  { id: 'disc', name: 'Brake disc', keys: ['disc'], on: true },
+];
+TOGGLES.forEach(t => {
+  const row = document.createElement('div'); row.className = 'toggle';
+  row.innerHTML = `<label for="tg-${t.id}">${t.name}${t.desc ? `<small>${t.desc}</small>` : ''}</label><input type="checkbox" id="tg-${t.id}" ${t.on ? 'checked' : ''}>`;
+  $('toggles').appendChild(row);
+  row.querySelector('input').addEventListener('change', e => applyToggle(t, e.target.checked));
+});
+let labelsOn = true;
+function applyToggle(t, on) {
+  if (t.id === 'cut') { cutMats.forEach(m => { m.clippingPlanes = on ? [m.userData.plane] : []; m.needsUpdate = true; }); fluidMats.forEach(m => { if (m.clippingPlanes.length || m.userData.hadPlane) { m.userData.hadPlane = true; } }); return; }
+  if (t.id === 'labels') { labelsOn = on; return; }
+  if (t.id === 'fluid') return;
+  t.keys.forEach(k => PARTS[k].group.visible = on);
+  if (t.id === 'line') bubbles.visible = arrows.visible = on;
+}
+function setLabels(on) { labelsOn = on; $('tg-labels').checked = on; }
+
+/* Results table */
+function renderResults() {
+  const rows = Object.entries(S.results).map(([k, r]) => `<tr><td>${FAULT_NAMES[k]} · ${Math.round(r.v0)}→0 mph</td><td>${Math.round(r.d)} m</td></tr>`).join('');
+  $('results').innerHTML = rows ? `<b>Stopping distances</b><table>${rows}</table>` : '';
+}
+
+/* Demo scripts (tour + "Show me") */
+let demo = null; // {t:0, fn}
+let tour = -1;
+function resetSim(o = {}) {
+  setFaults(!!o.worn, !!o.air); S.temp = 20; S.event = null; S.p = 0;
+  if (o.speed != null) setTarget(o.speed === 0 ? S.target : o.speed, true);
+  if (o.speed === 0) S.speed = 0;
+  setSlow(o.slow || 1);
+  if (S.explodeTarget && !o.explode) { S.explodeTarget = 0; $('explodeBtn').innerHTML = '🔧 Take apart'; $('explodeBtn').classList.remove('on'); }
+}
+function startTour() { tour = 0; $('mainBox').classList.add('hide'); $('tourBox').classList.add('show'); closeInspect(); showTour(); }
+function endTour() {
+  if (tour < 0) return; tour = -1; demo = null; S.scriptPress = 0; highlight.clear();
+  $('mainBox').classList.remove('hide'); $('tourBox').classList.remove('show');
+  resetSim({ speed: 50 }); if (S.explodeTarget) setExplode(false); else goView('overview');
+}
+function showTour() {
+  const s = TOUR[tour];
+  $('tourNo').textContent = `Guided tour · step ${tour + 1} of ${TOUR.length}`;
+  $('tourTitle').textContent = s.title; $('tourText').textContent = s.text;
+  $('tourBack').disabled = tour === 0; $('tourNext').textContent = tour === TOUR.length - 1 ? 'Finish ✔' : 'Next ▶';
+  resetSim({ worn: s.worn, air: s.air, speed: s.speed ?? 50, slow: s.slow, explode: s.explode });
+  if (s.explode) { S.explodeTarget = 1; $('explodeBtn').innerHTML = '🔧 Put back together'; $('explodeBtn').classList.add('on'); }
+  highlight = new Set(s.hl || []);
+  if (s.labels) setLabels(true);
+  goView(s.view);
+  demo = s.script ? { t: 0, fn: s.script } : null; S.scriptPress = 0;
+  say(s.text);
+}
+$('tourBtn').onclick = startTour;
+$('tourNext').onclick = () => { if (tour >= TOUR.length - 1) endTour(); else { tour++; showTour(); } };
+$('tourBack').onclick = () => { if (tour > 0) { tour--; showTour(); } };
+$('tourAgain').onclick = showTour;
+$('tourEnd').onclick = endTour;
+
+/* Quiz */
+let qi = 0, qDone = false;
+function renderQuiz() {
+  const q = QUIZ[qi]; qDone = false;
+  $('qNo').textContent = `Question ${qi + 1} of ${QUIZ.length}`; $('qText').textContent = q.q; $('qFeed').textContent = ''; $('qFeed').className = 'feed';
+  $('qOpts').innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const b = document.createElement('button'); b.textContent = o;
+    b.onclick = () => {
+      if (qDone) return; qDone = true; const ok = i === q.a;
+      b.classList.add(ok ? 'right' : 'wrong'); $('qOpts').children[q.a].classList.add('right');
+      $('qFeed').className = 'feed ' + (ok ? 'ok' : 'no'); $('qFeed').innerHTML = `<b>${ok ? 'Correct!' : 'Not quite.'}</b> ${q.why}`;
+      say((ok ? 'Correct. ' : 'Not quite. ') + q.why);
+    };
+    $('qOpts').appendChild(b);
+  });
+  $('qNext').textContent = qi === QUIZ.length - 1 ? 'Start again ↻' : 'Next question ▶';
+}
+$('qNext').onclick = () => { qi = (qi + 1) % QUIZ.length; renderQuiz(); };
+$('qShow').onclick = () => {
+  const sh = QUIZ[qi].show; endTour(); closeInspect();
+  resetSim({ air: sh.air, speed: sh.speed ?? 50, slow: sh.slow });
+  if (S.explodeTarget) setExplode(false);
+  goView(sh.view);
+  const d = sh.delay || 0.6;
+  demo = { t: 0, fn: t => (t > d && t < d + sh.dur) ? sh.press : 0, end: d + sh.dur + 2, after: () => { if (sh.air) setFaults(false, false); setSlow(1); } };
+  if (innerWidth < 760) closeDrawer();
+};
+
+/* Spot the fault */
+const CH_OPTS = [['none', 'No fault – the brakes are OK'], ['worn', 'Worn brake pads'], ['air', 'Air in the brake line']];
+let chOrig = null;
+function startChallenge() {
+  endTour(); if (S.explodeTarget) setExplode(false);
+  chOrig = chOrig || { worn: S.worn, air: S.air };
+  const pick = CH_OPTS[Math.floor(Math.random() * 3)][0];
+  S.challenge = pick; S.worn = pick === 'worn'; S.air = pick === 'air'; S.temp = 20; setTarget(50);
+  $('fWorn').disabled = $('fAir').disabled = true;
+  $('chBox').style.display = 'block'; $('chStart').style.display = 'none'; $('chIntro').textContent = 'Brake hard from 50 mph. Watch the pedal feel, pad thickness and stopping distance. Compare with the “No fault” stop if you have one.';
+  $('chFeed').textContent = ''; $('chFeed').className = 'feed';
+  $('chOpts').innerHTML = '';
+  CH_OPTS.forEach(([k, txt]) => {
+    const b = document.createElement('button'); b.textContent = txt;
+    b.onclick = () => {
+      if (!S.challenge) return; const ok = k === S.challenge;
+      [...$('chOpts').children].forEach((c, i) => { if (CH_OPTS[i][0] === S.challenge) c.classList.add('right'); });
+      if (!ok) b.classList.add('wrong');
+      const why = { none: 'The pedal was firm, the pads were thick and the car stopped in a normal distance.', worn: 'The pads were thin, the pedal went down further, the brakes squealed and the car took longer to stop.', air: 'The pedal was spongy and sank nearly to the floor, and the car took much longer to stop. Air can be squashed.' }[S.challenge];
+      $('chFeed').className = 'feed ' + (ok ? 'ok' : 'no'); $('chFeed').innerHTML = `<b>${ok ? 'Well spotted!' : 'Not this time.'}</b> ${why}`;
+      say((ok ? 'Well spotted. ' : 'Not this time. ') + why);
+      S.challenge = null; setFaults(k === 'worn' && ok ? true : S.worn, S.air); // reveal stays visible
+      setFaults(S.worn, S.air);
+    };
+    $('chOpts').appendChild(b);
+  });
+  say('Spot the fault. Brake hard and decide what is wrong.');
+}
+function stopChallenge() {
+  S.challenge = null; $('fWorn').disabled = $('fAir').disabled = false; setFaults(false, false); chOrig = null;
+  $('chBox').style.display = 'none'; $('chStart').style.display = ''; $('chIntro').textContent = 'A hidden fault (or no fault) will be added. Brake, watch the pedal, the readings and the parts, then decide.';
+}
+$('chStart').onclick = startChallenge; $('chAgain').onclick = startChallenge; $('chStop').onclick = stopChallenge;
+
+/* Inspect */
+function openInspect(key) {
+  const i = INFO[key]; if (!i) return;
+  $('inspName').textContent = i.name; $('inspJob').textContent = i.job; $('inspChk').textContent = i.chk;
+  if (key === 'pads') $('inspChk').textContent = i.chk + ` These pads: ${S.worn ? 'about 2 mm – WORN, replace them.' : 'about 10 mm – good.'}`;
+  $('inspect').classList.add('show'); highlight = new Set([key]);
+  say(`${i.name}. ${i.job} What to check: ${$('inspChk').textContent}`);
+}
+function closeInspect() { $('inspect').classList.remove('show'); if (tour < 0) highlight.clear(); }
+$('inspX').onclick = closeInspect;
+
+/* Keyboard */
+addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' && e.target.type === 'range') return;
+  if (e.key === ' ') { e.preventDefault(); if (!e.repeat) { S.userPress = true; brakeBtn.classList.add('down'); } return; }
+  if (e.repeat) return;
+  const k = e.key.toLowerCase();
+  if (['1', '2', '3', '4'].includes(k)) goView(['overview', 'pedal', 'caliper', 'disc'][+k - 1]);
+  else if (k === 'e') setExplode(S.explodeTarget === 0);
+  else if (k === 'l') setLabels(!labelsOn);
+  else if (k === 's') $('soundBtn').click();
+  else if (k === 't') tour >= 0 ? endTour() : startTour();
+  else if (k === 'escape') { closeDrawer(); closeInspect(); endTour(); }
+});
+addEventListener('keyup', e => { if (e.key === ' ') pressOff(); });
+
+/* Hover + tap */
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), tip = $('tip');
+let hoverPart = null, highlight = new Set();
+function visibleDeep(o) { while (o) { if (!o.visible) return false; o = o.parent; } return true; }
+function pick(x, y) {
+  ndc.set(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1); ray.setFromCamera(ndc, camera);
+  const hits = ray.intersectObjects(Object.values(PARTS).map(p => p.group), true);
+  for (const h of hits) {
+    const k = h.object.userData.part; if (!k || !visibleDeep(h.object)) continue;
+    const pl = h.object.material?.clippingPlanes?.[0];
+    if (pl && pl.distanceToPoint(h.point) < -0.01) continue;
+    if (h.object.material?.opacity < 0.5 && k !== 'line' && k !== 'reservoir') continue;
+    return k;
+  }
+  return null;
+}
+let downAt = null;
+renderer.domElement.addEventListener('pointerdown', e => { downAt = [e.clientX, e.clientY]; });
+renderer.domElement.addEventListener('pointermove', e => {
+  if (e.pointerType !== 'mouse' || e.buttons) return;
+  const k = pick(e.clientX, e.clientY); hoverPart = k;
+  if (k) { tip.innerHTML = `<b>${INFO[k].name}</b>${INFO[k].job}<br><i style="opacity:.8">Click for what to check</i>`; tip.style.display = 'block'; tip.style.left = Math.min(e.clientX + 16, innerWidth - 290) + 'px'; tip.style.top = (e.clientY + 16) + 'px'; }
+  else tip.style.display = 'none';
+  renderer.domElement.style.cursor = k ? 'pointer' : 'grab';
+});
+renderer.domElement.addEventListener('pointerleave', () => { tip.style.display = 'none'; hoverPart = null; });
+renderer.domElement.addEventListener('pointerup', e => {
+  if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) return;
+  const k = pick(e.clientX, e.clientY); tip.style.display = 'none';
+  if (k) openInspect(k); else closeInspect();
+});
+
+/* =========================================================
+   Panel refresh
+========================================================= */
+let curStep = -2;
+function setRd(id, text, cls = '') { const el = $(id); const b = el.querySelector('b'); if (b.textContent !== text) b.textContent = text; el.className = 'rd ' + cls; }
+function currentStep() {
+  const pressing = Math.max(S.userPress ? S.force : 0, S.scriptPress) > 0.02 && S.explodeTarget === 0;
+  if (pressing) {
+    if (S.disp < 0.12 && S.c < 0.3) return 0;
+    if (S.c < 0.6) return 1;
+    return S.speed > 0.5 ? 3 : 2;
+  }
+  if (S.hadBrake && S.sinceRelease < 3) return 4;
+  if (S.sinceRelease >= 3) S.hadBrake = false;
+  return -1;
+}
+function refreshPanel() {
+  const st = S.explodeTarget ? -3 : currentStep();
+  if (st !== curStep) {
+    curStep = st;
+    if (st === -3) { $('stepName').textContent = 'Taken apart'; $('caption').innerHTML = 'Tap or click a part to see what it does and <b>what to check</b>.'; }
+    else if (st < 0) { $('stepName').textContent = 'Ready to brake'; $('caption').innerHTML = IDLE_CAP; }
+    else { $('stepName').textContent = STEPS[st].name; $('caption').innerHTML = STEPS[st].cap; if (tour < 0 && (S.timeScale <= 0.5) && st >= 0) say(STEPS[st].say); }
+    [...stepsEl.children].forEach((d, i) => { d.classList.toggle('active', i === st); d.classList.toggle('done', st >= 0 && st < 4 && i < st); });
+  }
+  setRd('rdSpeed', `${Math.round(S.speed)} mph`);
+  setRd('rdPress', `${Math.round(S.P * 80)} bar`); $('pressBar').style.width = clamp(S.P / 0.8) * 100 + '%';
+  const feel = S.p < 0.15 ? '–' : S.air ? 'Spongy – sinks' : S.worn ? 'Goes down further' : 'Firm';
+  setRd('rdPedal', feel, S.p >= 0.15 && (S.air || S.worn) ? 'warn' : '');
+  setRd('rdTemp', `${Math.round(S.temp)} °C${S.temp > 350 ? ' – glowing!' : ''}`, S.temp > 250 ? 'hot' : '');
+  setRd('rdPad', S.worn ? '2 mm – worn' : '10 mm – good', S.worn ? 'warn' : '');
+  setRd('rdStop', S.event ? 'Stopping…' : S.lastStop ? `${Math.round(S.lastStop.d)} m from ${Math.round(S.lastStop.v0)} mph` : '–');
+  const squeal = S.worn && S.F > 0.05 && S.speed > 1;
+  $('squeal').style.display = squeal ? 'block' : 'none';
+  if (squealGain) squealGain.gain.value = soundOn && squeal ? 0.035 : 0;
+}
+
+/* =========================================================
+   Loop
+========================================================= */
+const ZERO = new THREE.Color(0), HL = new THREE.Color(0x2b6cff);
+let last = performance.now();
+renderer.setAnimationLoop(now => {
+  const rdt = Math.min(0.1, (now - last) / 1000); last = now;
+  const dt = rdt * S.timeScale;
+  if (demo) { demo.t += dt; S.scriptPress = demo.fn(demo.t); if (demo.end && demo.t > demo.end) { demo.after?.(); demo = null; S.scriptPress = 0; } }
+  S.explode += (S.explodeTarget - S.explode) * Math.min(1, rdt * 3);
+  physics(dt);
+  poseScene(now);
+  refreshPanel();
+  // highlight
+  const pulse = 0.5 + 0.5 * Math.sin(now * 0.006);
+  for (const p of Object.values(PARTS)) {
+    const h = highlight.has(p.key), hv = hoverPart === p.key;
+    for (const m of p.mats) {
+      if (p.key === 'disc' && m === discMat && S.temp > 200) continue;
+      if (p.key === 'pads' && m.emissiveIntensity > 0 && !h && !hv && S.temp > 300) continue;
+      m.emissive.copy(h || hv ? HL : ZERO); m.emissiveIntensity = h ? 0.12 + 0.25 * pulse : hv ? 0.3 : 0;
+    }
+  }
+  const camDist = camera.position.distanceTo(new THREE.Vector3(0, 2.3, -0.5));
+  const close = camDist < 11 || S.explode > 0.5;
+  const SYS = ['pedal', 'mc', 'reservoir', 'line'];
+  const nearPedal = camera.position.distanceTo(new THREE.Vector3(-7.5, 3.6, -2.2)) < 11;
+  for (const l of labels) l.o.visible = labelsOn && PARTS[l.partKey].group.visible && (!l.near || close) && !(camDist < 11 && !nearPedal && SYS.includes(l.partKey)) && !(nearPedal && !SYS.includes(l.partKey));
+  if (tween) {
+    const k = clamp((now - tween.start) / tween.dur), e = ease(k);
+    camera.position.lerpVectors(tween.from.p, tween.to.p, e); controls.target.lerpVectors(tween.from.t, tween.to.t, e);
+    if (k >= 1) tween = null;
+  }
+  controls.update();
+  renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
+});
+controls.addEventListener('start', () => { tween = null; });
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; frameOffset(); camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight); labelRenderer.setSize(innerWidth, innerHeight);
+});
+
+/* =========================================================
+   Start (+ test hooks: ?press=0.8&speed=50&temp=500&worn=1&air=1&view=caliper&explode=1&tour=n&drawer=x&slow=0.3)
+========================================================= */
+forceLbl(); setSlow(1); setTarget(50);
+goView('overview', true);
+if (params.has('worn')) setFaults(true, S.air);
+if (params.has('air')) setFaults(S.worn, true);
+if (params.has('speed')) setTarget(+params.get('speed'));
+if (params.has('press')) { const v = +params.get('press'); demo = { t: 0, fn: () => v }; }
+if (params.has('view')) goView(params.get('view'), true);
+if (params.has('explode')) { S.explodeTarget = S.explode = 1; $('explodeBtn').innerHTML = '🔧 Put back together'; goView('explode', true); }
+if (params.has('tour')) { tour = +params.get('tour'); $('mainBox').classList.add('hide'); $('tourBox').classList.add('show'); showTour(); goView(TOUR[tour].view, true); }
+if (params.has('temp')) { const t = +params.get('temp'); S.temp = t; setInterval(() => { S.temp = t; }, 50); }
+if (params.has('drawer')) openDrawer(params.get('drawer'));
+if (params.has('inspect')) openInspect(params.get('inspect'));
+</script>
+</body>
+</html>
