@@ -124,6 +124,33 @@ blockquote{margin:6px 0;padding:6px 10px;border-left:4px solid var(--navy2);back
   h2{font-size:18px}
   .caption{font-size:15px}
 }
+
+/* ---- phone layouts ---- */
+@media (max-width:860px){
+  #top{padding:6px 8px;gap:6px}
+  .brand{padding:6px 10px;min-height:40px;font-size:13px}
+  .seg button{padding:6px 9px;min-height:40px;font-size:13.5px}
+  .tools{gap:4px}
+  .btn{min-height:40px;padding:6px 9px}
+  #stageCard{max-height:38vh;max-height:38dvh;padding:10px 12px}
+  #stageCard .caption{font-size:14.5px;line-height:1.4}
+  h2{font-size:16.5px;margin:0 0 6px}
+  .speed input{width:90px}
+  .lbl{font-size:11px;padding:2px 6px}
+}
+@media (orientation:landscape) and (max-height:500px){
+  #top{flex-wrap:nowrap;padding:6px 8px;gap:6px}
+  .tools{flex-wrap:nowrap}
+  .brand{padding:6px 10px;min-height:40px;font-size:13px}
+  .seg button{padding:6px 9px;min-height:40px;font-size:13.5px}
+  .btn{min-height:40px;padding:6px 9px}
+  .tools .btn .lbltxt{display:none}
+  #stageCard{left:8px;right:auto;top:60px;bottom:8px;width:min(44vw,380px);max-height:none;padding:10px 12px}
+  #stageCard .caption{font-size:14px;line-height:1.4}
+  #side{top:60px;bottom:8px;left:auto;right:8px;width:250px;max-height:none}
+  h2{font-size:16px}
+  .lbl{font-size:11px;padding:2px 6px}
+}
 </style>
 </head>
 <body>
@@ -1096,7 +1123,7 @@ function frame(){
 function fitView(){
   const W=innerWidth,H=innerHeight; camera.aspect=W/H;
   // shift the picture into the free area between the stage card and side panel
-  if(W>860) camera.setViewOffset(W,H,Math.round(Math.min(190,W*0.12)),-10,W,H); else camera.setViewOffset(W,H,0,Math.round(H*0.13),W,H);
+  if(W>860) camera.setViewOffset(W,H,Math.round(Math.min(190,W*0.12)),-10,W,H); else if(H<=500&&W>H) camera.setViewOffset(W,H,-Math.round(W*0.21),-Math.round(H*0.05),W,H); else camera.setViewOffset(W,H,0,Math.round(H*0.13),W,H);
   camera.updateProjectionMatrix(); renderer.setSize(W,H); labelRenderer.setSize(W,H);
 }
 fitView(); addEventListener('resize',fitView);

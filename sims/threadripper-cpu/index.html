@@ -88,6 +88,34 @@ table.mis th{background:#eef3fb}
   header h1 small{display:none}
   input[type=range]{width:90px}
 }
+
+.sm{display:none}
+@media (max-width:900px){
+  #app{grid-template-rows:auto 48vh auto 1fr;grid-template-rows:auto 48dvh auto 1fr}
+  header{padding:6px 8px;gap:5px}
+  header h1{font-size:15px;flex:1 0 calc(100% - 50px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  header button{min-height:38px;padding:0 9px;font-size:13px;flex:1 1 auto}
+  .lg{display:none}.sm{display:inline}
+  #bar{flex-wrap:nowrap;overflow-x:auto;padding:6px 8px;gap:6px;-webkit-overflow-scrolling:touch}
+  #bar .grp{flex-wrap:nowrap;flex:none}
+  #bar button{min-height:40px;padding:0 10px;font-size:13px;white-space:nowrap}
+  #bar label.sl{white-space:nowrap}
+  #simnote{display:none}
+  #side{padding:10px 12px}
+  #stageName{font-size:17px}#caption{font-size:15px}
+  #legend{display:none}
+  #torque{min-width:0;max-width:170px;padding:5px 9px;font-size:11.5px;right:6px;top:6px;left:auto}#torque .big{font-size:16px}#torque>div[style]{display:none}
+  .lbl{font-size:10.5px;padding:2px 5px}
+}
+@media (orientation:landscape) and (max-height:500px){
+  #app{grid-template-columns:1fr 300px;grid-template-rows:auto 1fr auto}
+  header{grid-column:1/3;flex-wrap:nowrap}
+  header h1{flex:1 1 auto;min-width:0}
+  header button{flex:none}
+  #view{grid-row:2;grid-column:1}
+  #bar{grid-row:3;grid-column:1}
+  #side{grid-row:2/4;grid-column:2;border-left:1px solid var(--line);border-top:0}
+}
 </style>
 </head>
 <body>
@@ -97,8 +125,8 @@ table.mis th{background:#eef3fb}
   <h1>Installing an AMD Threadripper CPU <small>sTR5 socket · Level 3 IT</small></h1>
   <button id="btnSound" aria-pressed="false">🔈 Sound on</button>
   <button id="btnCaps" class="on" aria-pressed="true">Captions</button>
-  <button id="btnLearn">What you'll learn</button>
-  <button id="btnQuiz">Test yourself</button>
+  <button id="btnLearn"><span class="lg">What you'll learn</span><span class="sm">Learn</span></button>
+  <button id="btnQuiz"><span class="lg">Test yourself</span><span class="sm">Quiz</span></button>
   <button id="btnHelp" aria-label="Keyboard shortcuts and help">?</button>
 </header>
 <div id="view">

@@ -101,6 +101,46 @@
     #inspect{left:8px;right:8px;width:auto;bottom:170px}
     .tag span{font-size:11.5px;padding:2px 7px}
   }
+
+  /* ---- phone layouts ---- */
+  #readBtn{display:none;min-height:34px;font-size:13px;padding:0 10px;margin:0 0 6px}
+  @media (max-width:760px){
+    #panel{max-height:34vh;max-height:34dvh;padding:8px 12px}
+    #title{display:none}
+    #stepName{font-size:17px}#caption{font-size:14.5px;margin:3px 0 6px}
+    #tourTitle{font-size:17px}#tourText{font-size:14.5px;margin:0 0 8px}#tourNo{font-size:12.5px}
+    #panel:not(.exp) #steps,#panel:not(.exp) #read{display:none}
+    #readBtn{display:inline-flex;align-items:center}
+    #controls{left:6px;right:6px;bottom:6px;transform:none;width:auto;max-width:none;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;padding:6px;gap:6px;-webkit-overflow-scrolling:touch}
+    #controls>*{flex:none}
+    #controls button{font-size:14px;padding:0 10px}
+    #brakeBtn{min-height:52px;min-width:112px;font-size:16px}
+    input[type=range]{width:96px}
+    #drawer{bottom:84px;max-height:50vh}
+    #inspect{bottom:84px}
+    #hubBack{left:auto!important;right:8px!important;bottom:86px!important;top:auto!important}
+    .tag span{font-size:10.5px;padding:1px 6px}
+  }
+  @media (orientation:landscape) and (max-height:500px){
+    body{font-size:15px}
+    #panel{left:8px;top:8px;width:290px;max-height:calc(100vh - 88px);max-height:calc(100dvh - 88px);padding:8px 12px}
+    #title{display:none}
+    #stepName{font-size:17px}#caption{font-size:14px;margin:3px 0 6px}
+    #tourTitle{font-size:17px}#tourText{font-size:14px;margin:0 0 8px}
+    #panel:not(.exp) #steps,#panel:not(.exp) #read{display:none}
+    #readBtn{display:inline-flex;align-items:center}
+    #read{grid-template-columns:1fr 1fr} .rd{font-size:11px;padding:3px 6px} .rd b{font-size:14px}
+    #results{display:none}
+    #controls{left:6px;right:6px;bottom:6px;transform:none;width:auto;max-width:none;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;padding:6px;gap:6px}
+    #controls>*{flex:none}
+    #controls button{font-size:14px;padding:0 10px}
+    #brakeBtn{min-height:52px;min-width:112px;font-size:16px}
+    .slider output{display:none} input[type=range]{width:96px}
+    #drawer{left:auto;right:8px;top:8px;bottom:80px;width:330px;max-height:none}
+    #inspect{left:auto;right:8px;width:310px;bottom:80px}
+    #hubBack{left:auto!important;right:8px!important;bottom:auto!important;top:8px!important}
+    .tag span{font-size:10.5px;padding:1px 6px}
+  }
 </style>
 </head>
 <body>
@@ -113,6 +153,7 @@
     <div id="title">DISC BRAKES &amp; HYDRAULICS</div>
     <div id="stepName">Ready to brake</div>
     <p id="caption"></p>
+    <button id="readBtn" aria-expanded="false">Show readings ▾</button>
     <div id="steps"></div>
     <div id="read">
       <div class="rd" id="rdSpeed">Car speed<b>50 mph</b></div>
@@ -353,7 +394,7 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xeef2f7);
 const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.1, 300);
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true; controls.minDistance = 3; controls.maxDistance = 34; controls.maxPolarAngle = 1.62;
+controls.enableDamping = true; controls.minDistance = 3; controls.maxDistance = innerWidth < 760 ? 56 : 34; controls.maxPolarAngle = 1.62;
 
 scene.add(new THREE.HemisphereLight(0xffffff, 0xc9d3e0, 1.35));
 const sun = new THREE.DirectionalLight(0xffffff, 2.1);
@@ -689,14 +730,16 @@ let tween = null;
 function goView(name, instant) {
   const v = VIEWS[name]; if (!v) return;
   const to = { p: new THREE.Vector3(...v.p), t: new THREE.Vector3(...v.t) };
-  if (innerWidth < 760) to.p.sub(to.t).multiplyScalar(1.5).add(to.t);
+  if (innerWidth < 760) to.p.sub(to.t).multiplyScalar(innerWidth / innerHeight < 0.75 ? 1.95 : 1.5).add(to.t);
   if (instant) { camera.position.copy(to.p); controls.target.copy(to.t); controls.update(); tween = null; return; }
   tween = { from: { p: camera.position.clone(), t: controls.target.clone() }, to, start: performance.now(), dur: reduced ? 400 : 1100 };
 }
 function frameOffset() {
   const w = innerWidth, h = innerHeight;
-  if (w >= 760) camera.setViewOffset(w, h, -Math.min(220, w * 0.17), 0, w, h);
-  else camera.setViewOffset(w, h, 0, -h * 0.1, w, h);
+  const land = h <= 500 && w > h;
+  if (land) camera.setViewOffset(w, h, -Math.round(Math.min(170, w * 0.19)), Math.round(h * 0.06), w, h);
+  else if (w >= 760) camera.setViewOffset(w, h, -Math.min(220, w * 0.17), 0, w, h);
+  else camera.setViewOffset(w, h, 0, -h * 0.05, w, h);
 }
 frameOffset();
 
@@ -1071,5 +1114,6 @@ if (params.has('temp')) { const t = +params.get('temp'); S.temp = t; setInterval
 if (params.has('drawer')) openDrawer(params.get('drawer'));
 if (params.has('inspect')) openInspect(params.get('inspect'));
 </script>
+<script>(function(){var b=document.getElementById('readBtn'),p=document.getElementById('panel');b.onclick=function(){var o=p.classList.toggle('exp');b.setAttribute('aria-expanded',o);b.textContent=o?'Hide readings ▴':'Show readings ▾';};})();</script>
 </body>
 </html>
