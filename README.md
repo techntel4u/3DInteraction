@@ -33,3 +33,13 @@ Every simulation and every course page has:
 - **Cavity wall explorer** (Construction → Bricklaying, Bricklaying Level 2 C&G Diploma). City & Guilds 6705-23, Unit 206. Narration is by ElevenLabs (voice: Alice, British), with the browser's own voice as a backup.
 
 Note: the teacher version contains model answers and the quiz answer key, and is public like the rest of the site.
+
+## Staff sign-in
+
+Students see a clean view: courses, simulations and "Open simulation" only.
+Staff press **Staff sign in** and use their `@wolvcoll.ac.uk` Google account to switch on teacher mode
+(Copy link, Share to Google Classroom, QR code and teacher versions). Teacher mode is remembered for 30 days in that browser.
+`@students.wolvcoll.ac.uk` accounts stay in student view.
+
+- Google sign-in client: project **3DResources** (Google Cloud, wolvcoll.ac.uk), audience *Internal*, allowed origin `https://techntel4u.github.io`.
+- The check runs in the browser, so it hides the tools rather than locking them. Keep anything confidential (answer keys) in Drive shared with staff only.

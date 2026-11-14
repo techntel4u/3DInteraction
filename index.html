@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>3D Learning Simulations – City of Wolverhampton College</title>
 <meta name="description" content="Interactive 3D learning simulations by curriculum area and course.">
-<link rel="stylesheet" href="assets/hub.css?v=5">
+<link rel="stylesheet" href="assets/hub.css?v=6">
 <script src="vendor/qrcode/qrcode.js"></script>
 </head>
 <body>
@@ -26,14 +26,15 @@
     <h2>Curriculum areas</h2>
     <div class="grid" id="areas"></div>
   </section>
-  <div class="sharebar" style="margin-top:26px">
+  <div class="sharebar staffonly" style="margin-top:26px">
     <span><b>Share this hub</b> <span class="note">with staff or students</span></span>
     <div class="btns" id="hubShare" style="margin:0"></div>
   </div>
 </main>
 <footer>Curriculum areas and courses from <a href="https://www.wolvcoll.ac.uk/">wolvcoll.ac.uk</a>. Narration by ElevenLabs. 3D by three.js.</footer>
 <script type="module">
-import {loadCatalog, esc, simCard, wireShare, shareButtons, abs} from './assets/hub.js?v=5';
+import {loadCatalog, esc, simCard, wireShare, shareButtons, abs, initStaff} from './assets/hub.js?v=6';
+initStaff();
 const cat = await loadCatalog();
 const count = id => cat.sims.filter(s => s.areas.includes(id)).length;
 document.getElementById('areas').innerHTML = cat.areas.map(a => {

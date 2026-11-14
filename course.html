@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Course – 3D Learning Simulations</title>
-<link rel="stylesheet" href="assets/hub.css?v=5">
+<link rel="stylesheet" href="assets/hub.css?v=6">
 <script src="vendor/qrcode/qrcode.js"></script>
 </head>
 <body>
@@ -14,16 +14,17 @@
   <p id="sub"></p>
 </div></header>
 <main>
-  <div class="sharebar" style="margin-top:6px">
+  <div class="sharebar staffonly" style="margin-top:6px">
     <span><b>Share this course page</b><br><span class="note">Students get every simulation for this course in one link.</span></span>
     <div class="btns" id="courseShare" style="margin:0"></div>
   </div>
   <h2>Simulations for this course</h2>
   <div id="sims"></div>
 </main>
-<footer>Course details from <a href="https://www.wolvcoll.ac.uk/">wolvcoll.ac.uk</a>. “Share to Google Classroom” asks you to sign in, pick a class and post it as an assignment, material or announcement.</footer>
+<footer>Course details from <a href="https://www.wolvcoll.ac.uk/">wolvcoll.ac.uk</a>.<span class="staffonly"> “Share to Google Classroom” asks you to sign in, pick a class and post it as an assignment, material or announcement.</span></footer>
 <script type="module">
-import {loadCatalog, qs, esc, simCard, wireShare, shareButtons} from './assets/hub.js?v=5';
+import {loadCatalog, qs, esc, simCard, wireShare, shareButtons, initStaff} from './assets/hub.js?v=6';
+initStaff();
 const cat = await loadCatalog();
 const c = cat.courses.find(x => x.id === qs('id'));
 if(!c){ document.getElementById('title').textContent = 'Course not found'; }
