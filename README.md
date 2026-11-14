@@ -8,7 +8,7 @@ A self-contained hub of interactive 3D learning simulations, organised by **curr
 |---|---|
 | `index.html` | Hub home: the college's curriculum areas, plus a **General** section for cross-curricular simulations |
 | `area.html?id=…` | One curriculum area: its courses and all of its simulations |
-| `course.html?id=…` | One course: its simulations, with sharing buttons |
+| `course.html?id=…` | Old course links: redirects to `area.html?id=…&course=…` (the area page filtered to that course) |
 | `data/catalog.json` | The list of areas, courses and simulations. **Edit this to add things.** |
 | `sims/<name>/` | Each simulation: `student.html` + `teacher.html` (or a single `index.html` with teacher notes built in), `audio/`, `thumb.jpg`. Every asset lives in the repo so each page is standalone. |
 | `vendor/` | three.js r160 and qrcode-generator (MIT licences included) |

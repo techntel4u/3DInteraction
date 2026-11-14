@@ -200,7 +200,6 @@
    "id": "bricklaying",
    "areaId": "construction",
    "name": "Bricklaying",
-   "code": "X0050",
    "mode": "Full-time",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/bricklaying/"
   },
@@ -208,7 +207,6 @@
    "id": "carpentry",
    "areaId": "carpentry",
    "name": "Carpentry",
-   "code": "X0051",
    "mode": "Full-time",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/carpentry/"
   },
@@ -216,7 +214,6 @@
    "id": "construction-management-t-level",
    "areaId": "construction",
    "name": "Construction Management – Design, Surveying & Planning (T Level)",
-   "code": "X0052",
    "mode": "Full-time",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/construction-management-design-surveying-planning-t-level-2/"
   },
@@ -224,7 +221,6 @@
    "id": "construction-multi-skills-l1",
    "areaId": "construction",
    "name": "Construction Multi-Skills (Level 1)",
-   "code": "X0063",
    "mode": "Full-time",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/basic-construction-multi-skills-cg-level-1-diploma-2/"
   },
@@ -232,7 +228,6 @@
    "id": "electrical",
    "areaId": "electrical",
    "name": "Electrical",
-   "code": "X0053",
    "mode": "Full-time",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/electrical/"
   },
@@ -240,7 +235,6 @@
    "id": "painting-decorating",
    "areaId": "construction",
    "name": "Painting and Decorating",
-   "code": "X0060",
    "mode": "Full-time",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/painting-and-decorating/"
   },
@@ -248,7 +242,6 @@
    "id": "plumbing",
    "areaId": "plumbing",
    "name": "Plumbing",
-   "code": "X0061",
    "mode": "Full-time",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/plumbing/"
   },
@@ -256,7 +249,6 @@
    "id": "bricklaying-l1-award",
    "areaId": "construction",
    "name": "Bricklaying Level 1 Award (19+)",
-   "code": "Q5621",
    "mode": "Part-time 19+",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/bricklaying-level-1-award/"
   },
@@ -264,7 +256,6 @@
    "id": "bricklaying-l1-diploma",
    "areaId": "construction",
    "name": "Bricklaying Level 1 C&G Diploma (19+)",
-   "code": "Q4133",
    "mode": "Part-time 19+",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/bricklaying-cg-level-1-diploma-3/"
   },
@@ -272,7 +263,6 @@
    "id": "bricklaying-l2-diploma",
    "areaId": "construction",
    "name": "Bricklaying Level 2 C&G Diploma (19+)",
-   "code": "Q4134",
    "mode": "Part-time 19+",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/bricklaying-cg-level-2-diploma-3/"
   },
@@ -280,7 +270,6 @@
    "id": "carpentry-l1-diploma",
    "areaId": "carpentry",
    "name": "Carpentry and Joinery C&G Level 1 Diploma (19+)",
-   "code": "Q1686",
    "mode": "Part-time 19+",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/carpentry-and-joinery-cg-level-1-diploma-5/"
   },
@@ -288,7 +277,6 @@
    "id": "carpentry-l2-diploma",
    "areaId": "carpentry",
    "name": "Carpentry C&G Level 2 Diploma (19+)",
-   "code": "Q1689",
    "mode": "Part-time 19+",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/site-carpentry-cg-level-2-diploma-5/"
   },
@@ -296,7 +284,6 @@
    "id": "carpentry-l3-diploma",
    "areaId": "carpentry",
    "name": "Carpentry C&G Level 3 Diploma (19+)",
-   "code": "Q1690",
    "mode": "Part-time 19+",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/site-carpentry-cg-level-3-diploma-4/"
   },
@@ -304,7 +291,6 @@
    "id": "electrical-l2-8202",
    "areaId": "electrical",
    "name": "Electrical Installation C&G Level 2 8202 Technical Certificate (19+)",
-   "code": "Q1727",
    "mode": "Part-time 19+",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/electrical-installation-8202-cg-level-2-technical-certificate-3/"
   },
@@ -312,7 +298,6 @@
    "id": "electrical-l3-450",
    "areaId": "electrical",
    "name": "Electrical Installation C&G Level 3 (450) Advanced Technical Diploma (19+)",
-   "code": "CP4054",
    "mode": "Part-time 19+",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/electrical-installation-450-cg-level-3-advanced-technical-diploma-4/"
   },
@@ -320,7 +305,6 @@
    "id": "automotive",
    "areaId": "automotive",
    "name": "Automotive",
-   "code": "X0058",
    "mode": "Full-time",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/automotive/"
   },
@@ -328,7 +312,6 @@
    "id": "automotive-transport-maintenance-l1",
    "areaId": "automotive",
    "name": "Automotive Transport Maintenance IMI Level 1 Award",
-   "code": "Q1490",
    "mode": "Part-time (19+)",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/automotive-transport-maintenance-imi-level-1-award/"
   },
@@ -350,7 +333,6 @@
    "id": "bakery",
    "areaId": "bakery",
    "name": "Bakery",
-   "code": "X0045",
    "mode": "Full-time",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/bakery/"
   },
@@ -358,7 +340,6 @@
    "id": "cake-decoration-l1",
    "areaId": "bakery",
    "name": "Cake Decoration FDQ Level 1 Award",
-   "code": "Q1298",
    "mode": "Part-time 19+",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/cake-decoration-fdq-level-1-award-3/"
   },
@@ -366,7 +347,6 @@
    "id": "cookery",
    "areaId": "catering",
    "name": "Cookery",
-   "code": "X0046",
    "mode": "Full-time",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/cookery/"
   },
@@ -374,7 +354,6 @@
    "id": "hospitality",
    "areaId": "hospitality",
    "name": "Hospitality",
-   "code": "X0047",
    "mode": "Full-time",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/hospitality/"
   },
@@ -485,6 +464,6 @@
    "instructions": "Open the link and work through the 3D CPU installation simulation (15–20 minutes). Use headphones and press Sound on.\n1. Play the tour and watch all 12 steps. Use the step buttons to go back to anything you missed.\n2. For each step, write down the action and the common mistake shown.\n3. Note the screw torque and the order the screws are tightened in.\n4. Open \"What you'll learn\", then press Test yourself and answer the questions.\nHand in your step-by-step notes and your quiz score."
   }
  ],
- "courseInstructions": "Open the link to see the 3D simulations for this course. Work through each one, starting with the Guided tour (use headphones and press Sound on), then try Build it, Spot the faults and Test yourself. Note your quiz score for each simulation.",
+ "courseInstructions": "Open the link to see the 3D simulations on this page. Work through each one, starting with the Guided tour (use headphones and press Sound on), then try Build it, Spot the faults and Test yourself. Note your quiz score for each simulation.",
  "hubInstructions": "Open the link to browse the college's 3D learning simulations by curriculum area and course."
 }

@@ -1,6 +1,6 @@
 // Shared helpers for the simulation hub. Data lives in data/catalog.json.
 export async function loadCatalog(){
-  const r = await fetch('data/catalog.json?v=7', {cache:'no-cache'});
+  const r = await fetch('data/catalog.json?v=8', {cache:'no-cache'});
   return r.json();
 }
 /* ---------- Staff sign-in (Google, college staff accounts only) ----------
@@ -104,7 +104,7 @@ export function wireShare(root=document){
 export function simCard(s, cat){
   const url = abs(s.student);
   const courseNames = s.courses.map(id => cat.courses.find(c => c.id===id)).filter(Boolean)
-    .map(c => `<a href="course.html?id=${c.id}">${esc(c.name)}</a>`).join(' · ');
+    .map(c => `<a href="area.html?id=${c.areaId}&course=${c.id}">${esc(c.name)}</a>`).join(' · ');
   return `<article class="sim">
     <img src="${esc(s.thumb)}" alt="Screenshot of the ${esc(s.title)} simulation" loading="lazy">
     <div>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Curriculum area – 3D Learning Simulations</title>
-<link rel="stylesheet" href="assets/hub.css?v=7">
+<link rel="stylesheet" href="assets/hub.css?v=8">
 <script src="vendor/qrcode/qrcode.js"></script>
 </head>
 <body>
@@ -14,31 +14,69 @@
   <p id="sub"></p>
 </div></header>
 <main>
-  <section><h2>Courses</h2><div id="courses"></div></section>
-  <section><h2>All simulations in this area</h2><div id="sims"></div></section>
+  <div class="stats" id="stats" aria-label="About the simulations in this area"></div>
+  <div class="chips" id="chips" role="group" aria-label="Filter by course" hidden></div>
+  <div class="sharebar staffonly" id="shareBox" style="margin:0 0 18px">
+    <span><b id="shareTitle">Share this area</b><br><span class="note" id="shareNote">Students get every simulation on this page in one link.</span></span>
+    <div class="btns" id="areaShare" style="margin:0"></div>
+  </div>
+  <div id="sims"></div>
 </main>
-<footer>Course list from <a href="https://www.wolvcoll.ac.uk/">wolvcoll.ac.uk</a>.</footer>
+<footer>Curriculum areas from <a href="https://www.wolvcoll.ac.uk/">wolvcoll.ac.uk</a>.</footer>
 <script type="module">
-import {loadCatalog, qs, esc, simCard, wireShare, initStaff} from './assets/hub.js?v=7';
+import {loadCatalog, qs, esc, simCard, wireShare, shareButtons, initStaff, abs} from './assets/hub.js?v=8';
 initStaff();
 const cat = await loadCatalog();
 const a = cat.areas.find(x => x.id === qs('id'));
-if(!a){ document.getElementById('title').textContent = 'Area not found'; }
+const $ = id => document.getElementById(id);
+if(!a){ $('title').textContent = 'Area not found'; $('stats').hidden = true; }
 else {
   document.title = a.name + ' – 3D Learning Simulations';
-  document.getElementById('crumb').textContent = a.name;
-  document.getElementById('title').textContent = a.icon + ' ' + a.name;
-  document.getElementById('sub').innerHTML = a.collegeUrl ? `See <a style="color:#fff" href="${a.collegeUrl}">${esc(a.name)} courses on the college website</a>.` : '';
-  const cs = cat.courses.filter(c => c.areaId === a.id);
-  const modes = [...new Set(cs.map(c => c.mode))];
-  document.getElementById('courses').innerHTML = cs.length ? modes.map(m => `<h3 style="margin:14px 0 8px">${esc(m)}</h3>` +
-    cs.filter(c => c.mode===m).map(c => { const n = cat.sims.filter(s => s.courses.includes(c.id)).length;
-      return `<a class="course" href="course.html?id=${c.id}"><span><b>${esc(c.name)}</b>${c.code?`<br><small>Course code ${esc(c.code)}</small>`:""}</span>
-      <span class="pill ${n?'y':''}">${n? n+' simulation'+(n>1?'s':'') : 'None yet'}</span></a>`; }).join('')).join('')
-    : '<div class="empty">Courses for this area haven’t been added yet.</div>';
-  const sims = cat.sims.filter(s => s.areas.includes(a.id));
-  document.getElementById('sims').innerHTML = sims.length ? sims.map(s => simCard(s,cat)).join('') : '<div class="empty">No simulations in this area yet.</div>';
-  wireShare();
+  $('crumb').textContent = a.name;
+  $('title').textContent = a.icon + ' ' + a.name;
+  $('sub').innerHTML = a.collegeUrl ? `See <a style="color:#fff" href="${a.collegeUrl}">${esc(a.name)} courses on the college website</a>.` : '';
+  const all = cat.sims.filter(s => s.areas.includes(a.id));
+  // courses in this area that have at least one simulation
+  const courses = cat.courses.filter(c => c.areaId === a.id && all.some(s => s.courses.includes(c.id)));
+  let cur = courses.some(c => c.id === qs('course')) ? qs('course') : null;
+
+  const LEVELS = ['Entry Level 1','Entry Level 2','Entry Level 3','Level 1','Level 2','Level 3','Level 4','Level 5','Level 6','Level 7'];
+  function stats(sims){
+    if(!sims.length) return '';
+    let lo = 0, hi = 0;
+    sims.forEach(s => { const m = String(s.minutes||'').match(/(\d+)\D+(\d+)/) || String(s.minutes||'').match(/(\d+)/); if(m){ lo += +m[1]; hi += +(m[2]||m[1]); } });
+    const lv = [...new Set(sims.map(s => s.level))].sort((x,y) => LEVELS.indexOf(x) - LEVELS.indexOf(y));
+    const narrated = sims.filter(s => s.narration).length;
+    const upd = sims.map(s => s.updated).filter(Boolean).sort().pop();
+    const items = [
+      [sims.length, sims.length > 1 ? 'simulations' : 'simulation'],
+      [lo ? (lo === hi ? lo : lo + '–' + hi) + ' min' : '', sims.length > 1 ? 'in total' : 'to complete'],
+      [lv.length > 1 ? lv[0] + ' to ' + lv[lv.length-1] : lv[0], lv.length > 1 ? 'levels' : 'level'],
+      [narrated === sims.length ? 'All' : narrated + ' of ' + sims.length, 'narrated'],
+      [upd ? new Date(upd).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '', 'last updated'],
+    ].filter(x => x[0] !== '' && x[0] !== undefined);
+    return items.map(([v,l]) => `<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('');
+  }
+  function render(){
+    const sims = cur ? all.filter(s => s.courses.includes(cur)) : all;
+    const course = cur && courses.find(c => c.id === cur);
+    $('stats').innerHTML = stats(sims);
+    $('stats').hidden = !sims.length;
+    // chips: only when there's something worth filtering, or a filter is already applied
+    const showChips = courses.length > 1 && (all.length >= 3 || cur);
+    $('chips').hidden = !showChips;
+    $('chips').innerHTML = showChips ? [`<button class="chip ${cur?'':'on'}" aria-pressed="${!cur}" data-c="">All</button>`]
+      .concat(courses.map(c => `<button class="chip ${cur===c.id?'on':''}" aria-pressed="${cur===c.id}" data-c="${c.id}">${esc(c.name)}</button>`)).join('') : '';
+    $('chips').querySelectorAll('button').forEach(b => b.onclick = () => { cur = b.dataset.c || null; history.replaceState(null, '', 'area.html?id=' + a.id + (cur ? '&course=' + cur : '')); render(); });
+    $('sims').innerHTML = sims.length ? sims.map(s => simCard(s,cat)).join('')
+      : '<div class="empty">No simulations in this area yet – coming soon.</div>';
+    const link = abs('area.html?id=' + a.id + (cur ? '&course=' + cur : ''));
+    $('shareBox').style.display = sims.length ? '' : 'none';
+    $('shareTitle').textContent = course ? 'Share ' + course.name : 'Share this area';
+    $('areaShare').innerHTML = shareButtons(link, (course ? course.name : a.name) + ' – 3D simulations', cat.courseInstructions);
+    wireShare();
+  }
+  render();
 }
 </script>
 </body>
