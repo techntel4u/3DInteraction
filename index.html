@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>3D Learning Simulations – City of Wolverhampton College</title>
 <meta name="description" content="Interactive 3D learning simulations by curriculum area and course.">
-<link rel="stylesheet" href="assets/hub.css?v=6">
+<link rel="stylesheet" href="assets/hub.css?v=7">
 <script src="vendor/qrcode/qrcode.js"></script>
 </head>
 <body>
@@ -33,14 +33,14 @@
 </main>
 <footer>Curriculum areas and courses from <a href="https://www.wolvcoll.ac.uk/">wolvcoll.ac.uk</a>. Narration by ElevenLabs. 3D by three.js.</footer>
 <script type="module">
-import {loadCatalog, esc, simCard, wireShare, shareButtons, abs, initStaff} from './assets/hub.js?v=6';
+import {loadCatalog, esc, simCard, wireShare, shareButtons, abs, initStaff} from './assets/hub.js?v=7';
 initStaff();
 const cat = await loadCatalog();
 const count = id => cat.sims.filter(s => s.areas.includes(id)).length;
 document.getElementById('areas').innerHTML = cat.areas.map(a => {
   const n = count(a.id), nc = cat.courses.filter(c => c.areaId===a.id).length;
   return `<a class="area ${n?'has':''}" href="area.html?id=${a.id}"><span class="ic" aria-hidden="true">${a.icon}</span>
-    <span><b>${esc(a.name)}</b><small>${n? n+' simulation'+(n>1?'s':'') : 'Coming soon'}${nc? ' · '+nc+' courses':''}</small></span></a>`;
+    <span><b>${esc(a.name)}</b><small>${n? n+' simulation'+(n>1?'s':'') : 'Coming soon'}${nc? ' · '+nc+' course'+(nc>1?'s':''):''}</small></span></a>`;
 }).join('');
 const gen = cat.sims.filter(s => s.general);
 document.getElementById('general').innerHTML = gen.length ? gen.map(s => simCard(s,cat)).join('')

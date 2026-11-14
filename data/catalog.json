@@ -27,8 +27,8 @@
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/automotive/"
   },
   {
-   "id": "bakery-hospitality-and-catering",
-   "name": "Bakery, Hospitality and Catering",
+   "id": "bakery",
+   "name": "Bakery",
    "icon": "🍞",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/bakery-hospitality-catering/"
   },
@@ -37,6 +37,18 @@
    "name": "Business and Professional",
    "icon": "💼",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/business-professional/"
+  },
+  {
+   "id": "carpentry",
+   "name": "Carpentry",
+   "icon": "🪚",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/construction/"
+  },
+  {
+   "id": "catering",
+   "name": "Catering",
+   "icon": "🍳",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/bakery-hospitality-catering/"
   },
   {
    "id": "childcare-and-early-years",
@@ -61,6 +73,12 @@
    "name": "Creative Media",
    "icon": "🎬",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/creative-media/"
+  },
+  {
+   "id": "electrical",
+   "name": "Electrical",
+   "icon": "⚡",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/construction/"
   },
   {
    "id": "engineering",
@@ -105,6 +123,12 @@
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/health-social-care/"
   },
   {
+   "id": "hospitality",
+   "name": "Hospitality",
+   "icon": "🛎️",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/bakery-hospitality-catering/"
+  },
+  {
    "id": "music",
    "name": "Music",
    "icon": "🎵",
@@ -121,6 +145,12 @@
    "name": "Photography",
    "icon": "📷",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/photography/"
+  },
+  {
+   "id": "plumbing",
+   "name": "Plumbing",
+   "icon": "🔧",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/construction/"
   },
   {
    "id": "polymer-training",
@@ -176,7 +206,7 @@
   },
   {
    "id": "carpentry",
-   "areaId": "construction",
+   "areaId": "carpentry",
    "name": "Carpentry",
    "code": "X0051",
    "mode": "Full-time",
@@ -200,7 +230,7 @@
   },
   {
    "id": "electrical",
-   "areaId": "construction",
+   "areaId": "electrical",
    "name": "Electrical",
    "code": "X0053",
    "mode": "Full-time",
@@ -216,7 +246,7 @@
   },
   {
    "id": "plumbing",
-   "areaId": "construction",
+   "areaId": "plumbing",
    "name": "Plumbing",
    "code": "X0061",
    "mode": "Full-time",
@@ -248,7 +278,7 @@
   },
   {
    "id": "carpentry-l1-diploma",
-   "areaId": "construction",
+   "areaId": "carpentry",
    "name": "Carpentry and Joinery C&G Level 1 Diploma (19+)",
    "code": "Q1686",
    "mode": "Part-time 19+",
@@ -256,7 +286,7 @@
   },
   {
    "id": "carpentry-l2-diploma",
-   "areaId": "construction",
+   "areaId": "carpentry",
    "name": "Carpentry C&G Level 2 Diploma (19+)",
    "code": "Q1689",
    "mode": "Part-time 19+",
@@ -264,7 +294,7 @@
   },
   {
    "id": "carpentry-l3-diploma",
-   "areaId": "construction",
+   "areaId": "carpentry",
    "name": "Carpentry C&G Level 3 Diploma (19+)",
    "code": "Q1690",
    "mode": "Part-time 19+",
@@ -272,7 +302,7 @@
   },
   {
    "id": "electrical-l2-8202",
-   "areaId": "construction",
+   "areaId": "electrical",
    "name": "Electrical Installation C&G Level 2 8202 Technical Certificate (19+)",
    "code": "Q1727",
    "mode": "Part-time 19+",
@@ -280,7 +310,7 @@
   },
   {
    "id": "electrical-l3-450",
-   "areaId": "construction",
+   "areaId": "electrical",
    "name": "Electrical Installation C&G Level 3 (450) Advanced Technical Diploma (19+)",
    "code": "CP4054",
    "mode": "Part-time 19+",
@@ -315,6 +345,52 @@
    "name": "Digital Support Services T Level",
    "mode": "Full-time (16–18)",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/digital-support-services-t-level/"
+  },
+  {
+   "id": "bakery",
+   "areaId": "bakery",
+   "name": "Bakery",
+   "code": "X0045",
+   "mode": "Full-time",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/bakery/"
+  },
+  {
+   "id": "cake-decoration-l1",
+   "areaId": "bakery",
+   "name": "Cake Decoration FDQ Level 1 Award",
+   "code": "Q1298",
+   "mode": "Part-time 19+",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/cake-decoration-fdq-level-1-award-3/"
+  },
+  {
+   "id": "cookery",
+   "areaId": "catering",
+   "name": "Cookery",
+   "code": "X0046",
+   "mode": "Full-time",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/cookery/"
+  },
+  {
+   "id": "hospitality",
+   "areaId": "hospitality",
+   "name": "Hospitality",
+   "code": "X0047",
+   "mode": "Full-time",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/hospitality/"
+  },
+  {
+   "id": "first-steps-hospitality",
+   "areaId": "hospitality",
+   "name": "First Steps into Hospitality and Leisure",
+   "mode": "Part-time 19+",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/first-steps-into-hospitality-and-leisure/"
+  },
+  {
+   "id": "hospitality-into-employment",
+   "areaId": "hospitality",
+   "name": "Hospitality and Leisure – FREE Into Employment course",
+   "mode": "Part-time 19+",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/hospitality-and-drinks-free-into-employment-course/"
   }
  ],
  "sims": [
