@@ -1,6 +1,6 @@
 // Shared helpers for the simulation hub. Data lives in data/catalog.json.
 export async function loadCatalog(){
-  const r = await fetch('data/catalog.json', {cache:'no-cache'});
+  const r = await fetch('data/catalog.json?v=3', {cache:'no-cache'});
   return r.json();
 }
 export const qs = k => new URLSearchParams(location.search).get(k);
