@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D Learning Simulations – City of Wolverhampton College</title>
+<meta name="description" content="Interactive 3D learning simulations by curriculum area and course.">
+<link rel="stylesheet" href="assets/hub.css">
+<script src="vendor/qrcode/qrcode.js"></script>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="crumbs">City of Wolverhampton College · Business Learning Technologies</div>
+  <h1>3D Learning Simulations</h1>
+  <p>Interactive 3D simulations for vocational courses. Pick a curriculum area, then a course.</p>
+  <label class="sr" for="q" style="position:absolute;left:-9999px">Search simulations</label>
+  <input type="search" id="q" placeholder="Search simulations, e.g. wall ties">
+</div></header>
+<main>
+  <section id="results" hidden><h2>Search results</h2><div id="resList"></div></section>
+  <section>
+    <h2>General — across curriculum areas</h2>
+    <div id="general"></div>
+  </section>
+  <section>
+    <h2>Curriculum areas</h2>
+    <div class="grid" id="areas"></div>
+  </section>
+  <div class="sharebar" style="margin-top:26px">
+    <span><b>Share this hub</b> <span class="note">with staff or students</span></span>
+    <div class="btns" id="hubShare" style="margin:0"></div>
+  </div>
+</main>
+<footer>Curriculum areas and courses from <a href="https://www.wolvcoll.ac.uk/">wolvcoll.ac.uk</a>. Narration by ElevenLabs. 3D by three.js.</footer>
+<script type="module">
+import {loadCatalog, esc, simCard, wireShare, shareButtons, abs} from './assets/hub.js';
+const cat = await loadCatalog();
+const count = id => cat.sims.filter(s => s.areas.includes(id)).length;
+document.getElementById('areas').innerHTML = cat.areas.map(a => {
+  const n = count(a.id), nc = cat.courses.filter(c => c.areaId===a.id).length;
+  return `<a class="area ${n?'has':''}" href="area.html?id=${a.id}"><span class="ic" aria-hidden="true">${a.icon}</span>
+    <span><b>${esc(a.name)}</b><small>${n? n+' simulation'+(n>1?'s':'') : 'Coming soon'}${nc? ' · '+nc+' courses':''}</small></span></a>`;
+}).join('');
+const gen = cat.sims.filter(s => s.general);
+document.getElementById('general').innerHTML = gen.length ? gen.map(s => simCard(s,cat)).join('')
+  : '<div class="empty">No cross-curricular simulations yet. Simulations that suit several areas (for example health and safety or digital skills) will appear here.</div>';
+document.getElementById('hubShare').innerHTML = shareButtons(abs('index.html'), '3D Learning Simulations');
+const q = document.getElementById('q');
+q.oninput = () => {
+  const t = q.value.trim().toLowerCase(), box = document.getElementById('results');
+  if(!t){ box.hidden = true; return; }
+  const hits = cat.sims.filter(s => (s.title+' '+s.summary+' '+s.tags.join(' ')).toLowerCase().includes(t));
+  document.getElementById('resList').innerHTML = hits.length ? hits.map(s => simCard(s,cat)).join('') : '<div class="empty">No simulations match that search yet.</div>';
+  box.hidden = false; wireShare(box);
+};
+wireShare();
+</script>
+</body>
+</html>

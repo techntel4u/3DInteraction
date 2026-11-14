@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Curriculum area – 3D Learning Simulations</title>
+<link rel="stylesheet" href="assets/hub.css">
+<script src="vendor/qrcode/qrcode.js"></script>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="crumbs"><a href="index.html">3D Learning Simulations</a> › <span id="crumb"></span></div>
+  <h1 id="title">Curriculum area</h1>
+  <p id="sub"></p>
+</div></header>
+<main>
+  <section><h2>Courses</h2><div id="courses"></div></section>
+  <section><h2>All simulations in this area</h2><div id="sims"></div></section>
+</main>
+<footer>Course list from <a href="https://www.wolvcoll.ac.uk/">wolvcoll.ac.uk</a>.</footer>
+<script type="module">
+import {loadCatalog, qs, esc, simCard, wireShare} from './assets/hub.js';
+const cat = await loadCatalog();
+const a = cat.areas.find(x => x.id === qs('id'));
+if(!a){ document.getElementById('title').textContent = 'Area not found'; }
+else {
+  document.title = a.name + ' – 3D Learning Simulations';
+  document.getElementById('crumb').textContent = a.name;
+  document.getElementById('title').textContent = a.icon + ' ' + a.name;
+  document.getElementById('sub').innerHTML = a.collegeUrl ? `See <a style="color:#fff" href="${a.collegeUrl}">${esc(a.name)} courses on the college website</a>.` : '';
+  const cs = cat.courses.filter(c => c.areaId === a.id);
+  const modes = [...new Set(cs.map(c => c.mode))];
+  document.getElementById('courses').innerHTML = cs.length ? modes.map(m => `<h3 style="margin:14px 0 8px">${esc(m)}</h3>` +
+    cs.filter(c => c.mode===m).map(c => { const n = cat.sims.filter(s => s.courses.includes(c.id)).length;
+      return `<a class="course" href="course.html?id=${c.id}"><span><b>${esc(c.name)}</b><br><small>Course code ${esc(c.code)}</small></span>
+      <span class="pill ${n?'y':''}">${n? n+' simulation'+(n>1?'s':'') : 'None yet'}</span></a>`; }).join('')).join('')
+    : '<div class="empty">Courses for this area haven’t been added yet.</div>';
+  const sims = cat.sims.filter(s => s.areas.includes(a.id));
+  document.getElementById('sims').innerHTML = sims.length ? sims.map(s => simCard(s,cat)).join('') : '<div class="empty">No simulations in this area yet.</div>';
+  wireShare();
+}
+</script>
+</body>
+</html>

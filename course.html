@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Course – 3D Learning Simulations</title>
+<link rel="stylesheet" href="assets/hub.css">
+<script src="vendor/qrcode/qrcode.js"></script>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="crumbs"><a href="index.html">3D Learning Simulations</a> › <a id="areaLink" href="#"></a> › <span id="crumb"></span></div>
+  <h1 id="title">Course</h1>
+  <p id="sub"></p>
+</div></header>
+<main>
+  <div class="sharebar" style="margin-top:6px">
+    <span><b>Share this course page</b><br><span class="note">Students get every simulation for this course in one link.</span></span>
+    <div class="btns" id="courseShare" style="margin:0"></div>
+  </div>
+  <h2>Simulations for this course</h2>
+  <div id="sims"></div>
+</main>
+<footer>Course details from <a href="https://www.wolvcoll.ac.uk/">wolvcoll.ac.uk</a>. “Share to Google Classroom” asks you to sign in, pick a class and post it as an assignment, material or announcement.</footer>
+<script type="module">
+import {loadCatalog, qs, esc, simCard, wireShare, shareButtons} from './assets/hub.js';
+const cat = await loadCatalog();
+const c = cat.courses.find(x => x.id === qs('id'));
+if(!c){ document.getElementById('title').textContent = 'Course not found'; }
+else {
+  const a = cat.areas.find(x => x.id === c.areaId);
+  document.title = c.name + ' – 3D Learning Simulations';
+  const al = document.getElementById('areaLink'); al.textContent = a.name; al.href = 'area.html?id=' + a.id;
+  document.getElementById('crumb').textContent = c.name;
+  document.getElementById('title').textContent = c.name;
+  document.getElementById('sub').innerHTML = `${esc(c.mode)} · Course code ${esc(c.code)} · <a style="color:#fff" href="${c.collegeUrl}">Course page on the college website</a>`;
+  document.getElementById('courseShare').innerHTML = shareButtons(location.href, c.name + ' – 3D simulations');
+  const sims = cat.sims.filter(s => s.courses.includes(c.id));
+  document.getElementById('sims').innerHTML = sims.length ? sims.map(s => simCard(s,cat)).join('')
+    : `<div class="empty">No simulations for this course yet. See <a href="area.html?id=${a.id}">all ${esc(a.name)} simulations</a>.</div>`;
+  wireShare();
+}
+</script>
+</body>
+</html>

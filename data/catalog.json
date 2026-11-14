@@ -1,0 +1,320 @@
+{
+ "college": "City of Wolverhampton College",
+ "source": "https://www.wolvcoll.ac.uk/",
+ "areas": [
+  {
+   "id": "a-levels",
+   "name": "A-Levels",
+   "icon": "📚",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/a-levels/"
+  },
+  {
+   "id": "access-to-he",
+   "name": "Access to HE",
+   "icon": "🎓",
+   "collegeUrl": null
+  },
+  {
+   "id": "art-and-design",
+   "name": "Art and Design",
+   "icon": "🎨",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/art-design/"
+  },
+  {
+   "id": "automotive",
+   "name": "Automotive",
+   "icon": "🚗",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/automotive/"
+  },
+  {
+   "id": "bakery-hospitality-and-catering",
+   "name": "Bakery, Hospitality and Catering",
+   "icon": "🍞",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/bakery-hospitality-catering/"
+  },
+  {
+   "id": "business-and-professional",
+   "name": "Business and Professional",
+   "icon": "💼",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/business-professional/"
+  },
+  {
+   "id": "childcare-and-early-years",
+   "name": "Childcare and Early Years",
+   "icon": "🧸",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/childcare-early-years/"
+  },
+  {
+   "id": "computing-and-digital",
+   "name": "Computing and Digital",
+   "icon": "💻",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/computing-digital/"
+  },
+  {
+   "id": "construction",
+   "name": "Construction",
+   "icon": "🧱",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/construction/"
+  },
+  {
+   "id": "creative-media",
+   "name": "Creative Media",
+   "icon": "🎬",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/creative-media/"
+  },
+  {
+   "id": "engineering",
+   "name": "Engineering",
+   "icon": "⚙️",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/engineering/"
+  },
+  {
+   "id": "english-and-maths",
+   "name": "English and Maths",
+   "icon": "➗",
+   "collegeUrl": null
+  },
+  {
+   "id": "esol",
+   "name": "ESOL",
+   "icon": "🗣️",
+   "collegeUrl": null
+  },
+  {
+   "id": "free-courses-for-adults",
+   "name": "Free courses for Adults",
+   "icon": "🆓",
+   "collegeUrl": null
+  },
+  {
+   "id": "games-design",
+   "name": "Games Design",
+   "icon": "🎮",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/games-design/"
+  },
+  {
+   "id": "hair-and-beauty",
+   "name": "Hair and Beauty",
+   "icon": "💇",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/hair-beauty/"
+  },
+  {
+   "id": "health-and-social-care",
+   "name": "Health and Social Care",
+   "icon": "🩺",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/health-social-care/"
+  },
+  {
+   "id": "music",
+   "name": "Music",
+   "icon": "🎵",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/music/"
+  },
+  {
+   "id": "performing-arts",
+   "name": "Performing Arts",
+   "icon": "🎭",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/performing-arts/"
+  },
+  {
+   "id": "photography",
+   "name": "Photography",
+   "icon": "📷",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/photography/"
+  },
+  {
+   "id": "polymer-training",
+   "name": "Polymer Training",
+   "icon": "🧪",
+   "collegeUrl": null
+  },
+  {
+   "id": "rail-training",
+   "name": "Rail Training",
+   "icon": "🚆",
+   "collegeUrl": null
+  },
+  {
+   "id": "science",
+   "name": "Science",
+   "icon": "🔬",
+   "collegeUrl": null
+  },
+  {
+   "id": "sport-and-fitness",
+   "name": "Sport and Fitness",
+   "icon": "🏃",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/sports-fitness/"
+  },
+  {
+   "id": "teaching-and-education",
+   "name": "Teaching and Education",
+   "icon": "🧑‍🏫",
+   "collegeUrl": null
+  },
+  {
+   "id": "travel-and-tourism",
+   "name": "Travel and Tourism",
+   "icon": "✈️",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/travel-tourism/"
+  },
+  {
+   "id": "uniformed-public-services",
+   "name": "Uniformed Public Services",
+   "icon": "🚒",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses-main/uniformed-public-services/"
+  }
+ ],
+ "courses": [
+  {
+   "id": "bricklaying",
+   "areaId": "construction",
+   "name": "Bricklaying",
+   "code": "X0050",
+   "mode": "Full-time",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/bricklaying/"
+  },
+  {
+   "id": "carpentry",
+   "areaId": "construction",
+   "name": "Carpentry",
+   "code": "X0051",
+   "mode": "Full-time",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/carpentry/"
+  },
+  {
+   "id": "construction-management-t-level",
+   "areaId": "construction",
+   "name": "Construction Management – Design, Surveying & Planning (T Level)",
+   "code": "X0052",
+   "mode": "Full-time",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/construction-management-design-surveying-planning-t-level-2/"
+  },
+  {
+   "id": "construction-multi-skills-l1",
+   "areaId": "construction",
+   "name": "Construction Multi-Skills (Level 1)",
+   "code": "X0063",
+   "mode": "Full-time",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/basic-construction-multi-skills-cg-level-1-diploma-2/"
+  },
+  {
+   "id": "electrical",
+   "areaId": "construction",
+   "name": "Electrical",
+   "code": "X0053",
+   "mode": "Full-time",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/electrical/"
+  },
+  {
+   "id": "painting-decorating",
+   "areaId": "construction",
+   "name": "Painting and Decorating",
+   "code": "X0060",
+   "mode": "Full-time",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/painting-and-decorating/"
+  },
+  {
+   "id": "plumbing",
+   "areaId": "construction",
+   "name": "Plumbing",
+   "code": "X0061",
+   "mode": "Full-time",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/plumbing/"
+  },
+  {
+   "id": "bricklaying-l1-award",
+   "areaId": "construction",
+   "name": "Bricklaying Level 1 Award (19+)",
+   "code": "Q5621",
+   "mode": "Part-time 19+",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/bricklaying-level-1-award/"
+  },
+  {
+   "id": "bricklaying-l1-diploma",
+   "areaId": "construction",
+   "name": "Bricklaying Level 1 C&G Diploma (19+)",
+   "code": "Q4133",
+   "mode": "Part-time 19+",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/bricklaying-cg-level-1-diploma-3/"
+  },
+  {
+   "id": "bricklaying-l2-diploma",
+   "areaId": "construction",
+   "name": "Bricklaying Level 2 C&G Diploma (19+)",
+   "code": "Q4134",
+   "mode": "Part-time 19+",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/bricklaying-cg-level-2-diploma-3/"
+  },
+  {
+   "id": "carpentry-l1-diploma",
+   "areaId": "construction",
+   "name": "Carpentry and Joinery C&G Level 1 Diploma (19+)",
+   "code": "Q1686",
+   "mode": "Part-time 19+",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/carpentry-and-joinery-cg-level-1-diploma-5/"
+  },
+  {
+   "id": "carpentry-l2-diploma",
+   "areaId": "construction",
+   "name": "Carpentry C&G Level 2 Diploma (19+)",
+   "code": "Q1689",
+   "mode": "Part-time 19+",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/site-carpentry-cg-level-2-diploma-5/"
+  },
+  {
+   "id": "carpentry-l3-diploma",
+   "areaId": "construction",
+   "name": "Carpentry C&G Level 3 Diploma (19+)",
+   "code": "Q1690",
+   "mode": "Part-time 19+",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/site-carpentry-cg-level-3-diploma-4/"
+  },
+  {
+   "id": "electrical-l2-8202",
+   "areaId": "construction",
+   "name": "Electrical Installation C&G Level 2 8202 Technical Certificate (19+)",
+   "code": "Q1727",
+   "mode": "Part-time 19+",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/electrical-installation-8202-cg-level-2-technical-certificate-3/"
+  },
+  {
+   "id": "electrical-l3-450",
+   "areaId": "construction",
+   "name": "Electrical Installation C&G Level 3 (450) Advanced Technical Diploma (19+)",
+   "code": "CP4054",
+   "mode": "Part-time 19+",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/electrical-installation-450-cg-level-3-advanced-technical-diploma-4/"
+  }
+ ],
+ "sims": [
+  {
+   "id": "cavity-wall",
+   "title": "Cavity wall explorer",
+   "summary": "Explore a part-built cavity wall in 3D. Build it in the right order, place the wall ties, see how water is kept out in cross-section, and spot six construction faults.",
+   "level": "Level 2",
+   "spec": "City & Guilds 6705-23, Unit 206",
+   "minutes": "20–30 min",
+   "tags": [
+    "Wall ties",
+    "DPC",
+    "Insulation",
+    "Cavity trays",
+    "Weep holes"
+   ],
+   "areas": [
+    "construction"
+   ],
+   "courses": [
+    "bricklaying",
+    "bricklaying-l2-diploma"
+   ],
+   "general": false,
+   "student": "sims/cavity-wall/student.html",
+   "teacher": "sims/cavity-wall/teacher.html",
+   "thumb": "sims/cavity-wall/thumb.jpg",
+   "narration": "ElevenLabs (Alice, British)",
+   "updated": "2026-11-14"
+  }
+ ]
+}
