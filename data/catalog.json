@@ -518,6 +518,39 @@
    "transcript": "sims/xray-ct/transcript.html",
    "worksheet": "sims/xray-ct/worksheet.html",
    "added": "2026-11-15"
+  },
+  {
+   "id": "gamma-pet",
+   "title": "Gamma imaging and PET",
+   "summary": "Follow a technetium-99m bone scan from injection to image: watch gamma rays leave the body, pass the lead collimator and flash in the gamma camera crystal as the image builds count by count. Find the hot spots, see what happens without the collimator, then watch positron annihilation in a PET-CT scanner. Explore half-life, doses and how patients and staff are protected.",
+   "level": "Level 3",
+   "spec": "Pearson BTEC L3 Applied Science (2016), Unit 21 Medical Physics Applications – learning aims B3 and C",
+   "minutes": "25–35 min",
+   "tags": [
+    "Gamma camera",
+    "Technetium-99m",
+    "Half-life",
+    "PET-CT",
+    "Radiation safety"
+   ],
+   "areas": [
+    "science"
+   ],
+   "courses": [
+    "applied-science-l3-extended-diploma",
+    "applied-biomedical-science-l3-extended-diploma"
+   ],
+   "general": false,
+   "student": "sims/gamma-pet/index.html",
+   "teacher": "",
+   "thumb": "sims/gamma-pet/thumb.jpg",
+   "narration": "ElevenLabs (Alice, British)",
+   "updated": "2026-11-15",
+   "classroomTitle": "Gamma imaging and PET – 3D simulation (Imaging and treatment, Part 2)",
+   "instructions": "Open the link and work through the 3D gamma imaging and PET simulation (25–35 minutes). Use headphones and keep the sound on.\n1. Guided tour: follow all 6 stages.\n2. Stage 2: explain why technetium-99m suits a bone scan.\n3. Stage 3: tap the collimator, crystal and photomultiplier tubes and describe what each does.\n4. Stage 4: find the hot spots, then remove the collimator and describe what happens to the image.\n5. Stage 5: explain how PET detects annihilation.\n6. Decay tab: work out the activity left after 12 and 24 hours.\n7. Test yourself: answer the 6 questions.\nHand in your notes and your quiz score.",
+   "transcript": "sims/gamma-pet/transcript.html",
+   "worksheet": "sims/gamma-pet/worksheet.html",
+   "added": "2026-11-15"
   }
  ],
  "courseInstructions": "Open the link to see the 3D simulations on this page. Work through each one, starting with the Guided tour (use headphones and press Sound on), then try Build it, Spot the faults and Test yourself. Note your quiz score for each simulation.",

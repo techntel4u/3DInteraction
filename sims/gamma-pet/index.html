@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gamma imaging and PET – Imaging and treatment, Part 2</title>
+<style>
+:root{--navy:#1b2a4a;--navy2:#2c3e66;--bg:#eef1f5;--ink:#14213d;--muted:#465366;--line:#cfd6e2;--yellow:#ffd23f;--ok:#17703a;--bad:#b3261e}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);-webkit-text-size-adjust:100%}
+#scene{position:fixed;inset:0;touch-action:none}
+#labels{position:fixed;inset:0;pointer-events:none}
+.card{background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:14px;box-shadow:0 6px 24px rgba(20,33,61,.12)}
+button{font:inherit;font-size:14px;min-height:44px;min-width:44px;border-radius:10px;border:1px solid #b9c2d3;background:#fff;color:var(--navy);font-weight:600;cursor:pointer;padding:0 12px;white-space:nowrap}
+button:hover{background:#f1f4fa}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #2f6bff;outline-offset:2px}
+button.primary,button[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+button.x{position:absolute;top:8px;right:8px;font-size:18px;padding:0;width:44px}
+#topbar{position:fixed;top:8px;left:8px;right:8px;display:flex;align-items:center;gap:8px;padding:6px 8px;z-index:5}
+#topbar .ttl{flex:1;min-width:0}
+#hubBack{flex:0 0 auto;display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:999px;background:var(--navy);color:#fff;font-weight:600;font-size:13px;text-decoration:none}
+#hubBack:focus-visible{outline:3px solid #2f6bff;outline-offset:2px}
+.sm{display:none}
+#topbar h1{font-size:17px;margin:0;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#topbar .sub{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#topbar .btns{display:flex;gap:6px}
+#stagePanel{position:fixed;top:78px;left:8px;width:360px;padding:12px 14px;z-index:4}
+#stageName{font-size:18px;font-weight:700;margin:0 0 8px;padding-right:4px}
+#strip{display:flex;gap:4px;margin-bottom:8px}
+#strip button{flex:1;min-width:0;padding:0;font-size:13px}
+#strip button.done{background:#dfe6f3}
+#strip button.active{background:var(--navy);color:#fff}
+#tbar{height:4px;background:#dfe4ec;border-radius:2px;overflow:hidden;margin-bottom:10px}
+#tbar div{height:100%;width:0;background:#2f6bff}
+#caption{font-size:15px;line-height:1.45;margin:0}
+#holdNote{font-size:12px;color:var(--muted);margin-top:6px;min-height:15px}
+#sidePanel{position:fixed;top:78px;right:8px;width:320px;max-height:calc(100% - 170px);overflow:auto;padding:12px 14px 14px;z-index:4}
+#sidePanel h2{font-size:15px;margin:0 0 8px}
+.tabs{display:flex;gap:6px;margin:0 50px 10px 0}
+.tabs button{flex:1}
+.viewer{position:relative;background:#000;border-radius:10px;overflow:hidden;width:100%;aspect-ratio:1/1}
+.viewer canvas{width:100%;height:100%;display:block;image-rendering:auto;cursor:crosshair}
+.viewer .vt{position:absolute;left:8px;top:6px;color:#fff;font-size:12px;text-shadow:0 1px 2px #000}
+.viewer .vb{position:absolute;left:8px;bottom:6px;right:8px;display:flex;justify-content:space-between;color:#fff;font-size:11px;text-shadow:0 1px 2px #000}
+#readout{font-size:13px;min-height:36px;margin:8px 0;padding:6px 8px;background:#f3f6fb;border-radius:8px}
+.row{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px}
+.row label{flex:0 0 auto;font-weight:600}
+.row input[type=range]{flex:1;min-width:80px;height:44px;accent-color:var(--navy)}
+.row output{min-width:52px;text-align:right;font-variant-numeric:tabular-nums}
+.small{font-size:12px;color:var(--muted);line-height:1.4}
+.dose{margin:6px 0 10px}
+.dose .d{display:grid;grid-template-columns:118px 1fr 58px;align-items:center;gap:6px;font-size:12px;margin:5px 0}
+.dose .bar{height:14px;background:#e3e8f0;border-radius:7px;overflow:hidden}
+.dose .bar i{display:block;height:100%;border-radius:7px;background:repeating-linear-gradient(45deg,#c0392b,#c0392b 4px,#d9534f 4px,#d9534f 8px)}
+.dose .bar i.bg{background:repeating-linear-gradient(-45deg,#2f6bff,#2f6bff 4px,#5a8cff 4px,#5a8cff 8px)}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;font-size:12px}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend b{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid #0003;flex:0 0 14px}
+#controls{position:fixed;left:8px;right:8px;bottom:8px;display:flex;align-items:center;gap:6px;padding:6px;overflow-x:auto;z-index:5;scrollbar-width:thin}
+#controls .grp{display:flex;gap:4px;align-items:center;flex:0 0 auto}
+#controls .sep{width:1px;height:30px;background:var(--line);flex:0 0 1px;margin:0 2px}
+#controls .spd{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:0 4px}
+#controls .spd input{width:110px;height:44px;accent-color:var(--navy)}
+#tooltip{position:fixed;pointer-events:none;z-index:9;max-width:260px;padding:8px 10px;font-size:13px;line-height:1.35;display:none}
+#tooltip b{display:block;margin-bottom:2px}
+#soundHint{position:fixed;left:50%;transform:translateX(-50%);bottom:78px;z-index:6;padding:10px 16px;font-size:14px;font-weight:600;background:var(--navy);color:#fff;border-radius:999px;box-shadow:0 6px 20px #0003}
+.label{font-size:12px;font-weight:600;color:var(--navy);background:rgba(255,255,255,.92);border:1px solid #b9c2d3;border-radius:6px;padding:3px 7px;white-space:nowrap;transform:translateY(-14px)}
+.modal{position:fixed;inset:0;z-index:20;background:rgba(14,22,40,.45);display:none;align-items:center;justify-content:center;padding:12px}
+.modal.open{display:flex}
+.modal .card{position:relative;width:min(760px,100%);max-height:100%;overflow:auto;padding:18px 20px 22px}
+.modal h2{margin:0 52px 10px 0;font-size:20px}
+.modal h3{font-size:16px;margin:16px 0 6px}
+.modal p,.modal li{font-size:14px;line-height:1.5}
+.mis{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:14px}
+.mis div{padding:8px 10px;border-radius:8px;line-height:1.4}
+.mis .w{background:#fdecea}
+.mis .r{background:#e7f5ec}
+.q{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.q .opts{display:grid;gap:6px}
+.q .opts button{text-align:left;white-space:normal;padding:8px 12px;font-weight:500}
+.q .opts button.right{background:#e7f5ec;border-color:var(--ok);color:#0d4a25}
+.q .opts button.wrong{background:#fdecea;border-color:var(--bad);color:#7a1a14}
+.q .fb{font-size:13px;margin-top:8px;min-height:18px}
+.match{display:grid;grid-template-columns:200px 1fr;gap:12px;align-items:start}
+.match canvas{width:200px;height:200px;border-radius:8px;background:#000}
+.match select{font:inherit;font-size:14px;min-height:44px;width:100%;border-radius:8px;border:1px solid #b9c2d3;padding:0 8px;margin:3px 0 6px}
+#help .card{width:min(420px,100%)}
+kbd{font-family:inherit;font-size:12px;background:#eef1f5;border:1px solid #c3cbd9;border-radius:4px;padding:1px 6px}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#fff4cc;color:#6b4e00;margin-left:6px}
+/* ---- narrow / phone ---- */
+@media (max-width:760px){
+  #topbar{top:4px;left:4px;right:4px;padding:4px 4px 4px 10px}
+  #topbar h1{font-size:15px}
+  #topbar .sub{display:none}
+  #topbar .btns button{padding:0 9px;font-size:13px}
+  #hubBack{padding:0 10px!important;position:static!important}
+  #topbar h1{display:none}
+  .lg{display:none}.sm{display:inline}
+  #stagePanel{top:60px;left:4px;right:4px;width:auto;padding:8px 10px}
+  #stageName{font-size:15px;margin-bottom:6px}
+  #strip button{min-height:34px}
+  #caption{font-size:13.5px;line-height:1.38;max-height:5.6em;overflow:auto}
+  #sidePanel{top:auto;bottom:66px;left:4px;right:4px;width:auto;max-height:52%}
+  #controls{left:4px;right:4px;bottom:4px}
+  .match{grid-template-columns:1fr}
+  .match canvas{width:180px;height:180px}
+  .mis{grid-template-columns:1fr}
+  #soundHint{bottom:70px;font-size:13px;width:max-content;max-width:92%}
+}
+@media (max-height:520px) and (min-width:560px){
+  #topbar{top:4px;padding:2px 4px 2px 10px}
+  #topbar .sub{display:none}
+  #topbar h1{font-size:14px}
+  #stagePanel{top:56px;left:4px;width:280px;right:auto;padding:8px 10px;max-height:calc(100% - 120px);overflow:auto}
+  #stageName{font-size:14px}
+  #strip button{min-height:30px}
+  #caption{font-size:12.5px;max-height:none}
+  #sidePanel{top:56px;bottom:auto;right:4px;left:auto;width:280px;max-height:calc(100% - 120px)}
+  #controls{bottom:4px}
+  #soundHint{bottom:62px}
+}
+#clockNote{font-size:13px;font-weight:600;color:#14532d;margin-top:6px;min-height:16px}
+.dose .bar i{min-width:3px}
+</style>
+<meta name="theme-color" content="#1b2a4a">
+<link rel="icon" href="../../icons/icon-192.png">
+<script src="../../assets/stats.js?v=2"></script>
+<script type="importmap">
+{"imports":{"three":"../../vendor/three/three.module.js","three/addons/":"../../vendor/three/addons/"}}
+</script>
+</head>
+<body>
+<div id="scene"></div>
+<div id="labels"></div>
+
+<header id="topbar" class="card">
+  <a id="hubBack" href="../../index.html" title="Back to the simulation hub" aria-label="Back to the simulation hub">← Hub</a>
+  <div class="ttl">
+    <h1>Gamma imaging and PET</h1>
+    <div class="sub">Unit 21 Medical Physics Applications · Imaging and treatment – Part 2 of 4</div>
+  </div>
+  <div class="btns">
+    <button id="bLearn" aria-haspopup="dialog"><span class="lg">What you'll learn</span><span class="sm">Learn</span></button>
+    <button id="bQuiz" aria-haspopup="dialog"><span class="lg">Test yourself</span><span class="sm">Quiz</span></button>
+    <button id="bSound" aria-pressed="true" title="Sound on/off" aria-label="Sound on or off">🔊</button>
+    <button id="bHelp" aria-haspopup="dialog" title="Help and shortcuts" aria-label="Help and keyboard shortcuts">?</button>
+  </div>
+</header>
+
+<section id="stagePanel" class="card" aria-live="polite">
+  <div id="stageName">Stage</div>
+  <div id="strip" role="tablist" aria-label="Stages"></div>
+  <div id="tbar"><div></div></div>
+  <p id="caption"></p>
+  <div id="clockNote"></div>
+  <div id="holdNote"></div>
+</section>
+
+<aside id="sidePanel" class="card" aria-label="Image, half-life and dose panel">
+  <button class="x" id="sideX" aria-label="Close panel">✕</button>
+  <div class="tabs" role="tablist">
+    <button id="tImg" aria-pressed="true">Image</button>
+    <button id="tHalf" aria-pressed="false">Decay</button>
+    <button id="tDose" aria-pressed="false">Dose</button>
+    <button id="tKey" aria-pressed="false">Key</button>
+  </div>
+  <div id="pImg">
+    <div class="row" style="margin-top:0">
+      <button id="vmCam" aria-pressed="true" style="flex:1">Gamma camera</button>
+      <button id="vmPet" aria-pressed="false" style="flex:1">PET-CT</button>
+    </div>
+    <div class="viewer"><canvas id="viewer" width="256" height="256" aria-label="Nuclear medicine image viewer. Hover or tap to read it."></canvas>
+      <div class="vt" id="vTitle">Bone scan (front view)</div>
+      <div class="vb"><span>Patient’s right</span><span>Patient’s left</span></div>
+    </div>
+    <div id="readout">Hover or tap the image to read it.</div>
+    <div class="row"><button id="bCol" style="flex:1">Collimator: in place (auto)</button></div>
+    <div class="small" id="imgNote">Bone scan shown as on a typical report: more tracer = darker. The image builds up one gamma ray (count) at a time.</div>
+  </div>
+  <div id="pHalf" hidden>
+    <div class="row" style="margin-top:0">
+      <button id="isoTc" aria-pressed="true" style="flex:1">Tc-99m (6.0 h)</button>
+      <button id="isoF" aria-pressed="false" style="flex:1">F-18 (110 min)</button>
+    </div>
+    <canvas id="graph" width="320" height="200" style="width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:10px" aria-label="Graph of activity against time"></canvas>
+    <div class="row"><label for="hrs">Hours after injection</label><input id="hrs" type="range" min="0" max="24" step="0.25" value="0"><output id="hrsOut">0 h</output></div>
+    <div id="halfOut" class="small" style="font-size:13px;color:var(--ink)"></div>
+    <p class="small">Activity = starting activity × (½)<sup>time ÷ half-life</sup>. The body also removes tracer (mostly in urine), so the real amount left falls faster than the physical decay shown here.</p>
+  </div>
+  <div id="pDose" hidden>
+    <h2>Typical effective doses (mSv)</h2>
+    <div class="dose" id="doseBars"></div>
+    <div class="small">Sources: UKHSA dose comparisons and patient dose guidance (GOV.UK); PET-CT range from the MSD Manual. Bars use a log scale.</div>
+    <h2 style="margin-top:14px">Keeping people safe</h2>
+    <ul class="small" style="font-size:13px;color:var(--ink);padding-left:18px;margin:4px 0">
+      <li><b>Staff:</b> syringe shields, gloves and protective clothing, keep handling time short, keep their distance, and wear personal dosemeters.</li>
+      <li><b>Patients:</b> every scan must be justified; drink plenty and empty the bladder often to clear tracer; avoid long close contact with young children and pregnant women for the rest of the day (some hospitals say 24 hours – follow local advice).</li>
+      <li>The gamma camera and PET ring give out <b>no</b> radiation – they only detect it.</li>
+    </ul>
+  </div>
+  <div id="pKey" hidden>
+    <h2>Colour key</h2>
+    <div class="legend">
+      <span><b style="background:#22c55e"></b>Tc-99m tracer (bone scan)</span>
+      <span><b style="background:#f59e0b"></b>F-18 FDG tracer (PET)</span>
+      <span><b style="background:#a855f7"></b>Gamma ray</span>
+      <span><b style="background:#ff5a36"></b>Gamma ray stopped by lead</span>
+      <span><b style="background:#38d0c8"></b>Light flash / detector signal</span>
+      <span><b style="background:#f4ecd2"></b>Bone</span>
+      <span><b style="background:#6b7280"></b>Lead collimator</span>
+      <span><b style="background:#bfe3ff"></b>Sodium iodide crystal</span>
+    </div>
+    <p class="small">Body, organs and tracer amounts are simplified. Far more gamma rays are stopped by the collimator than shown, and gamma rays are drawn moving slowly so you can follow them.</p>
+  </div>
+</aside>
+
+<nav id="controls" class="card" aria-label="Simulation controls">
+  <div class="grp">
+    <button id="bPrev" title="Previous stage (←)" aria-label="Previous stage">⏮</button>
+    <button id="bPlay" class="primary" title="Play / pause (Space)" aria-label="Play or pause">▶</button>
+    <button id="bNext" title="Next stage (→)" aria-label="Next stage">⏭</button>
+    <button id="bTour" title="Restart the guided tour">Tour</button>
+  </div>
+  <div class="sep"></div>
+  <div class="spd"><label for="spd">Speed</label><input id="spd" type="range" min="0.1" max="2" step="0.1" value="1"><output id="spdOut">×1.0</output></div>
+  <div class="sep"></div>
+  <div class="grp" id="camBtns"></div>
+  <div class="sep"></div>
+  <div class="grp" id="toggles"></div>
+  <div class="sep"></div>
+  <div class="grp"><button id="bSide" aria-pressed="true">Image &amp; graphs</button></div>
+</nav>
+
+<div id="tooltip" class="card"></div>
+<div id="soundHint" role="status">🔊 Sound is on – tap anywhere to start the narration</div>
+
+<div class="modal" id="learn" role="dialog" aria-modal="true" aria-labelledby="learnH">
+  <div class="card">
+    <button class="x" data-close aria-label="Close">✕</button>
+    <h2 id="learnH">What you'll learn</h2>
+    <h3>Learning outcomes – by the end, you can…</h3>
+    <ol>
+      <li>Explain why gamma imaging shows how organs are <b>working</b>: the radiation comes from a tracer inside the patient, not from the machine.</li>
+      <li>Explain why technetium-99m suits gamma camera imaging (gamma rays only, 140 keV, half-life about 6 hours) and use half-life to work out how much activity is left.</li>
+      <li>Describe how a gamma camera forms an image: lead collimator, sodium iodide crystal, photomultiplier tubes and computer.</li>
+      <li>Explain PET: positron emission, annihilation, two 511 keV gamma rays at 180°, coincidence detection, and why it is combined with CT.</li>
+      <li>Describe how patients and staff are protected, and compare doses with X-ray and CT.</li>
+    </ol>
+    <h3>Common misconceptions</h3>
+    <div class="mis">
+      <div class="w">✗ The gamma camera fires radiation through the patient, like an X-ray machine.</div><div class="r">✓ The camera only <b>detects</b>. The gamma rays come from the tracer inside the patient.</div>
+      <div class="w">✗ A hot spot on a bone scan means cancer.</div><div class="r">✓ A hot spot means increased bone activity. It could be a healing fracture, infection, arthritis or cancer, so other tests are needed.</div>
+      <div class="w">✗ The tracer stays radioactive in your body for years.</div><div class="r">✓ Tc-99m has a half-life of about 6 hours and is also passed out in urine. Hospitals say it is essentially gone within about a day.</div>
+      <div class="w">✗ A PET scanner detects the positrons.</div><div class="r">✓ Positrons travel less than a millimetre before annihilating. PET detects the <b>pair of 511 keV gamma rays</b> they produce.</div>
+      <div class="w">✗ The collimator focuses gamma rays like a lens.</div><div class="r">✓ Gamma rays can’t be focused. The lead collimator <b>blocks</b> every gamma ray that isn’t travelling straight along its holes.</div>
+    </div>
+    <h3>Specification link</h3>
+    <p><b>Pearson BTEC Level 3 National Extended Diploma in Applied Science (2016)</b>, QN 601/7437/7. <b>Unit 21: Medical Physics Applications</b>.</p>
+    <p><b>Learning aim B:</b> “Explore the principles, production, uses and benefits of ionising instrumentation techniques in medical applications”. Content covered here: <b>B3 Gamma ray imaging</b>, including:<br>
+    “emitted positrons combine with nearby electrons (e-) to produce gamma rays”<br>
+    “the body is inside a ring of detectors to give a signal, which is used by the computer”<br>
+    “Uses of positron emission tomography (PET) – imaging scans for diagnosis of cancer, detection of recurrent tumours.”<br>
+    “Benefits – high-energy, penetrating power.”</p>
+    <p><b>Learning aim C</b> (C2 ionising radiation safety): “Ionising radiation can damage healthy cells and cause cancer.” and “use of protective clothing and film badges required.”</p>
+    <p><b>Criteria this supports:</b><br>
+    B.P3 “Explain how the principles and production of ionising radiation technologies are used in medical applications.”<br>
+    B.P4 “Explain why ionising radiation technologies are used for diagnosis and treatment of the human body.”<br>
+    B.M2 “Compare the principles, production and uses of different ionising radiation techniques in medical applications.”<br>
+    C.P5 “Explain the health and safety risks, side effects and limitations of non-ionising and ionising radiation technologies.”</p>
+    <p class="small"><b>Note on the specification:</b> B3 gives iodine-123 and “technetium-99” as examples of positron-emitting tracers. In fact the medical isotope is technetium-99<b>m</b>, and both Tc-99m and I-123 give out gamma rays directly and are imaged with a gamma camera. PET uses positron emitters such as fluorine-18. This simulation teaches the correct physics – check with your teacher how to word this in assignments.</p>
+  </div>
+</div>
+
+<div class="modal" id="quiz" role="dialog" aria-modal="true" aria-labelledby="quizH">
+  <div class="card">
+    <button class="x" data-close aria-label="Close">✕</button>
+    <h2 id="quizH">Test yourself <span id="score" class="badge">0 / 6</span></h2>
+    <div id="mcqs"></div>
+  </div>
+</div>
+
+<div class="modal" id="help" role="dialog" aria-modal="true" aria-labelledby="helpH">
+  <div class="card">
+    <button class="x" data-close aria-label="Close">✕</button>
+    <h2 id="helpH">Help</h2>
+    <p>Drag to rotate, pinch or scroll to zoom, right-drag or two-finger drag to pan. Hover or tap any part to see what it does.</p>
+    <p><kbd>Space</kbd> play / pause<br><kbd>←</kbd> <kbd>→</kbd> previous / next stage<br><kbd>1</kbd>–<kbd>5</kbd> camera views<br><kbd>L</kbd> show all labels<br><kbd>C</kbd> collimator in / out<br><kbd>Esc</kbd> close a panel</p>
+    <p class="small">Toggle buttons cycle each part through On → Ghost → Off.</p>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+const EDITION = 'student';
+const qs = new URLSearchParams(location.search);
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = id => document.getElementById(id);
+const clamp = (x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const lerp = (a,b,t)=>a+(b-a)*t;
+const ease = t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+function mulberry(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function hash(a,b){ let h=Math.imul(a,374761393)+Math.imul(b,668265263)|0; h=Math.imul(h^(h>>>13),1274126177); h^=h>>>16; return (h>>>0)/4294967296; }
+
+/* =================== Body geometry (patient-local, metres-ish) =================== */
+const SX=0.32, SY=0.22, SZ=0.45;
+const HEADZ=-SZ-0.2;
+const HALF_TC=6.01, HALF_F=109.7/60;
+const PET_Z=-2.1, CT_Z=-2.75, RING_R=0.62, FOV=0.25;
+const COL_Y=0.30, XTAL_Y=0.365;
+
+/* ---- tracer sources ---- */
+const rnd=mulberry(20261115);
+const SRC=[]; // bone scan sources {x,y,z,w,tag}
+const add=(arr,x,y,z,w,tag)=>arr.push({x,y,z,w,tag});
+function sphereSurf(c,r,n,w,tag,arr){ for(let i=0;i<n;i++){ const u=rnd()*2-1, a=rnd()*Math.PI*2, s=Math.sqrt(1-u*u); add(arr,c[0]+r[0]*s*Math.cos(a),c[1]+r[1]*s*Math.sin(a),c[2]+r[2]*u,w,tag);} }
+function ellVol(c,r,n,w,tag,arr){ let k=0; while(k<n){ const a=rnd()*2-1,b=rnd()*2-1,d=rnd()*2-1; if(a*a+b*b+d*d>1) continue; add(arr,c[0]+a*r[0],c[1]+b*r[1],c[2]+d*r[2],w,tag); k++; } }
+function rod(p0,p1,r,n,w,tag,arr){ for(let i=0;i<n;i++){ const f=rnd(), a=rnd()*Math.PI*2, rr=r*Math.sqrt(rnd()); add(arr,lerp(p0[0],p1[0],f)+rr*Math.cos(a),lerp(p0[1],p1[1],f)+rr*Math.sin(a),lerp(p0[2],p1[2],f)+(rnd()-.5)*r,w,tag);} }
+// geometry definitions shared by meshes and sources
+const VERTS=[]; for(let w0=-1;w0<1-1e-6;w0+=1/6){ VERTS.push({zc:(w0+0.4/6)*SZ,len:(1/6)*0.8*SZ}); }
+const RIBS=[]; for(let w0=-1;w0<-0.05;w0+=1/5.5){ const wc=w0+0.35/5.5/2; if(wc>-0.05) break; RIBS.push(wc*SZ); }
+const RIB_A0=Math.PI/2+0.375, RIB_SPAN=Math.PI*2-0.75, RIB_R=0.835;
+const ARM=[{s:[0.41,0,-0.36],e:[0.43,0,0.0],h:[0.44,0,0.33]}, {s:[-0.41,0,-0.36],e:[-0.43,0,0.0],h:[-0.44,0,0.33]}];
+const LEG=[[0.12,-0.08,0.48,1.15],[-0.12,-0.08,0.48,1.15]];
+const SPINE_Y=-0.62*SY;
+const HOT_RIB={ri:3,a:0.35}; const HOT_VERT=9;
+// bones
+VERTS.forEach((v,i)=>{ const hot=i===HOT_VERT; for(let k=0;k<(hot?90:24);k++){ const a=rnd()*Math.PI*2, r=Math.sqrt(rnd()); add(SRC,0.12*SX*r*Math.cos(a),SPINE_Y+0.12*SY*r*Math.sin(a),v.zc+(rnd()-.5)*v.len,hot?12:1,hot?'hotVert':'spine'); } });
+RIBS.forEach((zc,ri)=>{ for(let k=0;k<70;k++){ const a=RIB_A0+rnd()*RIB_SPAN; add(SRC,RIB_R*SX*Math.cos(a),RIB_R*SY*Math.sin(a),zc+(rnd()-.5)*0.012,1,'rib'); }
+  if(ri===HOT_RIB.ri) for(let k=0;k<70;k++){ const a=HOT_RIB.a+(rnd()-.5)*0.18; add(SRC,RIB_R*SX*Math.cos(a)+(rnd()-.5)*0.01,RIB_R*SY*Math.sin(a)+(rnd()-.5)*0.01,zc+(rnd()-.5)*0.012,14,'hotRib'); } });
+rod([0,0.74*SY,-0.75*SZ],[0,0.74*SY,-0.08*SZ],0.015,40,1,'sternum',SRC);
+for(let k=0;k<200;k++){ const a=rnd()*Math.PI*2; add(SRC,0.75*SX*Math.cos(a),0.62*SY*Math.sin(a)-0.02,0.88*SZ+(rnd()-.5)*0.03,1,'pelvis'); }
+sphereSurf([0.5*SX,0.05,0.80*SZ],[0.09,0.05,0.06],80,1,'pelvis',SRC); sphereSurf([-0.5*SX,0.05,0.80*SZ],[0.09,0.05,0.06],80,1,'pelvis',SRC);
+LEG.forEach(l=>rod([l[0],l[1],l[2]],[l[0],l[1],l[3]],0.02,110,1,'femur',SRC));
+ARM.forEach(a=>{ rod(a.s,a.e,0.016,60,1,'arm',SRC); rod(a.e,a.h,0.014,50,1,'arm',SRC); });
+sphereSurf([0,0,HEADZ],[0.095,0.095,0.11],260,1,'skull',SRC);
+rod([0.04,0.0,-0.62*SZ],[0.20,0.0,-0.95*SZ],0.01,25,1,'clavicle',SRC); rod([-0.04,0.0,-0.62*SZ],[-0.20,0.0,-0.95*SZ],0.01,25,1,'clavicle',SRC);
+ellVol([0.45*SX,-0.5*SY,0.4*SZ],[0.13*SX,0.17*SY,0.25*SZ],60,0.7,'kidney',SRC); ellVol([-0.45*SX,-0.5*SY,0.4*SZ],[0.13*SX,0.17*SY,0.25*SZ],60,0.7,'kidney',SRC);
+const BLADDER=[0,0.3*SY,0.86*SZ], BLADDER_R=[0.18*SX,0.2*SY,0.09*SZ];
+ellVol(BLADDER,BLADDER_R,160,3.5,'bladder',SRC);
+for(let k=0;k<260;k++){ const a=rnd()*Math.PI*2, r=Math.sqrt(rnd())*0.9; add(SRC,r*SX*Math.cos(a),r*SY*Math.sin(a),(rnd()*2-1)*SZ,0.12,'soft'); }
+// FDG sources (PET)
+const FDG=[];
+ellVol([0,0,HEADZ],[0.075,0.075,0.085],320,4,'brain',FDG);
+sphereSurf([0.15*SX,0.25*SY,-0.35*SZ],[0.25*SX,0.3*SY,0.25*SZ],200,2.2,'heart',FDG);
+ellVol(BLADDER,BLADDER_R,160,5,'bladder',FDG);
+ellVol([0.45*SX,-0.5*SY,0.4*SZ],[0.13*SX,0.17*SY,0.25*SZ],70,1.4,'kidney',FDG); ellVol([-0.45*SX,-0.5*SY,0.4*SZ],[0.13*SX,0.17*SY,0.25*SZ],70,1.4,'kidney',FDG);
+ellVol([-0.35*SX,0.05*SY,0.3*SZ],[0.42*SX,0.55*SY,0.35*SZ],160,0.5,'liver',FDG);
+const TUMOUR=[-0.45*SX,0.1*SY,-0.55*SZ]; ellVol(TUMOUR,[0.022,0.022,0.022],110,8,'tumour',FDG);
+for(let k=0;k<400;k++){ const a=rnd()*Math.PI*2, r=Math.sqrt(rnd())*0.9; add(FDG,r*SX*Math.cos(a),r*SY*Math.sin(a),(rnd()*2-1)*SZ,0.25,'soft'); }
+LEG.forEach(l=>rod([l[0],l[1]+0.0,l[2]],[l[0],l[1],l[3]],0.06,90,0.25,'soft',FDG));
+SRC.sort((a,b)=>a.z-b.z); FDG.sort((a,b)=>a.z-b.z);
+const zs=arr=>Float64Array.from(arr.map(s=>s.z));
+const SRC_Z=zs(SRC), FDG_Z=zs(FDG);
+const lowerBound=(A,v)=>{ let lo=0,hi=A.length; while(lo<hi){ const m=(lo+hi)>>1; if(A[m]<v) lo=m+1; else hi=m; } return lo; };
+function cumW(arr){ const c=new Float64Array(arr.length); let s=0; arr.forEach((p,i)=>{ s+=p.w; c[i]=s; }); return c; }
+const SRC_C=cumW(SRC), FDG_C=cumW(FDG);
+const pickW=(C,u)=>Math.min(C.length-1,lowerBound(C,u*C[C.length-1]));
+function pickInRange(arr,Z,C,z0,z1,u){ const i0=lowerBound(Z,z0), i1=lowerBound(Z,z1); if(i1<=i0) return -1; const c0=i0>0?C[i0-1]:0, c1=C[i1-1]; return Math.min(i1-1,lowerBound(C,c0+u*(c1-c0))); }
+
+/* ---- image event lists (sorted by z so a sweeping front builds the image) ---- */
+const IMG_W=64, IMG_H=128, IX0=-0.45, IX1=0.45, IZ0=-0.80, IZ1=1.15;
+const toPx=(x,z)=>[Math.floor((x-IX0)/(IX1-IX0)*IMG_W), Math.floor((z-IZ0)/(IZ1-IZ0)*IMG_H)];
+const NEV=60000;
+const camEv=[]; { const r=mulberry(7); for(let k=0;k<NEV;k++){ const s=SRC[pickW(SRC_C,r())]; const jx=(r()-.5)*0.008, jz=(r()-.5)*0.008;
+    const d=COL_Y-s.y, th=Math.acos(1-r()*(1-Math.cos(1.0))), ph=r()*Math.PI*2, off=d*Math.tan(th);
+    camEv.push({z:s.z, x:s.x+jx, zz:s.z+jz, xo:s.x+off*Math.cos(ph), zo:s.z+off*Math.sin(ph), tag:s.tag}); } camEv.sort((a,b)=>a.z-b.z); }
+const CAM_EZ=Float64Array.from(camEv.map(e=>e.z));
+const NPET=50000;
+const petEv=[]; { const r=mulberry(11); for(let k=0;k<NPET;k++){ const s=FDG[pickW(FDG_C,r())]; petEv.push({z:s.z, x:s.x+(r()-.5)*0.012, zz:s.z+(r()-.5)*0.012}); } petEv.sort((a,b)=>a.z-b.z); }
+const PET_EZ=Float64Array.from(petEv.map(e=>e.z));
+
+/* =================== Renderer & scene =================== */
+const host=$('scene');
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(2,devicePixelRatio)); renderer.setSize(innerWidth,innerHeight);
+renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.localClippingEnabled=true;
+host.appendChild(renderer.domElement);
+const labelRenderer=new CSS2DRenderer({element:$('labels')}); labelRenderer.setSize(innerWidth,innerHeight);
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0xeef1f5);
+const camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,0.05,60); camera.position.set(3,2,4);
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true; controls.dampingFactor=0.08; controls.minDistance=0.5; controls.maxDistance=10; controls.maxPolarAngle=Math.PI*0.49;
+scene.add(new THREE.HemisphereLight(0xffffff,0xb8c0cc,1.1));
+const sun=new THREE.DirectionalLight(0xffffff,1.5); sun.position.set(3,6,4); sun.castShadow=true; sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-5,right:5,top:5,bottom:-5,near:0.5,far:20}); sun.shadow.bias=-0.0005; scene.add(sun);
+const FLOOR=-1.1;
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.MeshStandardMaterial({color:0xdde2ea,roughness:.95}));
+floor.rotation.x=-Math.PI/2; floor.position.y=FLOOR; floor.receiveShadow=true; scene.add(floor);
+const grid=new THREE.GridHelper(30,60,0xc9d0db,0xd3d9e2); grid.position.y=FLOOR+0.001; scene.add(grid);
+const std=(c,o={})=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.6,metalness:.05},o));
+const parts={}, pickables=[];
+function reg(key,obj,info){ parts[key]={obj,info}; obj.traverse(m=>{ if(m.isMesh){ m.userData.part=key; pickables.push(m);} }); return obj; }
+const labels={};
+function addLabel(key,obj,text,offset){ const d=document.createElement('div'); d.className='label'; d.textContent=text; const l=new CSS2DObject(d); l.position.copy(offset||new THREE.Vector3()); obj.add(l); labels[key]=l; l.visible=false; return l; }
+
+/* ---- patient + table ---- */
+const tableBase=new THREE.Mesh(new THREE.BoxGeometry(0.4,0.8,1.2),std(0xc9ced8)); tableBase.position.set(0,FLOOR+0.4,1.3); tableBase.castShadow=true; scene.add(tableBase);
+const patient=new THREE.Group(); scene.add(patient);
+const tableTop=new THREE.Mesh(new THREE.BoxGeometry(0.62,0.05,2.4),std(0x9aa6bb,{transparent:true,opacity:0.6,depthWrite:false}));
+tableTop.position.set(0,-0.262,0.25); patient.add(tableTop);
+reg('table',tableTop,{name:'Patient table',job:'Moves the patient under the gamma camera, or through the PET-CT scanner.'});
+addLabel('table',tableTop,'Patient table',new THREE.Vector3(0,0,1.05));
+const skinMat=std(0xf2c9a5,{transparent:true,opacity:0.2,depthWrite:false,roughness:.8});
+const body=new THREE.Group(); patient.add(body);
+const torso=new THREE.Mesh(new THREE.CylinderGeometry(1,1,2*SZ,64).rotateX(Math.PI/2),skinMat); torso.scale.set(SX,SY,1); body.add(torso);
+const pelvisSkin=new THREE.Mesh(new THREE.SphereGeometry(1,40,20),skinMat); pelvisSkin.scale.set(SX,SY,0.12); pelvisSkin.position.z=SZ; body.add(pelvisSkin);
+const headM=new THREE.Mesh(new THREE.SphereGeometry(0.12,32,20),skinMat); headM.position.z=HEADZ; headM.scale.set(1,1,1.15); body.add(headM);
+const neck=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.06,0.12,20).rotateX(Math.PI/2),skinMat); neck.position.z=-SZ-0.06; body.add(neck);
+LEG.forEach(l=>{ const m=new THREE.Mesh(new THREE.CylinderGeometry(0.075,0.06,l[3]-l[2]+0.1,24).rotateX(Math.PI/2),skinMat); m.position.set(l[0],l[1],(l[2]+l[3])/2); body.add(m); });
+function limb(p0,p1,r,mat,parent){ const a=new THREE.Vector3(...p0), b=new THREE.Vector3(...p1); const len=a.distanceTo(b); const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,16),mat); m.position.copy(a).add(b).multiplyScalar(0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),b.clone().sub(a).normalize()); parent.add(m); return m; }
+ARM.forEach(a=>{ limb(a.s,a.e,0.045,skinMat,body); limb(a.e,a.h,0.038,skinMat,body); });
+reg('body',body,{name:'Patient (simplified)',job:'See-through so you can watch the tracer and gamma rays inside.'});
+
+const organs=new THREE.Group(); patient.add(organs);
+function ellMesh(c,r,mat){ const m=new THREE.Mesh(new THREE.SphereGeometry(1,32,20),mat); m.position.set(...c); m.scale.set(...r); return m; }
+const lungs=new THREE.Group(); const lungMat=std(0x6fb6ff,{transparent:true,opacity:0.3,depthWrite:false});
+lungs.add(ellMesh([0.42*SX,0.05*SY,-0.5*SZ],[0.3*SX,0.55*SY,0.45*SZ],lungMat),ellMesh([-0.42*SX,0.05*SY,-0.5*SZ],[0.3*SX,0.55*SY,0.45*SZ],lungMat)); organs.add(lungs);
+const heartM=ellMesh([0.15*SX,0.25*SY,-0.35*SZ],[0.25*SX,0.3*SY,0.25*SZ],std(0xd9435a,{transparent:true,opacity:0.5})); organs.add(heartM);
+const kidneys=new THREE.Group(); kidneys.add(ellMesh([0.45*SX,-0.5*SY,0.4*SZ],[0.13*SX,0.17*SY,0.25*SZ],std(0xb55a4a,{transparent:true,opacity:0.55})),ellMesh([-0.45*SX,-0.5*SY,0.4*SZ],[0.13*SX,0.17*SY,0.25*SZ],std(0xb55a4a,{transparent:true,opacity:0.55}))); organs.add(kidneys);
+const bladderM=ellMesh(BLADDER,BLADDER_R,std(0xf2d16b,{transparent:true,opacity:0.45})); organs.add(bladderM);
+reg('lungs',lungs,{name:'Lungs',job:'Take up little tracer on a bone scan. In the PET scan, the bright spot in the right lung is a tumour using lots of glucose.'});
+reg('heart',heartM,{name:'Heart',job:'Heart muscle uses a lot of glucose, so it often shows on PET (normal).'});
+reg('kidneys',kidneys,{name:'Kidneys',job:'Filter tracer out of the blood into urine, so they show faintly.'});
+reg('bladder',bladderM,{name:'Bladder',job:'Collects tracer passed out in urine – it shows strongly on both scans. Emptying it often lowers the dose.'});
+addLabel('bladder',bladderM,'Bladder',new THREE.Vector3(0,1.6,0));
+addLabel('kidneys',kidneys.children[0],'Kidneys',new THREE.Vector3(0,-1.2,0));
+
+const boneMat=std(0xf4ecd2,{roughness:.55});
+const bones=new THREE.Group(); patient.add(bones);
+const spine=new THREE.Group(); bones.add(spine);
+VERTS.forEach(v=>{ const m=new THREE.Mesh(new THREE.CylinderGeometry(1,1,1,20).rotateX(Math.PI/2),boneMat); m.scale.set(0.12*SX,0.12*SY,v.len); m.position.set(0,SPINE_Y,v.zc); spine.add(m); });
+const ribs=new THREE.Group(); bones.add(ribs);
+RIBS.forEach(zc=>{ const g=new THREE.TorusGeometry(RIB_R,0.03,8,64,RIB_SPAN); g.rotateZ(RIB_A0); const m=new THREE.Mesh(g,boneMat); m.scale.set(SX,SY,1); m.position.z=zc; ribs.add(m); });
+const sternum=new THREE.Mesh(new THREE.BoxGeometry(0.035,0.02,0.67*SZ),boneMat); sternum.position.set(0,0.74*SY,-0.415*SZ); bones.add(sternum);
+const pelvis=new THREE.Group(); bones.add(pelvis);
+{ const t=new THREE.Mesh(new THREE.TorusGeometry(1,0.06,8,48),boneMat); t.scale.set(0.75*SX,0.62*SY,1); t.position.set(0,-0.02,0.88*SZ); pelvis.add(t);
+  pelvis.add(ellMesh([0.5*SX,0.05,0.80*SZ],[0.09,0.05,0.06],boneMat),ellMesh([-0.5*SX,0.05,0.80*SZ],[0.09,0.05,0.06],boneMat)); }
+LEG.forEach(l=>limb([l[0],l[1],l[2]],[l[0],l[1],l[3]],0.02,boneMat,bones));
+ARM.forEach(a=>{ limb(a.s,a.e,0.014,boneMat,bones); limb(a.e,a.h,0.012,boneMat,bones); });
+const skull=new THREE.Mesh(new THREE.SphereGeometry(1,28,18),std(0xf4ecd2,{transparent:true,opacity:0.35,depthWrite:false})); skull.scale.set(0.095,0.095,0.11); skull.position.z=HEADZ; bones.add(skull);
+reg('spine',spine,{name:'Spine',job:'Bone takes up the tracer. The vertebra marked “hot spot” has much more uptake than the others.'});
+reg('ribs',ribs,{name:'Ribs',job:'Bone takes up the tracer. One rib has a hot spot – increased bone activity.'});
+reg('pelvis',pelvis,{name:'Pelvis',job:'Bone – takes up the tracer evenly here (normal).'});
+const hotRibAnchor=new THREE.Object3D(); hotRibAnchor.position.set(RIB_R*SX*Math.cos(HOT_RIB.a),RIB_R*SY*Math.sin(HOT_RIB.a),RIBS[HOT_RIB.ri]); patient.add(hotRibAnchor);
+const hotVertAnchor=new THREE.Object3D(); hotVertAnchor.position.set(0,SPINE_Y,VERTS[HOT_VERT].zc); patient.add(hotVertAnchor);
+addLabel('hotRib',hotRibAnchor,'Hot spot: rib',new THREE.Vector3(0.12,0.1,0));
+addLabel('hotVert',hotVertAnchor,'Hot spot: vertebra',new THREE.Vector3(-0.2,-0.05,0));
+const tumourAnchor=new THREE.Object3D(); tumourAnchor.position.set(...TUMOUR); patient.add(tumourAnchor);
+addLabel('tumour',tumourAnchor,'Tumour (high glucose use)',new THREE.Vector3(-0.15,0.15,0));
+const brainAnchor=new THREE.Object3D(); brainAnchor.position.set(0,0,HEADZ); patient.add(brainAnchor);
+addLabel('brain',brainAnchor,'Brain (normal high uptake)',new THREE.Vector3(0,0.2,0));
+
+/* ---- syringe in shield ---- */
+const INJ=new THREE.Vector3(0.44,0.05,0.05);
+const syringe=new THREE.Group(); syringe.position.set(INJ.x+0.10,INJ.y+0.10,INJ.z); syringe.rotation.z=0.9; patient.add(syringe);
+const shield=new THREE.Mesh(new THREE.CylinderGeometry(0.022,0.022,0.12,20,1,true),std(0x6b7280,{metalness:.6,roughness:.35,side:THREE.DoubleSide,transparent:true,opacity:0.6})); syringe.add(shield);
+const barrel=new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.012,0.13,14),std(0x22c55e,{transparent:true,opacity:0.8,emissive:0x0f6b2e,emissiveIntensity:.6})); syringe.add(barrel);
+const needle=new THREE.Mesh(new THREE.CylinderGeometry(0.002,0.002,0.07,6),std(0xcccccc,{metalness:.9})); needle.position.y=-0.095; syringe.add(needle);
+const plunger=new THREE.Mesh(new THREE.CylinderGeometry(0.004,0.004,0.08,8),std(0xe5e7eb)); plunger.position.y=0.1; syringe.add(plunger);
+reg('syringe',syringe,{name:'Syringe in a shield',job:'The tracer is injected into an arm vein. A lead or tungsten syringe shield cuts the dose to the hands of the person injecting.'});
+addLabel('syringe',syringe,'Syringe shield',new THREE.Vector3(0,0.12,0));
+
+/* ---- gamma camera on a rail ---- */
+const gc=new THREE.Group(); scene.add(gc);
+const rail=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.08,2.6),std(0xb4bccb,{metalness:.4})); rail.position.set(-0.85,0.95,0.2); gc.add(rail);
+[-1.0,1.4].forEach(z=>{ const p=new THREE.Mesh(new THREE.BoxGeometry(0.12,2.05,0.12),std(0xb4bccb,{metalness:.4})); p.position.set(-0.85,FLOOR+1.025,z); p.castShadow=true; gc.add(p); });
+const head=new THREE.Group(); gc.add(head);
+const carriage=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.08,0.2),std(0x2c3e66)); carriage.position.set(-0.6,0.95,0); head.add(carriage);
+const hanger=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.40,0.12),std(0x2c3e66)); hanger.position.set(-0.4,0.72,0); head.add(hanger);
+const HW=0.72, HL=0.5;
+const housing=new THREE.Mesh(new THREE.BoxGeometry(HW+0.04,0.24,HL+0.04),std(0x2c3e66,{transparent:true,opacity:0.14,depthWrite:false})); housing.position.y=0.41; head.add(housing);
+const colCv=document.createElement('canvas'); colCv.width=colCv.height=256; { const c=colCv.getContext('2d'); c.fillStyle='#7b8494'; c.fillRect(0,0,256,256); c.fillStyle='#2b3140'; for(let y=0;y<16;y++) for(let x=0;x<16;x++){ c.beginPath(); c.arc(x*16+8+(y%2)*8,y*16+8,5,0,7); c.fill(); } }
+const colTex=new THREE.CanvasTexture(colCv); colTex.wrapS=colTex.wrapT=THREE.RepeatWrapping; colTex.repeat.set(4,3); colTex.colorSpace=THREE.SRGBColorSpace;
+const collimator=new THREE.Mesh(new THREE.BoxGeometry(HW,0.06,HL),[std(0x6b7280,{metalness:.5}),std(0x6b7280,{metalness:.5}),std(0xffffff,{map:colTex,metalness:.4}),std(0xffffff,{map:colTex,metalness:.4}),std(0x6b7280,{metalness:.5}),std(0x6b7280,{metalness:.5})]);
+collimator.position.y=COL_Y+0.03; head.add(collimator);
+const crystal=new THREE.Mesh(new THREE.BoxGeometry(HW,0.012,HL),std(0xbfe3ff,{transparent:true,opacity:0.75,roughness:.15})); crystal.position.y=XTAL_Y; head.add(crystal);
+const pmts=new THREE.Group(); head.add(pmts); const PMTS=[];
+for(let i=0;i<7;i++) for(let j=0;j<5;j++){ const m=new THREE.Mesh(new THREE.CylinderGeometry(0.038,0.038,0.09,18),std(0x9aa3b2,{metalness:.5,roughness:.3,emissive:0x38d0c8,emissiveIntensity:0})); m.position.set(-HW/2+0.06+i*(HW-0.12)/6,0.42,-HL/2+0.06+j*(HL-0.12)/4); pmts.add(m); PMTS.push(m); }
+reg('gcHead',housing,{name:'Gamma camera head',job:'Detects gamma rays coming out of the patient. It gives out no radiation itself. Its cover is see-through here.'});
+reg('collimator',collimator,{name:'Lead collimator',job:'Thick lead plate full of narrow holes. Only gamma rays travelling straight along the holes get through, so each count can be traced back to where it came from.'});
+reg('crystal',crystal,{name:'Sodium iodide crystal',job:'Scintillator: each gamma ray that hits it makes a tiny flash of light.'});
+reg('pmts',pmts,{name:'Photomultiplier tubes',job:'Turn each faint flash of light into an electrical pulse. The computer compares the pulses to work out where the flash happened.'});
+addLabel('gcHead',head,'Gamma camera',new THREE.Vector3(0.0,0.6,0));
+addLabel('collimator',collimator,'Lead collimator',new THREE.Vector3(HW/2+0.02,-0.02,0.2));
+addLabel('crystal',crystal,'Sodium iodide crystal',new THREE.Vector3(HW/2+0.02,0.03,-0.12));
+addLabel('pmts',pmts,'Photomultiplier tubes',new THREE.Vector3(0,0.48,0));
+const monitor=new THREE.Group(); monitor.position.set(-1.3,0.25,0.9); monitor.rotation.y=0.9; scene.add(monitor);
+const monCv=document.createElement('canvas'); monCv.width=128; monCv.height=128;
+const monTex=new THREE.CanvasTexture(monCv); monTex.colorSpace=THREE.SRGBColorSpace;
+const monScreen=new THREE.Mesh(new THREE.PlaneGeometry(0.5,0.5),new THREE.MeshBasicMaterial({map:monTex,toneMapped:false})); monitor.add(monScreen);
+const monBox=new THREE.Mesh(new THREE.BoxGeometry(0.56,0.56,0.04),std(0x1f2937)); monBox.position.z=-0.025; monitor.add(monBox);
+const monStand=new THREE.Mesh(new THREE.BoxGeometry(0.05,1.1,0.05),std(0x9aa3b2)); monStand.position.set(0,-0.8,-0.05); monitor.add(monStand);
+reg('computer',monitor,{name:'Computer',job:'Adds up the counts to build the image. Areas with more counts have taken up more tracer.'});
+addLabel('computer',monitor,'Computer image',new THREE.Vector3(0,0.36,0));
+
+/* ---- PET-CT ---- */
+const pet=new THREE.Group(); scene.add(pet);
+const clipPet=new THREE.Plane(new THREE.Vector3(0,0,-1),PET_Z);
+const hMat=std(0xf6f7fa,{side:THREE.DoubleSide,clippingPlanes:[clipPet],roughness:.45});
+function gantry(z,depth,rIn,rOut,mat){ const g=new THREE.Group(); g.position.z=z;
+  const o=new THREE.Mesh(new THREE.CylinderGeometry(rOut,rOut,depth,96,1,true).rotateX(Math.PI/2),mat), i=new THREE.Mesh(new THREE.CylinderGeometry(rIn,rIn,depth,96,1,true).rotateX(Math.PI/2),mat);
+  const f=new THREE.Mesh(new THREE.RingGeometry(rIn,rOut,96),mat); f.position.z=depth/2; const b=new THREE.Mesh(new THREE.RingGeometry(rIn,rOut,96),mat); b.position.z=-depth/2; b.rotation.y=Math.PI;
+  [o,i,f,b].forEach(m=>{m.castShadow=true;g.add(m);}); return g; }
+const petHousing=gantry(PET_Z,0.62,0.56,1.0,hMat); pet.add(petHousing);
+const ctHousing=gantry(CT_Z,0.5,0.56,0.95,std(0xe9ecf2,{side:THREE.DoubleSide,roughness:.45})); pet.add(ctHousing);
+const petBase=new THREE.Mesh(new THREE.BoxGeometry(1.2,0.25,1.6),std(0xd7dce5)); petBase.position.set(0,FLOOR+0.125,(PET_Z+CT_Z)/2); pet.add(petBase);
+const blocks=new THREE.Group(); blocks.position.z=PET_Z; pet.add(blocks); const NB=48, ROWS=[-0.16,0,0.16]; const BLK=[];
+ROWS.forEach((rz,ri)=>{ for(let k=0;k<NB;k++){ const a=k/NB*Math.PI*2; const m=new THREE.Mesh(new THREE.BoxGeometry(0.07,0.05,0.14),std(0x24324f,{emissive:0x38d0c8,emissiveIntensity:0}));
+  m.position.set((RING_R+0.03)*Math.cos(a),(RING_R+0.03)*Math.sin(a),rz); m.rotation.z=a; blocks.add(m); BLK.push(m); } });
+const blkGlow=new Float32Array(BLK.length);
+reg('petRing',blocks,{name:'PET detector ring',job:'Rings of detectors around the patient. Two detectors flashing at the same moment mean an annihilation happened somewhere on the line between them.'});
+reg('petHousing',petHousing,{name:'PET scanner',job:'Contains the detector rings. Front cover cut away.'});
+reg('ctHousing',ctHousing,{name:'CT scanner (part of PET-CT)',job:'Takes a CT scan in the same visit, so the PET hot spots can be placed exactly on the anatomy.'});
+addLabel('petRing',blocks,'PET detector ring',new THREE.Vector3(0,0.85,0.1));
+addLabel('ctHousing',ctHousing,'CT part',new THREE.Vector3(0,1.05,0));
+const NPAIR=36;
+const lorGeo=new THREE.BufferGeometry(); const lorPos=new Float32Array(NPAIR*6), lorCol=new Float32Array(NPAIR*6);
+lorGeo.setAttribute('position',new THREE.BufferAttribute(lorPos,3)); lorGeo.setAttribute('color',new THREE.BufferAttribute(lorCol,3));
+const lors=new THREE.LineSegments(lorGeo,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.85})); lors.frustumCulled=false; scene.add(lors);
+
+/* ---- radiographer (safety stage) ---- */
+const staff=new THREE.Group(); scene.add(staff); staff.position.set(-0.9,0,2.2); staff.rotation.y=2.65;
+{ const t=new THREE.Mesh(new THREE.CapsuleGeometry(0.17,0.75,6,16),std(0x2c3e66)); t.position.y=FLOOR+0.62; staff.add(t);
+  const h=new THREE.Mesh(new THREE.SphereGeometry(0.11,20,14),std(0xc68e6a)); h.position.y=FLOOR+1.36; staff.add(h);
+  const b=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.07,0.02),std(0xffd23f)); b.position.set(0,FLOOR+0.95,0.17); staff.add(b);
+  staff.traverse(m=>{if(m.isMesh)m.castShadow=true;}); }
+reg('radiographer',staff,{name:'Nuclear medicine technologist',job:'Keeps handling time short, uses distance and shielding, wears gloves and a personal dosemeter (yellow badge).'});
+addLabel('radiographer',staff,'Staff + dosemeter',new THREE.Vector3(0,FLOOR+1.62,0));
+
+/* ---- particles ---- */
+const NP=240;
+const photons=new THREE.InstancedMesh(new THREE.SphereGeometry(0.009,6,4),new THREE.MeshBasicMaterial({color:0xffffff}),NP+NPAIR*2);
+photons.instanceMatrix.setUsage(THREE.DynamicDrawUsage); photons.frustumCulled=false; scene.add(photons);
+for(let i=0;i<photons.count;i++) photons.setColorAt(i,new THREE.Color(0xa855f7));
+const NTR=1100;
+const tracer=new THREE.InstancedMesh(new THREE.SphereGeometry(0.0065,6,4),new THREE.MeshBasicMaterial({color:0x22c55e}),NTR); tracer.frustumCulled=false; patient.add(tracer);
+const TRI=[]; { const r=mulberry(99); for(let i=0;i<NTR;i++){ const blad=r()<0.1; let s; if(blad){ const k=lowerBound(SRC_Z,BLADDER[2]-BLADDER_R[2]); s=SRC.filter(p=>p.tag==='bladder')[Math.floor(r()*160)]; } else { do{ s=SRC[pickW(SRC_C,r())]; }while(s.tag==='bladder'||s.tag==='soft'&&r()<0.6); }
+  TRI.push({s,start:16.5+r()*7,blad,born:blad?26+r()*8:0}); } }
+const NFD=800;
+const fdg=new THREE.InstancedMesh(new THREE.SphereGeometry(0.0065,6,4),new THREE.MeshBasicMaterial({color:0xf59e0b}),NFD); fdg.frustumCulled=false; patient.add(fdg);
+{ const r=mulberry(5), m=new THREE.Matrix4(); for(let i=0;i<NFD;i++){ const s=FDG[pickW(FDG_C,r())]; m.makeTranslation(s.x,s.y,s.z); fdg.setMatrixAt(i,m);} fdg.instanceMatrix.needsUpdate=true; }
+const cPur=new THREE.Color(0xa855f7), cRed=new THREE.Color(0xff5a36), cCyan=new THREE.Color(0x38d0c8), cWhite=new THREE.Color(0xffffff);
+
+/* =================== Stages =================== */
+const STAGES=[
+ {name:'1 · Imaging from the inside',start:0,end:14,cam:0,labels:['gcHead','petRing','ctHousing','table','computer'],
+  cap:'In X-ray and CT, radiation passes through the body from a machine. Nuclear medicine works the other way round: a small amount of radioactive tracer goes inside the patient, and a gamma camera or PET scanner detects the gamma rays coming out. The scans show how organs are working, not just their shape.',
+  narr:'In X-ray imaging, radiation passes through the body from a machine. In nuclear medicine it is the other way round. A small amount of a radioactive tracer is put inside the patient, and the gamma rays it gives out are detected by a gamma camera or a PET scanner. These scans show how organs are working, not just their shape.'},
+ {name:'2 · The tracer',start:14,end:36,cam:1,labels:['syringe','bladder','kidneys'],
+  cap:'For a bone scan, technetium-99m (Tc-99m) is attached to a chemical that bone takes up, then injected into an arm vein. Tc-99m gives out only gamma rays (140 keV), which leave the body easily, and has a half-life of about 6 hours. Over 2–3 hours the tracer collects in the bones; the kidneys pass some into the bladder. The syringe is shielded to protect staff.',
+  narr:'For a bone scan, technetium 99m is attached to a chemical that bones take up, and injected into a vein in the arm. Technetium 99m gives out only gamma rays, at 140 kiloelectronvolts, which pass out of the body easily. Its half-life is about six hours. Over two to three hours the tracer collects in the bones, and some is removed by the kidneys into the bladder. The syringe is held in a shield to protect staff.'},
+ {name:'3 · The gamma camera',start:36,end:58,cam:2,labels:['collimator','crystal','pmts','computer'],
+  cap:'Gamma rays leave the body in all directions. The lead collimator only lets through gamma rays travelling straight towards the camera; the rest are stopped (red). Each one that gets through makes a flash of light in the sodium iodide crystal. Photomultiplier tubes turn the flash into an electrical pulse, and the computer works out where it happened. The image builds up count by count as the camera sweeps along the body.',
+  narr:'Gamma rays leave the body in all directions. The lead collimator, a thick plate full of narrow holes, only lets through gamma rays travelling straight towards the camera. Each one makes a tiny flash of light in a sodium iodide crystal. Photomultiplier tubes turn the flash into an electrical signal, and the computer works out where it happened. The image builds up count by count as the camera moves along the body.'},
+ {name:'4 · Reading the bone scan',start:58,end:78,cam:3,labels:['hotRib','hotVert'],
+  cap:'Areas that take up more tracer show as darker “hot spots”. Here there is a hot spot in a rib and one in a vertebra. A hot spot means increased bone activity – it could be a healing fracture, infection, arthritis or cancer spread, so doctors use other tests too. Watch the image when the collimator is removed: gamma rays arrive from every angle and the picture blurs.',
+  narr:'Areas that take up more tracer show as darker hot spots. Here there is a hot spot in a rib and one in the spine. A hot spot means increased bone activity. It could be a healing fracture, infection, arthritis or cancer spread, so doctors use other tests too. Watch what happens without the collimator: gamma rays arrive from every angle, so the image becomes a blur.'},
+ {name:'5 · PET-CT',start:78,end:100,cam:4,labels:['petRing','tumour','brain','ctHousing'],
+  cap:'PET uses a positron-emitting tracer, usually fluorine-18 in FDG, a glucose-like sugar (half-life 110 minutes). Each positron travels less than a millimetre, meets an electron and annihilates, making two 511 keV gamma rays that travel in opposite directions. The ring records pairs arriving at the same moment (coincidence) and the computer builds a 3D image. Combined with CT, it shows active cancer and recurrent tumours.',
+  narr:'PET uses a positron-emitting tracer, usually fluorine 18 attached to a glucose-like sugar called F D G. Each positron travels less than a millimetre, then meets an electron. They annihilate, producing two gamma rays of 511 kiloelectronvolts, travelling in opposite directions. The ring of detectors records pairs that arrive at the same time, and the computer builds a three-dimensional image. Combined with CT, it shows active cancer and recurrent tumours.'},
+ {name:'6 · Half-life and safety',start:100,end:124,cam:5,labels:['radiographer','syringe','bladder'],
+  cap:'Activity falls as the tracer decays and is passed out in urine. After one half-life (6 hours) half the Tc-99m is left; after 24 hours about one-sixteenth. A bone scan gives about 4 mSv; PET-CT about 5–18 mSv. Staff use syringe shields, distance, short handling times and personal dosemeters. Patients drink plenty and avoid long close contact with young children and pregnant women for the rest of the day.',
+  narr:'Radioactivity falls as the tracer decays and is passed out in urine. After one half-life of six hours, half of the technetium is left. After twenty-four hours, about one sixteenth is left. A bone scan gives about 4 millisieverts. Staff use syringe shields, distance, short handling times and personal dosemeters. Patients are asked to drink plenty and to avoid long close contact with young children and pregnant women for the rest of the day.'}
+];
+const TEND=STAGES[STAGES.length-1].end;
+const TOUR_DONE='Tour complete. Now try Test yourself.';
+const stageAt=t=>{ for(let i=STAGES.length-1;i>=0;i--) if(t>=STAGES[i].start) return i; return 0; };
+function hoursAt(t){ if(t<16) return 0; if(t<34) return 2.5*(t-16)/18; if(t<56) return lerp(2.5,3,clamp((t-36)/20)); if(t<102) return 3; return lerp(3,24,clamp((t-102)/18)); }
+const actTc=h=>Math.pow(0.5,h/HALF_TC), actF=h=>Math.pow(0.5,h/HALF_F);
+function camFront(t){ if(t<37) return -0.85; if(t<55) return lerp(-0.85,1.2,(t-37)/18); return 1.2; }
+function headZ(t){ if(t<37) return -0.55; if(t<55) return clamp(camFront(t),-0.55,0.9); if(t<60) return lerp(0.9,0.15,ease((t-55)/5)); return 0.15; }
+function petFront(t){ if(t<81) return IZ0; if(t<97) return lerp(IZ0,IZ1,(t-81)/16); return IZ1; }
+function bodyZ(t){ if(t<78) return 0; if(t<81) return lerp(0,PET_Z-IZ0,ease((t-78)/3)); if(t<100) return PET_Z-petFront(t); if(t<103) return lerp(PET_Z-IZ1,0,ease((t-100)/3)); return 0; }
+function camOn(t){ return t>=37&&t<78 || t>=103; }
+function petOn(t){ return t>=81&&t<97; }
+let colUser=null;
+function colIn(t){ if(colUser!==null) return colUser; return !(t>=67&&t<74); }
+
+/* camera presets */
+const CAMS=[
+ {name:'Overview',pos:[3.0,1.9,3.4],tgt:[-0.2,-0.1,-0.4]},
+ {name:'Injection',pos:[1.35,0.7,0.9],tgt:[0.35,0.0,-0.05]},
+ {name:'Gamma camera',pos:[1.25,0.75,1.35],tgt:[0,0.25,0.15]},
+ {name:'Bone scan',pos:[1.3,0.22,0.8],tgt:[0,0.02,0.0]},
+ {name:'PET-CT',pos:[1.2,0.8,-0.6],tgt:[0,0,PET_Z]},
+ {name:'Safety',pos:[3.2,1.6,3.0],tgt:[0.3,-0.2,0.6]}
+];
+let camAnim=null;
+function narrowFactor(){ const a=innerWidth/innerHeight; return a<0.8?1.75:(a<1.1?1.3:1); }
+function goCam(i,instant){ const c=CAMS[i], f=narrowFactor(); const tgt=new THREE.Vector3(...c.tgt); const pos=new THREE.Vector3(...c.pos).sub(tgt).multiplyScalar(f).add(tgt);
+  if(innerWidth<=760&&innerWidth<innerHeight){ pos.y+=0.25; tgt.y-=0.15; }
+  if(instant||reduceMotion){ camera.position.copy(pos); controls.target.copy(tgt); camAnim=null; return; }
+  camAnim={p0:camera.position.clone(),t0:controls.target.clone(),p1:pos,t1:tgt,s:performance.now(),d:1200}; }
+controls.maxDistance=10*narrowFactor();
+
+/* =================== Images =================== */
+const camOnCnt=new Float32Array(IMG_W*IMG_H), camOffCnt=new Float32Array(IMG_W*IMG_H), petCnt=new Float32Array(IMG_W*IMG_H);
+let camN=0, petN=0;
+function accum(n){ if(n<camN){ camOnCnt.fill(0); camOffCnt.fill(0); camN=0; }
+  for(let k=camN;k<n;k++){ const e=camEv[k]; let [i,j]=toPx(e.x,e.zz); if(i>=0&&i<IMG_W&&j>=0&&j<IMG_H) camOnCnt[j*IMG_W+i]++; [i,j]=toPx(e.xo,e.zo); if(i>=0&&i<IMG_W&&j>=0&&j<IMG_H) camOffCnt[j*IMG_W+i]++; }
+  camN=n; }
+function accumPet(n){ if(n<petN){ petCnt.fill(0); petN=0; } for(let k=petN;k<n;k++){ const e=petEv[k]; const [i,j]=toPx(e.x,e.zz); if(i>=0&&i<IMG_W&&j>=0&&j<IMG_H) petCnt[j*IMG_W+i]++; } petN=n; }
+// reference scale from the full image
+const REF=(()=>{ const a=new Float32Array(IMG_W*IMG_H); camEv.forEach(e=>{ const [i,j]=toPx(e.x,e.zz); if(i>=0&&i<IMG_W&&j>=0&&j<IMG_H) a[j*IMG_W+i]++; }); const v=[...a].filter(x=>x>0).sort((p,q)=>p-q); return {sat:v[Math.floor(v.length*0.998)], bone:v[Math.floor(v.length*0.6)]}; })();
+const PREF=(()=>{ const a=new Float32Array(IMG_W*IMG_H); petEv.forEach(e=>{ const [i,j]=toPx(e.x,e.zz); if(i>=0&&i<IMG_W&&j>=0&&j<IMG_H) a[j*IMG_W+i]++; }); const v=[...a].filter(x=>x>0).sort((p,q)=>p-q); return v[Math.floor(v.length*0.985)]; })();
+const smallCv=document.createElement('canvas'); smallCv.width=IMG_W; smallCv.height=IMG_H; const sctx=smallCv.getContext('2d');
+// anatomy base for PET-CT (grey CT-like outline)
+const anatCv=document.createElement('canvas'); anatCv.width=IMG_W; anatCv.height=IMG_H;
+{ const c=anatCv.getContext('2d'); const im=c.createImageData(IMG_W,IMG_H);
+  const inBody=(x,z)=>{ if(z>=-SZ&&z<=SZ+0.06) return Math.abs(x)<=SX; if(Math.hypot(x/0.12,(z-HEADZ)/0.14)<=1) return true; if(z>-SZ-0.12&&z<-SZ&&Math.abs(x)<0.06) return true; if(z>SZ&&z<1.15) return LEG.some(l=>Math.abs(x-l[0])<0.075); if(z>-0.40&&z<0.35) return ARM.some(a=>Math.abs(x-a.e[0])<0.045); return false; };
+  for(let j=0;j<IMG_H;j++) for(let i=0;i<IMG_W;i++){ const x=IX0+(i+.5)/IMG_W*(IX1-IX0), z=IZ0+(j+.5)/IMG_H*(IZ1-IZ0); const o=(j*IMG_W+i)*4; const b=inBody(x,z)?70:0; im.data[o]=im.data[o+1]=im.data[o+2]=b; im.data[o+3]=255; }
+  c.putImageData(im,0,0); c.fillStyle='rgba(200,200,200,0.55)'; SRC.forEach(s=>{ if(s.tag==='soft'||s.tag==='bladder'||s.tag==='kidney') return; const [i,j]=toPx(s.x,s.z); c.fillRect(i,j,1,1); }); }
+function drawCamImage(ctx,W,H,useOff){ const im=sctx.createImageData(IMG_W,IMG_H); const A=useOff?camOffCnt:camOnCnt; const sat=REF.sat*(useOff?0.55:1)*Math.max(0.05,camN/NEV);
+  for(let k=0;k<A.length;k++){ const g=255-255*Math.min(1,Math.log1p(A[k]*1000/sat)/Math.log1p(1000)); const o=k*4; im.data[o]=im.data[o+1]=im.data[o+2]=g; im.data[o+3]=255; }
+  sctx.putImageData(im,0,0); ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H); ctx.imageSmoothingEnabled=true; const w=H*IMG_W/IMG_H; ctx.drawImage(smallCv,(W-w)/2,0,w,H); }
+function drawPetImage(ctx,W,H){ ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H); const w=H*IMG_W/IMG_H; ctx.imageSmoothingEnabled=true; ctx.drawImage(anatCv,(W-w)/2,0,w,H);
+  const im=sctx.createImageData(IMG_W,IMG_H); const sat=PREF;
+  for(let k=0;k<petCnt.length;k++){ const v=Math.min(1,petCnt[k]/sat); const o=k*4; im.data[o]=255; im.data[o+1]=Math.round(90+165*v*v); im.data[o+2]=Math.round(40*v); im.data[o+3]=Math.round(255*Math.min(1,v*1.4)); }
+  sctx.putImageData(im,0,0); ctx.drawImage(smallCv,(W-w)/2,0,w,H);
+  const fy=(petFront(simTime)-IZ0)/(IZ1-IZ0)*H; if(petOn(simTime)){ ctx.strokeStyle='#38d0c8'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo((W-w)/2,fy); ctx.lineTo((W+w)/2,fy); ctx.stroke(); } }
+const viewer=$('viewer'), vctx=viewer.getContext('2d'); const mctx=monCv.getContext('2d');
+let viewMode='cam', viewModeUser=false, lastDraw='';
+function drawViewer(force){ const t=simTime; const key=[viewMode,camN,petN,colIn(t),Math.round(petFront(t)*50)].join('|'); if(!force&&key===lastDraw) return; lastDraw=key;
+  if(viewMode==='cam'){ if(camN===0){ vctx.fillStyle='#fff'; vctx.fillRect(0,0,256,256); vctx.fillStyle='#465366'; vctx.font='14px system-ui,sans-serif'; vctx.textAlign='center'; vctx.fillText('No counts yet –',128,120); vctx.fillText('the scan starts in stage 3',128,140); }
+    else drawCamImage(vctx,256,256,!colIn(t));
+    $('vTitle').textContent=colIn(t)?'Bone scan (front view)':'Bone scan – collimator removed'; $('vTitle').style.color='#14213d'; $('vTitle').style.textShadow='none'; }
+  else { drawPetImage(vctx,256,256); $('vTitle').textContent='PET-CT (front view, simplified)'; $('vTitle').style.color='#fff'; $('vTitle').style.textShadow='0 1px 2px #000'; }
+  // monitor in scene shows the camera image
+  if(camN>0) drawCamImage(mctx,128,128,!colIn(t)); else { mctx.fillStyle='#0b1220'; mctx.fillRect(0,0,128,128); }
+  monTex.needsUpdate=true; }
+function readAt(px,py){ const w=256*IMG_W/IMG_H, x0=(256-w)/2; const i=Math.floor((px*256-x0)/w*IMG_W), j=Math.floor(py*IMG_H); if(i<0||i>=IMG_W||j<0||j>=IMG_H) return 'Outside the image.';
+  if(viewMode==='cam'){ if(!camN) return 'No counts yet.'; let s=0,n=0; for(let dj=-1;dj<=1;dj++) for(let di=-1;di<=1;di++){ const a=i+di,b=j+dj; if(a>=0&&a<IMG_W&&b>=0&&b<IMG_H){ s+=(colIn(simTime)?camOnCnt:camOffCnt)[b*IMG_W+a]; n++; } }
+    const avg=s/n, ref=REF.bone*camN/NEV; const r=ref>0?avg/ref:0; return `<b>Counts here: ${Math.round(avg)}</b> – ${r>2.2?'hot spot (much more tracer than normal bone)':r>0.6?'normal bone uptake':r>0.15?'low uptake (soft tissue)':'very few counts'}`; }
+  const v=petCnt[j*IMG_W+i]/PREF; return `<b>PET signal: ${v>0.7?'very high':v>0.3?'high':v>0.08?'moderate':'low'}</b> – ${v>0.3?'tissue using lots of glucose (or tracer in urine)':'normal background'}`; }
+function viewerPointer(e){ const r=viewer.getBoundingClientRect(); const px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height; if(px<0||px>1||py<0||py>1) return; $('readout').innerHTML=readAt(px,py); }
+viewer.addEventListener('pointermove',viewerPointer); viewer.addEventListener('pointerdown',viewerPointer);
+
+/* half-life graph */
+const gcv=$('graph'), gctx=gcv.getContext('2d'); let iso='tc', hrsUser=null;
+function drawGraph(h){ const W=320,H=200,L=40,B=30,T=12,Rr=12; gctx.clearRect(0,0,W,H); gctx.fillStyle='#fff'; gctx.fillRect(0,0,W,H);
+  const X=x=>L+(W-L-Rr)*x/24, Y=y=>T+(H-T-B)*(1-y/100);
+  gctx.strokeStyle='#e3e8f0'; gctx.lineWidth=1; gctx.font='11px system-ui,sans-serif'; gctx.fillStyle='#465366';
+  for(let x=0;x<=24;x+=6){ gctx.beginPath(); gctx.moveTo(X(x),Y(0)); gctx.lineTo(X(x),Y(100)); gctx.stroke(); gctx.fillText(x+' h',X(x)-8,H-12); }
+  for(let y=0;y<=100;y+=25){ gctx.beginPath(); gctx.moveTo(X(0),Y(y)); gctx.lineTo(X(24),Y(y)); gctx.stroke(); gctx.fillText(y+'%',4,Y(y)+4); }
+  const curve=(f,col,dash,wd)=>{ gctx.strokeStyle=col; gctx.lineWidth=wd; gctx.setLineDash(dash); gctx.beginPath(); for(let x=0;x<=24;x+=0.1){ const y=100*f(x); x===0?gctx.moveTo(X(x),Y(y)):gctx.lineTo(X(x),Y(y)); } gctx.stroke(); gctx.setLineDash([]); };
+  curve(actF,'#f59e0b',iso==='f'?[]:[5,4],iso==='f'?3:1.5); curve(actTc,'#16a34a',iso==='tc'?[]:[5,4],iso==='tc'?3:1.5);
+  const f=iso==='tc'?actTc:actF; const y=100*f(h); gctx.strokeStyle='#1b2a4a'; gctx.lineWidth=1.5; gctx.beginPath(); gctx.moveTo(X(h),Y(0)); gctx.lineTo(X(h),Y(y)); gctx.stroke();
+  gctx.fillStyle='#1b2a4a'; gctx.beginPath(); gctx.arc(X(h),Y(y),5,0,7); gctx.fill();
+  gctx.fillStyle='#16a34a'; gctx.fillText('Tc-99m',X(14),Y(30)); gctx.fillStyle='#b45309'; gctx.fillText('F-18',X(3.2),Y(8));
+  const hl=iso==='tc'?HALF_TC:HALF_F; $('halfOut').innerHTML=`<b>${iso==='tc'?'Tc-99m':'F-18'}: ${(h).toFixed(h<10?2:1).replace(/\.?0+$/,'')} h after injection → ${y<1?y.toFixed(2):y.toFixed(y<10?1:0)}% left</b> (${(h/hl).toFixed(2)} half-lives).<br>e.g. 400 MBq at the start → ${(400*f(h)).toFixed(400*f(h)<10?1:0)} MBq now.`; }
+
+/* =================== State =================== */
+let simTime=0, playing=!reduceMotion, speed=1, curStage=-1;
+let soundOn=true, audioUnlocked=false, speaking=false;
+if(qs.has('stage')){ const s=STAGES[clamp(+qs.get('stage')-1,0,5)]; simTime=s.start+(s.end-s.start)*0.7; playing=false; }
+if(qs.has('t')){ simTime=+qs.get('t'); playing=false; }
+const testMode=qs.has('t')||qs.has('stage');
+if(testMode) $('soundHint').style.display='none';
+
+/* ---- narration ---- */
+let voice=null;
+function pickVoice(){ try{ const vs=speechSynthesis.getVoices(); voice=vs.find(v=>/en-GB/i.test(v.lang)&&/female|libby|sonia|serena|kate|google uk english female/i.test(v.name))||vs.find(v=>/en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null; }catch(e){} }
+try{ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }catch(e){}
+const NARR={"In X-ray imaging, radiation passes through the body from a machine. In nuclear medicine it is the other way round. A small amount of a radioactive tracer is put inside the patient, and the gamma rays it gives out are detected by a gamma camera or a PET scanner. These scans show how organs are working, not just their shape.": "audio/gammapet-tour1.mp3", "For a bone scan, technetium 99m is attached to a chemical that bones take up, and injected into a vein in the arm. Technetium 99m gives out only gamma rays, at 140 kiloelectronvolts, which pass out of the body easily. Its half-life is about six hours. Over two to three hours the tracer collects in the bones, and some is removed by the kidneys into the bladder. The syringe is held in a shield to protect staff.": "audio/gammapet-tour2.mp3", "Gamma rays leave the body in all directions. The lead collimator, a thick plate full of narrow holes, only lets through gamma rays travelling straight towards the camera. Each one makes a tiny flash of light in a sodium iodide crystal. Photomultiplier tubes turn the flash into an electrical signal, and the computer works out where it happened. The image builds up count by count as the camera moves along the body.": "audio/gammapet-tour3.mp3", "Areas that take up more tracer show as darker hot spots. Here there is a hot spot in a rib and one in the spine. A hot spot means increased bone activity. It could be a healing fracture, infection, arthritis or cancer spread, so doctors use other tests too. Watch what happens without the collimator: gamma rays arrive from every angle, so the image becomes a blur.": "audio/gammapet-tour4.mp3", "PET uses a positron-emitting tracer, usually fluorine 18 attached to a glucose-like sugar called F D G. Each positron travels less than a millimetre, then meets an electron. They annihilate, producing two gamma rays of 511 kiloelectronvolts, travelling in opposite directions. The ring of detectors records pairs that arrive at the same time, and the computer builds a three-dimensional image. Combined with CT, it shows active cancer and recurrent tumours.": "audio/gammapet-tour5.mp3", "Radioactivity falls as the tracer decays and is passed out in urine. After one half-life of six hours, half of the technetium is left. After twenty-four hours, about one sixteenth is left. A bone scan gives about 4 millisieverts. Staff use syringe shields, distance, short handling times and personal dosemeters. Patients are asked to drink plenty and to avoid long close contact with young children and pregnant women for the rest of the day.": "audio/gammapet-tour6.mp3", "Patient table. Moves the patient under the gamma camera, or through the PET-CT scanner.": "audio/gammapet-part-table.mp3", "Patient (simplified). See-through so you can watch the tracer and gamma rays inside.": "audio/gammapet-part-body.mp3", "Lungs. Take up little tracer on a bone scan. In the PET scan, the bright spot in the right lung is a tumour using lots of glucose.": "audio/gammapet-part-lungs.mp3", "Heart. Heart muscle uses a lot of glucose, so it often shows on PET (normal).": "audio/gammapet-part-heart.mp3", "Kidneys. Filter tracer out of the blood into urine, so they show faintly.": "audio/gammapet-part-kidneys.mp3", "Bladder. Collects tracer passed out in urine – it shows strongly on both scans. Emptying it often lowers the dose.": "audio/gammapet-part-bladder.mp3", "Spine. Bone takes up the tracer. The vertebra marked “hot spot” has much more uptake than the others.": "audio/gammapet-part-spine.mp3", "Ribs. Bone takes up the tracer. One rib has a hot spot – increased bone activity.": "audio/gammapet-part-ribs.mp3", "Pelvis. Bone – takes up the tracer evenly here (normal).": "audio/gammapet-part-pelvis.mp3", "Syringe in a shield. The tracer is injected into an arm vein. A lead or tungsten syringe shield cuts the dose to the hands of the person injecting.": "audio/gammapet-part-syringe.mp3", "Gamma camera head. Detects gamma rays coming out of the patient. It gives out no radiation itself. Its cover is see-through here.": "audio/gammapet-part-gchead.mp3", "Lead collimator. Thick lead plate full of narrow holes. Only gamma rays travelling straight along the holes get through, so each count can be traced back to where it came from.": "audio/gammapet-part-collimator.mp3", "Sodium iodide crystal. Scintillator: each gamma ray that hits it makes a tiny flash of light.": "audio/gammapet-part-crystal.mp3", "Photomultiplier tubes. Turn each faint flash of light into an electrical pulse. The computer compares the pulses to work out where the flash happened.": "audio/gammapet-part-pmts.mp3", "Computer. Adds up the counts to build the image. Areas with more counts have taken up more tracer.": "audio/gammapet-part-computer.mp3", "PET detector ring. Rings of detectors around the patient. Two detectors flashing at the same moment mean an annihilation happened somewhere on the line between them.": "audio/gammapet-part-petring.mp3", "PET scanner. Contains the detector rings. Front cover cut away.": "audio/gammapet-part-pethousing.mp3", "CT scanner (part of PET-CT). Takes a CT scan in the same visit, so the PET hot spots can be placed exactly on the anatomy.": "audio/gammapet-part-cthousing.mp3", "Nuclear medicine technologist. Keeps handling time short, uses distance and shielding, wears gloves and a personal dosemeter (yellow badge).": "audio/gammapet-part-radiographer.mp3", "Correct. The tracer inside the patient gives out the gamma rays. The camera only detects them.": "audio/gammapet-quiz1-right.mp3", "Correct. Gamma rays escape the body to reach the camera, and a 6-hour half-life is long enough to scan but short enough to keep the dose low.": "audio/gammapet-quiz2-right.mp3", "Correct. The collimator blocks gamma rays arriving at an angle. Without it the image blurs. The crystal makes the light and the photomultiplier tubes amplify it.": "audio/gammapet-quiz3-right.mp3", "Correct. A hot spot shows where bone is more active. It does not say why.": "audio/gammapet-quiz4-right.mp3", "Correct. The positron annihilates with an electron within a millimetre or so, making two 511 keV gamma rays. The ring looks for pairs that arrive together (coincidence).": "audio/gammapet-quiz5-right.mp3", "Correct. 12 hours is two half-lives of 6 hours: 400 → 200 → 100 MBq.": "audio/gammapet-quiz6-right.mp3", "Not quite. Try again, or press Show me.": "audio/gammapet-quiz-wrong.mp3", "Tour complete. Now try Test yourself.": "audio/gammapet-tour-done.mp3"};
+/* One shared audio player for all narration: phones only allow audio from a player the student has already
+   started with a tap, so reusing one player keeps narration working when the sim moves on by itself. */
+const __narr=new Audio(); __narr.preload='auto'; let __cur=null;
+function __norm(t){return String(t).replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();}
+function __stopClip(){ if(__cur){ try{__cur.pause();}catch(e){} __cur=null; } }
+function __playClip(text){ const src=NARR[__norm(text)]; if(!src) return false;
+  __stopClip(); const a=__narr; a.muted=false;
+  if(a._src!==src){ a.src=src; a._src=src; } else { try{a.currentTime=0;}catch(e){} }
+  __cur=a; const p=a.play(); if(p&&p.catch)p.catch(()=>{}); return true; }
+function __primeClip(){ try{ const a=__narr; if(!a.src){ const f=Object.values(NARR)[0]; if(!f) return; a.src=f; a._src=f; } a.muted=true; const p=a.play();
+  if(p&&p.then) p.then(()=>{ if(__cur!==a) a.pause(); a.muted=false; },()=>{ a.muted=false; }); else a.muted=false; }catch(e){ __narr.muted=false; } }
+function clipPlaying(){ return !!(__cur&&!__cur.paused&&!__cur.ended); }
+function narrating(){ return speaking||clipPlaying(); }
+function say(text,isStage){ try{ speechSynthesis.cancel(); }catch(e){} __stopClip(); speaking=false;
+  if(!soundOn||!audioUnlocked||(isStage&&speed>1.5)) return;
+  if(__playClip(text)) return;
+  try{ const u=new SpeechSynthesisUtterance(__norm(text)); u.lang='en-GB'; if(voice) u.voice=voice; u.rate=0.95;
+    u.onend=u.onerror=()=>{speaking=false;}; speaking=true; speechSynthesis.speak(u); }catch(e){ speaking=false; } }
+const speak=t=>say(t,true);
+function unlock(e){ if(audioUnlocked) return; audioUnlocked=true; $('soundHint').style.display='none';
+  if(e&&e.target&&e.target.closest&&e.target.closest('#bSound')){ __primeClip(); return; }
+  if(curStage>=0) speak(STAGES[curStage].narr); else __primeClip(); }
+['pointerup','click','keydown'].forEach(ev=>addEventListener(ev,unlock,{capture:true}));
+
+/* =================== UI =================== */
+const strip=$('strip');
+STAGES.forEach((s,i)=>{ const b=document.createElement('button'); b.textContent=i+1; b.title=s.name; b.setAttribute('aria-label','Go to stage '+s.name); b.onclick=()=>jumpStage(i); strip.appendChild(b); });
+CAMS.slice(0,5).forEach((c,i)=>{ const b=document.createElement('button'); b.textContent=c.name; b.title=`${c.name} view (${i+1})`; b.onclick=()=>goCam(i); $('camBtns').appendChild(b); });
+const TOG=[
+ {key:'skin',label:'Body',objs:()=>[body],states:['Ghost','Solid','Off'],st:0},
+ {key:'organs',label:'Organs',objs:()=>[organs],states:['On','Ghost','Off'],st:0},
+ {key:'bones',label:'Bones',objs:()=>[bones],states:['On','Ghost','Off'],st:0},
+ {key:'tracer',label:'Tracer',states:['On','Off'],st:0},
+ {key:'gamma',label:'Gamma rays',states:['On','Off'],st:0},
+ {key:'labels',label:'Labels',states:['Stage','All','Off'],st:0}
+];
+function storeMat(m){ if(!m.userData.orig) m.userData.orig={t:m.material.transparent,o:m.material.opacity,d:m.material.depthWrite}; }
+function setMode(obj,mode){ obj.visible=mode!=='Off'; obj.traverse(m=>{ if(!m.isMesh) return; storeMat(m); const o=m.userData.orig;
+  if(mode==='Ghost'){ m.material.transparent=true; m.material.opacity=0.15; m.material.depthWrite=false; }
+  else if(mode==='Solid'&&obj===body){ m.material.opacity=0.92; m.material.depthWrite=true; }
+  else { m.material.transparent=o.t; m.material.opacity=o.o; m.material.depthWrite=o.d; }
+  m.material.needsUpdate=true; }); }
+function applyToggle(t){ const s=t.states[t.st]; if(t.objs) t.objs().forEach(o=>setMode(o,s)); t.btn.textContent=`${t.label}: ${s}`; t.btn.setAttribute('aria-label',`${t.label}: ${s}. Activate to change.`); }
+TOG.forEach(t=>{ const b=document.createElement('button'); t.btn=b; b.onclick=()=>{ t.st=(t.st+1)%t.states.length; applyToggle(t); }; $('toggles').appendChild(b); applyToggle(t); });
+const tog=k=>{ const t=TOG.find(t=>t.key===k); return t.states[t.st]; };
+function colLabel(){ const on=colIn(simTime); $('bCol').textContent=`Collimator: ${on?'in place':'removed'}${colUser===null?' (auto)':''}`; $('bCol').setAttribute('aria-pressed',on); }
+$('bCol').onclick=()=>{ colUser=colUser===null?!colIn(simTime):(colUser?false:true); colLabel(); drawViewer(true); };
+
+function setPlaying(p){ playing=p; $('bPlay').textContent=p?'⏸':'▶'; $('bPlay').setAttribute('aria-label',p?'Pause':'Play'); try{ p?speechSynthesis.resume():speechSynthesis.pause(); }catch(e){} if(!p){ if(__cur) try{__cur.pause();}catch(e){} } else if(__cur&&__cur.paused&&!__cur.ended){ const r=__cur.play(); r&&r.catch&&r.catch(()=>{}); } }
+$('bPlay').onclick=()=>{ if(!playing&&simTime>=TEND-0.01) simTime=0; setPlaying(!playing); };
+function jumpStage(i){ i=clamp(i,0,STAGES.length-1); simTime=STAGES[i].start+0.01; curStage=-1; }
+$('bPrev').onclick=()=>{ const s=stageAt(simTime); jumpStage(simTime-STAGES[s].start>2?s:s-1); };
+$('bNext').onclick=()=>jumpStage(stageAt(simTime)+1);
+$('bTour').onclick=()=>{ colUser=null; jumpStage(0); setPlaying(true); };
+$('spd').oninput=e=>{ speed=+e.target.value; $('spdOut').textContent='×'+speed.toFixed(1); };
+$('bSound').onclick=()=>{ soundOn=!soundOn; $('bSound').textContent=soundOn?'🔊':'🔇'; $('bSound').setAttribute('aria-pressed',soundOn); if(!soundOn){ try{speechSynthesis.cancel();}catch(e){} __stopClip(); } speaking=false; if(soundOn&&audioUnlocked&&curStage>=0) speak(STAGES[curStage].narr); };
+function syncViewBtns(){ $('vmCam').setAttribute('aria-pressed',viewMode==='cam'); $('vmPet').setAttribute('aria-pressed',viewMode==='pet'); $('bCol').parentElement.style.display=viewMode==='cam'?'':'none';
+  $('imgNote').textContent=viewMode==='cam'?'Bone scan shown as on a typical report: more tracer = darker. The image builds up one gamma ray (count) at a time.':'PET counts (orange–yellow) laid over the CT anatomy (grey). Brighter = more FDG taken up. The blue line shows the part of the body being scanned.'; }
+$('vmCam').onclick=()=>{ viewMode='cam'; viewModeUser=true; syncViewBtns(); drawViewer(true); };
+$('vmPet').onclick=()=>{ viewMode='pet'; viewModeUser=true; syncViewBtns(); drawViewer(true); };
+function tab(which){ ['Img','Half','Dose','Key'].forEach(n=>{ $('t'+n).setAttribute('aria-pressed',n===which); $('p'+n).hidden=n!==which; }); }
+['Img','Half','Dose','Key'].forEach(n=>$('t'+n).onclick=()=>tab(n));
+function showSide(v){ $('sidePanel').style.display=v?'':'none'; $('bSide').setAttribute('aria-pressed',v); }
+$('sideX').onclick=()=>showSide(false); $('bSide').onclick=()=>showSide($('sidePanel').style.display==='none');
+const narrow=()=>innerWidth<=760||innerHeight<=520;
+showSide(!narrow());
+$('isoTc').onclick=()=>{ iso='tc'; $('isoTc').setAttribute('aria-pressed',true); $('isoF').setAttribute('aria-pressed',false); };
+$('isoF').onclick=()=>{ iso='f'; $('isoF').setAttribute('aria-pressed',true); $('isoTc').setAttribute('aria-pressed',false); };
+$('hrs').oninput=e=>{ hrsUser=+e.target.value; };
+// dose bars
+const DOSES=[['Chest X-ray',0.014],['CT scan of head',1.4],['UK average per year',2.7,'bg'],['Bone scan (Tc-99m)',4],['PET-CT',5,'range',18]];
+const lmin=Math.log10(0.005), lmax=Math.log10(30); const pc=v=>(100*(Math.log10(v)-lmin)/(lmax-lmin)).toFixed(1);
+$('doseBars').innerHTML=DOSES.map(([n,v,k,v2])=>`<div class="d"><span>${n}</span><div class="bar">${k==='range'?`<i style="margin-left:${pc(v)}%;width:${(pc(v2)-pc(v)).toFixed(1)}%"></i>`:`<i class="${k==='bg'?'bg':''}" style="width:${pc(v)}%"></i>`}</div><span style="text-align:right">${k==='range'?v+'–'+v2:v} mSv</span></div>`).join('')+
+ `<div class="small" style="margin-top:6px">A bone scan ≈ ${(4/2.7).toFixed(1)} years of UK average dose. Unlike X-ray and CT, the dose continues for a while after the scan, until the tracer has decayed and been passed out.</div>`;
+
+// modals
+function openModal(id){ document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open')); $(id).classList.add('open'); const x=$(id).querySelector('[data-close]'); x&&x.focus(); }
+function closeModals(){ document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open')); }
+document.querySelectorAll('.modal').forEach(m=>{ m.addEventListener('click',e=>{ if(e.target===m) closeModals(); }); m.querySelector('[data-close]').onclick=closeModals; });
+$('bLearn').onclick=()=>openModal('learn'); $('bQuiz').onclick=()=>openModal('quiz'); $('bHelp').onclick=()=>openModal('help');
+
+/* ---- quiz ---- */
+const QS=[
+ {q:'In gamma imaging, where does the radiation that makes the image come from?',o:['The gamma camera fires it through the patient','A radioactive tracer inside the patient','An X-ray tube under the table','The lead collimator'],a:1,t:8,why:'The tracer inside the patient gives out the gamma rays. The camera only detects them.'},
+ {q:'Why is technetium-99m a good tracer for a gamma camera?',o:['It gives out alpha particles, which are easy to detect','It gives out only gamma rays (140 keV) and has a half-life of about 6 hours','Its half-life is several years, so it lasts','It is not radioactive'],a:1,t:26,why:'Gamma rays escape the body to reach the camera, and a 6-hour half-life is long enough to scan but short enough to keep the dose low.'},
+ {q:'What does the lead collimator do?',o:['Turns gamma rays into light','Amplifies the electrical signal','Only lets through gamma rays travelling straight towards the camera, so the image is sharp','Protects the patient from radiation given out by the camera'],a:2,t:47,why:'The collimator blocks gamma rays arriving at an angle. Without it the image blurs. The crystal makes the light and the photomultiplier tubes amplify it.'},
+ {q:'A bone scan shows a hot spot in a rib. What does it tell the doctor?',o:['The rib definitely has cancer','Increased bone activity there – it could be a fracture, infection, arthritis or cancer, so more tests are needed','The rib has no blood supply','The camera is faulty'],a:1,t:64,why:'A hot spot shows where bone is more active. It does not say why.'},
+ {q:'What does a PET scanner actually detect?',o:['Positrons leaving the body','X-rays from a rotating tube','Pairs of 511 keV gamma rays travelling in opposite directions at the same time','Gamma rays from technetium-99m'],a:2,t:88,why:'The positron annihilates with an electron within a millimetre or so, making two 511 keV gamma rays. The ring looks for pairs that arrive together (coincidence).'},
+ {q:'A dose of technetium-99m has an activity of 400 MBq at 9 am. Ignoring removal by the body, what is its activity at about 9 pm?',o:['200 MBq','100 MBq','50 MBq','0 MBq'],a:1,t:112,why:'12 hours is two half-lives of 6 hours: 400 → 200 → 100 MBq.'}
+];
+const answered={};
+function updScore(){ const s=Object.values(answered).filter(Boolean).length; $('score').textContent=`${s} / ${QS.length}`; if(Object.keys(answered).length===QS.length) window.simStats&&simStats.once('quiz-complete'); }
+const QUIZ_WRONG='Not quite. Try again, or press Show me.';
+$('mcqs').innerHTML=QS.map((q,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${q.q}</p><div class="opts">${q.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}</div><div class="row" style="margin:6px 0 0"><button class="show">Show me</button></div><div class="fb" aria-live="polite"></div></div>`).join('');
+document.querySelectorAll('#mcqs .q').forEach(div=>{ const i=+div.dataset.i, q=QS[i];
+  div.querySelectorAll('.opts button').forEach(b=>b.onclick=()=>{ const j=+b.dataset.j; div.querySelectorAll('.opts button').forEach(x=>x.classList.remove('right','wrong'));
+    if(j===q.a){ b.classList.add('right'); div.querySelector('.fb').innerHTML='✓ Correct. '+q.why; say('Correct. '+q.why); if(answered[i]===undefined) answered[i]=true; }
+    else { b.classList.add('wrong'); div.querySelector('.fb').innerHTML='✗ Not quite – try again, or press “Show me”.'; say(QUIZ_WRONG); if(answered[i]===undefined) answered[i]=false; }
+    updScore(); });
+  div.querySelector('.show').onclick=()=>showMe(q.t); });
+function showMe(t){ closeModals(); simTime=t; curStage=-1; setPlaying(true); }
+
+// keyboard
+addEventListener('keydown',e=>{ if(e.target.tagName==='INPUT'&&e.target.type==='range'&&(e.key==='ArrowLeft'||e.key==='ArrowRight')) return;
+  if(e.key==='Escape'){ closeModals(); $('tooltip').style.display='none'; return; }
+  if(document.querySelector('.modal.open')) return;
+  if(e.key===' '){ e.preventDefault(); $('bPlay').click(); }
+  else if(e.key==='ArrowRight') $('bNext').click(); else if(e.key==='ArrowLeft') $('bPrev').click();
+  else if(/^[1-5]$/.test(e.key)) goCam(+e.key-1);
+  else if(e.key==='c'||e.key==='C') $('bCol').click();
+  else if(e.key==='l'||e.key==='L'){ const t=TOG.find(t=>t.key==='labels'); t.st=t.st===1?0:1; applyToggle(t); } });
+
+/* ---- picking / tooltip ---- */
+const ray=new THREE.Raycaster(), ndc=new THREE.Vector2(); const tip=$('tooltip'); let downXY=null, tipTimer=null;
+function pick(cx,cy){ const r=renderer.domElement.getBoundingClientRect(); ndc.set(((cx-r.left)/r.width)*2-1,-((cy-r.top)/r.height)*2+1); ray.setFromCamera(ndc,camera);
+  const hits=ray.intersectObjects(pickables.filter(m=>{ let o=m; while(o){ if(!o.visible) return false; o=o.parent; } return true; }),false);
+  for(const h of hits){ if(h.object.material.transparent&&h.object.material.opacity<0.12) continue; const key=h.object.userData.part; if((key==='body'||key==='gcHead'||key==='petHousing')&&hits.some(x=>!['body','gcHead','petHousing'].includes(x.object.userData.part))) continue; return parts[key]; } return null; }
+function showTip(p,cx,cy){ if(!p){ tip.style.display='none'; return; } tip.innerHTML=`<b>${p.info.name}</b>${p.info.job}`;
+  tip.style.display='block'; const w=tip.offsetWidth,h=tip.offsetHeight; tip.style.left=clamp(cx+14,4,innerWidth-w-4)+'px'; tip.style.top=clamp(cy+14,4,innerHeight-h-4)+'px'; }
+const partLine=p=>`${p.info.name}. ${p.info.job}`;
+renderer.domElement.addEventListener('pointermove',e=>{ if(e.pointerType!=='mouse'||e.buttons) return; showTip(pick(e.clientX,e.clientY),e.clientX,e.clientY); });
+renderer.domElement.addEventListener('pointerdown',e=>{ downXY=[e.clientX,e.clientY]; });
+renderer.domElement.addEventListener('pointerup',e=>{ if(!downXY) return; if(Math.hypot(e.clientX-downXY[0],e.clientY-downXY[1])<8){ const p=pick(e.clientX,e.clientY); showTip(p,e.clientX,e.clientY); if(p) say(partLine(p)); if(e.pointerType!=='mouse'){ clearTimeout(tipTimer); tipTimer=setTimeout(()=>tip.style.display='none',3500);} } downXY=null; });
+renderer.domElement.addEventListener('pointerleave',()=>{ tip.style.display='none'; });
+
+/* =================== Particles =================== */
+const tmpV=new THREE.Vector3(), tmpM=new THREE.Matrix4(), tmpQ=new THREE.Quaternion(), one=new THREE.Vector3(1,1,1), big=new THREE.Vector3(2.4,2.4,2.4), zero=new THREE.Vector3();
+const cache=new Array(NP); const P=0.9, SPEED=1.4;
+function camPath(i,cyc,ts){ const c=cache[i]; if(c&&c.cyc===cyc) return c;
+  const r=k=>hash(i*7+k,cyc*13+5); const hz=headZ(ts), bz=bodyZ(ts);
+  const si=pickInRange(SRC,SRC_Z,SRC_C,hz-HL/2-bz,hz+HL/2-bz,r(1)); if(si<0){ return cache[i]={cyc,none:true}; }
+  const s=SRC[si]; const p=new THREE.Vector3(s.x,s.y,s.z+bz);
+  const mode=r(2); let th,dirUp=true; if(mode<0.4) th=r(3)*0.07; else if(mode<0.85) th=0.12+r(3)*1.0; else { th=0; dirUp=false; }
+  const ph=r(4)*Math.PI*2; let d; if(dirUp) d=new THREE.Vector3(Math.sin(th)*Math.cos(ph),Math.cos(th),Math.sin(th)*Math.sin(ph)); else { const u=r(3)*2-1, s2=Math.sqrt(1-u*u); d=new THREE.Vector3(s2*Math.cos(ph),-Math.abs(u)*0.8-0.2,s2*Math.sin(ph)).normalize(); }
+  let L=0.6, end='fly', E=null;
+  if(d.y>0){ const sc=(COL_Y-p.y)/d.y; const h=p.clone().addScaledVector(d,sc);
+    if(Math.abs(h.x)<HW/2&&Math.abs(h.z-hz)<HL/2){ const inC=colIn(ts); if(!inC||th<0.08){ const sx=(XTAL_Y-p.y)/d.y; L=sx; end='flash'; E=p.clone().addScaledVector(d,sx); } else { L=sc; end='stop'; E=h; } } }
+  return cache[i]={cyc,p,d,L,end,E}; }
+const pairCache=new Array(NPAIR); const P2=0.75;
+function pairPath(i,cyc,ts){ const c=pairCache[i]; if(c&&c.cyc===cyc) return c; const r=k=>hash(i*11+k+900,cyc*17+3);
+  const bz=bodyZ(ts); const si=pickInRange(FDG,FDG_Z,FDG_C,PET_Z-FOV-bz,PET_Z+FOV-bz,r(1)); if(si<0) return pairCache[i]={cyc,none:true};
+  const s=FDG[si]; const p=new THREE.Vector3(s.x,s.y,s.z+bz); const a=r(2)*Math.PI*2, dz=(r(3)-.5)*0.25; const d=new THREE.Vector3(Math.cos(a),Math.sin(a),dz).normalize();
+  const hit=(sg)=>{ const dx=d.x*sg, dy=d.y*sg; const A=dx*dx+dy*dy, B=2*(p.x*dx+p.y*dy), C=p.x*p.x+p.y*p.y-RING_R*RING_R; const sc=(-B+Math.sqrt(B*B-4*A*C))/(2*A); return p.clone().addScaledVector(d,sg*sc); };
+  const h1=hit(1), h2=hit(-1); const blk=h=>{ const k=Math.round(((Math.atan2(h.y,h.x)+Math.PI*2)%(Math.PI*2))/(Math.PI*2)*NB)%NB; const zr=h.z-PET_Z; const ri=zr<-0.08?0:zr>0.08?2:1; return Math.abs(zr)<0.24?ri*NB+k:-1; };
+  return pairCache[i]={cyc,p,h1,h2,L1:p.distanceTo(h1),L2:p.distanceTo(h2),b1:blk(h1),b2:blk(h2)}; }
+function setInst(i,pos,col,scale){ tmpM.compose(pos,tmpQ,scale); photons.setMatrixAt(i,tmpM); if(col) photons.setColorAt(i,col); }
+const flashes=[];
+function updatePhotons(){ const gOn=tog('gamma')==='On'; flashes.length=0; const t=simTime;
+  for(let i=0;i<NP;i++){ let shown=false; const x=t/P+i/NP, cyc=Math.floor(x), ph=x-cyc, ts=(cyc-i/NP)*P;
+    if(gOn&&camOn(ts)&&camOn(t)&&stageAt(t)!==4){ const c=camPath(i,cyc,ts); if(!c.none){ const s=ph*P*SPEED;
+      if(s<=c.L){ setInst(i,tmpV.copy(c.p).addScaledVector(c.d,s),cPur,one); shown=true; }
+      else if(c.end!=='fly'&&s<c.L+0.12){ if(c.end==='flash'){ setInst(i,c.E,cCyan,big); flashes.push(c.E); } else setInst(i,c.E,cRed,one); shown=true; } } }
+    if(!shown) setInst(i,zero,null,zero); }
+  // PET pairs
+  blkGlow.fill(0); for(let k=0;k<NPAIR;k++){ const i0=NP+k*2; let s1=false,s2=false; const x=t/P2+k/NPAIR, cyc=Math.floor(x), ph=x-cyc, ts=(cyc-k/NPAIR)*P2;
+    const o=k*6; lorCol.fill(0,o,o+6); lorPos.fill(0,o,o+6);
+    if(gOn&&petOn(ts)&&petOn(t)){ const c=pairPath(k,cyc,ts); if(!c.none){ const s=ph*P2*1.2;
+      if(s<0.03){ setInst(i0,c.p,cWhite,big); s1=true; }
+      if(s<=c.L1){ setInst(i0,tmpV.copy(c.p).lerp(c.h1,s/c.L1),cPur,one); s1=true; } else if(c.b1>=0&&s<c.L1+0.25) blkGlow[c.b1]=Math.max(blkGlow[c.b1],1-(s-c.L1)/0.25);
+      if(s<=c.L2){ setInst(i0+1,tmpV.copy(c.p).lerp(c.h2,s/c.L2),cPur,one); s2=true; } else if(c.b2>=0&&s<c.L2+0.25) blkGlow[c.b2]=Math.max(blkGlow[c.b2],1-(s-c.L2)/0.25);
+      const sm=Math.max(c.L1,c.L2); if(s>sm&&s<sm+0.35&&c.b1>=0&&c.b2>=0){ const f=1-(s-sm)/0.35; lorPos.set([c.h1.x,c.h1.y,c.h1.z,c.h2.x,c.h2.y,c.h2.z],o); const r=0.66*f+0.93*(1-f), g=0.33*f+0.95*(1-f), b=0.97*f+0.96*(1-f); lorCol.set([r,g,b,r,g,b],o); } } }
+    if(!s1) setInst(i0,zero,null,zero); if(!s2) setInst(i0+1,zero,null,zero); }
+  lorGeo.attributes.position.needsUpdate=true; lorGeo.attributes.color.needsUpdate=true;
+  BLK.forEach((m,i)=>m.material.emissiveIntensity=blkGlow[i]*2.2);
+  photons.instanceMatrix.needsUpdate=true; if(photons.instanceColor) photons.instanceColor.needsUpdate=true;
+  const hz=headZ(t); PMTS.forEach(m=>{ let g=0; for(const f of flashes){ const dx=f.x-m.position.x, dz=f.z-hz-m.position.z; g+=Math.exp(-(dx*dx+dz*dz)/0.006); } m.material.emissiveIntensity=Math.min(2,g*1.6); }); }
+const INJ_HEART=new THREE.Vector3(0.15*SX,0.25*SY,-0.35*SZ);
+function updateTracer(){ const t=simTime, on=tog('tracer')==='On'; const pet=t>=78&&t<103; tracer.visible=on&&!pet&&t>=16; fdg.visible=on&&t>=79&&t<101;
+  const A=actTc(hoursAt(t)); const sc=0.35+0.65*Math.max(A,0.15)*(t>=102?Math.max(0.25,1-(t-102)/18*0.8):1);
+  for(let i=0;i<NTR;i++){ const p=TRI[i]; let pos=null;
+    if(t>=p.start){ const f=t-p.start; const tgt=tmpV.set(p.s.x,p.s.y,p.s.z);
+      if(f<1.2) pos=INJ.clone().lerp(INJ_HEART,f/1.2); else if(f<3) pos=INJ_HEART.clone().lerp(p.blad?new THREE.Vector3(0.45*SX,-0.5*SY,0.4*SZ):tgt,(f-1.2)/1.8);
+      else if(p.blad&&t<p.born) pos=new THREE.Vector3(0.45*SX,-0.5*SY,0.4*SZ); else pos=tgt.clone(); }
+    if(pos&&t>=102&&p.blad&&t>110) pos=null;
+    tmpM.compose(pos||zero,tmpQ,pos?tmpV.set(sc,sc,sc):zero); tracer.setMatrixAt(i,tmpM); }
+  tracer.instanceMatrix.needsUpdate=true; }
+
+/* =================== Frame update =================== */
+function stageChanged(i){ const s=STAGES[i]; $('stageName').textContent=s.name; $('caption').textContent=s.cap;
+  [...strip.children].forEach((b,k)=>{ b.classList.toggle('active',k===i); b.classList.toggle('done',k<i); b.setAttribute('aria-selected',k===i); });
+  goCam(s.cam,testMode); speak(s.narr); hrsUser=null;
+  if(!viewModeUser){ viewMode=i===4?'pet':'cam'; syncViewBtns(); }
+  if(i===4){ iso='f'; } else iso='tc'; $('isoTc').setAttribute('aria-pressed',iso==='tc'); $('isoF').setAttribute('aria-pressed',iso==='f');
+  if(!narrow()){ if(i===1||i===5) tab(i===5?'Dose':'Half'); else if(i===2||i===3||i===4) tab('Img'); }
+  drawViewer(true); }
+function update(dt){
+  if(playing){ let nt=simTime+dt*speed; const s=STAGES[stageAt(simTime)];
+    if(narrating()&&soundOn&&audioUnlocked&&speed<=1.5&&nt>=s.end&&simTime<s.end){ nt=s.end-0.001; $('holdNote').textContent='🔊 Finishing the narration…'; } else $('holdNote').textContent='';
+    simTime=nt; if(simTime>=TEND){ simTime=TEND-0.001; setPlaying(false); $('holdNote').textContent='Tour complete – try “Test yourself”.'; window.simStats&&simStats.once('tour-complete'); setTimeout(()=>{ if(!narrating()) say(TOUR_DONE); },300); } }
+  const t=simTime, si=stageAt(t); if(si!==curStage){ curStage=si; stageChanged(si); }
+  $('tbar').firstElementChild.style.width=(100*t/TEND).toFixed(2)+'%';
+  const h=hoursAt(t);
+  $('clockNote').innerHTML= si===0?'':si===4?'⏱ PET: FDG injected about 1 hour before the scan':(t<16?'⏱ Before injection':`⏱ ${Math.floor(h)} h ${String(Math.round((h%1)*60)).padStart(2,'0')} min after injection · Tc-99m activity ${Math.round(100*actTc(h))}%`);
+  // labels
+  const lm=tog('labels'), stl=STAGES[si].labels;
+  for(const k in labels){ let vis=lm==='All'||(lm==='Stage'&&stl.includes(k)); let o=labels[k].parent; while(o){ if(!o.visible){vis=false;break;} o=o.parent; } labels[k].visible=vis; labels[k].element.style.display=vis?'':'none'; }
+  patient.position.z=bodyZ(t); head.position.z=headZ(t);
+  syringe.visible=(t>=14&&t<36)||t>=100; barrel.material.opacity=t<17?0.8:0.25; plunger.position.y=t<16?0.1:t<17?lerp(0.1,0.04,t-16):0.04;
+  staff.visible=t>=100;
+  hotRibAnchor.visible=hotVertAnchor.visible=si===3; tumourAnchor.visible=brainAnchor.visible=si===4;
+  // images
+  accum(Math.min(NEV,lowerBound(CAM_EZ,camFront(t)))); accumPet(Math.min(NPET,lowerBound(PET_EZ,petFront(t))));
+  drawViewer(); colLabel();
+  if(!$('pHalf').hidden){ const hh=hrsUser!==null?hrsUser:(iso==='f'?(si===4?1:h):h); if(hrsUser===null){ $('hrs').value=hh; } $('hrsOut').textContent=(+hh).toFixed(2).replace(/\.?0+$/,'')+' h'; drawGraph(hh); }
+  updateTracer(); updatePhotons();
+}
+
+/* =================== Loop =================== */
+const clock=new THREE.Clock();
+function frame(){ const dt=Math.min(0.05,clock.getDelta());
+  if(camAnim){ const k=clamp((performance.now()-camAnim.s)/camAnim.d); const e=ease(k); camera.position.lerpVectors(camAnim.p0,camAnim.p1,e); controls.target.lerpVectors(camAnim.t0,camAnim.t1,e); if(k>=1) camAnim=null; }
+  update(dt); controls.update(); if(controls.target.y<-0.9) controls.target.y=-0.9;
+  renderer.render(scene,camera); labelRenderer.render(scene,camera); requestAnimationFrame(frame); }
+controls.addEventListener('start',()=>{ camAnim=null; });
+addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); labelRenderer.setSize(innerWidth,innerHeight); controls.maxDistance=10*narrowFactor(); });
+syncViewBtns(); setPlaying(playing);
+if(qs.get('panel')==='learn') openModal('learn'); if(qs.get('panel')==='quiz') openModal('quiz');
+if(qs.get('tab')){ showSide(true); tab(qs.get('tab')); }
+frame();
+window.__ready=true;
+
+</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('../../sw.js',{scope:'../../'}).catch(function(){});</script>
+</body>
+</html>

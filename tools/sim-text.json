@@ -567,5 +567,175 @@
     ]
    }
   ]
+ },
+ "gamma-pet": {
+  "sections": [
+   {
+    "title": "Guided tour",
+    "items": [
+     {
+      "h": "Imaging from the inside",
+      "t": "In X-ray and CT, radiation passes through the body from a machine. Nuclear medicine works the other way round: a small amount of radioactive tracer goes inside the patient, and a gamma camera or PET scanner detects the gamma rays coming out. The scans show how organs are working, not just their shape."
+     },
+     {
+      "h": "The tracer",
+      "t": "For a bone scan, technetium-99m (Tc-99m) is attached to a chemical that bone takes up, then injected into an arm vein. Tc-99m gives out only gamma rays (140 keV), which leave the body easily, and has a half-life of about 6 hours. Over 2–3 hours the tracer collects in the bones; the kidneys pass some into the bladder. The syringe is shielded to protect staff."
+     },
+     {
+      "h": "The gamma camera",
+      "t": "Gamma rays leave the body in all directions. The lead collimator only lets through gamma rays travelling straight towards the camera; the rest are stopped (red). Each one that gets through makes a flash of light in the sodium iodide crystal. Photomultiplier tubes turn the flash into an electrical pulse, and the computer works out where it happened. The image builds up count by count as the camera sweeps along the body."
+     },
+     {
+      "h": "Reading the bone scan",
+      "t": "Areas that take up more tracer show as darker “hot spots”. Here there is a hot spot in a rib and one in a vertebra. A hot spot means increased bone activity – it could be a healing fracture, infection, arthritis or cancer spread, so doctors use other tests too. Watch the image when the collimator is removed: gamma rays arrive from every angle and the picture blurs."
+     },
+     {
+      "h": "PET-CT",
+      "t": "PET uses a positron-emitting tracer, usually fluorine-18 in FDG, a glucose-like sugar (half-life 110 minutes). Each positron travels less than a millimetre, meets an electron and annihilates, making two 511 keV gamma rays that travel in opposite directions. The ring records pairs arriving at the same moment (coincidence) and the computer builds a 3D image. Combined with CT, it shows active cancer and recurrent tumours."
+     },
+     {
+      "h": "Half-life and safety",
+      "t": "Activity falls as the tracer decays and is passed out in urine. After one half-life (6 hours) half the Tc-99m is left; after 24 hours about one-sixteenth. A bone scan gives about 4 mSv; PET-CT about 5–18 mSv. Staff use syringe shields, distance, short handling times and personal dosemeters. Patients drink plenty and avoid long close contact with young children and pregnant women for the rest of the day."
+     }
+    ]
+   },
+   {
+    "title": "The parts",
+    "items": [
+     {
+      "h": "Patient table",
+      "t": "Moves the patient under the gamma camera, or through the PET-CT scanner."
+     },
+     {
+      "h": "Patient (simplified)",
+      "t": "See-through so you can watch the tracer and gamma rays inside."
+     },
+     {
+      "h": "Lungs",
+      "t": "Take up little tracer on a bone scan. In the PET scan, the bright spot in the right lung is a tumour using lots of glucose."
+     },
+     {
+      "h": "Heart",
+      "t": "Heart muscle uses a lot of glucose, so it often shows on PET (normal)."
+     },
+     {
+      "h": "Kidneys",
+      "t": "Filter tracer out of the blood into urine, so they show faintly."
+     },
+     {
+      "h": "Bladder",
+      "t": "Collects tracer passed out in urine – it shows strongly on both scans. Emptying it often lowers the dose."
+     },
+     {
+      "h": "Spine",
+      "t": "Bone takes up the tracer. The vertebra marked “hot spot” has much more uptake than the others."
+     },
+     {
+      "h": "Ribs",
+      "t": "Bone takes up the tracer. One rib has a hot spot – increased bone activity."
+     },
+     {
+      "h": "Pelvis",
+      "t": "Bone – takes up the tracer evenly here (normal)."
+     },
+     {
+      "h": "Syringe in a shield",
+      "t": "The tracer is injected into an arm vein. A lead or tungsten syringe shield cuts the dose to the hands of the person injecting."
+     },
+     {
+      "h": "Gamma camera head",
+      "t": "Detects gamma rays coming out of the patient. It gives out no radiation itself. Its cover is see-through here."
+     },
+     {
+      "h": "Lead collimator",
+      "t": "Thick lead plate full of narrow holes. Only gamma rays travelling straight along the holes get through, so each count can be traced back to where it came from."
+     },
+     {
+      "h": "Sodium iodide crystal",
+      "t": "Scintillator: each gamma ray that hits it makes a tiny flash of light."
+     },
+     {
+      "h": "Photomultiplier tubes",
+      "t": "Turn each faint flash of light into an electrical pulse. The computer compares the pulses to work out where the flash happened."
+     },
+     {
+      "h": "Computer",
+      "t": "Adds up the counts to build the image. Areas with more counts have taken up more tracer."
+     },
+     {
+      "h": "PET detector ring",
+      "t": "Rings of detectors around the patient. Two detectors flashing at the same moment mean an annihilation happened somewhere on the line between them."
+     },
+     {
+      "h": "PET scanner",
+      "t": "Contains the detector rings. Front cover cut away."
+     },
+     {
+      "h": "CT scanner (part of PET-CT)",
+      "t": "Takes a CT scan in the same visit, so the PET hot spots can be placed exactly on the anatomy."
+     },
+     {
+      "h": "Nuclear medicine technologist",
+      "t": "Keeps handling time short, uses distance and shielding, wears gloves and a personal dosemeter (yellow badge)."
+     }
+    ]
+   }
+  ],
+  "quiz": [
+   {
+    "q": "In gamma imaging, where does the radiation that makes the image come from?",
+    "o": [
+     "The gamma camera fires it through the patient",
+     "A radioactive tracer inside the patient",
+     "An X-ray tube under the table",
+     "The lead collimator"
+    ]
+   },
+   {
+    "q": "Why is technetium-99m a good tracer for a gamma camera?",
+    "o": [
+     "It gives out alpha particles, which are easy to detect",
+     "It gives out only gamma rays (140 keV) and has a half-life of about 6 hours",
+     "Its half-life is several years, so it lasts",
+     "It is not radioactive"
+    ]
+   },
+   {
+    "q": "What does the lead collimator do?",
+    "o": [
+     "Turns gamma rays into light",
+     "Amplifies the electrical signal",
+     "Only lets through gamma rays travelling straight towards the camera, so the image is sharp",
+     "Protects the patient from radiation given out by the camera"
+    ]
+   },
+   {
+    "q": "A bone scan shows a hot spot in a rib. What does it tell the doctor?",
+    "o": [
+     "The rib definitely has cancer",
+     "Increased bone activity there – it could be a fracture, infection, arthritis or cancer, so more tests are needed",
+     "The rib has no blood supply",
+     "The camera is faulty"
+    ]
+   },
+   {
+    "q": "What does a PET scanner actually detect?",
+    "o": [
+     "Positrons leaving the body",
+     "X-rays from a rotating tube",
+     "Pairs of 511 keV gamma rays travelling in opposite directions at the same time",
+     "Gamma rays from technetium-99m"
+    ]
+   },
+   {
+    "q": "A dose of technetium-99m has an activity of 400 MBq at 9 am. Ignoring removal by the body, what is its activity at about 9 pm?",
+    "o": [
+     "200 MBq",
+     "100 MBq",
+     "50 MBq",
+     "0 MBq"
+    ]
+   }
+  ]
  }
 }
