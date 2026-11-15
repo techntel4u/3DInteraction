@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>3D Learning Simulations – City of Wolverhampton College</title>
 <meta name="description" content="Interactive 3D learning simulations by curriculum area and course.">
-<link rel="stylesheet" href="assets/hub.css?v=18">
+<link rel="stylesheet" href="assets/hub.css?v=19">
 <script src="vendor/qrcode/qrcode.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#16325c">
@@ -46,11 +46,11 @@
 </main>
 <footer>Curriculum areas and courses from <a href="https://www.wolvcoll.ac.uk/" target="_blank" rel="noopener">wolvcoll.ac.uk</a>. Narration by ElevenLabs. 3D by three.js.</footer>
 <script type="module">
-import {loadCatalog, esc, simCard, wireShare, shareButtons, abs, initStaff, statsHtml, isNew, miniCard, requestLink, seriesInArea} from './assets/hub.js?v=18';
+import {loadCatalog, esc, simCard, wireShare, shareButtons, abs, initStaff, statsHtml, isNew, miniCard, requestLink, seriesInArea, newRow} from './assets/hub.js?v=19';
 initStaff();
 const cat = await loadCatalog();
-{ const fresh = cat.sims.filter(isNew).sort((a,b) => String(b.added).localeCompare(String(a.added)));
-  if (fresh.length) { document.getElementById('newRow').innerHTML = fresh.map(x => miniCard(x, cat)).join(''); document.getElementById('newSec').hidden = false; }
+{ const row = newRow(cat);
+  if (row) { document.getElementById('newRow').innerHTML = row; document.getElementById('newSec').hidden = false; }
   document.getElementById('reqBtn').href = requestLink(); }
 { const used = new Set(cat.sims.flatMap(s => s.areas));
   document.getElementById('stats').innerHTML = statsHtml(cat.sims, [[used.size + ' of ' + cat.areas.length, 'curriculum areas']]); }

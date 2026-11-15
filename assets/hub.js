@@ -1,6 +1,6 @@
 // Shared helpers for the simulation hub. Data lives in data/catalog.json.
 export async function loadCatalog(){
-  const r = await fetch('data/catalog.json?v=18', {cache:'no-cache'});
+  const r = await fetch('data/catalog.json?v=19', {cache:'no-cache'});
   return r.json();
 }
 /* ---------- Staff sign-in (Google, college staff accounts only) ----------
@@ -165,7 +165,9 @@ export function wireShare(root=document){
   root.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => copy(b.dataset.copy));
   root.querySelectorAll('[data-qr]').forEach(b => b.onclick = () => showQR(b.dataset.qr, b.dataset.title));
 }
-export const NEW_DAYS = 45;
+// "New" lasts 21 days from a simulation's added date; the home page shows at most NEW_MAX cards,
+// and several new parts of one series share a single card.
+export const NEW_DAYS = 21, NEW_MAX = 6;
 export const isNew = s => s.added && (Date.now() - new Date(s.added).getTime()) < NEW_DAYS*864e5;
 /* ---------- Series: experiences made of several simulations, shown together in order ---------- */
 export const seriesOf = (cat, s) => (cat.series || []).find(x => x.id === s.series) || null;
@@ -277,6 +279,23 @@ export function miniCard(s, cat){
   const a = cat.areas.find(x => s.areas.includes(x.id));
   return `<a class="mini" href="${esc(s.student)}"><img src="${esc(s.thumb)}" alt="" loading="lazy">
     <span><b>${esc(s.title)}</b><small>${a?esc(a.icon+' '+a.name)+' · ':''}${esc(s.level)}${seriesOf(cat,s)?' · Part '+s.part+' of '+seriesOf(cat,s).parts.length:''}</small><span class="pill new">New</span></span></a>`;
+}
+// The home page "New" row: newest first, one card per series, at most NEW_MAX cards
+export function newRow(cat){
+  const fresh = cat.sims.filter(isNew).sort((a,b) => String(b.added).localeCompare(String(a.added)));
+  const seen = new Set(), items = [];
+  for (const s of fresh){
+    const sr = seriesOf(cat, s);
+    if (!sr){ items.push(miniCard(s, cat)); continue; }
+    if (seen.has(sr.id)) continue; seen.add(sr.id);
+    const parts = fresh.filter(x => x.series === sr.id).map(x => x.part).sort((a,b) => a-b);
+    if (parts.length === 1){ items.push(miniCard(s, cat)); continue; }
+    const a = cat.areas.find(x => sr.areas.includes(x.id));
+    const label = parts.length === 2 ? parts.join(' and ') : parts.slice(0,-1).join(', ') + ' and ' + parts[parts.length-1];
+    items.push(`<a class="mini" href="area.html?id=${esc(sr.areas[0])}&series=${esc(sr.id)}"><img src="${esc(s.thumb)}" alt="" loading="lazy">
+      <span><b>${esc(sr.title)}</b><small>${a?esc(a.icon+' '+a.name)+' · ':''}Series · Parts ${label} of ${sr.parts.length} are new</small><span class="pill new">New</span></span></a>`);
+  }
+  return items.slice(0, NEW_MAX).join('');
 }
 // Staff-only "Request a simulation": opens the Microsoft Form in a new tab
 export const REQUEST_FORM = 'https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=MGiE95mlWECLAJ2oTSWGmuO6R6IeSGFPiHGI99lOOwhUOUtJQTBXSjVFSVRDUURWT0VaWEY0UVZTVSQlQCN0PWcu';
