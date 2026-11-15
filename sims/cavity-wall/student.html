@@ -970,15 +970,26 @@ let soundOn=true, voice=null;
 function pickVoice(){ try{ const vs=speechSynthesis.getVoices(); voice=vs.find(v=>v.lang==='en-GB')||vs.find(v=>v.lang?.startsWith('en'))||null; }catch(e){} }
 try{ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }catch(e){}
 // Recorded narration (ElevenLabs) with the browser voice as a backup
-const clips=STAGES.map((s,i)=>{ const a=new Audio(`audio/cavitywall-stage${i+1}.mp3`); a.preload='auto'; a._ok=true; a.onerror=()=>{a._ok=false;}; return a; });
+/* One shared audio player for all narration. Phones (especially iPhones) only allow audio from a player the
+   student has already started with a tap, so reusing one player keeps the tour narrating stage after stage. */
+const CLIP_SRC=STAGES.map((s,i)=>`audio/cavitywall-stage${i+1}.mp3`);
+const narr=new Audio(); narr.preload='auto'; let narrIdx=-1, narrBad={};
 let curClip=null;
+setTimeout(()=>CLIP_SRC.forEach(u=>fetch(u).catch(()=>{})), 4000); // warm the cache so each stage starts instantly
+function primeNarr(){ try{ if(!narr.src) { narr.src=CLIP_SRC[Math.max(0,curStage())]; narrIdx=Math.max(0,curStage()); } narr.muted=true; const p=narr.play(); if(p&&p.then) p.then(()=>{ if(curClip!==narr){ narr.pause(); } narr.muted=false; },()=>{ narr.muted=false; }); else narr.muted=false; }catch(e){ narr.muted=false; } }
 function speakTTS(t){ try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='en-GB'; if(voice) u.voice=voice; u.rate=0.95; speechSynthesis.speak(u);}catch(e){} }
-function speak(t,idx){ if(!soundOn) return; speakStop(); const c=clips[idx];
-  if(c && c._ok){ curClip=c; c.currentTime=0; c.playbackRate=Math.min(speed,1.25); c.play().catch(()=>speakTTS(t)); } else speakTTS(t); }
+function speak(t,idx){ if(!soundOn) return; speakStop();
+  if(idx==null || !CLIP_SRC[idx] || narrBad[idx]) return speakTTS(t);
+  curClip=narr; narr.muted=false;
+  if(narrIdx!==idx){ narr.src=CLIP_SRC[idx]; narrIdx=idx; } else { try{ narr.currentTime=0; }catch(e){} }
+  narr.onerror=()=>{ narrBad[idx]=true; if(curClip===narr) speakTTS(t); };
+  narr.playbackRate=Math.min(speed,1.25);
+  const p=narr.play(); if(p&&p.catch) p.catch(err=>{ if(!err || err.name!=='NotAllowedError') speakTTS(t); }); }
 function speakStop(){ try{speechSynthesis.cancel();}catch(e){} if(curClip){ curClip.pause(); curClip=null; } }
+function narrating(){ return !!(curClip && !curClip.paused && !curClip.ended); }
 $('#bSound').onclick=()=>{ soundOn=!soundOn; const b=$('#bSound'); b.setAttribute('aria-pressed',soundOn); b.classList.toggle('on',soundOn); b.innerHTML=soundOn?'🔊 <span class="lbltxt">Sound off</span>':'🔈 <span class="lbltxt">Sound on</span>'; if(soundOn&&mode==='tour') speak(STAGES[curStage()].cap,curStage()); else speakStop(); };
 /* Sound is on by default. Browsers block audio until the first tap or key press,
-   so start the narration on that first interaction. */
+   so start the narration on that first interaction (when the tap ends – phones only allow audio then). */
 (function(){
   var hint=document.createElement('div'); hint.id='sndHint'; hint.setAttribute('role','status');
   hint.textContent='🔊 Sound is on – tap anywhere to start the narration';
@@ -987,12 +998,12 @@ $('#bSound').onclick=()=>{ soundOn=!soundOn; const b=$('#bSound'); b.setAttribut
   setTimeout(function(){ if(!done && soundOn && !((curClip&&!curClip.paused)||(window.speechSynthesis&&speechSynthesis.speaking))) document.body.appendChild(hint); }, 900);
   function go(e){
     if(done) return; done=true;
-    removeEventListener('pointerdown',go,true); removeEventListener('keydown',go,true);
+    removeEventListener('pointerup',go,true); removeEventListener('click',go,true); removeEventListener('keydown',go,true);
     hint.style.opacity='0'; setTimeout(function(){hint.remove();},300);
-    if(e && e.target && e.target.closest && e.target.closest('#bSound')) return;
-    if(soundOn && !((curClip&&!curClip.paused)||(window.speechSynthesis&&speechSynthesis.speaking))) { if(mode==='tour') speak(STAGES[curStage()].cap,curStage()); }
+    if(e && e.target && e.target.closest && e.target.closest('#bSound')) { primeNarr(); return; }
+    if(soundOn && !((curClip&&!curClip.paused)||(window.speechSynthesis&&speechSynthesis.speaking))) { if(mode==='tour') speak(STAGES[curStage()].cap,curStage()); else primeNarr(); }
   }
-  addEventListener('pointerdown',go,true); addEventListener('keydown',go,true);
+  addEventListener('pointerup',go,true); addEventListener('click',go,true); addEventListener('keydown',go,true);
 })();
 
 
@@ -1134,7 +1145,11 @@ initialCam();
 renderCard();
 function frame(){
   const dt=Math.min(clock.getDelta(),0.1);
-  if(playing) simTime+=dt*speed;
+  if(playing){
+    const s0=curStage(), nb=STARTS[s0+1];
+    simTime+=dt*speed;
+    if(mode==='tour' && soundOn && speed<=1.5 && nb!==undefined && simTime>=nb && narrating()) simTime=nb-0.0005;
+  }
   if(mode==='tour'){
     const s=curStage();
     if(s!==lastStage){ if(s===STAGES.length-1) window.simStats&&simStats.once('tour-complete'); if(booted) goCam(STAGES[s].cam); lastStage=s; renderTour(); if(speed<=1.5) speak(STAGES[s].cap,s); else speakStop(); }

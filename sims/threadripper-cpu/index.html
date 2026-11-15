@@ -726,7 +726,7 @@ $('btnParts').onclick=e=>{const o=!partsEl.classList.contains('open');partsEl.cl
 $('btnSound').onclick=e=>{soundOn=!soundOn;const b=e.currentTarget;b.classList.toggle('on',soundOn);b.setAttribute('aria-pressed',String(soundOn));b.textContent=soundOn?'🔊 Sound off':'🔈 Sound on';
   if(soundOn) speak(STAGES[clamp(Math.floor(simTime/D),0,N-1)].narr); else {__stopClip();try{speechSynthesis.cancel()}catch(e){}}};
 /* Sound is on by default. Browsers block audio until the first tap or key press,
-   so start the narration on that first interaction. */
+   so start the narration on that first interaction (when the tap ends – phones only allow audio then). */
 (function(){
   var hint=document.createElement('div'); hint.id='sndHint'; hint.setAttribute('role','status');
   hint.textContent='🔊 Sound is on – tap anywhere to start the narration';
@@ -735,12 +735,12 @@ $('btnSound').onclick=e=>{soundOn=!soundOn;const b=e.currentTarget;b.classList.t
   setTimeout(function(){ if(!done && soundOn && !(__clipPlaying()||(window.speechSynthesis&&speechSynthesis.speaking))) document.body.appendChild(hint); }, 900);
   function go(e){
     if(done) return; done=true;
-    removeEventListener('pointerdown',go,true); removeEventListener('keydown',go,true);
+    removeEventListener('pointerup',go,true); removeEventListener('click',go,true); removeEventListener('keydown',go,true);
     hint.style.opacity='0'; setTimeout(function(){hint.remove();},300);
-    if(e && e.target && e.target.closest && e.target.closest('#btnSound')) return;
+    if(e && e.target && e.target.closest && e.target.closest('#btnSound')) { __primeClip(); return; }
     if(soundOn && !(__clipPlaying()||(window.speechSynthesis&&speechSynthesis.speaking))) { speak(STAGES[clamp(Math.floor(simTime/D),0,N-1)].narr); }
   }
-  addEventListener('pointerdown',go,true); addEventListener('keydown',go,true);
+  addEventListener('pointerup',go,true); addEventListener('click',go,true); addEventListener('keydown',go,true);
 })();
 
 function openModal(id){$(id).classList.add('open');$(id).querySelector('.x').focus();}
@@ -755,12 +755,17 @@ let voice=null;
 function pickVoice(){try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>v.lang==='en-GB')||vs.find(v=>v.lang&&v.lang.startsWith('en-GB'))||vs.find(v=>v.lang&&v.lang.startsWith('en'))||null;}catch(e){}}
 try{pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}catch(e){}
 const NARR={"Step one. Switch off and unplug the mains cable. Work on an antistatic mat, wear an E S D wrist strap connected to ground, and handle parts by their edges.":"audio/threadripper-step1.mp3","Use a Torx T20 driver to loosen the three force frame screws in reverse order: three, two, then one.":"audio/threadripper-step2.mp3","The force frame is spring loaded, so it pops up when the last screw is released. Lift it fully open.":"audio/threadripper-step3.mp3","Pull up the tabs on both sides of the rail frame to release it, then lift it upright. Keep hold of it, because it is spring loaded.":"audio/threadripper-step4.mp3","Slide the clear external cap up and out of the rail frame. Keep it safe for later.":"audio/threadripper-step5.mp3","Hold the orange carrier frame by its tab and slide it down the rails until it clicks. It only fits one way.":"audio/threadripper-step6.mp3","Now lift the P n P cover cap off the socket. The exposed contacts are extremely fragile. Do not touch them.":"audio/threadripper-step7.mp3","Lower the rail frame gently until it latches, then lower the force frame over it.":"audio/threadripper-step8.mp3","Start all three screws in the order one, two, three. Then tighten them fully in the same order with a torque limiting T20 driver. Stop at the click.":"audio/threadripper-step9.mp3","If the cooler has paste already applied, do not add more. Otherwise, follow the maker’s pattern. This large lid needs paste across the whole surface.":"audio/threadripper-step10.mp3","Remove the protective film from the cooler base. Lower the cooler straight down, then tighten its screws evenly in a diagonal pattern, a little at a time.":"audio/threadripper-step11.mp3","Plug the cooler fan into the C P U fan header. Then reconnect power and check the CPU temperature and fan speed in the BIOS.":"audio/threadripper-step12.mp3"};
-const __clipCache={};let __cur=null;
-function __stopClip(){ if(__cur){ try{__cur.pause();__cur.currentTime=0;}catch(e){} __cur=null; } }
+/* One shared audio player for all narration: phones only allow audio from a player the student has already
+   started with a tap, so reusing one player keeps narration working when the sim moves on by itself. */
+const __narr=new Audio(); __narr.preload='auto'; let __cur=null;
+function __stopClip(){ if(__cur){ try{__cur.pause();}catch(e){} __cur=null; } }
 function __playClip(text){ const src=NARR[__norm(text)]; if(!src) return false;
   __stopClip(); try{speechSynthesis.cancel()}catch(e){}
-  let a=__clipCache[src]; if(!a){a=new Audio(src);a.preload='auto';__clipCache[src]=a;}
-  __cur=a; try{a.currentTime=0;}catch(e){} const p=a.play(); if(p&&p.catch)p.catch(()=>{}); return true; }
+  const a=__narr; a.muted=false;
+  if(a._src!==src){ a.src=src; a._src=src; } else { try{a.currentTime=0;}catch(e){} }
+  __cur=a; const p=a.play(); if(p&&p.catch)p.catch(()=>{}); return true; }
+function __primeClip(){ try{ const a=__narr; if(!a.src){ const f=Object.values(NARR)[0]; a.src=f; a._src=f; } a.muted=true; const p=a.play();
+  if(p&&p.then) p.then(()=>{ if(__cur!==a) a.pause(); a.muted=false; },()=>{ a.muted=false; }); else a.muted=false; }catch(e){ __narr.muted=false; } }
 function __norm(t){return String(t).replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();}
 function __clipPlaying(){return !!(__cur&&!__cur.paused&&!__cur.ended);}
 function speak(text){ if(!soundOn) return; if(__playClip(text)) return; __stopClip(); try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';if(voice)u.voice=voice;u.rate=0.95;speechSynthesis.speak(u);}catch(e){} }
