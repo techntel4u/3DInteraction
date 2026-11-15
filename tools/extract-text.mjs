@@ -29,5 +29,12 @@ out['disc-brakes'] = { sections:[
 s = fs.readFileSync('sims/threadripper-cpu/index.html','utf8');
 out['threadripper-cpu'] = { sections:[{title:'Step by step', items: grabArray(s,'STAGES').map(x=>({h:x.name, t:strip(x.cap||x.narr), warn: strip(x.warn||'')}))}],
   quiz: grabArray(s,'QUIZ').map(q=>({q:q.q, o:q.o})) };
+s = fs.readFileSync('sims/xray-ct/index.html','utf8');
+{ const parts=[]; const re=/reg\('(\w+)',\w+,\{name:'([^']*)',job:'((?:[^'\\]|\\.)*)'(?:,hu:'([^']*)')?\}\)/g; let m;
+  while((m=re.exec(s))) parts.push({h:m[2], t:strip(m[3].replace(/\\'/g,"'").replace(/\\u2019/g,'’'))+(m[4]?' Typical CT number: '+m[4]+'.':'')});
+  out['xray-ct'] = { sections:[{title:'Guided tour', items: grabArray(s,'STAGES').map(x=>({h:x.name.replace(/^\d+ · /,''), t:strip(x.cap)}))},
+    {title:'The parts', items: parts}],
+    quiz: [{q:'Match the image to the tissue: on the CT slice in the simulation, which tissue is at each of points A, B, C and D? (Each answer is used once.)', o:['Air-filled lung (about −700 HU)','Fat (about −100 HU)','Soft tissue / blood (about +40 HU)','Bone (+400 HU or more)']}]
+      .concat(grabArray(s,'QS').map(q=>({q:q.q, o:q.o}))) }; }
 fs.writeFileSync('tools/sim-text.json', JSON.stringify(out,null,1));
 for(const [k,v] of Object.entries(out)) console.log(k, v.sections.map(x=>x.title+':'+x.items.length).join(', '), 'quiz:'+v.quiz.length);

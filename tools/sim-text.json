@@ -376,5 +376,196 @@
     ]
    }
   ]
+ },
+ "xray-ct": {
+  "sections": [
+   {
+    "title": "Guided tour",
+    "items": [
+     {
+      "h": "The scanner",
+      "t": "A CT scanner and a plain X-ray set-up. The patient lies on the table. The doughnut-shaped gantry holds an X-ray tube and a detector array that rotate around the patient. Real equipment is expensive, and X-rays are ionising, so we explore it safely here."
+     },
+     {
+      "h": "Making X-rays",
+      "t": "A heated cathode filament releases electrons (thermionic emission). A high voltage accelerates them towards a positive tungsten anode. When they hit it, some of their kinetic energy becomes X-rays and most becomes heat, so the anode spins to spread the heat. Lead collimators shape the beam."
+     },
+     {
+      "h": "Attenuation: the X-ray image",
+      "t": "X-rays pass through soft tissue but are absorbed by dense bone. This reduction in intensity is attenuation. The detector records how many X-rays arrive: behind bone few arrive, so the image is white; through air-filled lungs many arrive, so it is dark. Try the kV slider."
+     },
+     {
+      "h": "CT: scanning from every angle",
+      "t": "In CT, the X-ray tube rotates around the patient while the table moves smoothly through the gantry. The detector array opposite measures attenuation along hundreds of lines from every angle. Relative to the patient, the tube traces a spiral (helix), shown in blue. The gantry is shown slowed down."
+     },
+     {
+      "h": "Slices to 3D",
+      "t": "A computer combines all the measurements to reconstruct cross-sectional images called tomograms, layer by layer. Each pixel gets a CT number in Hounsfield units (HU): air −1000, water 0, fat about −100, soft tissue +30 to +60, bone several hundred or more. Stacked slices build a 3D view. Hover the CT slice to read values."
+     },
+     {
+      "h": "Dose and shielding",
+      "t": "X-rays are ionising: they can damage healthy cells and slightly increase cancer risk. Under IR(ME)R every exposure must be justified and doses kept as low as reasonably practicable. A chest CT (about 6.6 mSv) is roughly 470 times a chest X-ray (0.014 mSv). Staff use distance, lead shielding and dosemeters. Open the Dose tab."
+     }
+    ]
+   },
+   {
+    "title": "The parts",
+    "items": [
+     {
+      "h": "CT gantry",
+      "t": "Doughnut-shaped housing. Inside, the X-ray tube and detectors rotate around the patient. (Front cover cut away here.)"
+     },
+     {
+      "h": "CT X-ray tube",
+      "t": "Produces the X-ray beam. It rotates around the patient so attenuation is measured from many angles."
+     },
+     {
+      "h": "Detector array",
+      "t": "Measures how many X-rays get through the body along each line. Brighter = more X-rays arriving (less attenuation)."
+     },
+     {
+      "h": "Patient table",
+      "t": "Carbon-fibre style top that X-rays pass through easily. In CT it moves the patient smoothly through the gantry."
+     },
+     {
+      "h": "Patient (simplified)",
+      "t": "Chest–abdomen model. The skin and fat layer is see-through so you can watch the beam inside."
+     },
+     {
+      "h": "Lungs",
+      "t": "Mostly air, so they attenuate X-rays very little and look dark on images. Typical CT number: about −700 HU."
+     },
+     {
+      "h": "Heart",
+      "t": "Muscle and blood – similar attenuation to other soft tissue. Typical CT number: about +40 HU."
+     },
+     {
+      "h": "Liver",
+      "t": "Solid soft-tissue organ. Typical CT number: about +60 HU."
+     },
+     {
+      "h": "Gas in the stomach",
+      "t": "Air attenuates almost nothing, so it looks black. Typical CT number: about −1000 HU."
+     },
+     {
+      "h": "Kidneys",
+      "t": "Soft-tissue organs near the back. Typical CT number: about +30 HU."
+     },
+     {
+      "h": "Spine (vertebrae)",
+      "t": "Dense bone with calcium – strongly attenuates X-rays, so it looks white. Typical CT number: about +400 to +1000 HU."
+     },
+     {
+      "h": "Ribs",
+      "t": "Bone – appears white on X-ray images and CT slices. Typical CT number: about +700 HU."
+     },
+     {
+      "h": "Sternum",
+      "t": "Breastbone – bone, so it appears white. Typical CT number: about +500 HU."
+     },
+     {
+      "h": "Current slice",
+      "t": "The cross-section being measured right now. The computer reconstructs it as a tomogram."
+     },
+     {
+      "h": "X-ray tube (projection X-ray)",
+      "t": "Makes X-rays for a plain X-ray image. Its housing is shown see-through."
+     },
+     {
+      "h": "Cathode filament",
+      "t": "Heated filament (negative). Electrons escape by thermionic emission."
+     },
+     {
+      "h": "Tungsten anode (spinning)",
+      "t": "Positive target. Electrons hit it and some of their kinetic energy becomes X-rays; most becomes heat, so it spins to spread the heat."
+     },
+     {
+      "h": "Collimator",
+      "t": "Lead shutters that shape the beam so only the area being imaged is exposed."
+     },
+     {
+      "h": "Digital X-ray detector",
+      "t": "Records how many X-rays arrive at each point. The image builds up here (older systems used photographic film)."
+     },
+     {
+      "h": "Reconstructed slices",
+      "t": "Each slice (tomogram) is stacked in order to build a 3D view of the body."
+     },
+     {
+      "h": "Radiographer",
+      "t": "Stays out of the beam, behind shielding, and wears a personal dosemeter badge (yellow)."
+     },
+     {
+      "h": "Mobile lead screen",
+      "t": "Lead absorbs scattered X-rays. In CT, staff normally operate the scanner from a shielded control room."
+     }
+    ]
+   }
+  ],
+  "quiz": [
+   {
+    "q": "Match the image to the tissue: on the CT slice in the simulation, which tissue is at each of points A, B, C and D? (Each answer is used once.)",
+    "o": [
+     "Air-filled lung (about −700 HU)",
+     "Fat (about −100 HU)",
+     "Soft tissue / blood (about +40 HU)",
+     "Bone (+400 HU or more)"
+    ]
+   },
+   {
+    "q": "How does an X-ray tube produce X-rays?",
+    "o": [
+     "Electrons from a heated cathode are accelerated into a tungsten anode",
+     "A radioactive source inside the tube decays",
+     "Light from the filament is filtered into X-rays",
+     "The spinning anode creates a magnetic field that emits X-rays"
+    ]
+   },
+   {
+    "q": "On a projection X-ray image, why does the spine appear white?",
+    "o": [
+     "Bone reflects X-rays back towards the tube",
+     "Bone attenuates (absorbs) more X-rays, so fewer reach the detector",
+     "Bone gives out its own X-rays",
+     "The detector is more sensitive behind bone"
+    ]
+   },
+   {
+    "q": "How does a CT scanner build up a cross-sectional image?",
+    "o": [
+     "It takes one X-ray photo and cuts it into strips",
+     "Detectors measure radiation given out by the patient’s organs",
+     "It measures attenuation from many angles as the tube rotates, then a computer reconstructs the slice",
+     "It uses sound echoes from the rotating gantry"
+    ]
+   },
+   {
+    "q": "A region on a CT slice reads −700 HU. Which tissue is it most likely to be?",
+    "o": [
+     "Bone",
+     "Liver",
+     "Lung",
+     "Water"
+    ]
+   },
+   {
+    "q": "Using UKHSA typical doses, a chest CT (6.6 mSv) is roughly how many times a chest X-ray (0.014 mSv)?",
+    "o": [
+     "About 5 times",
+     "About 50 times",
+     "About 470 times",
+     "About 4,700 times"
+    ]
+   },
+   {
+    "q": "A radiographer moves from 1 m to 2 m from the source of scatter. What happens to the scatter dose rate?",
+    "o": [
+     "It halves",
+     "It falls to a quarter",
+     "It stays the same",
+     "It doubles"
+    ]
+   }
+  ]
  }
 }

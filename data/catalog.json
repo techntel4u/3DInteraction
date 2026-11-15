@@ -370,6 +370,20 @@
    "name": "Hospitality and Leisure – FREE Into Employment course",
    "mode": "Part-time 19+",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/hospitality-and-drinks-free-into-employment-course/"
+  },
+  {
+   "id": "applied-science-l3-extended-diploma",
+   "areaId": "science",
+   "name": "Applied Science Level 3 National Extended Diploma",
+   "mode": "Full-time (16–18)",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/applied-science-level-3-national-extended-diploma/"
+  },
+  {
+   "id": "applied-biomedical-science-l3-extended-diploma",
+   "areaId": "science",
+   "name": "Applied Bio-Medical Science Pearson Level 3 National Extended Diploma",
+   "mode": "Full-time",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/applied-bio-medical-science-level-3-national-extended-diploma-3/"
   }
  ],
  "sims": [
@@ -471,6 +485,39 @@
    "transcript": "sims/threadripper-cpu/transcript.html",
    "worksheet": "sims/threadripper-cpu/worksheet.html",
    "added": "2026-11-14"
+  },
+  {
+   "id": "xray-ct",
+   "title": "X-rays and CT",
+   "summary": "Explore a 3D X-ray room and CT scanner. See how an X-ray tube makes X-rays, why bone shows white and lungs dark (attenuation), and how CT measures from every angle to build slices into a 3D view. Read CT numbers in Hounsfield units, compare doses and see how distance and lead shielding protect staff.",
+   "level": "Level 3",
+   "spec": "Pearson BTEC L3 Applied Science (2016), Unit 21 Medical Physics Applications – learning aims B1/B2 and C",
+   "minutes": "25–35 min",
+   "tags": [
+    "X-rays",
+    "Attenuation",
+    "CT scanning",
+    "Hounsfield units",
+    "Radiation dose"
+   ],
+   "areas": [
+    "science"
+   ],
+   "courses": [
+    "applied-science-l3-extended-diploma",
+    "applied-biomedical-science-l3-extended-diploma"
+   ],
+   "general": false,
+   "student": "sims/xray-ct/index.html",
+   "teacher": "",
+   "thumb": "sims/xray-ct/thumb.jpg",
+   "narration": "ElevenLabs (Alice, British)",
+   "updated": "2026-11-15",
+   "classroomTitle": "X-rays and CT – 3D simulation (Imaging and treatment, Part 1)",
+   "instructions": "Open the link and work through the 3D X-rays and CT simulation (25–35 minutes). Use headphones and keep the sound on.\n1. Guided tour: follow all 6 stages.\n2. Stage 2: hover over or tap the tube parts and explain how X-rays are produced.\n3. Stage 3: move the kV slider and describe how the X-ray image changes.\n4. Stages 4–5: read the CT numbers for lung, fat, soft tissue and bone.\n5. Stage 6: compare the doses and use the distance slider to explain the inverse square law.\n6. Test yourself: do the matching task and the 6 questions.\nHand in your notes and your quiz score.",
+   "transcript": "sims/xray-ct/transcript.html",
+   "worksheet": "sims/xray-ct/worksheet.html",
+   "added": "2026-11-15"
   }
  ],
  "courseInstructions": "Open the link to see the 3D simulations on this page. Work through each one, starting with the Guided tour (use headphones and press Sound on), then try Build it, Spot the faults and Test yourself. Note your quiz score for each simulation.",

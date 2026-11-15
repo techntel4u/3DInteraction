@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>X-rays and CT – Imaging and treatment, Part 1</title>
+<style>
+:root{--navy:#1b2a4a;--navy2:#2c3e66;--bg:#eef1f5;--ink:#14213d;--muted:#465366;--line:#cfd6e2;--yellow:#ffd23f;--ok:#17703a;--bad:#b3261e}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);-webkit-text-size-adjust:100%}
+#scene{position:fixed;inset:0;touch-action:none}
+#labels{position:fixed;inset:0;pointer-events:none}
+.card{background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:14px;box-shadow:0 6px 24px rgba(20,33,61,.12)}
+button{font:inherit;font-size:14px;min-height:44px;min-width:44px;border-radius:10px;border:1px solid #b9c2d3;background:#fff;color:var(--navy);font-weight:600;cursor:pointer;padding:0 12px;white-space:nowrap}
+button:hover{background:#f1f4fa}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #2f6bff;outline-offset:2px}
+button.primary,button[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+button.x{position:absolute;top:8px;right:8px;font-size:18px;padding:0;width:44px}
+#topbar{position:fixed;top:8px;left:8px;right:8px;display:flex;align-items:center;gap:8px;padding:6px 8px;z-index:5}
+#topbar .ttl{flex:1;min-width:0}
+#hubBack{flex:0 0 auto;display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:999px;background:var(--navy);color:#fff;font-weight:600;font-size:13px;text-decoration:none}
+#hubBack:focus-visible{outline:3px solid #2f6bff;outline-offset:2px}
+#topbar h1{font-size:17px;margin:0;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#topbar .sub{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#topbar .btns{display:flex;gap:6px}
+.sm{display:none}
+#stagePanel{position:fixed;top:78px;left:8px;width:360px;padding:12px 14px;z-index:4}
+#stageName{font-size:18px;font-weight:700;margin:0 0 8px;padding-right:4px}
+#strip{display:flex;gap:4px;margin-bottom:8px}
+#strip button{flex:1;min-width:0;padding:0;font-size:13px}
+#strip button.done{background:#dfe6f3}
+#strip button.active{background:var(--navy);color:#fff}
+#tbar{height:4px;background:#dfe4ec;border-radius:2px;overflow:hidden;margin-bottom:10px}
+#tbar div{height:100%;width:0;background:#2f6bff}
+#caption{font-size:15px;line-height:1.45;margin:0}
+#holdNote{font-size:12px;color:var(--muted);margin-top:6px;min-height:15px}
+#sidePanel{position:fixed;top:78px;right:8px;width:320px;max-height:calc(100% - 170px);overflow:auto;padding:12px 14px 14px;z-index:4}
+#sidePanel h2{font-size:15px;margin:0 0 8px}
+.tabs{display:flex;gap:6px;margin:0 50px 10px 0}
+.tabs button{flex:1}
+.viewer{position:relative;background:#000;border-radius:10px;overflow:hidden;width:100%;aspect-ratio:1/1}
+.viewer canvas{width:100%;height:100%;display:block;image-rendering:auto;cursor:crosshair}
+.viewer .vt{position:absolute;left:8px;top:6px;color:#fff;font-size:12px;text-shadow:0 1px 2px #000}
+.viewer .vb{position:absolute;left:8px;bottom:6px;right:8px;display:flex;justify-content:space-between;color:#fff;font-size:11px;text-shadow:0 1px 2px #000}
+#readout{font-size:13px;min-height:36px;margin:8px 0;padding:6px 8px;background:#f3f6fb;border-radius:8px}
+.row{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px}
+.row label{flex:0 0 auto;font-weight:600}
+.row input[type=range]{flex:1;min-width:80px;height:44px;accent-color:var(--navy)}
+.row output{min-width:52px;text-align:right;font-variant-numeric:tabular-nums}
+.small{font-size:12px;color:var(--muted);line-height:1.4}
+.dose{margin:6px 0 10px}
+.dose .d{display:grid;grid-template-columns:118px 1fr 58px;align-items:center;gap:6px;font-size:12px;margin:5px 0}
+.dose .bar{height:14px;background:#e3e8f0;border-radius:7px;overflow:hidden}
+.dose .bar i{display:block;height:100%;border-radius:7px;background:repeating-linear-gradient(45deg,#c0392b,#c0392b 4px,#d9534f 4px,#d9534f 8px)}
+.dose .bar i.bg{background:repeating-linear-gradient(-45deg,#2f6bff,#2f6bff 4px,#5a8cff 4px,#5a8cff 8px)}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;font-size:12px}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend b{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid #0003;flex:0 0 14px}
+#controls{position:fixed;left:8px;right:8px;bottom:8px;display:flex;align-items:center;gap:6px;padding:6px;overflow-x:auto;z-index:5;scrollbar-width:thin}
+#controls .grp{display:flex;gap:4px;align-items:center;flex:0 0 auto}
+#controls .sep{width:1px;height:30px;background:var(--line);flex:0 0 1px;margin:0 2px}
+#controls .spd{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:0 4px}
+#controls .spd input{width:110px;height:44px;accent-color:var(--navy)}
+#tooltip{position:fixed;pointer-events:none;z-index:9;max-width:260px;padding:8px 10px;font-size:13px;line-height:1.35;display:none}
+#tooltip b{display:block;margin-bottom:2px}
+#soundHint{position:fixed;left:50%;transform:translateX(-50%);bottom:78px;z-index:6;padding:10px 16px;font-size:14px;font-weight:600;background:var(--navy);color:#fff;border-radius:999px;box-shadow:0 6px 20px #0003}
+.label{font-size:12px;font-weight:600;color:var(--navy);background:rgba(255,255,255,.92);border:1px solid #b9c2d3;border-radius:6px;padding:3px 7px;white-space:nowrap;transform:translateY(-14px)}
+.modal{position:fixed;inset:0;z-index:20;background:rgba(14,22,40,.45);display:none;align-items:center;justify-content:center;padding:12px}
+.modal.open{display:flex}
+.modal .card{position:relative;width:min(760px,100%);max-height:100%;overflow:auto;padding:18px 20px 22px}
+.modal h2{margin:0 52px 10px 0;font-size:20px}
+.modal h3{font-size:16px;margin:16px 0 6px}
+.modal p,.modal li{font-size:14px;line-height:1.5}
+.mis{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:14px}
+.mis div{padding:8px 10px;border-radius:8px;line-height:1.4}
+.mis .w{background:#fdecea}
+.mis .r{background:#e7f5ec}
+.q{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.q .opts{display:grid;gap:6px}
+.q .opts button{text-align:left;white-space:normal;padding:8px 12px;font-weight:500}
+.q .opts button.right{background:#e7f5ec;border-color:var(--ok);color:#0d4a25}
+.q .opts button.wrong{background:#fdecea;border-color:var(--bad);color:#7a1a14}
+.q .fb{font-size:13px;margin-top:8px;min-height:18px}
+.match{display:grid;grid-template-columns:200px 1fr;gap:12px;align-items:start}
+.match canvas{width:200px;height:200px;border-radius:8px;background:#000}
+.match select{font:inherit;font-size:14px;min-height:44px;width:100%;border-radius:8px;border:1px solid #b9c2d3;padding:0 8px;margin:3px 0 6px}
+#help .card{width:min(420px,100%)}
+kbd{font-family:inherit;font-size:12px;background:#eef1f5;border:1px solid #c3cbd9;border-radius:4px;padding:1px 6px}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#fff4cc;color:#6b4e00;margin-left:6px}
+/* ---- narrow / phone ---- */
+@media (max-width:760px){
+  #topbar{top:4px;left:4px;right:4px;padding:4px 4px 4px 10px}
+  #topbar h1{font-size:15px}
+  #topbar .sub{display:none}
+  #topbar .btns button{padding:0 9px;font-size:13px}
+  #hubBack{padding:0 10px!important;position:static!important}
+  .lg{display:none}.sm{display:inline}
+  #topbar h1{display:none}
+  #stagePanel{top:60px;left:4px;right:4px;width:auto;padding:8px 10px}
+  #stageName{font-size:15px;margin-bottom:6px}
+  #strip button{min-height:34px}
+  #caption{font-size:13.5px;line-height:1.38;max-height:5.6em;overflow:auto}
+  #sidePanel{top:auto;bottom:66px;left:4px;right:4px;width:auto;max-height:52%}
+  #controls{left:4px;right:4px;bottom:4px}
+  .match{grid-template-columns:1fr}
+  .match canvas{width:180px;height:180px}
+  .mis{grid-template-columns:1fr}
+  #soundHint{bottom:70px;font-size:13px;width:max-content;max-width:92%}
+}
+@media (max-height:520px) and (min-width:560px){
+  #topbar{top:4px;padding:2px 4px 2px 10px}
+  #topbar .sub{display:none}
+  #topbar h1{font-size:14px}
+  #stagePanel{top:56px;left:4px;width:280px;right:auto;padding:8px 10px;max-height:calc(100% - 120px);overflow:auto}
+  #stageName{font-size:14px}
+  #strip button{min-height:30px}
+  #caption{font-size:12.5px;max-height:none}
+  #sidePanel{top:56px;bottom:auto;right:4px;left:auto;width:280px;max-height:calc(100% - 120px)}
+  #controls{bottom:4px}
+  #soundHint{bottom:62px}
+}
+</style>
+<meta name="theme-color" content="#1b2a4a">
+<link rel="icon" href="../../icons/icon-192.png">
+<script src="../../assets/stats.js?v=2"></script>
+<script type="importmap">
+{"imports":{"three":"../../vendor/three/three.module.js","three/addons/":"../../vendor/three/addons/"}}
+</script>
+</head>
+<body>
+<div id="scene"></div>
+<div id="labels"></div>
+
+<header id="topbar" class="card">
+  <a id="hubBack" href="../../index.html" title="Back to the simulation hub" aria-label="Back to the simulation hub">← Hub</a>
+  <div class="ttl">
+    <h1>X-rays and CT<span id="edBadge"></span></h1>
+    <div class="sub">Unit 21 Medical Physics Applications · Imaging and treatment – Part 1 of 4</div>
+  </div>
+  <div class="btns">
+    <button id="bLearn" aria-haspopup="dialog"><span class="lg">What you'll learn</span><span class="sm">Learn</span></button>
+    <button id="bQuiz" aria-haspopup="dialog"><span class="lg">Test yourself</span><span class="sm">Quiz</span></button>
+    <button id="bSound" aria-pressed="true" title="Sound on/off" aria-label="Sound on or off">🔊</button>
+    <button id="bHelp" aria-haspopup="dialog" title="Help and shortcuts" aria-label="Help and keyboard shortcuts">?</button>
+  </div>
+</header>
+
+<section id="stagePanel" class="card" aria-live="polite">
+  <div id="stageName">Stage</div>
+  <div id="strip" role="tablist" aria-label="Stages"></div>
+  <div id="tbar"><div></div></div>
+  <p id="caption"></p>
+  <div id="holdNote"></div>
+</section>
+
+<aside id="sidePanel" class="card" aria-label="Image and dose panel">
+  <button class="x" id="sideX" aria-label="Close panel">✕</button>
+  <div class="tabs" role="tablist">
+    <button id="tImg" aria-pressed="true">Image</button>
+    <button id="tDose" aria-pressed="false">Dose</button>
+    <button id="tKey" aria-pressed="false">Key</button>
+  </div>
+  <div id="pImg">
+    <div class="row" style="margin-top:0">
+      <button id="vmRad" aria-pressed="true" style="flex:1">X-ray image</button>
+      <button id="vmCT" aria-pressed="false" style="flex:1">CT slice</button>
+    </div>
+    <div class="viewer"><canvas id="viewer" width="256" height="256" aria-label="Medical image viewer. Hover or tap to read values."></canvas>
+      <div class="vt" id="vTitle">Projection X-ray (AP)</div>
+      <div class="vb"><span id="vLeft">R</span><span id="vRight">L</span></div>
+    </div>
+    <div id="readout">Hover or tap the image to read it.</div>
+    <div class="row" id="kvRow"><label for="kv">Tube voltage</label><input id="kv" type="range" min="50" max="140" step="5" value="70"><output id="kvOut">70 kV</output></div>
+    <div class="small" id="kvNote">Higher kV = more penetrating X-rays and less contrast between bone and soft tissue. (Contrast model is illustrative.)</div>
+    <div class="row" id="sliceRow"><label for="slice">Slice</label><input id="slice" type="range" min="-0.95" max="0.95" step="0.01" value="-0.42"><output id="sliceOut">chest</output></div>
+    <div class="small">CT numbers are typical values in Hounsfield units (HU). Real scans vary between patients and scanners. Display window W1000 / L40.</div>
+  </div>
+  <div id="pDose" hidden>
+    <h2>Typical effective doses (mSv)</h2>
+    <div class="dose" id="doseBars"></div>
+    <div class="small">Source: UKHSA, “Ionising radiation: dose comparisons” (GOV.UK). Bars use a log scale. Blue = UK average annual dose from all sources.</div>
+    <h2 style="margin-top:14px">Protecting staff from scatter</h2>
+    <div class="row"><label for="dist">Radiographer distance</label><input id="dist" type="range" min="1" max="4" step="0.5" value="2"><output id="distOut">2 m</output></div>
+    <div class="row"><button id="bShield" aria-pressed="true" style="flex:1">Mobile lead screen: on</button></div>
+    <div id="scatterOut" class="small" style="font-size:13px;color:var(--ink)"></div>
+  </div>
+  <div id="pKey" hidden>
+    <h2>Colour key</h2>
+    <div class="legend">
+      <span><b style="background:#f4ecd2"></b>Bone (spine, ribs)</span>
+      <span><b style="background:#6fb6ff"></b>Lungs (air-filled)</span>
+      <span><b style="background:#d9435a"></b>Heart / blood</span>
+      <span><b style="background:#9c4a3a"></b>Liver</span>
+      <span><b style="background:#f2c9a5"></b>Skin and fat layer</span>
+      <span><b style="background:#bfe3ff"></b>Gas in stomach</span>
+      <span><b style="background:#ffd23f"></b>X-ray photon (passing through)</span>
+      <span><b style="background:#ff5a36"></b>X-ray photon absorbed</span>
+      <span><b style="background:#2f6bff"></b>Electron (inside tube)</span>
+      <span><b style="background:#38d0c8"></b>Detector signal</span>
+    </div>
+    <p class="small">The body is a simplified chest–abdomen model. Organ shapes, sizes and the speed of the gantry are simplified for teaching.</p>
+  </div>
+</aside>
+
+<nav id="controls" class="card" aria-label="Simulation controls">
+  <div class="grp">
+    <button id="bPrev" title="Previous stage (←)" aria-label="Previous stage">⏮</button>
+    <button id="bPlay" class="primary" title="Play / pause (Space)" aria-label="Play or pause">▶</button>
+    <button id="bNext" title="Next stage (→)" aria-label="Next stage">⏭</button>
+    <button id="bTour" title="Restart the guided tour">Tour</button>
+  </div>
+  <div class="sep"></div>
+  <div class="spd"><label for="spd">Speed</label><input id="spd" type="range" min="0.1" max="2" step="0.1" value="1"><output id="spdOut">×1.0</output></div>
+  <div class="sep"></div>
+  <div class="grp" id="camBtns"></div>
+  <div class="sep"></div>
+  <div class="grp" id="toggles"></div>
+  <div class="sep"></div>
+  <div class="grp"><button id="bSide" aria-pressed="true">Image &amp; dose</button></div>
+</nav>
+
+<div id="tooltip" class="card"></div>
+<div id="soundHint" role="status">🔊 Sound is on – tap anywhere to start the narration</div>
+
+<div class="modal" id="learn" role="dialog" aria-modal="true" aria-labelledby="learnH">
+  <div class="card">
+    <button class="x" data-close aria-label="Close">✕</button>
+    <h2 id="learnH">What you'll learn</h2>
+    <h3>Learning outcomes – by the end, you can…</h3>
+    <ol>
+      <li>Explain how an X-ray tube produces X-rays: a heated cathode filament emits electrons, a high voltage accelerates them, and they strike a tungsten anode.</li>
+      <li>Explain why bone looks white, soft tissue grey and air-filled lung dark on an X-ray image, using the idea of <b>attenuation</b>.</li>
+      <li>Describe how a CT scanner measures attenuation from many angles as the tube rotates and the table moves, and how a computer reconstructs slices (tomograms) that stack into a 3D view.</li>
+      <li>Use CT numbers (Hounsfield units) to match regions of a CT image to air/lung, fat, soft tissue and bone.</li>
+      <li>Explain the risks of ionising radiation and how hospitals protect patients and staff: justification, keeping doses as low as reasonably practicable, time, distance, shielding and personal dosemeters.</li>
+    </ol>
+    <h3>Common misconceptions</h3>
+    <div class="mis">
+      <div class="w">✗ X-rays bounce off bones to make the picture.</div><div class="r">✓ The image is a “shadow”: bone absorbs more X-rays, so fewer reach the detector behind it.</div>
+      <div class="w">✗ White on an X-ray image is where the X-rays hit.</div><div class="r">✓ White is where <b>few</b> X-rays reached the detector. Dark areas (lungs, air) are where most got through.</div>
+      <div class="w">✗ A CT scan is just one big X-ray photo.</div><div class="r">✓ CT takes measurements from many angles as the tube rotates; a computer reconstructs each cross-sectional slice.</div>
+      <div class="w">✗ After an X-ray or CT scan, you are radioactive.</div><div class="r">✓ X-rays stop the moment the tube switches off. Nothing radioactive is left in the body.</div>
+      <div class="w">✗ A CT scan gives about the same dose as a chest X-ray.</div><div class="r">✓ A typical chest CT (6.6 mSv) is roughly 470 times a chest X-ray (0.014 mSv), so every scan must be justified.</div>
+    </div>
+    <h3>Specification link</h3>
+    <p><b>Pearson BTEC Level 3 National Extended Diploma in Applied Science (2016)</b>, QN 601/7437/7 (including the Biomedical Science pathway).<br>
+    <b>Unit 21: Medical Physics Applications</b> (optional, internally assessed).</p>
+    <p><b>Learning aim B:</b> “Explore the principles, production, uses and benefits of ionising instrumentation techniques in medical applications”.<br>
+    Content covered here: <b>B1 X-rays</b> and <b>B2 Computerised tomography (CT) or computerised axial tomography (CAT)</b>.</p>
+    <p><b>Learning aim C</b> (ionising radiation safety, C2): “Understand health and safety, associated risks, side effects and limitations of ionising and non-ionising instrumentation techniques in medical applications”.</p>
+    <p><b>Criteria this supports:</b><br>
+    B.P3 “Explain how the principles and production of ionising radiation technologies are used in medical applications.”<br>
+    B.P4 “Explain why ionising radiation technologies are used for diagnosis and treatment of the human body.”<br>
+    B.M2 “Compare the principles, production and uses of different ionising radiation techniques in medical applications.”<br>
+    C.P5 “Explain the health and safety risks, side effects and limitations of non-ionising and ionising radiation technologies.”</p>
+    <p class="small">Note: the 2016 specification names the Ionising Radiation (Medical Exposure) Regulations 2000. These were replaced by IR(ME)R 2017, in force from 6 February 2018. The specification describes a photographic plate; most hospitals now use digital detectors. Check the unit against your centre's current copy of the specification.</p>
+  </div>
+</div>
+
+<div class="modal" id="quiz" role="dialog" aria-modal="true" aria-labelledby="quizH">
+  <div class="card">
+    <button class="x" data-close aria-label="Close">✕</button>
+    <h2 id="quizH">Test yourself <span id="score" class="badge">0 / 7</span></h2>
+    <div class="q" id="matchQ">
+      <p>1. Match the image to the tissue. This is a CT slice through the chest. Choose the tissue at each lettered point.</p>
+      <div class="match">
+        <canvas id="matchCv" width="200" height="200" aria-label="CT slice with points A to D"></canvas>
+        <div id="matchSel"></div>
+      </div>
+      <div class="row"><button id="matchCheck" class="primary">Check my answers</button><button id="matchShow">Show me</button></div>
+      <div class="fb" id="matchFb"></div>
+    </div>
+    <div id="mcqs"></div>
+  </div>
+</div>
+
+<div class="modal" id="help" role="dialog" aria-modal="true" aria-labelledby="helpH">
+  <div class="card">
+    <button class="x" data-close aria-label="Close">✕</button>
+    <h2 id="helpH">Help</h2>
+    <p>Drag to rotate, pinch or scroll to zoom, right-drag or two-finger drag to pan. Hover or tap any part to see what it does.</p>
+    <p><kbd>Space</kbd> play / pause<br><kbd>←</kbd> <kbd>→</kbd> previous / next stage<br><kbd>1</kbd>–<kbd>5</kbd> camera views<br><kbd>L</kbd> show all labels<br><kbd>Esc</kbd> close a panel</p>
+    <p class="small">Toggle buttons cycle each part through On → Ghost → Off.</p>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+const EDITION = 'student';
+const qs = new URLSearchParams(location.search);
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = id => document.getElementById(id);
+const clamp = (x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const lerp = (a,b,t)=>a+(b-a)*t;
+const ease = t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+
+/* =================== Body phantom (simplified) =================== */
+// u: patient's right (−) to left (+); v: anterior (−) to posterior (+); w: head (−1) to feet (+1)
+const SX=0.32, SY=0.22, SZ=0.45;
+const TISSUES=[
+ {name:'Air (outside the body)',hu:-1000,cls:'air'},
+ {name:'Fat (layer under the skin)',hu:-100,cls:'fat'},
+ {name:'Bone – vertebra (dense outer layer)',hu:1000,cls:'bone'},
+ {name:'Bone – vertebra (spongy inner bone)',hu:400,cls:'bone'},
+ {name:'Intervertebral disc (soft tissue)',hu:70,cls:'soft'},
+ {name:'Bone – rib',hu:700,cls:'bone'},
+ {name:'Bone – sternum',hu:500,cls:'bone'},
+ {name:'Heart / blood',hu:40,cls:'soft'},
+ {name:'Lung (air-filled)',hu:-700,cls:'lung'},
+ {name:'Gas in the stomach',hu:-1000,cls:'air'},
+ {name:'Liver',hu:60,cls:'soft'},
+ {name:'Kidney',hu:30,cls:'soft'},
+ {name:'Muscle / soft tissue',hu:40,cls:'soft'}
+];
+function ell(u,v,w,cu,cv,cw,ru,rv,rw){const a=(u-cu)/ru,b=(v-cv)/rv,c=(w-cw)/rw;return a*a+b*b+c*c<=1;}
+function tissueAt(u,v,w){
+  const r2=u*u+v*v;
+  if(r2>1||w<-1||w>1) return 0;
+  const sd=Math.hypot(u,v-0.62)/0.12;
+  if(sd<1){ if(((w+1)*6)%1>0.8) return 4; return sd>0.72?2:3; }
+  if(r2>0.81) return 1;
+  const chest=w<-0.05, r=Math.sqrt(r2);
+  if(chest){
+    if(r>0.80&&r<0.87&&!(v<-0.55&&Math.abs(u)<0.25)&&(((w+1)*5.5)%1)<0.35) return 5;
+    if(Math.hypot(u/0.09,(v+0.74)/0.06)<1) return 6;
+  }
+  if(ell(u,v,w,0.15,-0.25,-0.35,0.25,0.3,0.25)) return 7;
+  if(ell(u,v,w,0.42,-0.05,-0.5,0.30,0.55,0.45)||ell(u,v,w,-0.42,-0.05,-0.5,0.30,0.55,0.45)) return 8;
+  if(ell(u,v,w,0.35,-0.35,0.15,0.16,0.14,0.12)) return 9;
+  if(ell(u,v,w,-0.35,-0.05,0.3,0.42,0.55,0.35)) return 10;
+  if(ell(u,v,w,0.45,0.5,0.4,0.13,0.17,0.25)||ell(u,v,w,-0.45,0.5,0.4,0.13,0.17,0.25)) return 11;
+  return 12;
+}
+// Illustrative linear attenuation model (per metre-ish world unit). Not real coefficients.
+let kv=70, muT=[];
+function setKv(k){kv=k; muT=TISSUES.map(t=>{ if(t.hu<=-1000) return 0;
+  const base=4.6*Math.pow(70/kv,0.55)*Math.max(0,1+t.hu/1000);
+  const boost=t.hu>250?Math.max(1,1+0.9*(Math.pow(70/kv,2.2)-0.35)):1;
+  return base*boost; });}
+setKv(70);
+const muLocal=(x,y,z)=>muT[tissueAt(x/SX,-y/SY,z/SZ)];
+
+/* =================== Renderer & scene =================== */
+const host=$('scene');
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(2,devicePixelRatio));
+renderer.setSize(innerWidth,innerHeight);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.05;
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.localClippingEnabled=true;
+host.appendChild(renderer.domElement);
+const labelRenderer=new CSS2DRenderer({element:$('labels')});
+labelRenderer.setSize(innerWidth,innerHeight);
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0xeef1f5);
+const camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,0.05,60);
+camera.position.set(3.2,2,4.2);
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true; controls.dampingFactor=0.08;
+controls.minDistance=0.6; controls.maxDistance=10;
+controls.maxPolarAngle=Math.PI*0.49;
+controls.target.set(0,0,0.6);
+
+scene.add(new THREE.HemisphereLight(0xffffff,0xb8c0cc,1.1));
+const sun=new THREE.DirectionalLight(0xffffff,1.6);
+sun.position.set(3,6,4); sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-5,right:5,top:5,bottom:-5,near:0.5,far:20});
+sun.shadow.radius=4; sun.shadow.bias=-0.0005;
+scene.add(sun);
+
+const FLOOR=-1.1;
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.MeshStandardMaterial({color:0xdde2ea,roughness:.95}));
+floor.rotation.x=-Math.PI/2; floor.position.y=FLOOR; floor.receiveShadow=true; scene.add(floor);
+const grid=new THREE.GridHelper(30,60,0xc9d0db,0xd3d9e2); grid.position.y=FLOOR+0.001; scene.add(grid);
+
+const std=(c,o={})=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.6,metalness:.05},o));
+const parts={}; // key -> {obj, info}
+const pickables=[];
+function reg(key,obj,info){ parts[key]={obj,info}; obj.traverse(m=>{ if(m.isMesh){ m.userData.part=key; pickables.push(m);} }); return obj; }
+const labels={};
+function addLabel(key,obj,text,offset){ const d=document.createElement('div'); d.className='label'; d.textContent=text; const l=new CSS2DObject(d); l.position.copy(offset||new THREE.Vector3()); obj.add(l); labels[key]=l; l.visible=false; return l; }
+
+/* ---- CT gantry ---- */
+const gantry=new THREE.Group(); scene.add(gantry);
+const clipFront=new THREE.Plane(new THREE.Vector3(0,0,-1),0);
+const housingMat=std(0xf6f7fa,{side:THREE.DoubleSide,clippingPlanes:[clipFront],roughness:.45});
+const housingAccent=std(0x1b2a4a,{side:THREE.DoubleSide,clippingPlanes:[clipFront]});
+const housing=new THREE.Group(); gantry.add(housing);
+const outer=new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.05,0.7,96,1,true).rotateX(Math.PI/2),housingMat);
+const inner=new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.6,0.7,96,1,true).rotateX(Math.PI/2),housingMat);
+const fr=new THREE.Mesh(new THREE.RingGeometry(0.6,1.05,96),housingMat); fr.position.z=0.35;
+const br=new THREE.Mesh(new THREE.RingGeometry(0.6,1.05,96),housingMat); br.position.z=-0.35; br.rotation.y=Math.PI;
+const stripe=new THREE.Mesh(new THREE.RingGeometry(0.63,0.68,96),housingAccent); stripe.position.z=0.352;
+[outer,inner,fr,br,stripe].forEach(m=>{m.castShadow=true;housing.add(m);});
+const gbase=new THREE.Mesh(new THREE.BoxGeometry(1.3,0.25,0.8),std(0xd7dce5)); gbase.position.set(0,FLOOR+0.125,0); gbase.castShadow=true; gantry.add(gbase);
+reg('gantry',housing,{name:'CT gantry',job:'Doughnut-shaped housing. Inside, the X-ray tube and detectors rotate around the patient. (Front cover cut away here.)'});
+addLabel('gantry',gantry,'CT gantry',new THREE.Vector3(0,1.15,0));
+
+/* ---- rotor: tube, fan beam, detector arc ---- */
+const rotor=new THREE.Group(); gantry.add(rotor);
+const rotorRing=new THREE.Mesh(new THREE.TorusGeometry(0.84,0.018,8,96),std(0x8892a6,{metalness:.5}));
+rotor.add(rotorRing);
+const ctTube=new THREE.Group(); rotor.add(ctTube);
+const ctTubeBody=new THREE.Mesh(new THREE.BoxGeometry(0.34,0.15,0.22),std(0x2c3e66,{roughness:.35,metalness:.3}));
+ctTubeBody.position.set(0,0.87,0); ctTube.add(ctTubeBody);
+const ctFocal=new THREE.Mesh(new THREE.SphereGeometry(0.02,12,8),new THREE.MeshBasicMaterial({color:0xffd23f}));
+ctFocal.position.set(0,0.785,0); ctTube.add(ctFocal);
+reg('ctTube',ctTube,{name:'CT X-ray tube',job:'Produces the X-ray beam. It rotates around the patient so attenuation is measured from many angles.'});
+addLabel('ctTube',ctTube,'X-ray tube (rotates)',new THREE.Vector3(0,1.0,0));
+const SRC=new THREE.Vector3(0,0.78,0), FAN=0.45, SDD=1.56;
+const detArc=new THREE.Group(); rotor.add(detArc);
+const NDET=32, detEls=[];
+for(let k=0;k<NDET;k++){
+  const phi=-FAN+2*FAN*(k+0.5)/NDET;
+  const m=new THREE.Mesh(new THREE.BoxGeometry(0.046,0.05,0.13),std(0x24324f,{emissive:0x38d0c8,emissiveIntensity:0}));
+  m.position.set(SRC.x+(SDD+0.03)*Math.sin(phi),SRC.y-(SDD+0.03)*Math.cos(phi),0);
+  m.rotation.z=phi; detArc.add(m); detEls.push({m,phi});
+}
+reg('detArc',detArc,{name:'Detector array',job:'Measures how many X-rays get through the body along each line. Brighter = more X-rays arriving (less attenuation).'});
+addLabel('detArc',detArc,'Detectors',new THREE.Vector3(0,-0.95,0));
+const fanGeo=new THREE.BufferGeometry();
+{ const pts=[SRC.x,SRC.y,0]; const N=24; for(let k=0;k<=N;k++){const p=-FAN+2*FAN*k/N; pts.push(SRC.x+SDD*Math.sin(p),SRC.y-SDD*Math.cos(p),0);}
+  const idx=[]; for(let k=1;k<=N;k++) idx.push(0,k,k+1);
+  fanGeo.setAttribute('position',new THREE.Float32BufferAttribute(pts,3)); fanGeo.setIndex(idx); }
+const beamMat=new THREE.MeshBasicMaterial({color:0xffd23f,transparent:true,opacity:0.16,side:THREE.DoubleSide,depthWrite:false});
+const fan=new THREE.Mesh(fanGeo,beamMat); rotor.add(fan);
+
+/* ---- table & patient ---- */
+const tableBase=new THREE.Mesh(new THREE.BoxGeometry(0.4,0.8,1.3),std(0xc9ced8)); tableBase.position.set(0,FLOOR+0.4,2.85); tableBase.castShadow=true; scene.add(tableBase);
+const patient=new THREE.Group(); scene.add(patient);
+const tableTop=new THREE.Mesh(new THREE.BoxGeometry(0.46,0.05,2.3),std(0x9aa6bb,{transparent:true,opacity:0.55,depthWrite:false}));
+tableTop.position.set(0,-0.262,0.35); patient.add(tableTop);
+reg('table',tableTop,{name:'Patient table',job:'Carbon-fibre style top that X-rays pass through easily. In CT it moves the patient smoothly through the gantry.'});
+addLabel('table',tableTop,'Patient table',new THREE.Vector3(0,0,1.0));
+
+const skinMat=std(0xf2c9a5,{transparent:true,opacity:0.22,depthWrite:false,roughness:.8});
+const body=new THREE.Group(); patient.add(body);
+const torso=new THREE.Mesh(new THREE.CylinderGeometry(1,1,2*SZ,64,1,false).rotateX(Math.PI/2),skinMat); torso.scale.set(SX,SY,1);
+const head=new THREE.Mesh(new THREE.SphereGeometry(0.11,32,20),skinMat); head.position.set(0,0,-SZ-0.2); head.scale.set(1,1,1.15);
+const neck=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.06,0.1,20).rotateX(Math.PI/2),skinMat); neck.position.z=-SZ-0.06;
+const legL=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.07,1.0,24).rotateX(Math.PI/2),skinMat); legL.position.set(0.12,-0.1,SZ+0.5);
+const legR=legL.clone(); legR.position.x=-0.12;
+[torso,head,neck,legL,legR].forEach(m=>body.add(m));
+reg('body',body,{name:'Patient (simplified)',job:'Chest–abdomen model. The skin and fat layer is see-through so you can watch the beam inside.'});
+
+const organs=new THREE.Group(); patient.add(organs);
+function ellMesh(c,r,mat){const m=new THREE.Mesh(new THREE.SphereGeometry(1,40,24),mat);m.position.set(c[0]*SX,-c[1]*SY,c[2]*SZ);m.scale.set(r[0]*SX,r[1]*SY,r[2]*SZ);m.castShadow=true;return m;}
+const lungMat=std(0x6fb6ff,{transparent:true,opacity:0.55,roughness:.4});
+const lungs=new THREE.Group(); lungs.add(ellMesh([0.42,-0.05,-0.5],[0.30,0.55,0.45],lungMat),ellMesh([-0.42,-0.05,-0.5],[0.30,0.55,0.45],lungMat)); organs.add(lungs);
+const heart=ellMesh([0.15,-0.25,-0.35],[0.25,0.3,0.25],std(0xd9435a,{roughness:.45})); organs.add(heart);
+const liver=ellMesh([-0.35,-0.05,0.3],[0.42,0.55,0.35],std(0x9c4a3a,{roughness:.5})); organs.add(liver);
+const gas=ellMesh([0.35,-0.35,0.15],[0.16,0.14,0.12],std(0xbfe3ff,{transparent:true,opacity:0.7})); organs.add(gas);
+const kidneys=new THREE.Group(); kidneys.add(ellMesh([0.45,0.5,0.4],[0.13,0.17,0.25],std(0xb55a4a)),ellMesh([-0.45,0.5,0.4],[0.13,0.17,0.25],std(0xb55a4a))); organs.add(kidneys);
+reg('lungs',lungs,{name:'Lungs',job:'Mostly air, so they attenuate X-rays very little and look dark on images.',hu:'about −700 HU'});
+reg('heart',heart,{name:'Heart',job:'Muscle and blood – similar attenuation to other soft tissue.',hu:'about +40 HU'});
+reg('liver',liver,{name:'Liver',job:'Solid soft-tissue organ.',hu:'about +60 HU'});
+reg('gas',gas,{name:'Gas in the stomach',job:'Air attenuates almost nothing, so it looks black.',hu:'about −1000 HU'});
+reg('kidneys',kidneys,{name:'Kidneys',job:'Soft-tissue organs near the back.',hu:'about +30 HU'});
+addLabel('lungs',lungs.children[1],'Lungs (air-filled)',new THREE.Vector3(0,1.4,0));
+addLabel('heart',heart,'Heart',new THREE.Vector3(0,1.4,0));
+addLabel('liver',liver,'Liver',new THREE.Vector3(0,1.3,0));
+addLabel('gas',gas,'Stomach gas',new THREE.Vector3(0,1.6,0));
+
+const boneMat=std(0xf4ecd2,{roughness:.55});
+const bones=new THREE.Group(); patient.add(bones);
+const spine=new THREE.Group(); bones.add(spine);
+for(let w0=-1;w0<1;w0+=1/6){ const len=(1/6)*0.8*2*SZ/2; const zc=(w0+0.4/6)*SZ;
+  if(zc/SZ>1) break;
+  const v=new THREE.Mesh(new THREE.CylinderGeometry(1,1,1,24).rotateX(Math.PI/2),boneMat);
+  v.scale.set(0.12*SX,0.12*SY,(1/6)*0.8*SZ); v.position.set(0,-0.62*SY,(w0+0.4/6)*SZ); v.castShadow=true; spine.add(v); }
+const ribs=new THREE.Group(); bones.add(ribs);
+for(let w0=-1;w0<-0.05;w0+=1/5.5){ const wc=w0+0.35/5.5/2; if(wc>-0.05) break;
+  const g=new THREE.TorusGeometry(0.835,0.03,8,64,Math.PI*2-0.75); g.rotateZ(Math.PI/2+0.375);
+  const rr=new THREE.Mesh(g,boneMat); rr.scale.set(SX,SY,1); rr.position.z=wc*SZ; rr.castShadow=true; ribs.add(rr); }
+const sternum=new THREE.Mesh(new THREE.BoxGeometry(0.09*2*SX,0.06*2*SY,0.95*SZ),boneMat); sternum.position.set(0,0.74*SY,-0.52*SZ); bones.add(sternum);
+reg('spine',spine,{name:'Spine (vertebrae)',job:'Dense bone with calcium – strongly attenuates X-rays, so it looks white.',hu:'about +400 to +1000 HU'});
+reg('ribs',ribs,{name:'Ribs',job:'Bone – appears white on X-ray images and CT slices.',hu:'about +700 HU'});
+reg('sternum',sternum,{name:'Sternum',job:'Breastbone – bone, so it appears white.',hu:'about +500 HU'});
+addLabel('spine',spine,'Spine',new THREE.Vector3(0,-0.1,0.25));
+addLabel('ribs',ribs,'Ribs',new THREE.Vector3(-0.33,0.12,-0.3));
+
+/* helix (tube path relative to patient) */
+const HELIX_N=900; const helixPos=new Float32Array(HELIX_N*3);
+const helix=new THREE.Line(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0x2f6bff,transparent:true,opacity:.75}));
+helix.geometry.setAttribute('position',new THREE.BufferAttribute(helixPos,3));
+patient.add(helix);
+
+/* ---- slice plane (in gantry) ---- */
+const SL=64; const slCv=document.createElement('canvas'); slCv.width=slCv.height=SL;
+const slTex=new THREE.CanvasTexture(slCv); slTex.colorSpace=THREE.SRGBColorSpace;
+const slicePlane=new THREE.Mesh(new THREE.PlaneGeometry(2.2*SX,2.2*SY),new THREE.MeshBasicMaterial({map:slTex,transparent:true,side:THREE.DoubleSide,depthWrite:false,toneMapped:false}));
+slicePlane.position.z=0.001; gantry.add(slicePlane);
+reg('slicePlane',slicePlane,{name:'Current slice',job:'The cross-section being measured right now. The computer reconstructs it as a tomogram.'});
+addLabel('slicePlane',slicePlane,'Slice being scanned',new THREE.Vector3(0,0.42,0));
+
+/* ---- overhead X-ray tube (projection radiography), cutaway ---- */
+const OHZ=1.6;
+const oh=new THREE.Group(); oh.position.set(0,1.42,OHZ); scene.add(oh);
+const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,1.4,16),std(0xb4bccb,{metalness:.4})); pole.position.set(0,0.85,0); oh.add(pole);
+const ohHouse=new THREE.Mesh(new THREE.BoxGeometry(0.6,0.26,0.3),std(0x2c3e66,{transparent:true,opacity:0.18,depthWrite:false})); oh.add(ohHouse);
+const glass=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,0.46,32,1,true).rotateZ(Math.PI/2),std(0xcfe8ff,{transparent:true,opacity:0.28,depthWrite:false,side:THREE.DoubleSide,roughness:.1})); oh.add(glass);
+const cathodeG=new THREE.Group(); cathodeG.position.set(-0.17,0,0); oh.add(cathodeG);
+cathodeG.add(new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.035,0.05,20).rotateZ(Math.PI/2),std(0x9aa3b2,{metalness:.7,roughness:.3})));
+const filMat=new THREE.MeshStandardMaterial({color:0x553311,emissive:0xff7a1a,emissiveIntensity:0});
+const filament=new THREE.Mesh(new THREE.TorusGeometry(0.014,0.004,6,20),filMat); filament.rotation.y=Math.PI/2; filament.position.x=0.03; cathodeG.add(filament);
+const anodeG=new THREE.Group(); anodeG.position.set(0.12,0,0); oh.add(anodeG);
+const stem=new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.012,0.12,12).rotateZ(Math.PI/2),std(0x9aa3b2,{metalness:.7})); stem.position.x=0.05; anodeG.add(stem);
+const disc=new THREE.Mesh(new THREE.CylinderGeometry(0.075,0.06,0.022,40),std(0x6f7787,{metalness:.8,roughness:.35}));
+disc.rotation.z=Math.PI/2; const discHolder=new THREE.Group(); discHolder.add(disc); discHolder.rotation.z=-0.2; anodeG.add(discHolder);
+const discMark=new THREE.Mesh(new THREE.BoxGeometry(0.004,0.06,0.01),std(0x2a2f38)); discMark.position.set(0.012,0.03,0); discHolder.add(discMark);
+const winM=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.01,0.08),std(0xffe9a3,{transparent:true,opacity:0.7})); winM.position.set(0.085,-0.135,0); oh.add(winM);
+const coll=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.08,0.16),std(0x3c4a66)); coll.position.set(0.085,-0.18,0); oh.add(coll);
+reg('ohTube',ohHouse,{name:'X-ray tube (projection X-ray)',job:'Makes X-rays for a plain X-ray image. Its housing is shown see-through.'});
+reg('cathode',cathodeG,{name:'Cathode filament',job:'Heated filament (negative). Electrons escape by thermionic emission.'});
+reg('anode',anodeG,{name:'Tungsten anode (spinning)',job:'Positive target. Electrons hit it and some of their kinetic energy becomes X-rays; most becomes heat, so it spins to spread the heat.'});
+reg('coll',coll,{name:'Collimator',job:'Lead shutters that shape the beam so only the area being imaged is exposed.'});
+addLabel('ohTube',oh,'X-ray tube',new THREE.Vector3(0,0.24,0));
+addLabel('cathode',cathodeG,'Cathode (heated filament, −)',new THREE.Vector3(-0.02,0.14,0));
+addLabel('anode',anodeG,'Tungsten anode (+)',new THREE.Vector3(0.02,0.14,0));
+const F=new THREE.Vector3(0.085,1.42-0.045,OHZ); // focal spot (world)
+const PLATE_Y=-0.31, FIELD={x:0.33,z:0.5};
+const pyr=new THREE.BufferGeometry();
+{ const c=[[-FIELD.x,-FIELD.z],[FIELD.x,-FIELD.z],[FIELD.x,FIELD.z],[-FIELD.x,FIELD.z]]; const p=[F.x,F.y,F.z];
+  c.forEach(([x,z])=>p.push(x,PLATE_Y+0.04,OHZ+z)); pyr.setAttribute('position',new THREE.Float32BufferAttribute(p,3)); pyr.setIndex([0,1,2,0,2,3,0,3,4,0,4,1]); }
+const projBeam=new THREE.Mesh(pyr,beamMat.clone()); projBeam.material.opacity=0.10; scene.add(projBeam);
+
+/* ---- flat-panel detector (radiograph) ---- */
+const RG_W=96,RG_H=128; const rgCv=document.createElement('canvas'); rgCv.width=RG_W; rgCv.height=RG_H;
+const rgTex=new THREE.CanvasTexture(rgCv); rgTex.colorSpace=THREE.SRGBColorSpace;
+const plate=new THREE.Mesh(new THREE.PlaneGeometry(0.8,1.1),new THREE.MeshBasicMaterial({map:rgTex,color:0x000000,toneMapped:false}));
+plate.rotation.x=-Math.PI/2; plate.position.set(0,PLATE_Y,OHZ); scene.add(plate);
+const plateFrame=new THREE.Mesh(new THREE.BoxGeometry(0.86,0.03,1.16),std(0x3a4660)); plateFrame.position.set(0,PLATE_Y-0.018,OHZ); scene.add(plateFrame);
+reg('plate',plate,{name:'Digital X-ray detector',job:'Records how many X-rays arrive at each point. The image builds up here (older systems used photographic film).'});
+addLabel('plate',plateFrame,'Detector (image forms here)',new THREE.Vector3(0.5,0,0.45));
+
+/* ---- slice stack (3D reconstruction) ---- */
+const NST=12, STACK=new THREE.Group(); STACK.position.set(-2.4,0.15,0.4); STACK.rotation.y=-0.35; scene.add(STACK);
+const stackPlanes=[];
+for(let k=0;k<NST;k++){ const w=-0.95+1.9*(k/(NST-1)); const cv=document.createElement('canvas'); cv.width=cv.height=96;
+  drawSlice(cv,w,true); const tx=new THREE.CanvasTexture(cv); tx.colorSpace=THREE.SRGBColorSpace;
+  const pm=new THREE.Mesh(new THREE.PlaneGeometry(2.2*SX*1.6,2.2*SY*1.6),new THREE.MeshBasicMaterial({map:tx,transparent:true,side:THREE.DoubleSide,depthWrite:false,opacity:0,toneMapped:false}));
+  pm.position.z=w*SZ*2.7; pm.renderOrder=k; STACK.add(pm); stackPlanes.push(pm); }
+const stackBase=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.04,2.6),std(0xd7dce5)); stackBase.position.set(0,-0.3,0); STACK.add(stackBase);
+reg('stack',STACK,{name:'Reconstructed slices',job:'Each slice (tomogram) is stacked in order to build a 3D view of the body.'});
+addLabel('stack',STACK,'Slices stacked → 3D view',new THREE.Vector3(0,0.45,0));
+
+/* ---- radiographer + mobile lead screen ---- */
+const DIR=new THREE.Vector3(0.6,0,0.8);
+const staff=new THREE.Group(); scene.add(staff);
+const rad=new THREE.Group(); staff.add(rad);
+const torsoS=new THREE.Mesh(new THREE.CapsuleGeometry(0.17,0.75,6,16),std(0x2c3e66)); torsoS.position.y=FLOOR+0.62; rad.add(torsoS);
+const headS=new THREE.Mesh(new THREE.SphereGeometry(0.11,20,14),std(0xc68e6a)); headS.position.y=FLOOR+1.36; rad.add(headS);
+const badge=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.07,0.02),std(0xffd23f)); badge.position.set(0,FLOOR+0.95,0.17); rad.add(badge);
+rad.traverse(m=>{if(m.isMesh)m.castShadow=true;});
+const screen=new THREE.Mesh(new THREE.BoxGeometry(0.9,1.8,0.05),std(0x5d7aa8,{transparent:true,opacity:0.45,roughness:.2,metalness:.2}));
+screen.position.y=FLOOR+0.95; staff.add(screen);
+reg('radiographer',rad,{name:'Radiographer',job:'Stays out of the beam, behind shielding, and wears a personal dosemeter badge (yellow).'});
+reg('screen',screen,{name:'Mobile lead screen',job:'Lead absorbs scattered X-rays. In CT, staff normally operate the scanner from a shielded control room.'});
+addLabel('radiographer',rad,'Radiographer + dosemeter',new THREE.Vector3(0,FLOOR+1.62,0));
+addLabel('screen',screen,'Lead screen',new THREE.Vector3(0,1.0,0));
+const scatter=[]; for(let k=0;k<3;k++){ const s=new THREE.Mesh(new THREE.SphereGeometry(1,32,20),new THREE.MeshBasicMaterial({color:0xff5a36,transparent:true,opacity:0,depthWrite:false,wireframe:true})); scene.add(s); scatter.push(s);}
+
+/* ---- particles ---- */
+const NP=260;
+const pGeo=new THREE.SphereGeometry(0.012,6,4);
+const photons=new THREE.InstancedMesh(pGeo,new THREE.MeshBasicMaterial({color:0xffffff}),NP);
+photons.instanceMatrix.setUsage(THREE.DynamicDrawUsage); photons.frustumCulled=false; scene.add(photons);
+const NE=60;
+const electrons=new THREE.InstancedMesh(new THREE.SphereGeometry(0.006,6,4),new THREE.MeshBasicMaterial({color:0x2f6bff}),NE);
+electrons.frustumCulled=false; oh.add(electrons);
+const cYellow=new THREE.Color(0xffd23f), cRed=new THREE.Color(0xff5a36);
+for(let i=0;i<NP;i++) photons.setColorAt(i,cYellow);
+
+/* =================== Image rendering =================== */
+function sliceRGBA(hu){ const g=clamp((hu-(40-500))/1000)*255; return g; }
+function drawSlice(cv,w,alphaMode){
+  const n=cv.width, ctx=cv.getContext('2d'), img=ctx.createImageData(n,n);
+  for(let j=0;j<n;j++) for(let i=0;i<n;i++){
+    const u=-1.1+2.2*(i+0.5)/n, v=-1.1+2.2*(j+0.5)/n; const t=tissueAt(u,v,w); const g=sliceRGBA(TISSUES[t].hu);
+    const o=(j*n+i)*4; img.data[o]=img.data[o+1]=img.data[o+2]=g;
+    img.data[o+3]=alphaMode?({air:0,lung:30,fat:70,soft:150,bone:255})[TISSUES[t].cls]:255; }
+  ctx.putImageData(img,0,0);
+}
+function renderRadiograph(){
+  const ctx=rgCv.getContext('2d'), img=ctx.createImageData(RG_W,RG_H); const N=56, dl=2*SY/N;
+  for(let j=0;j<RG_H;j++){ const zl=-0.55+1.1*(j+0.5)/RG_H, w=zl/SZ;
+    for(let i=0;i<RG_W;i++){ const x=-0.4+0.8*(i+0.5)/RG_W, u=x/SX; let A=0;
+      if(Math.abs(u)<=1&&Math.abs(w)<=1) for(let k=0;k<N;k++){ const v=-1+2*(k+0.5)/N; A+=muT[tissueAt(u,v,w)]*dl; }
+      const g=Math.pow(clamp((A-0.65)/2.1),0.9)*255; const o=(j*RG_W+i)*4; img.data[o]=img.data[o+1]=img.data[o+2]=g; img.data[o+3]=255; } }
+  ctx.putImageData(img,0,0); rgTex.needsUpdate=true;
+}
+renderRadiograph();
+const viewer=$('viewer'), vctx=viewer.getContext('2d');
+const ctBig=document.createElement('canvas'); ctBig.width=ctBig.height=160;
+let viewMode='rad', viewModeUser=false, sliceW=-0.42, sliceFollow=true, lastBigW=null;
+function drawViewer(){
+  vctx.imageSmoothingEnabled=true; vctx.fillStyle='#000'; vctx.fillRect(0,0,256,256);
+  if(viewMode==='rad'){ const s=256/RG_H; const w=RG_W*s; vctx.drawImage(rgCv,(256-w)/2,0,w,256);
+    $('vTitle').textContent='Projection X-ray (front view)'; $('vLeft').textContent='Patient’s right'; $('vRight').textContent='Patient’s left'; }
+  else { if(lastBigW!==sliceW){ drawSlice(ctBig,sliceW,false); lastBigW=sliceW; } vctx.drawImage(ctBig,0,0,256,256);
+    $('vTitle').textContent='CT slice (viewed from the feet)'; $('vLeft').textContent='Patient’s right'; $('vRight').textContent='Patient’s left'; }
+}
+function sliceName(w){ return w<-0.05?'chest':'upper abdomen'; }
+function readAt(px,py){ // px,py in 0..1
+  if(viewMode==='ct'){ const u=-1.1+2.2*px, v=-1.1+2.2*py; const t=TISSUES[tissueAt(u,v,sliceW)];
+    return `<b>CT number: ${t.hu>0?'+':''}${t.hu} HU</b> – ${t.name}`; }
+  const sc=RG_H/256, w0=(256-RG_W/sc)/2; const xi=(px*256-w0)*sc; if(xi<0||xi>=RG_W) return 'Outside the detector.';
+  const x=-0.4+0.8*xi/RG_W, zl=-0.55+1.1*py, u=x/SX, w=zl/SZ; let A=0; const N=56, dl=2*SY/N;
+  if(Math.abs(u)<=1&&Math.abs(w)<=1) for(let k=0;k<N;k++){ A+=muT[tissueAt(u,-1+2*(k+0.5)/N,w)]*dl; }
+  const T=Math.exp(-A); return `<b>About ${Math.round(T*100)}% of X-rays reach the detector here</b> – ${T>0.6?'dark (little in the way)':T>0.2?'grey (soft tissue)':'bright (bone or lots of tissue)'}`;
+}
+function viewerPointer(e){ const r=viewer.getBoundingClientRect(); const px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height; if(px<0||px>1||py<0||py>1) return; $('readout').innerHTML=readAt(px,py); }
+viewer.addEventListener('pointermove',viewerPointer); viewer.addEventListener('pointerdown',viewerPointer);
+
+/* =================== Stages =================== */
+const STAGES=[
+ {name:'1 · The scanner',start:0,end:14,cam:0,labels:['gantry','table','ohTube','plate','ctTube'],
+  cap:'A CT scanner and a plain X-ray set-up. The patient lies on the table. The doughnut-shaped gantry holds an X-ray tube and a detector array that rotate around the patient. Real equipment is expensive, and X-rays are ionising, so we explore it safely here.',
+  narr:'This is a model of a CT scanner and a plain X-ray set-up. The patient lies on the table. The doughnut-shaped gantry holds an X-ray tube and detectors that rotate around the patient. Hospital equipment is expensive, and X-rays are ionising radiation, so we will explore it safely here.'},
+ {name:'2 · Making X-rays',start:14,end:34,cam:1,labels:['cathode','anode','ohTube'],
+  cap:'A heated cathode filament releases electrons (thermionic emission). A high voltage accelerates them towards a positive tungsten anode. When they hit it, some of their kinetic energy becomes X-rays and most becomes heat, so the anode spins to spread the heat. Lead collimators shape the beam.',
+  narr:'Inside the X-ray tube, a heated cathode filament releases electrons by thermionic emission. A high voltage accelerates them towards a positive tungsten anode. When they hit the anode, some of their kinetic energy becomes X-rays. Most becomes heat, so the anode spins to spread it out. Lead collimators then shape the beam.'},
+ {name:'3 · Attenuation: the X-ray image',start:34,end:56,cam:2,labels:['lungs','spine','ribs','heart','plate'],
+  cap:'X-rays pass through soft tissue but are absorbed by dense bone. This reduction in intensity is attenuation. The detector records how many X-rays arrive: behind bone few arrive, so the image is white; through air-filled lungs many arrive, so it is dark. Try the kV slider.',
+  narr:'X-rays pass through soft tissue but are absorbed by dense bone. This reduction in intensity is called attenuation. The detector records how many X-rays arrive. Behind bone, few arrive, so the image is white. Through the air-filled lungs, many arrive, so it is dark. Orange dots show X-ray photons being absorbed.'},
+ {name:'4 · CT: scanning from every angle',start:56,end:78,cam:3,labels:['ctTube','detArc','slicePlane'],
+  cap:'In CT, the X-ray tube rotates around the patient while the table moves smoothly through the gantry. The detector array opposite measures attenuation along hundreds of lines from every angle. Relative to the patient, the tube traces a spiral (helix), shown in blue. The gantry is shown slowed down.',
+  narr:'In C T, the X-ray tube rotates around the patient while the table moves smoothly through the gantry. The detectors opposite measure attenuation from every angle. Relative to the patient, the tube traces a spiral, or helix, shown in blue. In a real scanner the gantry spins much faster.'},
+ {name:'5 · Slices to 3D',start:78,end:100,cam:4,labels:['stack'],
+  cap:'A computer combines all the measurements to reconstruct cross-sectional images called tomograms, layer by layer. Each pixel gets a CT number in Hounsfield units (HU): air −1000, water 0, fat about −100, soft tissue +30 to +60, bone several hundred or more. Stacked slices build a 3D view. Hover the CT slice to read values.',
+  narr:'A computer combines all the measurements to reconstruct cross-sectional images, called tomograms, layer by layer. Each pixel gets a C T number in Hounsfield units. Air is minus one thousand, water is zero, fat is about minus one hundred, and bone is several hundred or more. Stacking the slices builds a 3D view of the body.'},
+ {name:'6 · Dose and shielding',start:100,end:124,cam:5,labels:['screen','radiographer','gantry'],
+  cap:'X-rays are ionising: they can damage healthy cells and slightly increase cancer risk. Under IR(ME)R every exposure must be justified and doses kept as low as reasonably practicable. A chest CT (about 6.6 mSv) is roughly 470 times a chest X-ray (0.014 mSv). Staff use distance, lead shielding and dosemeters. Open the Dose tab.',
+  narr:'X-rays are ionising, so they can damage healthy cells and slightly increase the risk of cancer. Under the medical exposure regulations, every exposure must be justified, and doses kept as low as reasonably practicable. A C T scan of the chest gives about six point six millisieverts, roughly four hundred and seventy times a chest X-ray. Staff use distance, lead shielding and personal dosemeters.'}
+];
+const TEND=STAGES[STAGES.length-1].end;
+const TOUR_DONE='Tour complete. Now try Test yourself.';
+const stageAt=t=>{ for(let i=STAGES.length-1;i>=0;i--) if(t>=STAGES[i].start) return i; return 0; };
+const R=0.8*2*Math.PI;
+function rotorAngle(t){ let a=0; if(t>59) a+=R*(Math.min(t,76)-59); if(t>103) a+=R*(Math.min(t,TEND)-103); return a; }
+function bodyZ(t){ if(t<56) return OHZ; if(t<59) return lerp(OHZ,0.6,ease((t-56)/3)); if(t<76) return lerp(0.6,-0.6,(t-59)/17); if(t<100) return -0.6; if(t<103) return lerp(-0.6,0,ease((t-100)/3)); return 0; }
+function beamMode(t){ if(t>=28&&t<56) return 'proj'; if((t>=59&&t<76)||(t>=103&&t<TEND)) return 'ct'; return null; }
+// helix points (patient frame)
+for(let k=0;k<HELIX_N;k++){ const t=59+17*k/(HELIX_N-1); const a=rotorAngle(t); const r=0.78;
+  helixPos[k*3]=-r*Math.sin(a); helixPos[k*3+1]=r*Math.cos(a); helixPos[k*3+2]=0-bodyZ(t); }
+helix.geometry.attributes.position.needsUpdate=true; helix.geometry.computeBoundingSphere();
+
+/* camera presets */
+const CAMS=[
+ {name:'Overview',pos:[3.2,2.0,4.4],tgt:[0,0,0.7]},
+ {name:'X-ray tube',pos:[0.75,1.75,2.35],tgt:[0.02,1.42,1.6]},
+ {name:'X-ray image',pos:[1.5,1.0,3.0],tgt:[0,-0.1,1.6]},
+ {name:'CT gantry',pos:[0.9,0.7,2.4],tgt:[0,0,0]},
+ {name:'Slices',pos:[-0.75,1.25,2.6],tgt:[-2.45,0.05,0.4]},
+ {name:'Dose',pos:[-0.6,2.6,5.2],tgt:[0.6,-0.3,0.8]}
+];
+let camAnim=null;
+function narrowFactor(){ const a=innerWidth/innerHeight; return a<0.8?1.75:(a<1.1?1.3:1); }
+function goCam(i,instant){ const c=CAMS[i], f=narrowFactor(); const tgt=new THREE.Vector3(...c.tgt); const pos=new THREE.Vector3(...c.pos).sub(tgt).multiplyScalar(f).add(tgt);
+  if(innerWidth<=760&&innerWidth<innerHeight) { pos.y+=0.25; tgt.y-=0.15; }
+  if(instant||reduceMotion){ camera.position.copy(pos); controls.target.copy(tgt); camAnim=null; return; }
+  camAnim={p0:camera.position.clone(),t0:controls.target.clone(),p1:pos,t1:tgt,s:performance.now(),d:1200}; }
+controls.maxDistance=10*narrowFactor();
+
+/* =================== State =================== */
+let simTime=0, playing=!reduceMotion, speed=1, curStage=-1;
+let soundOn=true, audioUnlocked=false, speaking=false;
+if(qs.has('stage')){ const s=STAGES[clamp(+qs.get('stage')-1,0,5)]; simTime=s.start+(s.end-s.start)*0.7; playing=false; }
+if(qs.has('t')){ simTime=+qs.get('t'); playing=false; }
+const testMode=qs.has('t')||qs.has('stage');
+if(testMode){ $('soundHint').style.display='none'; }
+
+/* ---- narration ---- */
+let voice=null;
+function pickVoice(){ try{ const vs=speechSynthesis.getVoices(); voice=vs.find(v=>/en-GB/i.test(v.lang)&&/female|libby|sonia|serena|kate|google uk english female/i.test(v.name))||vs.find(v=>/en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null; }catch(e){} }
+try{ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }catch(e){}
+const NARR={"This is a model of a CT scanner and a plain X-ray set-up. The patient lies on the table. The doughnut-shaped gantry holds an X-ray tube and detectors that rotate around the patient. Hospital equipment is expensive, and X-rays are ionising radiation, so we will explore it safely here.": "audio/xrayct-tour1.mp3", "Inside the X-ray tube, a heated cathode filament releases electrons by thermionic emission. A high voltage accelerates them towards a positive tungsten anode. When they hit the anode, some of their kinetic energy becomes X-rays. Most becomes heat, so the anode spins to spread it out. Lead collimators then shape the beam.": "audio/xrayct-tour2.mp3", "X-rays pass through soft tissue but are absorbed by dense bone. This reduction in intensity is called attenuation. The detector records how many X-rays arrive. Behind bone, few arrive, so the image is white. Through the air-filled lungs, many arrive, so it is dark. Orange dots show X-ray photons being absorbed.": "audio/xrayct-tour3.mp3", "In C T, the X-ray tube rotates around the patient while the table moves smoothly through the gantry. The detectors opposite measure attenuation from every angle. Relative to the patient, the tube traces a spiral, or helix, shown in blue. In a real scanner the gantry spins much faster.": "audio/xrayct-tour4.mp3", "A computer combines all the measurements to reconstruct cross-sectional images, called tomograms, layer by layer. Each pixel gets a C T number in Hounsfield units. Air is minus one thousand, water is zero, fat is about minus one hundred, and bone is several hundred or more. Stacking the slices builds a 3D view of the body.": "audio/xrayct-tour5.mp3", "X-rays are ionising, so they can damage healthy cells and slightly increase the risk of cancer. Under the medical exposure regulations, every exposure must be justified, and doses kept as low as reasonably practicable. A C T scan of the chest gives about six point six millisieverts, roughly four hundred and seventy times a chest X-ray. Staff use distance, lead shielding and personal dosemeters.": "audio/xrayct-tour6.mp3", "CT gantry. Doughnut-shaped housing. Inside, the X-ray tube and detectors rotate around the patient. (Front cover cut away here.)": "audio/xrayct-part-gantry.mp3", "CT X-ray tube. Produces the X-ray beam. It rotates around the patient so attenuation is measured from many angles.": "audio/xrayct-part-cttube.mp3", "Detector array. Measures how many X-rays get through the body along each line. Brighter = more X-rays arriving (less attenuation).": "audio/xrayct-part-detarc.mp3", "Patient table. Carbon-fibre style top that X-rays pass through easily. In CT it moves the patient smoothly through the gantry.": "audio/xrayct-part-table.mp3", "Patient (simplified). Chest–abdomen model. The skin and fat layer is see-through so you can watch the beam inside.": "audio/xrayct-part-body.mp3", "Lungs. Mostly air, so they attenuate X-rays very little and look dark on images. Typical CT number: about −700 HU.": "audio/xrayct-part-lungs.mp3", "Heart. Muscle and blood – similar attenuation to other soft tissue. Typical CT number: about +40 HU.": "audio/xrayct-part-heart.mp3", "Liver. Solid soft-tissue organ. Typical CT number: about +60 HU.": "audio/xrayct-part-liver.mp3", "Gas in the stomach. Air attenuates almost nothing, so it looks black. Typical CT number: about −1000 HU.": "audio/xrayct-part-gas.mp3", "Kidneys. Soft-tissue organs near the back. Typical CT number: about +30 HU.": "audio/xrayct-part-kidneys.mp3", "Spine (vertebrae). Dense bone with calcium – strongly attenuates X-rays, so it looks white. Typical CT number: about +400 to +1000 HU.": "audio/xrayct-part-spine.mp3", "Ribs. Bone – appears white on X-ray images and CT slices. Typical CT number: about +700 HU.": "audio/xrayct-part-ribs.mp3", "Sternum. Breastbone – bone, so it appears white. Typical CT number: about +500 HU.": "audio/xrayct-part-sternum.mp3", "Current slice. The cross-section being measured right now. The computer reconstructs it as a tomogram.": "audio/xrayct-part-sliceplane.mp3", "X-ray tube (projection X-ray). Makes X-rays for a plain X-ray image. Its housing is shown see-through.": "audio/xrayct-part-ohtube.mp3", "Cathode filament. Heated filament (negative). Electrons escape by thermionic emission.": "audio/xrayct-part-cathode.mp3", "Tungsten anode (spinning). Positive target. Electrons hit it and some of their kinetic energy becomes X-rays; most becomes heat, so it spins to spread the heat.": "audio/xrayct-part-anode.mp3", "Collimator. Lead shutters that shape the beam so only the area being imaged is exposed.": "audio/xrayct-part-coll.mp3", "Digital X-ray detector. Records how many X-rays arrive at each point. The image builds up here (older systems used photographic film).": "audio/xrayct-part-plate.mp3", "Reconstructed slices. Each slice (tomogram) is stacked in order to build a 3D view of the body.": "audio/xrayct-part-stack.mp3", "Radiographer. Stays out of the beam, behind shielding, and wears a personal dosemeter badge (yellow).": "audio/xrayct-part-radiographer.mp3", "Mobile lead screen. Lead absorbs scattered X-rays. In CT, staff normally operate the scanner from a shielded control room.": "audio/xrayct-part-screen.mp3", "Correct. Thermionic emission releases electrons; the high voltage accelerates them; hitting the tungsten anode converts some kinetic energy into X-rays.": "audio/xrayct-quiz2-right.mp3", "Correct. White means few X-rays arrived. Dense bone absorbs more of the beam than soft tissue.": "audio/xrayct-quiz3-right.mp3", "Correct. Many projections from all angles are combined by a computer to reconstruct each slice (tomogram). Detecting radiation given out by the body is gamma imaging, not CT.": "audio/xrayct-quiz4-right.mp3", "Correct. Negative values far below water (0 HU) mean mostly air. Lung is about −700 HU; air is −1000 HU.": "audio/xrayct-quiz5-right.mp3", "Correct. 6.6 ÷ 0.014 ≈ 471. This is why every CT must be justified.": "audio/xrayct-quiz6-right.mp3", "Correct. Inverse square law: doubling the distance gives 1 ÷ 2² = ¼ of the dose rate.": "audio/xrayct-quiz7-right.mp3", "Not quite. Try again, or press Show me.": "audio/xrayct-quiz-wrong.mp3", "All four correct. Dark means little attenuation, like air and lung. Grey is fat and soft tissue. White is bone.": "audio/xrayct-quiz1-right.mp3", "Not all correct yet. Remember: the darker the region, the less it attenuates X-rays.": "audio/xrayct-quiz1-wrong.mp3", "Tour complete. Now try Test yourself.": "audio/xrayct-tour-done.mp3"};
+/* One shared audio player for all narration: phones only allow audio from a player the student has already
+   started with a tap, so reusing one player keeps narration working when the sim moves on by itself. */
+const __narr=new Audio(); __narr.preload='auto'; let __cur=null;
+function __norm(t){return String(t).replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();}
+function __stopClip(){ if(__cur){ try{__cur.pause();}catch(e){} __cur=null; } }
+function __playClip(text){ const src=NARR[__norm(text)]; if(!src) return false;
+  __stopClip(); const a=__narr; a.muted=false;
+  if(a._src!==src){ a.src=src; a._src=src; } else { try{a.currentTime=0;}catch(e){} }
+  __cur=a; const p=a.play(); if(p&&p.catch)p.catch(()=>{}); return true; }
+function __primeClip(){ try{ const a=__narr; if(!a.src){ const f=Object.values(NARR)[0]; if(!f) return; a.src=f; a._src=f; } a.muted=true; const p=a.play();
+  if(p&&p.then) p.then(()=>{ if(__cur!==a) a.pause(); a.muted=false; },()=>{ a.muted=false; }); else a.muted=false; }catch(e){ __narr.muted=false; } }
+function clipPlaying(){ return !!(__cur&&!__cur.paused&&!__cur.ended); }
+function narrating(){ return speaking||clipPlaying(); }
+function say(text,isStage){ try{ speechSynthesis.cancel(); }catch(e){} __stopClip(); speaking=false;
+  if(!soundOn||!audioUnlocked||(isStage&&speed>1.5)) return;
+  if(__playClip(text)) return;
+  try{ const u=new SpeechSynthesisUtterance(__norm(text)); u.lang='en-GB'; if(voice) u.voice=voice; u.rate=0.95;
+    u.onend=u.onerror=()=>{speaking=false;}; speaking=true; speechSynthesis.speak(u); }catch(e){ speaking=false; } }
+const speak=t=>say(t,true);
+function unlock(e){ if(audioUnlocked) return; audioUnlocked=true; $('soundHint').style.display='none';
+  if(e&&e.target&&e.target.closest&&e.target.closest('#bSound')){ __primeClip(); return; }
+  if(curStage>=0) speak(STAGES[curStage].narr); else __primeClip(); }
+['pointerup','click','keydown'].forEach(ev=>addEventListener(ev,unlock,{once:false,capture:true}));
+
+/* =================== UI =================== */
+const strip=$('strip');
+STAGES.forEach((s,i)=>{ const b=document.createElement('button'); b.textContent=i+1; b.title=s.name; b.setAttribute('aria-label','Go to stage '+s.name); b.onclick=()=>jumpStage(i); strip.appendChild(b); });
+CAMS.slice(0,5).forEach((c,i)=>{ const b=document.createElement('button'); b.textContent=c.name; b.title=`${c.name} view (${i+1})`; b.onclick=()=>goCam(i); $('camBtns').appendChild(b); });
+const TOG=[
+ {key:'cover',label:'Gantry cover',objs:()=>[housing],states:['Cutaway','Solid','Off'],st:0},
+ {key:'skin',label:'Body',objs:()=>[body],states:['Ghost','Solid','Off'],st:0},
+ {key:'organs',label:'Organs',objs:()=>[organs],states:['On','Ghost','Off'],st:0},
+ {key:'bones',label:'Bones',objs:()=>[bones],states:['On','Ghost','Off'],st:0},
+ {key:'beam',label:'Beam',states:['On','Off'],st:0},
+ {key:'labels',label:'Labels',states:['Stage','All','Off'],st:0}
+];
+function storeMat(m){ if(!m.userData.orig) m.userData.orig={t:m.material.transparent,o:m.material.opacity,d:m.material.depthWrite}; }
+function setMode(obj,mode){ obj.visible=mode!=='Off'; obj.traverse(m=>{ if(!m.isMesh) return; storeMat(m); const o=m.userData.orig;
+  if(mode==='Ghost'){ m.material.transparent=true; m.material.opacity=0.15; m.material.depthWrite=false; }
+  else if(mode==='Solid'&&obj===body){ m.material.opacity=0.92; m.material.depthWrite=true; }
+  else { m.material.transparent=o.t; m.material.opacity=o.o; m.material.depthWrite=o.d; }
+  m.material.needsUpdate=true; }); }
+function applyToggle(t){ const s=t.states[t.st];
+  if(t.key==='cover'){ housingMat.clippingPlanes=s==='Cutaway'?[clipFront]:[]; housingAccent.clippingPlanes=housingMat.clippingPlanes; housingMat.needsUpdate=housingAccent.needsUpdate=true; housing.visible=s!=='Off'; }
+  else if(t.objs) t.objs().forEach(o=>setMode(o,s));
+  t.btn.textContent=`${t.label}: ${s}`; t.btn.setAttribute('aria-label',`${t.label}: ${s}. Activate to change.`); }
+TOG.forEach(t=>{ const b=document.createElement('button'); t.btn=b; b.onclick=()=>{ t.st=(t.st+1)%t.states.length; applyToggle(t); }; $('toggles').appendChild(b); applyToggle(t); });
+const tog=k=>TOG.find(t=>t.key===k).states[TOG.find(t=>t.key===k).st];
+
+function setPlaying(p){ playing=p; $('bPlay').textContent=p?'⏸':'▶'; $('bPlay').setAttribute('aria-label',p?'Pause':'Play'); if(!p){ try{speechSynthesis.pause();}catch(e){} if(__cur) try{__cur.pause();}catch(e){} } else { try{speechSynthesis.resume();}catch(e){} if(__cur&&__cur.paused&&!__cur.ended){ const r=__cur.play(); r&&r.catch&&r.catch(()=>{}); } } }
+$('bPlay').onclick=()=>{ if(!playing&&simTime>=TEND-0.01){ simTime=0; } setPlaying(!playing); };
+function jumpStage(i){ i=clamp(i,0,STAGES.length-1); simTime=STAGES[i].start+0.01; curStage=-1; }
+$('bPrev').onclick=()=>{ const s=stageAt(simTime); jumpStage(simTime-STAGES[s].start>2?s:s-1); };
+$('bNext').onclick=()=>jumpStage(stageAt(simTime)+1);
+$('bTour').onclick=()=>{ jumpStage(0); setPlaying(true); };
+$('spd').oninput=e=>{ speed=+e.target.value; $('spdOut').textContent='×'+speed.toFixed(1); };
+$('bSound').onclick=()=>{ soundOn=!soundOn; $('bSound').textContent=soundOn?'🔊':'🔇'; $('bSound').setAttribute('aria-pressed',soundOn); if(!soundOn){ try{speechSynthesis.cancel();}catch(e){} __stopClip(); } speaking=false; if(soundOn&&audioUnlocked&&curStage>=0) speak(STAGES[curStage].narr); };
+$('kv').oninput=e=>{ setKv(+e.target.value); $('kvOut').textContent=kv+' kV'; renderRadiograph(); drawViewer(); };
+$('slice').oninput=e=>{ sliceW=+e.target.value; sliceFollow=false; viewMode='ct'; viewModeUser=true; syncViewBtns(); $('sliceOut').textContent=sliceName(sliceW); drawViewer(); };
+function syncViewBtns(){ $('vmRad').setAttribute('aria-pressed',viewMode==='rad'); $('vmCT').setAttribute('aria-pressed',viewMode==='ct'); $('kvRow').style.display=viewMode==='rad'?'':'none'; $('kvNote').style.display=viewMode==='rad'?'':'none'; $('sliceRow').style.display=viewMode==='ct'?'':'none'; }
+$('vmRad').onclick=()=>{ viewMode='rad'; viewModeUser=true; syncViewBtns(); drawViewer(); $('readout').textContent='Hover or tap the image to read it.'; };
+$('vmCT').onclick=()=>{ viewMode='ct'; viewModeUser=true; syncViewBtns(); drawViewer(); $('readout').textContent='Hover or tap the slice to read its CT number.'; };
+function tab(which){ ['Img','Dose','Key'].forEach(n=>{ $('t'+n).setAttribute('aria-pressed',n===which); $('p'+n).hidden=n!==which; }); }
+$('tImg').onclick=()=>tab('Img'); $('tDose').onclick=()=>tab('Dose'); $('tKey').onclick=()=>tab('Key');
+function showSide(v){ $('sidePanel').style.display=v?'':'none'; $('bSide').setAttribute('aria-pressed',v); }
+$('sideX').onclick=()=>showSide(false); $('bSide').onclick=()=>showSide($('sidePanel').style.display==='none');
+const narrow=()=>innerWidth<=760||innerHeight<=520;
+showSide(!narrow());
+
+// dose bars
+const DOSES=[['Chest X-ray',0.014],['Transatlantic flight',0.08],['CT scan of head',1.4],['UK average per year',2.7,true],['CT scan of chest',6.6],['CT of whole spine',10]];
+const lmin=Math.log10(0.005), lmax=Math.log10(20);
+$('doseBars').innerHTML=DOSES.map(([n,v,bg])=>`<div class="d"><span>${n}</span><div class="bar"><i class="${bg?'bg':''}" style="width:${(100*(Math.log10(v)-lmin)/(lmax-lmin)).toFixed(1)}%"></i></div><span style="text-align:right">${v} mSv</span></div>`).join('')+
+ `<div class="small" style="margin-top:6px">A chest X-ray ≈ ${Math.round(0.014/2.7*365)} days of UK average dose. A chest CT ≈ ${(6.6/2.7).toFixed(1)} years.</div>`;
+let dist=2, shield=true;
+function scatterText(){ const rel=100/(dist*dist); $('distOut').textContent=dist+' m';
+  $('scatterOut').innerHTML=`<b>Inverse square law:</b> at ${dist} m the scatter dose rate is ${rel>=10?Math.round(rel):rel.toFixed(1)}% of the rate at 1 m (1 ÷ ${dist}² ).`+
+  (shield?` <br><b>With the lead screen:</b> most of the remaining scatter is absorbed (shown as about 1% getting through – illustrative figure).`:' <br>No screen: nothing absorbs the scatter except air and distance.'); }
+$('dist').oninput=e=>{ dist=+e.target.value; scatterText(); };
+$('bShield').onclick=()=>{ shield=!shield; $('bShield').setAttribute('aria-pressed',shield); $('bShield').textContent='Mobile lead screen: '+(shield?'on':'off'); scatterText(); };
+scatterText();
+
+// modals
+function openModal(id){ document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open')); $(id).classList.add('open'); const x=$(id).querySelector('[data-close]'); x&&x.focus(); }
+function closeModals(){ document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open')); $('help').classList.remove('open'); }
+document.querySelectorAll('.modal').forEach(m=>{ m.addEventListener('click',e=>{ if(e.target===m) closeModals(); }); m.querySelector('[data-close]').onclick=closeModals; });
+$('bLearn').onclick=()=>openModal('learn'); $('bQuiz').onclick=()=>openModal('quiz'); $('bHelp').onclick=()=>openModal('help');
+
+/* ---- quiz ---- */
+const QS=[
+ {q:'How does an X-ray tube produce X-rays?',o:['Electrons from a heated cathode are accelerated into a tungsten anode','A radioactive source inside the tube decays','Light from the filament is filtered into X-rays','The spinning anode creates a magnetic field that emits X-rays'],a:0,t:26,why:'Thermionic emission releases electrons; the high voltage accelerates them; hitting the tungsten anode converts some kinetic energy into X-rays.'},
+ {q:'On a projection X-ray image, why does the spine appear white?',o:['Bone reflects X-rays back towards the tube','Bone attenuates (absorbs) more X-rays, so fewer reach the detector','Bone gives out its own X-rays','The detector is more sensitive behind bone'],a:1,t:48,why:'White means few X-rays arrived. Dense bone absorbs more of the beam than soft tissue.'},
+ {q:'How does a CT scanner build up a cross-sectional image?',o:['It takes one X-ray photo and cuts it into strips','Detectors measure radiation given out by the patient’s organs','It measures attenuation from many angles as the tube rotates, then a computer reconstructs the slice','It uses sound echoes from the rotating gantry'],a:2,t:66,why:'Many projections from all angles are combined by a computer to reconstruct each slice (tomogram). Detecting radiation given out by the body is gamma imaging, not CT.'},
+ {q:'A region on a CT slice reads −700 HU. Which tissue is it most likely to be?',o:['Bone','Liver','Lung','Water'],a:2,t:90,why:'Negative values far below water (0 HU) mean mostly air. Lung is about −700 HU; air is −1000 HU.'},
+ {q:'Using UKHSA typical doses, a chest CT (6.6 mSv) is roughly how many times a chest X-ray (0.014 mSv)?',o:['About 5 times','About 50 times','About 470 times','About 4,700 times'],a:2,t:110,why:'6.6 ÷ 0.014 ≈ 471. This is why every CT must be justified.'},
+ {q:'A radiographer moves from 1 m to 2 m from the source of scatter. What happens to the scatter dose rate?',o:['It halves','It falls to a quarter','It stays the same','It doubles'],a:1,t:112,why:'Inverse square law: doubling the distance gives 1 ÷ 2² = ¼ of the dose rate.'}
+];
+const QUIZ_WRONG='Not quite. Try again, or press Show me.';
+const MATCH_RIGHT='All four correct. Dark means little attenuation, like air and lung. Grey is fat and soft tissue. White is bone.';
+const MATCH_PART='Not all correct yet. Remember: the darker the region, the less it attenuates X-rays.';
+const answered={}; let matchDone=false, matchScore=0;
+function updScore(){ const s=Object.values(answered).filter(Boolean).length+(matchDone&&matchScore===4?1:0); $('score').textContent=`${s} / 7`; if(matchDone&&Object.keys(answered).length===QS.length) window.simStats&&simStats.once('quiz-complete'); }
+$('mcqs').innerHTML=QS.map((q,i)=>`<div class="q" data-i="${i}"><p>${i+2}. ${q.q}</p><div class="opts">${q.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}</div><div class="row" style="margin:6px 0 0"><button class="show">Show me</button></div><div class="fb" aria-live="polite"></div></div>`).join('');
+document.querySelectorAll('#mcqs .q').forEach(div=>{ const i=+div.dataset.i, q=QS[i];
+  div.querySelectorAll('.opts button').forEach(b=>b.onclick=()=>{ const j=+b.dataset.j; div.querySelectorAll('.opts button').forEach(x=>x.classList.remove('right','wrong'));
+    if(j===q.a){ b.classList.add('right'); div.querySelector('.fb').innerHTML='✓ Correct. '+q.why; say('Correct. '+q.why); if(answered[i]===undefined) answered[i]=true; }
+    else { b.classList.add('wrong'); div.querySelector('.fb').innerHTML='✗ Not quite – try again, or press “Show me”.'; say(QUIZ_WRONG); if(answered[i]===undefined) answered[i]=false; }
+    updScore(); });
+  div.querySelector('.show').onclick=()=>showMe(q.t); });
+function showMe(t){ closeModals(); simTime=t; curStage=-1; setPlaying(true); if(t>=78){ viewMode='ct'; viewModeUser=true; syncViewBtns(); } if(t>=100){ showSide(true); tab('Dose'); } }
+// match activity
+const MW=-0.42, MARKS=[{l:'A',u:-0.42,v:-0.05,a:'lung'},{l:'B',u:0,v:0.62,a:'bone'},{l:'C',u:0.62,v:-0.70,a:'fat'},{l:'D',u:0.15,v:-0.25,a:'soft'}];
+const MOPTS=[['','Choose…'],['lung','Air-filled lung (about −700 HU)'],['fat','Fat (about −100 HU)'],['soft','Soft tissue / blood (about +40 HU)'],['bone','Bone (+400 HU or more)']];
+{ const cv=$('matchCv'); const big=document.createElement('canvas'); big.width=big.height=128; drawSlice(big,MW,false); const c=cv.getContext('2d'); c.drawImage(big,0,0,200,200);
+  MARKS.forEach(m=>{ const x=(m.u+1.1)/2.2*200, y=(m.v+1.1)/2.2*200; c.strokeStyle='#ffd23f'; c.lineWidth=2.5; c.beginPath(); c.arc(x,y,7,0,7); c.stroke();
+    c.fillStyle='#ffd23f'; c.font='bold 15px system-ui,sans-serif'; c.fillText(m.l,x+9,y-7); });
+  $('matchSel').innerHTML=MARKS.map(m=>`<label for="ms${m.l}" style="font-size:14px;font-weight:600">Point ${m.l}</label><select id="ms${m.l}">${MOPTS.map(([v,t])=>`<option value="${v}">${t}</option>`).join('')}</select>`).join(''); }
+$('matchCheck').onclick=()=>{ let s=0; const fb=[]; MARKS.forEach(m=>{ const ok=$('ms'+m.l).value===m.a; if(ok)s++; else fb.push(m.l); $('ms'+m.l).style.borderColor=ok?'#17703a':'#b3261e'; });
+  if(!matchDone){ matchDone=true; matchScore=s; }
+  $('matchFb').innerHTML=s===4?'✓ All four correct. Dark = little attenuation (air, lung); grey = fat and soft tissue; white = bone.':`${s} of 4 correct. Check ${fb.join(', ')}. Remember: the darker the region, the less it attenuates X-rays.`; say(s===4?MATCH_RIGHT:MATCH_PART); updScore(); };
+$('matchShow').onclick=()=>{ closeModals(); simTime=90; curStage=-1; viewMode='ct'; viewModeUser=true; sliceW=MW; sliceFollow=false; $('slice').value=MW; syncViewBtns(); drawViewer(); showSide(true); tab('Img'); setPlaying(true); };
+
+// keyboard
+addEventListener('keydown',e=>{ if(e.target.tagName==='INPUT'&&e.target.type==='range'&&(e.key==='ArrowLeft'||e.key==='ArrowRight')) return; if(e.target.tagName==='SELECT') return;
+  if(e.key==='Escape'){ closeModals(); $('tooltip').style.display='none'; return; }
+  if(document.querySelector('.modal.open')) return;
+  if(e.key===' '){ e.preventDefault(); $('bPlay').click(); }
+  else if(e.key==='ArrowRight') $('bNext').click(); else if(e.key==='ArrowLeft') $('bPrev').click();
+  else if(/^[1-5]$/.test(e.key)) goCam(+e.key-1);
+  else if(e.key==='l'||e.key==='L'){ const t=TOG.find(t=>t.key==='labels'); t.st=t.st===1?0:1; applyToggle(t); } });
+
+/* ---- picking / tooltip ---- */
+const ray=new THREE.Raycaster(), ndc=new THREE.Vector2(); const tip=$('tooltip'); let downXY=null, tipTimer=null;
+function pick(cx,cy){ const r=renderer.domElement.getBoundingClientRect(); ndc.set(((cx-r.left)/r.width)*2-1,-((cy-r.top)/r.height)*2+1); ray.setFromCamera(ndc,camera);
+  const hits=ray.intersectObjects(pickables.filter(m=>{ let o=m; while(o){ if(!o.visible) return false; o=o.parent; } return true; }),false);
+  for(const h of hits){ if(h.object.material.opacity<0.12&&h.object.material.transparent) continue; const key=h.object.userData.part; if(key==='body'&&hits.length>1&&hits.some(x=>x.object.userData.part!=='body')) continue; return parts[key]; } return null; }
+function showTip(p,cx,cy){ if(!p){ tip.style.display='none'; return; } tip.innerHTML=`<b>${p.info.name}</b>${p.info.job}${p.info.hu?`<br><i>Typical CT number: ${p.info.hu}</i>`:''}`;
+  tip.style.display='block'; const w=tip.offsetWidth,h=tip.offsetHeight; tip.style.left=clamp(cx+14,4,innerWidth-w-4)+'px'; tip.style.top=clamp(cy+14,4,innerHeight-h-4)+'px'; }
+renderer.domElement.addEventListener('pointermove',e=>{ if(e.pointerType!=='mouse'||e.buttons) return; showTip(pick(e.clientX,e.clientY),e.clientX,e.clientY); });
+renderer.domElement.addEventListener('pointerdown',e=>{ downXY=[e.clientX,e.clientY]; });
+const partLine=p=>`${p.info.name}. ${p.info.job}`+(p.info.hu?` Typical CT number: ${p.info.hu}.`:'');
+renderer.domElement.addEventListener('pointerup',e=>{ if(!downXY) return; if(Math.hypot(e.clientX-downXY[0],e.clientY-downXY[1])<8){ const p=pick(e.clientX,e.clientY); showTip(p,e.clientX,e.clientY); if(p) say(partLine(p)); if(e.pointerType!=='mouse'){ clearTimeout(tipTimer); tipTimer=setTimeout(()=>tip.style.display='none',3500);} } downXY=null; });
+renderer.domElement.addEventListener('pointerleave',()=>{ tip.style.display='none'; });
+
+/* =================== Photon paths =================== */
+function hash(a,b){ let h=Math.imul(a,374761393)+Math.imul(b,668265263)|0; h=Math.imul(h^(h>>>13),1274126177); h^=h>>>16; return (h>>>0)/4294967296; }
+const cache=new Array(NP);
+const tmpV=new THREE.Vector3(), tmpM=new THREE.Matrix4(), tmpQ=new THREE.Quaternion(), one=new THREE.Vector3(1,1,1), zero=new THREE.Vector3(0,0,0);
+function march(S,T,bz,tau){ const L=S.distanceTo(T), N=90, ds=L/N; let cum=0;
+  for(let k=0;k<N;k++){ const f=(k+0.5)/N; const x=lerp(S.x,T.x,f), y=lerp(S.y,T.y,f), z=lerp(S.z,T.z,f)-bz; cum+=muLocal(x,y,z)*ds; if(tau!==undefined&&cum>tau) return {stop:f*L,A:cum}; }
+  return {stop:Infinity,A:cum}; }
+function pathFor(i,cyc,mode,ts){ const c=cache[i]; if(c&&c.cyc===cyc&&c.mode===mode) return c;
+  const r1=hash(i*3+1,cyc), r2=hash(i*3+2,cyc+7), r3=hash(i*3+5,cyc+13); let S,T;
+  if(mode==='proj'){ S=F.clone(); T=new THREE.Vector3((r1*2-1)*FIELD.x,PLATE_Y,OHZ+(r2*2-1)*FIELD.z); }
+  else { const a=rotorAngle(ts), phi=(r1*2-1)*FAN; const sx=SRC.x, sy=SRC.y; const tx=sx+SDD*Math.sin(phi), ty=sy-SDD*Math.cos(phi);
+    const ca=Math.cos(a), sa=Math.sin(a), zj=(r2-0.5)*0.05; S=new THREE.Vector3(sx*ca-sy*sa,sx*sa+sy*ca,zj); T=new THREE.Vector3(tx*ca-ty*sa,tx*sa+ty*ca,zj); }
+  const bz=bodyZ(ts); const m=march(S,T,bz,-Math.log(1-r3*0.999));
+  const p={cyc,mode,S,T,L:S.distanceTo(T),stop:m.stop}; cache[i]=p; return p; }
+const P=0.8, TRAV=0.5;
+function updatePhotons(){ const beamOn=tog('beam')==='On'; const modeNow=beamMode(simTime);
+  for(let i=0;i<NP;i++){ let show=false; const x=simTime/P+i/NP, cyc=Math.floor(x), ph=x-cyc, ts=(cyc-i/NP)*P;
+    const mode=beamMode(ts);
+    if(beamOn&&mode&&mode===modeNow){ const f=ph*P/TRAV; if(f<=1){ const p=pathFor(i,cyc,mode,ts); const s=f*p.L;
+      if(s<=p.stop){ tmpV.copy(p.T).sub(p.S).multiplyScalar(s/p.L).add(p.S); photons.setColorAt(i,cYellow); show=true; }
+      else if(s<p.stop+0.12){ tmpV.copy(p.T).sub(p.S).multiplyScalar(p.stop/p.L).add(p.S); photons.setColorAt(i,cRed); show=true; } } }
+    tmpM.compose(show?tmpV:zero,tmpQ,show?one:zero); photons.setMatrixAt(i,tmpM); }
+  photons.instanceMatrix.needsUpdate=true; if(photons.instanceColor) photons.instanceColor.needsUpdate=true; }
+function updateElectrons(on){ for(let i=0;i<NE;i++){ let show=false; if(on){ const x=simTime/0.6+i/NE, ph=x-Math.floor(x), cyc=Math.floor(x);
+      const r1=hash(i+3,cyc), r2=hash(i+9,cyc+1); const y0=(r1-0.5)*0.012, z0=(r2-0.5)*0.012;
+      tmpV.set(lerp(-0.13,0.075,ph),lerp(y0,-0.012,ph*ph),lerp(z0,0,ph)); show=true; }
+    tmpM.compose(show?tmpV:zero,tmpQ,show?one:zero); electrons.setMatrixAt(i,tmpM); } electrons.instanceMatrix.needsUpdate=true; }
+
+/* =================== Frame update =================== */
+let lastSlW=null, sliceFrame=0;
+function stageChanged(i){ const s=STAGES[i]; $('stageName').textContent=s.name; $('caption').textContent=s.cap;
+  [...strip.children].forEach((b,k)=>{ b.classList.toggle('active',k===i); b.classList.toggle('done',k<i); b.setAttribute('aria-selected',k===i); });
+  goCam(s.cam,testMode); speak(s.narr);
+  if(!viewModeUser){ viewMode=i>=3?'ct':'rad'; syncViewBtns(); drawViewer(); }
+  if(i===5&&$('sidePanel').style.display!=='none') tab('Dose'); else if(i<5&&!$('pDose').hidden&&!viewModeUser) tab('Img');
+  if(i===2||i===4){ if(!narrow()) showSide(true); }
+}
+function update(dt){
+  if(playing){ let nt=simTime+dt*speed; const s=STAGES[stageAt(simTime)];
+    if(narrating()&&soundOn&&audioUnlocked&&speed<=1.5&&nt>=s.end&&simTime<s.end){ nt=s.end-0.001; $('holdNote').textContent='🔊 Finishing the narration…'; } else $('holdNote').textContent='';
+    simTime=nt; if(simTime>=TEND){ simTime=TEND-0.001; setPlaying(false); $('holdNote').textContent='Tour complete – try “Test yourself”.'; window.simStats&&simStats.once('tour-complete'); setTimeout(()=>{ if(!narrating()) say(TOUR_DONE); },300); } }
+  const t=simTime, si=stageAt(t); if(si!==curStage){ curStage=si; stageChanged(si); }
+  $('tbar').firstElementChild.style.width=(100*t/TEND).toFixed(2)+'%';
+  // labels
+  const lm=tog('labels'), stl=STAGES[si].labels;
+  for(const k in labels){ let vis=lm==='All'||(lm==='Stage'&&stl.includes(k)); let o=labels[k].parent; while(o){ if(!o.visible){vis=false;break;} o=o.parent; } labels[k].visible=vis; labels[k].element.style.display=vis?'':'none'; }
+  // patient
+  const bz=bodyZ(t); patient.position.z=bz;
+  rotor.rotation.z=rotorAngle(t);
+  const mode=beamMode(t), beamOn=tog('beam')==='On';
+  fan.visible=beamOn&&mode==='ct'; projBeam.visible=beamOn&&mode==='proj';
+  // tube internals
+  const tubeOn=t>=15&&t<56; filMat.emissiveIntensity=tubeOn?2.2:0;
+  discHolder.rotation.x=(t>=15&&t<56)?t*14:0;
+  updateElectrons(t>=16&&t<56&&beamOn);
+  oh.visible=true;
+  // radiograph exposure
+  const ex=t<36?0:clamp((t-36)/12); plate.material.color.setScalar(ex);
+  // detector signals
+  if(mode==='ct'&&beamOn){ const a=rotorAngle(t), ca=Math.cos(a), sa=Math.sin(a);
+    for(const d of detEls){ const tx=SRC.x+SDD*Math.sin(d.phi), ty=SRC.y-SDD*Math.cos(d.phi);
+      const S=new THREE.Vector3(SRC.x*ca-SRC.y*sa,SRC.x*sa+SRC.y*ca,0), T=new THREE.Vector3(tx*ca-ty*sa,tx*sa+ty*ca,0);
+      const A=march(S,T,bz).A; d.m.material.emissiveIntensity=1.6*Math.exp(-A); } }
+  else detEls.forEach(d=>d.m.material.emissiveIntensity=0);
+  // helix
+  const hk=t<59?0:(t<100?Math.round(clamp((t-59)/17)*HELIX_N):0); helix.geometry.setDrawRange(0,hk); helix.visible=hk>1&&tog('beam')==='On';
+  // slice plane in gantry
+  const wNow=(0-bz)/SZ; slicePlane.visible=(t>=59&&t<78)||(t>=103);
+  if(slicePlane.visible&&Math.abs(wNow)<=1){ if(lastSlW===null||Math.abs(wNow-lastSlW)>0.012){ drawSlice(slCv,wNow,true); slTex.needsUpdate=true; lastSlW=wNow; } }
+  else if(slicePlane.visible) slicePlane.visible=false;
+  // CT viewer follows scan
+  if(viewMode==='ct'&&sliceFollow&&t>=59&&t<76&&Math.abs(wNow)<=0.95){ const q=Math.round(wNow*50)/50; if(q!==sliceW){ sliceW=q; $('slice').value=q; $('sliceOut').textContent=sliceName(q); drawViewer(); } }
+  // stack
+  const nShow=t<79?0:(t<95?Math.floor(clamp((t-79)/16)*NST)+1:NST);
+  stackPlanes.forEach((p,k)=>{ const target=k<nShow?1:0; const born=79+16*k/NST; const fade=t<79?0:clamp((t-born)/0.8); p.material.opacity=target?fade:0; p.position.y=target?(1-ease(fade))*0.35:0; p.visible=target>0; });
+  STACK.visible=t>=78;
+  // staff & scatter
+  const st=t>=100; staff.visible=st;
+  rad.position.copy(DIR).multiplyScalar(dist); rad.position.y=0; rad.rotation.y=Math.atan2(-DIR.x,-DIR.z);
+  screen.position.set(DIR.x*(dist-0.4),FLOOR+0.95,DIR.z*(dist-0.4)); screen.rotation.y=Math.atan2(DIR.x,DIR.z); screen.visible=st&&shield;
+  scatter.forEach((s,k)=>{ const on=st&&t>=103&&beamOn; s.visible=on; if(!on) return; const ph=((t*0.5)+k/3)%1; const r=0.3+ph*4.0; s.scale.setScalar(r); s.position.set(0,0,0); s.material.opacity=0.13*(1-ph); });
+  updatePhotons();
+}
+
+/* =================== Loop =================== */
+const clock=new THREE.Clock();
+function frame(){ const dt=Math.min(0.05,clock.getDelta());
+  if(camAnim){ const k=clamp((performance.now()-camAnim.s)/camAnim.d); const e=ease(k); camera.position.lerpVectors(camAnim.p0,camAnim.p1,e); controls.target.lerpVectors(camAnim.t0,camAnim.t1,e); if(k>=1) camAnim=null; }
+  update(dt); controls.update(); if(controls.target.y<-0.9) controls.target.y=-0.9;
+  renderer.render(scene,camera); labelRenderer.render(scene,camera); requestAnimationFrame(frame); }
+controls.addEventListener('start',()=>{ camAnim=null; });
+addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); labelRenderer.setSize(innerWidth,innerHeight); controls.maxDistance=10*narrowFactor(); });
+syncViewBtns(); drawViewer(); setPlaying(playing);
+if(qs.get('panel')==='learn') openModal('learn'); if(qs.get('panel')==='quiz') openModal('quiz'); if(qs.get('panel')==='side') showSide(true);
+if(qs.get('tab')) { showSide(true); tab(qs.get('tab')); }
+frame();
+window.__ready=true;
+</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('../../sw.js',{scope:'../../'}).catch(function(){});</script>
+</body>
+</html>
