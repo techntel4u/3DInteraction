@@ -1,6 +1,6 @@
 // Shared helpers for the simulation hub. Data lives in data/catalog.json.
 export async function loadCatalog(){
-  const r = await fetch('data/catalog.json?v=8', {cache:'no-cache'});
+  const r = await fetch('data/catalog.json?v=9', {cache:'no-cache'});
   return r.json();
 }
 /* ---------- Staff sign-in (Google, college staff accounts only) ----------
@@ -119,4 +119,24 @@ export function simCard(s, cat){
       </div>
     </div>
   </article>`;
+}
+
+// Stats strip shown on the home page and area pages
+const LEVELS = ['Entry Level 1','Entry Level 2','Entry Level 3','Level 1','Level 2','Level 3','Level 4','Level 5','Level 6','Level 7'];
+export function statsHtml(sims, extra=[]){
+  if(!sims.length) return '';
+  let lo = 0, hi = 0;
+  sims.forEach(s => { const m = String(s.minutes||'').match(/(\d+)\D+(\d+)/) || String(s.minutes||'').match(/(\d+)/); if(m){ lo += +m[1]; hi += +(m[2]||m[1]); } });
+  const lv = [...new Set(sims.map(s => s.level))].sort((x,y) => LEVELS.indexOf(x) - LEVELS.indexOf(y));
+  const narrated = sims.filter(s => s.narration).length;
+  const upd = sims.map(s => s.updated).filter(Boolean).sort().pop();
+  const items = [
+    [sims.length, sims.length > 1 ? 'simulations' : 'simulation'],
+    ...extra,
+    [lo ? (lo === hi ? lo : lo + '–' + hi) + ' min' : '', sims.length > 1 ? 'in total' : 'to complete'],
+    [lv.length > 1 ? lv[0] + ' to ' + lv[lv.length-1] : lv[0], lv.length > 1 ? 'levels' : 'level'],
+    [narrated === sims.length ? 'All' : narrated + ' of ' + sims.length, 'narrated'],
+    [upd ? new Date(upd).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '', 'last updated'],
+  ].filter(x => x[0] !== '' && x[0] !== undefined);
+  return items.map(([v,l]) => `<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('');
 }

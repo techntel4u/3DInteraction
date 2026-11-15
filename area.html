@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Curriculum area – 3D Learning Simulations</title>
-<link rel="stylesheet" href="assets/hub.css?v=8">
+<link rel="stylesheet" href="assets/hub.css?v=9">
 <script src="vendor/qrcode/qrcode.js"></script>
 </head>
 <body>
@@ -24,7 +24,7 @@
 </main>
 <footer>Curriculum areas from <a href="https://www.wolvcoll.ac.uk/">wolvcoll.ac.uk</a>.</footer>
 <script type="module">
-import {loadCatalog, qs, esc, simCard, wireShare, shareButtons, initStaff, abs} from './assets/hub.js?v=8';
+import {loadCatalog, qs, esc, simCard, wireShare, shareButtons, initStaff, abs, statsHtml} from './assets/hub.js?v=9';
 initStaff();
 const cat = await loadCatalog();
 const a = cat.areas.find(x => x.id === qs('id'));
@@ -40,27 +40,10 @@ else {
   const courses = cat.courses.filter(c => c.areaId === a.id && all.some(s => s.courses.includes(c.id)));
   let cur = courses.some(c => c.id === qs('course')) ? qs('course') : null;
 
-  const LEVELS = ['Entry Level 1','Entry Level 2','Entry Level 3','Level 1','Level 2','Level 3','Level 4','Level 5','Level 6','Level 7'];
-  function stats(sims){
-    if(!sims.length) return '';
-    let lo = 0, hi = 0;
-    sims.forEach(s => { const m = String(s.minutes||'').match(/(\d+)\D+(\d+)/) || String(s.minutes||'').match(/(\d+)/); if(m){ lo += +m[1]; hi += +(m[2]||m[1]); } });
-    const lv = [...new Set(sims.map(s => s.level))].sort((x,y) => LEVELS.indexOf(x) - LEVELS.indexOf(y));
-    const narrated = sims.filter(s => s.narration).length;
-    const upd = sims.map(s => s.updated).filter(Boolean).sort().pop();
-    const items = [
-      [sims.length, sims.length > 1 ? 'simulations' : 'simulation'],
-      [lo ? (lo === hi ? lo : lo + '–' + hi) + ' min' : '', sims.length > 1 ? 'in total' : 'to complete'],
-      [lv.length > 1 ? lv[0] + ' to ' + lv[lv.length-1] : lv[0], lv.length > 1 ? 'levels' : 'level'],
-      [narrated === sims.length ? 'All' : narrated + ' of ' + sims.length, 'narrated'],
-      [upd ? new Date(upd).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '', 'last updated'],
-    ].filter(x => x[0] !== '' && x[0] !== undefined);
-    return items.map(([v,l]) => `<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('');
-  }
   function render(){
     const sims = cur ? all.filter(s => s.courses.includes(cur)) : all;
     const course = cur && courses.find(c => c.id === cur);
-    $('stats').innerHTML = stats(sims);
+    $('stats').innerHTML = statsHtml(sims);
     $('stats').hidden = !sims.length;
     // chips: only when there's something worth filtering, or a filter is already applied
     const showChips = courses.length > 1 && (all.length >= 3 || cur);
