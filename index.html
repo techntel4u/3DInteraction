@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>3D Learning Simulations – City of Wolverhampton College</title>
 <meta name="description" content="Interactive 3D learning simulations by curriculum area and course.">
-<link rel="stylesheet" href="assets/hub.css?v=16">
+<link rel="stylesheet" href="assets/hub.css?v=17">
 <script src="vendor/qrcode/qrcode.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#16325c">
@@ -27,6 +27,11 @@
     <h2>New simulations</h2>
     <div class="newrow" id="newRow"></div>
   </section>
+  <section id="serSec" hidden>
+    <h2>Series</h2>
+    <p class="note" style="margin:-4px 0 10px">Experiences made up of several simulations – work through the parts in order.</p>
+    <div class="newrow serrow" id="serRow"></div>
+  </section>
   <section>
     <h2>General — across curriculum areas</h2>
     <div id="general"></div>
@@ -46,7 +51,7 @@
 </main>
 <footer>Curriculum areas and courses from <a href="https://www.wolvcoll.ac.uk/" target="_blank" rel="noopener">wolvcoll.ac.uk</a>. Narration by ElevenLabs. 3D by three.js.</footer>
 <script type="module">
-import {loadCatalog, esc, simCard, wireShare, shareButtons, abs, initStaff, statsHtml, isNew, miniCard, requestLink} from './assets/hub.js?v=16';
+import {loadCatalog, esc, simCard, wireShare, shareButtons, abs, initStaff, statsHtml, isNew, miniCard, requestLink, seriesMini} from './assets/hub.js?v=17';
 initStaff();
 const cat = await loadCatalog();
 { const fresh = cat.sims.filter(isNew).sort((a,b) => String(b.added).localeCompare(String(a.added)));
@@ -54,6 +59,8 @@ const cat = await loadCatalog();
   document.getElementById('reqBtn').href = requestLink(); }
 { const used = new Set(cat.sims.flatMap(s => s.areas));
   document.getElementById('stats').innerHTML = statsHtml(cat.sims, [[used.size + ' of ' + cat.areas.length, 'curriculum areas']]); }
+{ const sh = (cat.series || []).map(sr => seriesMini(sr, cat)).filter(Boolean);
+  if (sh.length) { document.getElementById('serRow').innerHTML = sh.join(''); document.getElementById('serSec').hidden = false; } }
 const count = id => cat.sims.filter(s => s.areas.includes(id)).length;
 document.getElementById('areas').innerHTML = cat.areas.map(a => {
   const n = count(a.id);

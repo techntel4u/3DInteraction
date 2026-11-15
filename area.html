@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Curriculum area – 3D Learning Simulations</title>
-<link rel="stylesheet" href="assets/hub.css?v=16">
+<link rel="stylesheet" href="assets/hub.css?v=17">
 <script src="vendor/qrcode/qrcode.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#16325c">
@@ -28,7 +28,7 @@
 </main>
 <footer>Curriculum areas from <a href="https://www.wolvcoll.ac.uk/" target="_blank" rel="noopener">wolvcoll.ac.uk</a>.</footer>
 <script type="module">
-import {loadCatalog, qs, esc, simCard, wireShare, shareButtons, initStaff, abs, statsHtml} from './assets/hub.js?v=16';
+import {loadCatalog, qs, esc, simCard, wireShare, shareButtons, initStaff, abs, statsHtml, seriesBlock} from './assets/hub.js?v=17';
 initStaff();
 const cat = await loadCatalog();
 const a = cat.areas.find(x => x.id === qs('id'));
@@ -43,9 +43,14 @@ else {
   // courses in this area that have at least one simulation
   const courses = cat.courses.filter(c => c.areaId === a.id && all.some(s => s.courses.includes(c.id)));
   let cur = courses.some(c => c.id === qs('course')) ? qs('course') : null;
+  // series in this area (several simulations that make one experience)
+  const series = (cat.series || []).filter(sr => sr.areas.includes(a.id) && sr.parts.some(p => all.some(s => s.id === p.sim)));
+  const only = series.find(sr => sr.id === qs('series')) || null;
+  if (only) { $('crumb').innerHTML = `<a href="area.html?id=${a.id}">${esc(a.name)}</a> › ${esc(only.title)}`; document.title = only.title + ' – 3D Learning Simulations'; }
 
   function render(){
-    const sims = cur ? all.filter(s => s.courses.includes(cur)) : all;
+    const pool = only ? all.filter(s => s.series === only.id) : all;
+    const sims = cur ? pool.filter(s => s.courses.includes(cur)) : pool;
     const course = cur && courses.find(c => c.id === cur);
     $('stats').innerHTML = statsHtml(sims);
     $('stats').hidden = !sims.length;
@@ -54,11 +59,16 @@ else {
     $('chips').hidden = !showChips;
     $('chips').innerHTML = showChips ? [`<button class="chip ${cur?'':'on'}" aria-pressed="${!cur}" data-c="">All</button>`]
       .concat(courses.map(c => `<button class="chip ${cur===c.id?'on':''}" aria-pressed="${cur===c.id}" data-c="${c.id}">${esc(c.name)}</button>`)).join('') : '';
-    $('chips').querySelectorAll('button').forEach(b => b.onclick = () => { cur = b.dataset.c || null; history.replaceState(null, '', 'area.html?id=' + a.id + (cur ? '&course=' + cur : '')); render(); });
-    $('sims').innerHTML = sims.length ? sims.map(s => simCard(s,cat)).join('')
-      : '<div class="empty">No simulations in this area yet – coming soon.</div>';
+    $('chips').querySelectorAll('button').forEach(b => b.onclick = () => { cur = b.dataset.c || null; history.replaceState(null, '', 'area.html?id=' + a.id + (only ? '&series=' + only.id : '') + (cur ? '&course=' + cur : '')); render(); });
+    // series first (grouped, in part order), then single simulations
+    const ser = (only ? [only] : series).filter(sr => sims.some(s => s.series === sr.id));
+    const singles = sims.filter(s => !ser.some(sr => sr.id === s.series));
+    $('sims').innerHTML = !sims.length ? '<div class="empty">No simulations in this area yet – coming soon.</div>'
+      : ser.map(sr => seriesBlock(sr, cat, sims, a.id)).join('')
+        + (singles.length ? (ser.length ? '<h2 class="sub-h">Single simulations</h2>' : '') + singles.map(s => simCard(s,cat)).join('') : '')
+        + (only ? `<p><a class="btn" href="area.html?id=${a.id}">← All ${esc(a.name)} simulations</a></p>` : '');
     const link = abs('area.html?id=' + a.id + (cur ? '&course=' + cur : ''));
-    $('shareBox').style.display = sims.length ? '' : 'none';
+    $('shareBox').style.display = sims.length && !only ? '' : 'none';
     $('shareTitle').textContent = course ? 'Share ' + course.name : 'Share this area';
     $('areaShare').innerHTML = shareButtons(link, (course ? course.name : a.name) + ' – 3D simulations', cat.courseInstructions);
     wireShare();

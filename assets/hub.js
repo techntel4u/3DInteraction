@@ -1,6 +1,6 @@
 // Shared helpers for the simulation hub. Data lives in data/catalog.json.
 export async function loadCatalog(){
-  const r = await fetch('data/catalog.json?v=16', {cache:'no-cache'});
+  const r = await fetch('data/catalog.json?v=17', {cache:'no-cache'});
   return r.json();
 }
 /* ---------- Staff sign-in (Google, college staff accounts only) ----------
@@ -167,15 +167,48 @@ export function wireShare(root=document){
 }
 export const NEW_DAYS = 45;
 export const isNew = s => s.added && (Date.now() - new Date(s.added).getTime()) < NEW_DAYS*864e5;
+/* ---------- Series: experiences made of several simulations, shown together in order ---------- */
+export const seriesOf = (cat, s) => (cat.series || []).find(x => x.id === s.series) || null;
+export function partPill(cat, s){ const sr = seriesOf(cat, s); return sr ? `<span class="pill ser" title="${esc(sr.title)} series">📚 Part ${s.part} of ${sr.parts.length}</span>` : ''; }
+export const seriesLink = (sr, areaId) => abs('area.html?id=' + (areaId || sr.areas[0]) + '&series=' + sr.id);
+export function seriesBlock(sr, cat, visible, areaId){
+  const parts = sr.parts.map(p => ({...p, s: cat.sims.find(x => x.id === p.sim) || null}));
+  const live = parts.filter(p => p.s), shown = parts.filter(p => !p.s || visible.includes(p.s));
+  const first = live[0];
+  const mins = live.map(p => String(p.s.minutes || '').match(/(\d+)\D+(\d+)/) || String(p.s.minutes || '').match(/(\d+)/)).filter(Boolean);
+  const lo = mins.reduce((a, m) => a + +m[1], 0), hi = mins.reduce((a, m) => a + +(m[2] || m[1]), 0);
+  return `<section class="series" id="series-${esc(sr.id)}" aria-labelledby="sh-${esc(sr.id)}">
+    <div class="series-head">
+      <div class="series-tag">📚 Series · ${parts.length} parts</div>
+      <h2 id="sh-${esc(sr.id)}">${esc(sr.title)}</h2>
+      <p>${esc(sr.summary || '')}</p>
+      <p class="note">${esc(sr.spec || '')}${sr.spec ? ' · ' : ''}${live.length} of ${parts.length} parts available${lo ? ' · about ' + (lo === hi ? lo : lo + '–' + hi) + ' min so far' : ''}</p>
+      <ol class="steps" aria-label="Parts in this series">${parts.map(p => p.s
+        ? `<li class="live"><a href="#part-${esc(p.sim)}"><b>${p.n}</b><span>${esc(p.title)}</span></a></li>`
+        : `<li class="soon"><b>${p.n}</b><span>${esc(p.title)}<small>Coming soon</small></span></li>`).join('')}</ol>
+      <div class="btns">${first ? `<a class="btn primary" href="${esc(first.s.student)}">▶ Start with Part ${first.n}</a>` : ''}
+        ${shareButtons(seriesLink(sr, areaId), sr.title + ' – 3D simulation series', 'Work through the parts of this series in order, starting with Part 1. Use headphones and keep the sound on.')}</div>
+    </div>
+    <div class="series-parts">${shown.map(p => p.s ? simCard(p.s, cat)
+      : `<div class="soon-card"><span class="num">${p.n}</span><span><b>Part ${p.n}: ${esc(p.title)}</b><small>Coming soon – this part is being built.</small></span></div>`).join('')}</div>
+  </section>`;
+}
+export function seriesMini(sr, cat){
+  const live = sr.parts.map(p => cat.sims.find(x => x.id === p.sim)).filter(Boolean); if (!live.length) return '';
+  const a = cat.areas.find(x => sr.areas.includes(x.id));
+  return `<a class="mini" href="area.html?id=${esc(sr.areas[0])}&series=${esc(sr.id)}"><img src="${esc(live[0].thumb)}" alt="" loading="lazy">
+    <span><b>${esc(sr.title)}</b><small>${a ? esc(a.icon + ' ' + a.name) + ' · ' : ''}${live.length} of ${sr.parts.length} parts available</small><span class="pill ser">📚 Series</span></span></a>`;
+}
 export function simCard(s, cat){
   const url = abs(s.student);
   const courseNames = s.courses.map(id => cat.courses.find(c => c.id===id)).filter(Boolean)
     .map(c => `<a href="area.html?id=${c.areaId}&course=${c.id}">${esc(c.name)}</a>`).join(' · ');
-  return `<article class="sim">
+  return `<article class="sim" id="part-${esc(s.id)}">
     <img src="${esc(s.thumb)}" alt="Screenshot of the ${esc(s.title)} simulation" loading="lazy">
     <div>
       <h3>${esc(s.title)}</h3>
       <div>${s.tags.map(t=>`<span class="pill">${esc(t)}</span>`).join('')}<span class="pill y">${esc(s.level)}</span>${isNew(s)?'<span class="pill new">New</span>':''}</div>
+      ${seriesOf(cat,s)?`<div>${partPill(cat,s)}<span class="note">${esc(seriesOf(cat,s).title)} series</span></div>`:''}
       <p>${esc(s.summary)}</p>
       <p class="note">${esc(s.spec)} · ${esc(s.minutes)} · Narration: ${esc(s.narration)}${courseNames?`<br>Used on: ${courseNames}`:''}</p>
       <div class="btns">
@@ -215,7 +248,7 @@ export function statsHtml(sims, extra=[]){
 export function miniCard(s, cat){
   const a = cat.areas.find(x => s.areas.includes(x.id));
   return `<a class="mini" href="${esc(s.student)}"><img src="${esc(s.thumb)}" alt="" loading="lazy">
-    <span><b>${esc(s.title)}</b><small>${a?esc(a.icon+' '+a.name)+' · ':''}${esc(s.level)}</small><span class="pill new">New</span></span></a>`;
+    <span><b>${esc(s.title)}</b><small>${a?esc(a.icon+' '+a.name)+' · ':''}${esc(s.level)}${seriesOf(cat,s)?' · Part '+s.part+' of '+seriesOf(cat,s).parts.length:''}</small><span class="pill new">New</span></span></a>`;
 }
 // Staff-only "Request a simulation": opens the Microsoft Form in a new tab
 export const REQUEST_FORM = 'https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=MGiE95mlWECLAJ2oTSWGmuO6R6IeSGFPiHGI99lOOwhUOUtJQTBXSjVFSVRDUURWT0VaWEY0UVZTVSQlQCN0PWcu';

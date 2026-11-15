@@ -517,7 +517,9 @@
    "instructions": "Open the link and work through the 3D X-rays and CT simulation (25–35 minutes). Use headphones and keep the sound on.\n1. Guided tour: follow all 6 stages.\n2. Stage 2: hover over or tap the tube parts and explain how X-rays are produced.\n3. Stage 3: move the kV slider and describe how the X-ray image changes.\n4. Stages 4–5: read the CT numbers for lung, fat, soft tissue and bone.\n5. Stage 6: compare the doses and use the distance slider to explain the inverse square law.\n6. Test yourself: do the matching task and the 6 questions.\nHand in your notes and your quiz score.",
    "transcript": "sims/xray-ct/transcript.html",
    "worksheet": "sims/xray-ct/worksheet.html",
-   "added": "2026-11-15"
+   "added": "2026-11-15",
+   "series": "imaging-treatment",
+   "part": 1
   },
   {
    "id": "gamma-pet",
@@ -550,9 +552,44 @@
    "instructions": "Open the link and work through the 3D gamma imaging and PET simulation (25–35 minutes). Use headphones and keep the sound on.\n1. Guided tour: follow all 6 stages.\n2. Stage 2: explain why technetium-99m suits a bone scan.\n3. Stage 3: tap the collimator, crystal and photomultiplier tubes and describe what each does.\n4. Stage 4: find the hot spots, then remove the collimator and describe what happens to the image.\n5. Stage 5: explain how PET detects annihilation.\n6. Decay tab: work out the activity left after 12 and 24 hours.\n7. Test yourself: answer the 6 questions.\nHand in your notes and your quiz score.",
    "transcript": "sims/gamma-pet/transcript.html",
    "worksheet": "sims/gamma-pet/worksheet.html",
-   "added": "2026-11-15"
+   "added": "2026-11-15",
+   "series": "imaging-treatment",
+   "part": 2
   }
  ],
  "courseInstructions": "Open the link to see the 3D simulations on this page. Work through each one, starting with the Guided tour (use headphones and press Sound on), then try Build it, Spot the faults and Test yourself. Note your quiz score for each simulation.",
- "hubInstructions": "Open the link to browse the college's 3D learning simulations by curriculum area and course."
+ "hubInstructions": "Open the link to browse the college's 3D learning simulations by curriculum area and course.",
+ "series": [
+  {
+   "id": "imaging-treatment",
+   "title": "Imaging and treatment",
+   "summary": "A four-part series on how ionising radiation is used to see inside the body and to treat disease – from X-rays and CT to nuclear medicine, radiotherapy and proton beam therapy. Work through the parts in order.",
+   "spec": "Pearson BTEC L3 Applied Science (2016), Unit 21 Medical Physics Applications",
+   "areas": [
+    "science"
+   ],
+   "parts": [
+    {
+     "n": 1,
+     "title": "X-rays and CT",
+     "sim": "xray-ct"
+    },
+    {
+     "n": 2,
+     "title": "Gamma imaging and PET",
+     "sim": "gamma-pet"
+    },
+    {
+     "n": 3,
+     "title": "Radiotherapy",
+     "sim": null
+    },
+    {
+     "n": 4,
+     "title": "Gamma Knife and proton beam therapy",
+     "sim": null
+    }
+   ]
+  }
+ ]
 }
