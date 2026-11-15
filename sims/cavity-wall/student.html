@@ -111,6 +111,9 @@ blockquote{margin:6px 0;padding:6px 10px;border-left:4px solid var(--navy2);back
 #tip b{color:#ffd54a}
 #help{position:fixed;right:12px;top:72px;z-index:25;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 8px 30px rgba(0,0,0,.2);display:none;width:300px;font-size:14px}
 #help.open{display:block}
+.helpX{position:absolute;top:8px;right:8px;min-width:44px;min-height:44px;border:1px solid var(--line);background:#fff;border-radius:10px;font-size:18px;font-weight:700;color:var(--navy);cursor:pointer}
+#help>b{display:block;margin-right:52px;min-height:30px}
+@media (max-width:860px),(max-height:500px){#help{left:8px;right:8px;top:auto;bottom:8px;width:auto;max-height:70vh;overflow:auto;box-shadow:0 -6px 30px rgba(0,0,0,.25)}}
 #help kbd{background:#eef1f5;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-family:inherit;font-size:13px}
 #help table{border-collapse:collapse;width:100%}
 #help td{padding:4px 2px;vertical-align:top}
@@ -214,6 +217,7 @@ blockquote{margin:6px 0;padding:6px 10px;border-left:4px solid var(--navy2);back
 </div>
 
 <div id="help" role="dialog" aria-label="Help">
+  <button class="helpX" id="helpX" aria-label="Close help">✕</button>
   <b>How to use</b>
   <p class="small" style="margin:4px 0 8px">Drag to rotate · scroll or pinch to zoom · right-drag or two fingers to pan. Tap any part to see its name and job.</p>
   <table>
@@ -956,7 +960,10 @@ const updSection=tgl('#tSection',()=>userSection,v=>{userSection=v; if(v) goCam(
 const updWater=tgl('#tWater',()=>userWater,v=>userWater=v);
 document.querySelectorAll('[data-cam]').forEach(b=>b.onclick=()=>{ if(b.dataset.cam==='cutaway'){userSection=true; updSection();} goCam(b.dataset.cam); });
 $('#sideToggle').onclick=()=>{ const o=$('#side').classList.toggle('open'); $('#sideToggle').setAttribute('aria-expanded',o); };
-$('#bHelp').onclick=()=>{ const o=$('#help').classList.toggle('open'); $('#bHelp').setAttribute('aria-expanded',o); };
+$('#bHelp').onclick=e=>{ e.stopPropagation(); const o=$('#help').classList.toggle('open'); $('#bHelp').setAttribute('aria-expanded',o); };
+function closeHelp(){ $('#help').classList.remove('open'); $('#bHelp').setAttribute('aria-expanded',false); }
+$('#helpX').onclick=closeHelp;
+document.addEventListener('pointerdown',e=>{ if($('#help').classList.contains('open') && !e.target.closest('#help') && !e.target.closest('#bHelp')) closeHelp(); });
 
 /* ------------------------------ Narration ------------------------------ */
 let soundOn=true, voice=null;
