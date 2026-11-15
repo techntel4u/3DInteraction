@@ -27,7 +27,7 @@ const page = (title, body, sim) => `<!DOCTYPE html>
 <html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title><style>${css}</style></head><body>
 ${body}
-<script src="../../assets/stats.js?v=1" defer></script>
+<script src="../../assets/stats.js?v=2" defer></script>
 <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('../../sw.js',{scope:'../../'}).catch(function(){});</script>
 </body></html>`;
 for(const s of cat.sims){

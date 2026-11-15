@@ -3,7 +3,7 @@
    - Staff in teacher mode, "Do Not Track" browsers and automated tests are not counted.
    - Set CODE to the GoatCounter site code to switch it on (blank = off). */
 (function(){
-  var CODE = '';
+  var CODE = 'wolvcoll-3dsims';
   var off = !CODE || navigator.webdriver || navigator.doNotTrack === '1' || window.doNotTrack === '1';
   try { var st = JSON.parse(localStorage.getItem('hub.staff')); if (st && st.exp > Date.now()) off = true; } catch(e){}
   var path = location.pathname.replace(/^.*?(\/sims\/|\/[^\/]*\.html$|\/$)/, function(m, g){ return g; });
