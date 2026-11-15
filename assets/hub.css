@@ -89,7 +89,7 @@ body:not(.staff) .staffonly{display:none!important}
 .pill.ser{background:#ede7fb;color:#4c2a8c}
 .series{background:#fff;border:1px solid var(--line);border-left:6px solid #6d4bc4;border-radius:18px;padding:16px 16px 4px;margin:0 0 22px}
 .series-tag{font-size:13px;font-weight:700;color:#4c2a8c;text-transform:uppercase;letter-spacing:.04em}
-.series-head h2{margin:2px 0 4px}
+.series-head h3{margin:2px 0 4px;color:var(--navy);font-size:21px}
 .series-head p{margin:4px 0}
 .steps{list-style:none;display:flex;gap:8px;padding:0;margin:12px 0 4px;overflow-x:auto;-webkit-overflow-scrolling:touch;counter-reset:none}
 .steps li{flex:1 1 0;min-width:150px}
@@ -111,3 +111,23 @@ body:not(.staff) .staffonly{display:none!important}
 @media (max-width:640px){.series{padding:12px 12px 2px}.series-parts{padding-left:8px}.steps li{min-width:140px}}
 .newrow.serrow{grid-auto-columns:minmax(240px,300px);justify-content:start}
 @media (max-width:600px){.newrow.serrow{grid-auto-columns:78%}}
+
+/* area page at scale: headings, find box, compact tiles, collapsible series */
+.sr{position:absolute;left:-9999px}
+.sub-h .count{display:inline-block;min-width:26px;padding:0 8px;border-radius:999px;background:#e3ebf7;color:var(--navy);font-size:14px;text-align:center;vertical-align:middle}
+.sub-note{margin:-6px 0 12px}
+.findbar input{margin:0 0 14px;max-width:420px}
+.series-sum{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.series.open .series-sum{display:block}
+.series .btns{margin-bottom:12px}
+.steps li.done>a{background:#eaf7ef;border-color:#a8d8b8}
+.steps li.done b{background:#1d7a3a}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:14px}
+.sim.tile{display:flex;flex-direction:column;padding:0;overflow:hidden;margin:0;gap:0}
+.sim.tile img{border-radius:0;aspect-ratio:16/9}
+.tile-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px}
+.tile-body h3{font-size:17px}
+.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:14.5px}
+details.more{margin-top:8px;border-top:1px solid var(--line);padding-top:8px}
+details.more summary{cursor:pointer;font-weight:600;color:var(--navy2);font-size:14px;min-height:32px;display:flex;align-items:center}
+details.more[open] summary{margin-bottom:6px}

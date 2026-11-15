@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Curriculum area – 3D Learning Simulations</title>
-<link rel="stylesheet" href="assets/hub.css?v=17">
+<link rel="stylesheet" href="assets/hub.css?v=18">
 <script src="vendor/qrcode/qrcode.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#16325c">
@@ -20,6 +20,7 @@
 <main>
   <div class="stats" id="stats" aria-label="About the simulations in this area"></div>
   <div class="chips" id="chips" role="group" aria-label="Filter by course" hidden></div>
+  <div class="findbar" id="findBar" hidden><label for="find" class="sr">Find a simulation in this area</label><input type="search" id="find" placeholder="Find in this area…"></div>
   <div class="sharebar staffonly" id="shareBox" style="margin:0 0 18px">
     <span><b id="shareTitle">Share this area</b><br><span class="note" id="shareNote">Students get every simulation on this page in one link.</span></span>
     <div class="btns" id="areaShare" style="margin:0"></div>
@@ -28,7 +29,7 @@
 </main>
 <footer>Curriculum areas from <a href="https://www.wolvcoll.ac.uk/" target="_blank" rel="noopener">wolvcoll.ac.uk</a>.</footer>
 <script type="module">
-import {loadCatalog, qs, esc, simCard, wireShare, shareButtons, initStaff, abs, statsHtml, seriesBlock} from './assets/hub.js?v=17';
+import {loadCatalog, qs, esc, simCard, wireShare, shareButtons, initStaff, abs, statsHtml, seriesBlock, seriesInArea, wireSeries} from './assets/hub.js?v=18';
 initStaff();
 const cat = await loadCatalog();
 const a = cat.areas.find(x => x.id === qs('id'));
@@ -40,40 +41,57 @@ else {
   $('title').textContent = a.icon + ' ' + a.name;
   $('sub').innerHTML = a.collegeUrl ? `See <a style="color:#fff" href="${a.collegeUrl}" target="_blank" rel="noopener">${esc(a.name)} courses on the college website</a>.` : '';
   const all = cat.sims.filter(s => s.areas.includes(a.id));
-  // courses in this area that have at least one simulation
   const courses = cat.courses.filter(c => c.areaId === a.id && all.some(s => s.courses.includes(c.id)));
   let cur = courses.some(c => c.id === qs('course')) ? qs('course') : null;
   // series in this area (several simulations that make one experience)
-  const series = (cat.series || []).filter(sr => sr.areas.includes(a.id) && sr.parts.some(p => all.some(s => s.id === p.sim)));
+  const series = seriesInArea(cat, a.id);
   const only = series.find(sr => sr.id === qs('series')) || null;
   if (only) { $('crumb').innerHTML = `<a href="area.html?id=${a.id}">${esc(a.name)}</a> › ${esc(only.title)}`; document.title = only.title + ' – 3D Learning Simulations'; }
+  // the search box appears once an area has enough to search through
+  const items = series.length + all.filter(s => !s.series).length;
+  $('findBar').hidden = items < 6 || !!only;
+  let q = '';
+  $('find').oninput = e => { q = e.target.value.trim().toLowerCase(); render(); };
+  const hay = s => (s.title + ' ' + s.summary + ' ' + s.tags.join(' ') + ' ' + s.level).toLowerCase();
+  const hashPart = (location.hash.match(/^#part-(.+)$/) || [])[1];
 
   function render(){
     const pool = only ? all.filter(s => s.series === only.id) : all;
-    const sims = cur ? pool.filter(s => s.courses.includes(cur)) : pool;
+    const byCourse = cur ? pool.filter(s => s.courses.includes(cur)) : pool;
+    const sims = q ? byCourse.filter(s => hay(s).includes(q) || (s.series && (cat.series.find(x => x.id === s.series)?.title || '').toLowerCase().includes(q))) : byCourse;
     const course = cur && courses.find(c => c.id === cur);
-    $('stats').innerHTML = statsHtml(sims);
-    $('stats').hidden = !sims.length;
-    // chips: only when there's something worth filtering, or a filter is already applied
+    $('stats').innerHTML = statsHtml(byCourse, series.length && !only ? [[series.length, series.length > 1 ? 'series' : 'series']] : []);
+    $('stats').hidden = !byCourse.length;
     const showChips = courses.length > 1 && (all.length >= 3 || cur);
     $('chips').hidden = !showChips;
     $('chips').innerHTML = showChips ? [`<button class="chip ${cur?'':'on'}" aria-pressed="${!cur}" data-c="">All</button>`]
       .concat(courses.map(c => `<button class="chip ${cur===c.id?'on':''}" aria-pressed="${cur===c.id}" data-c="${c.id}">${esc(c.name)}</button>`)).join('') : '';
     $('chips').querySelectorAll('button').forEach(b => b.onclick = () => { cur = b.dataset.c || null; history.replaceState(null, '', 'area.html?id=' + a.id + (only ? '&series=' + only.id : '') + (cur ? '&course=' + cur : '')); render(); });
-    // series first (grouped, in part order), then single simulations
     const ser = (only ? [only] : series).filter(sr => sims.some(s => s.series === sr.id));
     const singles = sims.filter(s => !ser.some(sr => sr.id === s.series));
-    $('sims').innerHTML = !sims.length ? '<div class="empty">No simulations in this area yet – coming soon.</div>'
-      : ser.map(sr => seriesBlock(sr, cat, sims, a.id)).join('')
-        + (singles.length ? (ser.length ? '<h2 class="sub-h">Single simulations</h2>' : '') + singles.map(s => simCard(s,cat)).join('') : '')
-        + (only ? `<p><a class="btn" href="area.html?id=${a.id}">← All ${esc(a.name)} simulations</a></p>` : '');
+    // a series opens fully when it is the only thing on the page, when linked to directly, or when searching
+    const openSer = sr => !!only || !!q || (ser.length === 1 && !singles.length) || (hashPart && sims.find(s => s.id === hashPart)?.series === sr.id);
+    const compact = singles.length >= 4;
+    let html = '';
+    if (!byCourse.length) html = '<div class="empty">No simulations in this area yet – coming soon.</div>';
+    else if (!sims.length) html = '<div class="empty">Nothing matches that search. Try another word, or clear the search box.</div>';
+    else {
+      if (ser.length) html += (singles.length ? `<h2 class="sub-h">Series <span class="count">${ser.length}</span></h2><p class="note sub-note">Experiences made up of several simulations – work through the parts in order.</p>` : '')
+        + ser.map(sr => seriesBlock(sr, cat, sims, a.id, openSer(sr))).join('');
+      if (singles.length) html += (ser.length ? `<h2 class="sub-h">Single simulations <span class="count">${singles.length}</span></h2>` : '')
+        + (compact ? `<div class="tiles">${singles.map(s => simCard(s, cat, true)).join('')}</div>` : singles.map(s => simCard(s, cat)).join(''));
+      if (only) html += `<p><a class="btn" href="area.html?id=${a.id}">← All ${esc(a.name)} simulations</a></p>`;
+    }
+    $('sims').innerHTML = html;
     const link = abs('area.html?id=' + a.id + (cur ? '&course=' + cur : ''));
-    $('shareBox').style.display = sims.length && !only ? '' : 'none';
+    $('shareBox').style.display = byCourse.length && !only ? '' : 'none';
     $('shareTitle').textContent = course ? 'Share ' + course.name : 'Share this area';
     $('areaShare').innerHTML = shareButtons(link, (course ? course.name : a.name) + ' – 3D simulations', cat.courseInstructions);
-    wireShare();
+    wireShare(); wireSeries();
+    document.querySelectorAll('details.more').forEach(d => d.addEventListener('toggle', () => { if (d.open) wireShare(d); }, {once:true}));
   }
   render();
+  if (hashPart) document.getElementById('part-' + hashPart)?.scrollIntoView({block:'start'});
 }
 </script>
 <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){});</script>

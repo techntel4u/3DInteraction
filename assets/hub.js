@@ -1,6 +1,6 @@
 // Shared helpers for the simulation hub. Data lives in data/catalog.json.
 export async function loadCatalog(){
-  const r = await fetch('data/catalog.json?v=17', {cache:'no-cache'});
+  const r = await fetch('data/catalog.json?v=18', {cache:'no-cache'});
   return r.json();
 }
 /* ---------- Staff sign-in (Google, college staff accounts only) ----------
@@ -171,58 +171,86 @@ export const isNew = s => s.added && (Date.now() - new Date(s.added).getTime()) 
 export const seriesOf = (cat, s) => (cat.series || []).find(x => x.id === s.series) || null;
 export function partPill(cat, s){ const sr = seriesOf(cat, s); return sr ? `<span class="pill ser" title="${esc(sr.title)} series">📚 Part ${s.part} of ${sr.parts.length}</span>` : ''; }
 export const seriesLink = (sr, areaId) => abs('area.html?id=' + (areaId || sr.areas[0]) + '&series=' + sr.id);
-export function seriesBlock(sr, cat, visible, areaId){
+export const seriesInArea = (cat, areaId) => (cat.series || []).filter(sr => sr.areas.includes(areaId) && sr.parts.some(p => cat.sims.some(s => s.id === p.sim)));
+// Which simulations this device has opened (for ✓ ticks and "Continue with Part n"). Stays on this device only.
+const OPENED_KEY = 'hub.opened';
+export function opened(){ try { return new Set(JSON.parse(localStorage.getItem(OPENED_KEY)) || []); } catch(e){ return new Set(); } }
+function markOpened(id){ try { const o = opened(); o.add(id); localStorage.setItem(OPENED_KEY, JSON.stringify([...o])); } catch(e){} }
+const minsOf = sims => { let lo = 0, hi = 0; sims.forEach(s => { const m = String(s.minutes||'').match(/(\d+)\D+(\d+)/) || String(s.minutes||'').match(/(\d+)/); if (m){ lo += +m[1]; hi += +(m[2]||m[1]); } }); return lo ? (lo === hi ? lo : lo + '–' + hi) + ' min' : ''; };
+// A series panel: compact by default (title, numbered parts you can open directly, start/continue button);
+// "Show all parts" expands the full cards with transcripts, offline saving and the staff tools.
+export function seriesBlock(sr, cat, visible, areaId, expanded=false){
+  const op = opened();
   const parts = sr.parts.map(p => ({...p, s: cat.sims.find(x => x.id === p.sim) || null}));
   const live = parts.filter(p => p.s), shown = parts.filter(p => !p.s || visible.includes(p.s));
-  const first = live[0];
-  const mins = live.map(p => String(p.s.minutes || '').match(/(\d+)\D+(\d+)/) || String(p.s.minutes || '').match(/(\d+)/)).filter(Boolean);
-  const lo = mins.reduce((a, m) => a + +m[1], 0), hi = mins.reduce((a, m) => a + +(m[2] || m[1]), 0);
-  return `<section class="series" id="series-${esc(sr.id)}" aria-labelledby="sh-${esc(sr.id)}">
+  const next = live.find(p => !op.has(p.sim)) || live[0];
+  const started = live.some(p => op.has(p.sim));
+  const levels = [...new Set(live.map(p => p.s.level))].join(', ');
+  const mins = minsOf(live.map(p => p.s));
+  const anyNew = live.some(p => isNew(p.s));
+  return `<section class="series${expanded ? ' open' : ''}" id="series-${esc(sr.id)}" aria-labelledby="sh-${esc(sr.id)}">
     <div class="series-head">
-      <div class="series-tag">📚 Series · ${parts.length} parts</div>
-      <h2 id="sh-${esc(sr.id)}">${esc(sr.title)}</h2>
-      <p>${esc(sr.summary || '')}</p>
-      <p class="note">${esc(sr.spec || '')}${sr.spec ? ' · ' : ''}${live.length} of ${parts.length} parts available${lo ? ' · about ' + (lo === hi ? lo : lo + '–' + hi) + ' min so far' : ''}</p>
-      <ol class="steps" aria-label="Parts in this series">${parts.map(p => p.s
-        ? `<li class="live"><a href="#part-${esc(p.sim)}"><b>${p.n}</b><span>${esc(p.title)}</span></a></li>`
+      <div class="series-tag">📚 Series · ${parts.length} parts${anyNew ? ' <span class="pill new">New</span>' : ''}</div>
+      <h3 id="sh-${esc(sr.id)}">${esc(sr.title)}</h3>
+      <p class="series-sum">${esc(sr.summary || '')}</p>
+      <p class="note">${[levels, live.length + ' of ' + parts.length + ' parts available', mins ? 'about ' + mins : '', sr.spec].filter(Boolean).map(esc).join(' · ')}</p>
+      <ol class="steps" aria-label="Parts in ${esc(sr.title)}">${parts.map(p => p.s
+        ? `<li class="live${op.has(p.sim) ? ' done' : ''}"><a href="${esc(p.s.student)}" data-open-id="${esc(p.sim)}" title="Open Part ${p.n}: ${esc(p.title)}"><b>${op.has(p.sim) ? '✓' : p.n}</b><span>${esc(p.title)}<small>${esc(p.s.minutes || '')}${op.has(p.sim) ? ' · opened' : ''}</small></span></a></li>`
         : `<li class="soon"><b>${p.n}</b><span>${esc(p.title)}<small>Coming soon</small></span></li>`).join('')}</ol>
-      <div class="btns">${first ? `<a class="btn primary" href="${esc(first.s.student)}">▶ Start with Part ${first.n}</a>` : ''}
+      <div class="btns">${next ? `<a class="btn primary" href="${esc(next.s.student)}" data-open-id="${esc(next.sim)}">▶ ${started ? 'Continue with' : 'Start with'} Part ${next.n}</a>` : ''}
+        <button type="button" class="btn" data-toggle-series="${esc(sr.id)}" aria-expanded="${expanded}" aria-controls="sp-${esc(sr.id)}">${expanded ? 'Hide details ▴' : 'Show all parts ▾'}</button>
         ${shareButtons(seriesLink(sr, areaId), sr.title + ' – 3D simulation series', 'Work through the parts of this series in order, starting with Part 1. Use headphones and keep the sound on.')}</div>
     </div>
-    <div class="series-parts">${shown.map(p => p.s ? simCard(p.s, cat)
+    <div class="series-parts" id="sp-${esc(sr.id)}" ${expanded ? '' : 'hidden'}>${shown.map(p => p.s ? simCard(p.s, cat)
       : `<div class="soon-card"><span class="num">${p.n}</span><span><b>Part ${p.n}: ${esc(p.title)}</b><small>Coming soon – this part is being built.</small></span></div>`).join('')}</div>
   </section>`;
 }
-export function seriesMini(sr, cat){
-  const live = sr.parts.map(p => cat.sims.find(x => x.id === p.sim)).filter(Boolean); if (!live.length) return '';
-  const a = cat.areas.find(x => sr.areas.includes(x.id));
-  return `<a class="mini" href="area.html?id=${esc(sr.areas[0])}&series=${esc(sr.id)}"><img src="${esc(live[0].thumb)}" alt="" loading="lazy">
-    <span><b>${esc(sr.title)}</b><small>${a ? esc(a.icon + ' ' + a.name) + ' · ' : ''}${live.length} of ${sr.parts.length} parts available</small><span class="pill ser">📚 Series</span></span></a>`;
+export function wireSeries(root=document){
+  root.querySelectorAll('[data-toggle-series]').forEach(b => b.onclick = () => {
+    const sec = b.closest('.series'), box = sec.querySelector('.series-parts'), open = box.hidden;
+    box.hidden = !open; sec.classList.toggle('open', open); b.setAttribute('aria-expanded', open); b.textContent = open ? 'Hide details ▴' : 'Show all parts ▾';
+    if (open) wireShare(box);
+  });
 }
-export function simCard(s, cat){
+export function simCard(s, cat, compact=false){
   const url = abs(s.student);
   const courseNames = s.courses.map(id => cat.courses.find(c => c.id===id)).filter(Boolean)
     .map(c => `<a href="area.html?id=${c.areaId}&course=${c.id}">${esc(c.name)}</a>`).join(' · ');
-  return `<article class="sim" id="part-${esc(s.id)}">
-    <img src="${esc(s.thumb)}" alt="Screenshot of the ${esc(s.title)} simulation" loading="lazy">
-    <div>
-      <h3>${esc(s.title)}</h3>
-      <div>${s.tags.map(t=>`<span class="pill">${esc(t)}</span>`).join('')}<span class="pill y">${esc(s.level)}</span>${isNew(s)?'<span class="pill new">New</span>':''}</div>
-      ${seriesOf(cat,s)?`<div>${partPill(cat,s)}<span class="note">${esc(seriesOf(cat,s).title)} series</span></div>`:''}
-      <p>${esc(s.summary)}</p>
-      <p class="note">${esc(s.spec)} · ${esc(s.minutes)} · Narration: ${esc(s.narration)}${courseNames?`<br>Used on: ${courseNames}`:''}</p>
+  const sr = seriesOf(cat, s);
+  const more = `<p class="note">${esc(s.spec)} · ${esc(s.minutes)} · Narration: ${esc(s.narration)}${courseNames?`<br>Used on: ${courseNames}`:''}</p>
       <div class="btns">
-        <a class="btn primary" href="${esc(s.student)}">▶ Open simulation</a>
+        <a class="btn primary" href="${esc(s.student)}" data-open-id="${esc(s.id)}">▶ Open simulation</a>
         <button class="btn offl" data-offline="${esc(s.student)}" hidden>⬇ Save for offline</button>
         ${s.transcript?`<a class="btn" href="${esc(s.transcript)}" title="Everything the narrator says, as text">📄 Transcript</a>`:''}
         ${shareButtons(url, s.classroomTitle||s.title, s.instructions||'')}
         ${s.worksheet&&staff()?`<a class="btn" href="${esc(s.worksheet)}" title="Printable worksheet with tasks and quiz questions">🖨 Worksheet</a>`:''}
         ${s.teacher&&staff()?`<a class="btn" href="${esc(s.teacher)}" title="Includes model answers and the quiz answer key">📋 Teacher version</a>`:''}
       </div>
-      ${staff()?`<div class="usage" data-usage="${esc(s.id)}" role="status">📊 Usage: loading…</div>`:''}
+      ${staff()?`<div class="usage" data-usage="${esc(s.id)}" role="status">📊 Usage: loading…</div>`:''}`;
+  const pills = `<div>${s.tags.map(t=>`<span class="pill">${esc(t)}</span>`).join('')}<span class="pill y">${esc(s.level)}</span>${isNew(s)?'<span class="pill new">New</span>':''}</div>
+      ${sr?`<div>${partPill(cat,s)}<span class="note">${esc(sr.title)} series</span></div>`:''}`;
+  if (compact) return `<article class="sim tile" id="part-${esc(s.id)}">
+    <img src="${esc(s.thumb)}" alt="Screenshot of the ${esc(s.title)} simulation" loading="lazy">
+    <div class="tile-body">
+      <h3>${esc(s.title)}</h3>
+      <div><span class="pill y">${esc(s.level)}</span><span class="pill">${esc(s.minutes)}</span>${isNew(s)?'<span class="pill new">New</span>':''}</div>
+      <p class="clamp">${esc(s.summary)}</p>
+      <div class="btns"><a class="btn primary" href="${esc(s.student)}" data-open-id="${esc(s.id)}">▶ Open</a></div>
+      <details class="more"><summary>More: transcript, offline${staff()?', sharing':''}</summary>${pills}<p>${esc(s.summary)}</p>${more}</details>
+    </div>
+  </article>`;
+  return `<article class="sim" id="part-${esc(s.id)}">
+    <img src="${esc(s.thumb)}" alt="Screenshot of the ${esc(s.title)} simulation" loading="lazy">
+    <div>
+      <h3>${esc(s.title)}</h3>
+      ${pills}
+      <p>${esc(s.summary)}</p>
+      ${more}
     </div>
   </article>`;
 }
+// remember which simulations were opened on this device
+addEventListener('click', e => { const a = e.target.closest && e.target.closest('[data-open-id]'); if (a) markOpened(a.dataset.openId); }, true);
 
 // Stats strip shown on the home page and area pages
 const LEVELS = ['Entry Level 1','Entry Level 2','Entry Level 3','Level 1','Level 2','Level 3','Level 4','Level 5','Level 6','Level 7'];

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>3D Learning Simulations – City of Wolverhampton College</title>
 <meta name="description" content="Interactive 3D learning simulations by curriculum area and course.">
-<link rel="stylesheet" href="assets/hub.css?v=17">
+<link rel="stylesheet" href="assets/hub.css?v=18">
 <script src="vendor/qrcode/qrcode.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#16325c">
@@ -27,11 +27,6 @@
     <h2>New simulations</h2>
     <div class="newrow" id="newRow"></div>
   </section>
-  <section id="serSec" hidden>
-    <h2>Series</h2>
-    <p class="note" style="margin:-4px 0 10px">Experiences made up of several simulations – work through the parts in order.</p>
-    <div class="newrow serrow" id="serRow"></div>
-  </section>
   <section>
     <h2>General — across curriculum areas</h2>
     <div id="general"></div>
@@ -51,7 +46,7 @@
 </main>
 <footer>Curriculum areas and courses from <a href="https://www.wolvcoll.ac.uk/" target="_blank" rel="noopener">wolvcoll.ac.uk</a>. Narration by ElevenLabs. 3D by three.js.</footer>
 <script type="module">
-import {loadCatalog, esc, simCard, wireShare, shareButtons, abs, initStaff, statsHtml, isNew, miniCard, requestLink, seriesMini} from './assets/hub.js?v=17';
+import {loadCatalog, esc, simCard, wireShare, shareButtons, abs, initStaff, statsHtml, isNew, miniCard, requestLink, seriesInArea} from './assets/hub.js?v=18';
 initStaff();
 const cat = await loadCatalog();
 { const fresh = cat.sims.filter(isNew).sort((a,b) => String(b.added).localeCompare(String(a.added)));
@@ -59,13 +54,11 @@ const cat = await loadCatalog();
   document.getElementById('reqBtn').href = requestLink(); }
 { const used = new Set(cat.sims.flatMap(s => s.areas));
   document.getElementById('stats').innerHTML = statsHtml(cat.sims, [[used.size + ' of ' + cat.areas.length, 'curriculum areas']]); }
-{ const sh = (cat.series || []).map(sr => seriesMini(sr, cat)).filter(Boolean);
-  if (sh.length) { document.getElementById('serRow').innerHTML = sh.join(''); document.getElementById('serSec').hidden = false; } }
 const count = id => cat.sims.filter(s => s.areas.includes(id)).length;
 document.getElementById('areas').innerHTML = cat.areas.map(a => {
   const n = count(a.id);
   return `<a class="area ${n?'has':''}" href="area.html?id=${a.id}"><span class="ic" aria-hidden="true">${a.icon}</span>
-    <span><b>${esc(a.name)}</b><small>${n? n+' simulation'+(n>1?'s':'') : 'Coming soon'}</small></span></a>`;
+    <span><b>${esc(a.name)}</b><small>${n? n+' simulation'+(n>1?'s':'') : 'Coming soon'}${(()=>{ const k=seriesInArea(cat,a.id).length; return k? ' · '+k+' series' : ''; })()}</small></span></a>`;
 }).join('');
 const gen = cat.sims.filter(s => s.general);
 document.getElementById('general').innerHTML = gen.length ? gen.map(s => simCard(s,cat)).join('')
@@ -76,7 +69,7 @@ q.oninput = () => {
   const t = q.value.trim().toLowerCase(), box = document.getElementById('results');
   if(!t){ box.hidden = true; return; }
   const hits = cat.sims.filter(s => (s.title+' '+s.summary+' '+s.tags.join(' ')).toLowerCase().includes(t));
-  document.getElementById('resList').innerHTML = hits.length ? hits.map(s => simCard(s,cat)).join('') : '<div class="empty">No simulations match that search yet.</div>';
+  document.getElementById('resList').innerHTML = hits.length ? (hits.length >= 4 ? '<div class="tiles">'+hits.map(s => simCard(s,cat,true)).join('')+'</div>' : hits.map(s => simCard(s,cat)).join('')) : '<div class="empty">No simulations match that search yet.</div>';
   box.hidden = false; wireShare(box);
 };
 wireShare();
