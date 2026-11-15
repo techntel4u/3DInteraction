@@ -2,7 +2,7 @@
    - Pages, scripts and data: network first, so updates show straight away; saved copy used when offline.
    - Audio and images: saved copy first (fast), refreshed in the background.
    - Opening a simulation saves all of its files (listed in sims/<id>/offline.json) for offline use. */
-const CACHE = 'sims-hub-v3';
+const CACHE = 'sims-hub-v4';
 const CORE = ['./', 'index.html', 'area.html', 'course.html', 'manifest.webmanifest',
   'assets/hub.css?v=10', 'assets/hub.js?v=10', 'data/catalog.json?v=10', 'vendor/qrcode/qrcode.js',
   'vendor/three/three.module.js', 'vendor/three/addons/controls/OrbitControls.js', 'vendor/three/addons/renderers/CSS2DRenderer.js',
@@ -34,7 +34,8 @@ async function saveSim(dir){
 async function networkFirst(req){
   const c = await caches.open(CACHE);
   try {
-    const res = await fetch(req);
+    // 'no-cache' asks GitHub whether the page changed, so updates reach phones straight away
+    const res = await fetch(req, {cache: 'no-cache'});
     if (res.ok && res.status === 200) c.put(req, res.clone());
     return res;
   } catch (err) {
