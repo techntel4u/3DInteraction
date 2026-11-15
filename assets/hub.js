@@ -1,6 +1,6 @@
 // Shared helpers for the simulation hub. Data lives in data/catalog.json.
 export async function loadCatalog(){
-  const r = await fetch('data/catalog.json?v=11', {cache:'no-cache'});
+  const r = await fetch('data/catalog.json?v=12', {cache:'no-cache'});
   return r.json();
 }
 /* ---------- Staff sign-in (Google, college staff accounts only) ----------
@@ -23,14 +23,7 @@ export function initStaff(){
     ? `<a class="linkbtn" href="${requestLink()}">✉️ Request a simulation</a><span>👩‍🏫 Teacher mode · ${esc(s.email)}</span> <button type="button" class="linkbtn" id="staffOut">Sign out</button>`
     : `<button type="button" class="linkbtn" id="staffIn">Staff sign in</button>`;
   wrap.prepend(bar);
-  // "Install app" appears only where the browser supports installing (Chrome/Edge/Android)
-  addEventListener('beforeinstallprompt', ev => {
-    ev.preventDefault();
-    if (bar.querySelector('#installBtn')) return;
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'linkbtn'; b.id = 'installBtn'; b.textContent = '📲 Install app';
-    b.onclick = async () => { ev.prompt(); try { await ev.userChoice; } catch(e){} b.remove(); };
-    bar.prepend(b);
-  });
+  initInstall(bar);
   const out = bar.querySelector('#staffOut'), inn = bar.querySelector('#staffIn');
   if (out) out.onclick = () => { try{ localStorage.removeItem(STAFF_KEY); window.google?.accounts?.id?.disableAutoSelect(); }catch(e){} location.reload(); };
   if (inn) inn.onclick = openSignIn;
@@ -195,4 +188,45 @@ export const REQUEST_EMAIL = 'taylorc@wolvcoll.ac.uk';
 export function requestLink(){
   const body = ['Curriculum area:','Course(s):','Topic or skill:','What do learners find hard about it?','Level:','Anything else (equipment, safety points, spec reference):','','Requested by:'].join('\n\n');
   return 'mailto:' + REQUEST_EMAIL + '?subject=' + encodeURIComponent('3D simulation request') + '&body=' + encodeURIComponent(body);
+}
+
+// "Install app": uses the browser's own install prompt where it exists (Chrome/Edge on computers and Android);
+// on iPhone/iPad and other phone browsers it shows the taps needed to add the hub to the home screen.
+let installEvt = null;
+addEventListener('beforeinstallprompt', ev => { ev.preventDefault(); installEvt = ev; document.getElementById('installBtn')?.removeAttribute('hidden'); });
+function initInstall(bar){
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  if (standalone) return;
+  const ua = navigator.userAgent;
+  const ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const phone = ios || /Android|Mobile/i.test(ua);
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'linkbtn'; b.id = 'installBtn'; b.textContent = '📲 Install app';
+  if (!phone && !installEvt) b.hidden = true;   // computers: only when the browser can install
+  b.onclick = async () => {
+    if (installEvt) { installEvt.prompt(); try { await installEvt.userChoice; } catch(e){} installEvt = null; return; }
+    showInstallHelp(ios, ua);
+  };
+  bar.prepend(b);
+}
+function showInstallHelp(ios, ua){
+  let d = document.getElementById('installDlg');
+  if (!d) { d = document.createElement('dialog'); d.id = 'installDlg'; document.body.appendChild(d); }
+  const inApp = /FBAN|FBAV|Instagram|Line\/|GSA\/|wv\)/.test(ua);
+  const steps = inApp
+    ? ['Tap the <b>⋮</b> or <b>…</b> menu and choose <b>Open in browser</b>.', 'Then tap <b>📲 Install app</b> again.']
+    : ios
+    ? (/CriOS|FxiOS|EdgiOS/.test(ua)
+        ? ['Tap the <b>Share</b> button <span aria-hidden="true">(⬆)</span> in the address bar.', 'Choose <b>Add to Home Screen</b>.', 'Tap <b>Add</b>.']
+        : ['Tap the <b>Share</b> button <span aria-hidden="true">(⬆)</span> at the bottom of Safari.', 'Scroll down and choose <b>Add to Home Screen</b>.', 'Tap <b>Add</b>.'])
+    : /SamsungBrowser/.test(ua)
+    ? ['Tap the <b>☰ menu</b> at the bottom right.', 'Choose <b>Add page to</b> → <b>Home screen</b>.', 'Tap <b>Add</b>.']
+    : /Firefox/.test(ua)
+    ? ['Tap the <b>⋮ menu</b>.', 'Choose <b>Install</b> or <b>Add to Home screen</b>.']
+    : ['Tap the <b>⋮ menu</b> at the top right.', 'Choose <b>Install app</b> or <b>Add to Home screen</b>.', 'Tap <b>Install</b>.'];
+  d.innerHTML = `<h3 style="margin:0 0 6px">Install the hub on this phone</h3>
+    <p class="note" style="margin:0 0 10px">You'll get a 3D Sims icon on your home screen. Simulations you save for offline then work without internet.</p>
+    <ol style="margin:0 0 14px;padding-left:20px;line-height:1.6">${steps.map(s => `<li>${s}</li>`).join('')}</ol>
+    <button class="btn primary" autofocus>Got it</button>`;
+  d.querySelector('button').onclick = () => d.close();
+  d.showModal();
 }

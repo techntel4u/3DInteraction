@@ -49,7 +49,7 @@ footer{max-width:1120px;margin:20px auto 40px;padding:0 20px;color:var(--muted);
 .linkbtn{background:transparent;border:1px solid rgba(255,255,255,.55);color:#fff;border-radius:999px;padding:5px 12px;font:inherit;font-weight:600;cursor:pointer;min-height:34px}
 .linkbtn:hover{background:rgba(255,255,255,.12)}
 body:not(.staff) .staffonly{display:none!important}
-#staffDlg{border:0;border-radius:16px;padding:20px 22px;max-width:420px;width:calc(100vw - 32px);box-shadow:0 12px 40px rgba(0,0,0,.25)}
+#staffDlg{text-align:left;border:0;border-radius:16px;padding:20px 22px;max-width:420px;width:calc(100vw - 32px);box-shadow:0 12px 40px rgba(0,0,0,.25)}
 #staffDlg::backdrop{background:rgba(15,22,38,.5)}
 
 /* area page: stats + course chips */
@@ -75,3 +75,5 @@ body:not(.staff) .staffonly{display:none!important}
 
 .btn.offl.saved{background:#e7f6ec;border-color:#9ccfa9;color:#14532d;cursor:default;opacity:1}
 .staffbar a.linkbtn{text-decoration:none;display:inline-flex;align-items:center}
+#installDlg{text-align:left;border:0;border-radius:16px;padding:20px 22px;max-width:420px;width:calc(100vw - 32px);box-shadow:0 12px 40px rgba(0,0,0,.25)}
+#installDlg::backdrop{background:rgba(15,22,38,.5)}
