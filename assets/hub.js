@@ -1,6 +1,6 @@
 // Shared helpers for the simulation hub. Data lives in data/catalog.json.
 export async function loadCatalog(){
-  const r = await fetch('data/catalog.json?v=9', {cache:'no-cache'});
+  const r = await fetch('data/catalog.json?v=10', {cache:'no-cache'});
   return r.json();
 }
 /* ---------- Staff sign-in (Google, college staff accounts only) ----------
@@ -23,6 +23,14 @@ export function initStaff(){
     ? `<span>👩‍🏫 Teacher mode · ${esc(s.email)}</span> <button type="button" class="linkbtn" id="staffOut">Sign out</button>`
     : `<button type="button" class="linkbtn" id="staffIn">Staff sign in</button>`;
   wrap.prepend(bar);
+  // "Install app" appears only where the browser supports installing (Chrome/Edge/Android)
+  addEventListener('beforeinstallprompt', ev => {
+    ev.preventDefault();
+    if (bar.querySelector('#installBtn')) return;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'linkbtn'; b.id = 'installBtn'; b.textContent = '📲 Install app';
+    b.onclick = async () => { ev.prompt(); try { await ev.userChoice; } catch(e){} b.remove(); };
+    bar.prepend(b);
+  });
   const out = bar.querySelector('#staffOut'), inn = bar.querySelector('#staffIn');
   if (out) out.onclick = () => { try{ localStorage.removeItem(STAFF_KEY); window.google?.accounts?.id?.disableAutoSelect(); }catch(e){} location.reload(); };
   if (inn) inn.onclick = openSignIn;
@@ -101,6 +109,8 @@ export function wireShare(root=document){
   root.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => copy(b.dataset.copy));
   root.querySelectorAll('[data-qr]').forEach(b => b.onclick = () => showQR(b.dataset.qr, b.dataset.title));
 }
+export const NEW_DAYS = 45;
+export const isNew = s => s.added && (Date.now() - new Date(s.added).getTime()) < NEW_DAYS*864e5;
 export function simCard(s, cat){
   const url = abs(s.student);
   const courseNames = s.courses.map(id => cat.courses.find(c => c.id===id)).filter(Boolean)
@@ -109,12 +119,14 @@ export function simCard(s, cat){
     <img src="${esc(s.thumb)}" alt="Screenshot of the ${esc(s.title)} simulation" loading="lazy">
     <div>
       <h3>${esc(s.title)}</h3>
-      <div>${s.tags.map(t=>`<span class="pill">${esc(t)}</span>`).join('')}<span class="pill y">${esc(s.level)}</span></div>
+      <div>${s.tags.map(t=>`<span class="pill">${esc(t)}</span>`).join('')}<span class="pill y">${esc(s.level)}</span>${isNew(s)?'<span class="pill new">New</span>':''}</div>
       <p>${esc(s.summary)}</p>
       <p class="note">${esc(s.spec)} · ${esc(s.minutes)} · Narration: ${esc(s.narration)}${courseNames?`<br>Used on: ${courseNames}`:''}</p>
       <div class="btns">
         <a class="btn primary" href="${esc(s.student)}">▶ Open simulation</a>
+        ${s.transcript?`<a class="btn" href="${esc(s.transcript)}" title="Everything the narrator says, as text">📄 Transcript</a>`:''}
         ${shareButtons(url, s.classroomTitle||s.title, s.instructions||'')}
+        ${s.worksheet&&staff()?`<a class="btn" href="${esc(s.worksheet)}" title="Printable worksheet with tasks and quiz questions">🖨 Worksheet</a>`:''}
         ${s.teacher&&staff()?`<a class="btn" href="${esc(s.teacher)}" title="Includes model answers and the quiz answer key">📋 Teacher version</a>`:''}
       </div>
     </div>
@@ -139,4 +151,17 @@ export function statsHtml(sims, extra=[]){
     [upd ? new Date(upd).toLocaleDateString('en-GB', {month:'short', year:'numeric'}) : '', 'last updated'],
   ].filter(x => x[0] !== '' && x[0] !== undefined);
   return items.map(([v,l]) => `<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('');
+}
+
+// Compact card for the "New" row on the home page
+export function miniCard(s, cat){
+  const a = cat.areas.find(x => s.areas.includes(x.id));
+  return `<a class="mini" href="${esc(s.student)}"><img src="${esc(s.thumb)}" alt="" loading="lazy">
+    <span><b>${esc(s.title)}</b><small>${a?esc(a.icon+' '+a.name)+' · ':''}${esc(s.level)}</small><span class="pill new">New</span></span></a>`;
+}
+// Staff-only "Request a simulation" box
+export const REQUEST_EMAIL = 'taylorc@wolvcoll.ac.uk';
+export function requestLink(){
+  const body = ['Curriculum area:','Course(s):','Topic or skill:','What do learners find hard about it?','Level:','Anything else (equipment, safety points, spec reference):','','Requested by:'].join('\n\n');
+  return 'mailto:' + REQUEST_EMAIL + '?subject=' + encodeURIComponent('3D simulation request') + '&body=' + encodeURIComponent(body);
 }

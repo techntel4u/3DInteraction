@@ -43,3 +43,11 @@ Staff press **Staff sign in** and use their `@wolvcoll.ac.uk` Google account to 
 
 - Google sign-in client: project **3DResources** (Google Cloud, wolvcoll.ac.uk), audience *Internal*, allowed origin `https://techntel4u.github.io`.
 - The check runs in the browser, so it hides the tools rather than locking them. Keep anything confidential (answer keys) in Drive shared with staff only.
+
+## Offline, transcripts and worksheets
+
+- **Installable and offline:** `manifest.webmanifest` + `sw.js`. Pages and data load from the network first (updates show at once) and fall back to the saved copy offline. Opening a simulation saves every file listed in `sims/<id>/offline.json`.
+- **Transcripts** (`sims/<id>/transcript.html`, everyone) and **worksheets** (`sims/<id>/worksheet.html`, shown to staff) are generated:
+  `node tools/extract-text.mjs && node tools/build-pages.mjs` — run after adding or changing a simulation (this also rebuilds `offline.json`).
+- **Audio:** narration is MP3, mono, 44.1 kHz, 80 kbps.
+- **New badge:** simulations added in the last 45 days (`added` in the catalog) show as New.

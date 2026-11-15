@@ -401,7 +401,10 @@
    "narration": "ElevenLabs (Alice, British)",
    "updated": "2026-11-14",
    "classroomTitle": "Cavity wall explorer – 3D simulation",
-   "instructions": "Open the link and work through the 3D cavity wall simulation (20–30 minutes). Use headphones and press Sound on.\n1. Guided tour: watch all 9 stages.\n2. Build it: assemble the wall in the right order and place the wall ties.\n3. Spot the faults: find all 6 faults. For each one, write down what is wrong and what it causes.\n4. Test yourself: answer the 5 questions. Use \"Show me\" if you get stuck.\nHand in your list of faults and your quiz score."
+   "instructions": "Open the link and work through the 3D cavity wall simulation (20–30 minutes). Use headphones and press Sound on.\n1. Guided tour: watch all 9 stages.\n2. Build it: assemble the wall in the right order and place the wall ties.\n3. Spot the faults: find all 6 faults. For each one, write down what is wrong and what it causes.\n4. Test yourself: answer the 5 questions. Use \"Show me\" if you get stuck.\nHand in your list of faults and your quiz score.",
+   "transcript": "sims/cavity-wall/transcript.html",
+   "worksheet": "sims/cavity-wall/worksheet.html",
+   "added": "2026-11-14"
   },
   {
    "id": "disc-brakes",
@@ -431,7 +434,10 @@
    "narration": "ElevenLabs (Alice, British)",
    "updated": "2026-11-14",
    "classroomTitle": "Disc brakes & hydraulics – 3D simulation",
-   "instructions": "Open the link and work through the 3D disc brake simulation (20–30 minutes). Use headphones and press Sound on.\n1. Guided tour: follow all 9 steps.\n2. Hold to brake: watch the fluid, the piston and the pads. Try slow motion.\n3. Inspect: tap each part and note what it does and what to check.\n4. Spot the fault: add worn pads, then air in the fluid. Describe the pedal feel and stopping distance for each.\n5. Test yourself: answer the 5 questions.\nHand in your fault notes and your quiz score."
+   "instructions": "Open the link and work through the 3D disc brake simulation (20–30 minutes). Use headphones and press Sound on.\n1. Guided tour: follow all 9 steps.\n2. Hold to brake: watch the fluid, the piston and the pads. Try slow motion.\n3. Inspect: tap each part and note what it does and what to check.\n4. Spot the fault: add worn pads, then air in the fluid. Describe the pedal feel and stopping distance for each.\n5. Test yourself: answer the 5 questions.\nHand in your fault notes and your quiz score.",
+   "transcript": "sims/disc-brakes/transcript.html",
+   "worksheet": "sims/disc-brakes/worksheet.html",
+   "added": "2026-11-14"
   },
   {
    "id": "threadripper-cpu",
@@ -461,7 +467,10 @@
    "narration": "ElevenLabs (Alice, British)",
    "updated": "2026-11-14",
    "classroomTitle": "Installing an AMD Threadripper CPU – 3D simulation",
-   "instructions": "Open the link and work through the 3D CPU installation simulation (15–20 minutes). Use headphones and press Sound on.\n1. Play the tour and watch all 12 steps. Use the step buttons to go back to anything you missed.\n2. For each step, write down the action and the common mistake shown.\n3. Note the screw torque and the order the screws are tightened in.\n4. Open \"What you'll learn\", then press Test yourself and answer the questions.\nHand in your step-by-step notes and your quiz score."
+   "instructions": "Open the link and work through the 3D CPU installation simulation (15–20 minutes). Use headphones and press Sound on.\n1. Play the tour and watch all 12 steps. Use the step buttons to go back to anything you missed.\n2. For each step, write down the action and the common mistake shown.\n3. Note the screw torque and the order the screws are tightened in.\n4. Open \"What you'll learn\", then press Test yourself and answer the questions.\nHand in your step-by-step notes and your quiz score.",
+   "transcript": "sims/threadripper-cpu/transcript.html",
+   "worksheet": "sims/threadripper-cpu/worksheet.html",
+   "added": "2026-11-14"
   }
  ],
  "courseInstructions": "Open the link to see the 3D simulations on this page. Work through each one, starting with the Guided tour (use headphones and press Sound on), then try Build it, Spot the faults and Test yourself. Note your quiz score for each simulation.",

@@ -142,6 +142,8 @@
     .tag span{font-size:10.5px;padding:1px 6px}
   }
 </style>
+<meta name="theme-color" content="#16325c">
+<link rel="icon" href="../../icons/icon-192.png">
 </head>
 <body>
 <a id="hubBack" href="../../index.html" title="Back to the simulation hub" aria-label="Back to the simulation hub">← Hub</a>
@@ -1133,5 +1135,6 @@ if (params.has('drawer')) openDrawer(params.get('drawer'));
 if (params.has('inspect')) openInspect(params.get('inspect'));
 </script>
 <script>(function(){var b=document.getElementById('readBtn'),p=document.getElementById('panel');b.onclick=function(){var o=p.classList.toggle('exp');b.setAttribute('aria-expanded',o);b.textContent=o?'Hide readings ▴':'Show readings ▾';};})();</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('../../sw.js',{scope:'../../'}).catch(function(){});</script>
 </body>
 </html>

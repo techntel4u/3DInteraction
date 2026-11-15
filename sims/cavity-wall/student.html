@@ -152,6 +152,8 @@ blockquote{margin:6px 0;padding:6px 10px;border-left:4px solid var(--navy2);back
   .lbl{font-size:11px;padding:2px 6px}
 }
 </style>
+<meta name="theme-color" content="#16325c">
+<link rel="icon" href="../../icons/icon-192.png">
 </head>
 <body>
 <div id="view"></div>
@@ -1148,5 +1150,6 @@ fitView(); addEventListener('resize',fitView);
 requestAnimationFrame(frame);
 window.__ready=true;
 </script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('../../sw.js',{scope:'../../'}).catch(function(){});</script>
 </body>
 </html>

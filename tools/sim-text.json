@@ -1,0 +1,380 @@
+{
+ "cavity-wall": {
+  "sections": [
+   {
+    "title": "Guided tour",
+    "items": [
+     {
+      "h": "What is a cavity wall?",
+      "t": "A cavity wall is two walls, called leaves, with a gap between them called the cavity. The outer leaf is brick and the inner leaf is block. Wall ties hold the two leaves together. This is a short length of a longer wall, part-built."
+     },
+     {
+      "h": "Damp-proof course (DPC)",
+      "t": "Below ground is the substructure. The damp-proof course (DPC) is a waterproof strip laid in a bed joint (horizontal mortar joint) of both leaves. It goes at least 150 mm above the outside ground, so damp from the ground can’t rise up the wall."
+     },
+     {
+      "h": "Inner leaf",
+      "t": "The inner leaf (blockwork) goes up first. It is called the leading leaf. A concrete lintel spans the window opening. On site the leaves go up in lifts, a bit at a time — here each one is shown going up in one go so it’s easy to see."
+     },
+     {
+      "h": "Wall ties",
+      "t": "Wall ties join the two leaves. In the main wall they go no more than 900 mm apart across and 450 mm apart up, staggered. Beside an opening they go within 225 mm of the edge, no more than 300 mm apart up. They are bedded in mortar as each lift is built, and kept off the DPC."
+     },
+     {
+      "h": "Insulation",
+      "t": "Partial-fill insulation boards are fixed tight against the inner leaf. Retaining clips on the wall ties hold them in place. At least 50 mm of clear cavity is left between the boards and the outer leaf."
+     },
+     {
+      "h": "Outer leaf",
+      "t": "The outer leaf (facing brickwork) goes up. Each tie sits at least 50 mm into each leaf, level or falling slightly outwards, with its drip in the middle of the clear cavity, pointing down. Keep mortar out of the cavity."
+     },
+     {
+      "h": "Openings",
+      "t": "At the window, cavity closers close the cavity at the reveals (the sides of the opening). Above the lintel, a cavity tray with stop ends catches water in the cavity and runs it outwards. Weep holes let it out — at least two per opening, no more than 450 mm apart."
+     },
+     {
+      "h": "Keeping water out",
+      "t": "Here the wall is cut through. Rain that soaks through the outer leaf runs down its inside face. It drips off the tie drips and drains away below the DPC — the cavity carries on at least 225 mm below it. Above the window, the tray and weep holes send it outside. The inner leaf stays dry."
+     },
+     {
+      "h": "When it goes wrong",
+      "t": "Mortar droppings on ties or at the bottom of the cavity, ties sloping inwards, or a loose insulation board all make a bridge. Water crosses the cavity and causes damp inside. Now try the Spot the faults challenge."
+     }
+    ]
+   }
+  ],
+  "quiz": [
+   {
+    "q": "In the main wall, what is the maximum spacing for wall ties?",
+    "o": [
+     "900 mm across, 450 mm up (staggered)",
+     "450 mm across, 900 mm up",
+     "1200 mm across, 600 mm up",
+     "600 mm across, 600 mm up"
+    ]
+   },
+   {
+    "q": "Which way should the drip on a wall tie point?",
+    "o": [
+     "Up, against the outer leaf",
+     "Down, in the middle of the clear cavity",
+     "Down, touching the insulation",
+     "It doesn’t matter"
+    ]
+   },
+   {
+    "q": "How high above the outside ground should the DPC be?",
+    "o": [
+     "At ground level",
+     "At least 75 mm",
+     "At least 150 mm",
+     "At least 600 mm"
+    ]
+   },
+   {
+    "q": "Where do partial-fill insulation boards go?",
+    "o": [
+     "Against the outer leaf",
+     "In the middle of the cavity",
+     "Against the inner leaf, keeping at least 50 mm clear cavity",
+     "Filling the whole cavity"
+    ]
+   },
+   {
+    "q": "What is the job of a weep hole above a cavity tray?",
+    "o": [
+     "To let water drain out of the cavity",
+     "To let you check the wall ties",
+     "To let air dry the bricks",
+     "To drain water off the DPC at ground level"
+    ]
+   }
+  ]
+ },
+ "disc-brakes": {
+  "sections": [
+   {
+    "title": "Guided tour",
+    "items": [
+     {
+      "h": "Welcome",
+      "t": "This is the disc brake from one wheel of a car, with the brake pedal and master cylinder. Some parts are cut in half so you can see inside. Drag to turn it. Pinch or scroll to zoom."
+     },
+     {
+      "h": "1. Press the pedal",
+      "t": "When you press the brake pedal, it pushes a rod into the master cylinder. The pedal works like a lever, so a small push from your foot becomes a big push."
+     },
+     {
+      "h": "2. Brake fluid carries the push",
+      "t": "The master cylinder pushes brake fluid (orange) along the pipe. A liquid cannot be squashed, so the push at the pedal comes out just as strong at the wheel. The arrows show the pressure travelling to the caliper."
+     },
+     {
+      "h": "3. The piston pushes the pads",
+      "t": "The fluid pushes the caliper piston out. The piston pushes the inner pad onto the disc. The caliper then slides on its pins and pulls the outer pad onto the other side."
+     },
+     {
+      "h": "4. Friction slows the car",
+      "t": "The pads rub on the spinning disc. This friction slows the wheel. The movement of the car turns into heat. Hard braking from high speed can make the disc glow red hot."
+     },
+     {
+      "h": "5. Let go of the pedal",
+      "t": "When you let go, the fluid pressure drops. The rubber piston seal pulls the piston back a little, so the pads stop touching the disc and the wheel can turn freely."
+     },
+     {
+      "h": "Fault: worn brake pads",
+      "t": "These pads are worn thin. The piston has to come out further, so the pedal goes down further. Thin pads grip less, so the car takes longer to stop. Listen for the squeal of the wear indicator."
+     },
+     {
+      "h": "Fault: air in the brake line",
+      "t": "There is air (white bubbles) in the brake fluid. Air can be squashed, so the pedal feels spongy and sinks towards the floor. The brakes are much weaker. The fix is to bleed the brakes at the bleed nipple."
+     },
+     {
+      "h": "Inspect the parts",
+      "t": "The brake is now taken apart. Tap or click any part to see what it does and what to check. Look at the pads, the disc, the slide pins and the piston seal."
+     }
+    ]
+   },
+   {
+    "title": "What happens when you brake",
+    "items": [
+     {
+      "h": "1. Press the pedal",
+      "t": "Step one. Your foot pushes the brake pedal. The pedal pushes a rod into the master cylinder."
+     },
+     {
+      "h": "2. Fluid carries the push",
+      "t": "Step two. The master cylinder pushes brake fluid along the pipe. Fluid cannot be squashed, so it carries the push to the wheel."
+     },
+     {
+      "h": "3. The pads squeeze the disc",
+      "t": "Step three. The fluid pushes the caliper piston out. The piston pushes the inner pad onto the disc, and the caliper slides to pull the outer pad on too."
+     },
+     {
+      "h": "4. Friction slows the car",
+      "t": "Step four. The pads rub on the spinning disc. Friction slows the car, and the movement turns into heat."
+     },
+     {
+      "h": "5. Let go of the pedal",
+      "t": "Step five. You let go. The pressure drops, and the piston seal pulls the piston back a little, so the pads let go of the disc."
+     }
+    ]
+   },
+   {
+    "title": "The parts",
+    "items": [
+     {
+      "h": "Brake pedal",
+      "t": "The driver presses it with their foot. It works like a lever to make the push bigger. What to check: The pedal should feel firm and stop well above the floor."
+     },
+     {
+      "h": "Master cylinder",
+      "t": "Turns the push from the pedal into brake fluid pressure. What to check: No fluid leaks around the master cylinder."
+     },
+     {
+      "h": "Brake fluid reservoir",
+      "t": "Holds spare brake fluid for the system. What to check: Fluid level between MIN and MAX. A low level can mean worn pads or a leak."
+     },
+     {
+      "h": "Brake pipe and hose",
+      "t": "Carry the brake fluid from the master cylinder to the caliper. What to check: No leaks, rust or damage. Flexible hoses must not be cracked or bulging."
+     },
+     {
+      "h": "Caliper",
+      "t": "Holds the piston and pads. It slides on its pins so both pads squeeze the disc. What to check: No fluid leaks. The caliper should slide freely."
+     },
+     {
+      "h": "Caliper piston",
+      "t": "Brake fluid pushes it out. It pushes the inner pad onto the disc. What to check: Moves freely. Not seized, rusty or leaking."
+     },
+     {
+      "h": "Piston seal",
+      "t": "A rubber ring. It stops fluid leaking out, and pulls the piston back a little when you let go. What to check: No fluid leaking past the piston."
+     },
+     {
+      "h": "Caliper slide pins",
+      "t": "Let the caliper slide in and out so both pads press evenly. What to check: Slide freely, greased, and rubber boots not split."
+     },
+     {
+      "h": "Brake pads",
+      "t": "Squeeze the disc. The friction between pad and disc slows the wheel. What to check: Enough friction material left (usually at least 3 mm – check the data). No cracks. Even wear."
+     },
+     {
+      "h": "Brake disc (rotor)",
+      "t": "Turns with the wheel. The pads squeeze it to slow the car. What to check: Smooth surface. No deep scores, cracks or big lip on the edge."
+     },
+     {
+      "h": "Caliper carrier",
+      "t": "Bolted to the car. Holds the pads and the slide pins. What to check: Bolts tight. Pads slide in it freely."
+     },
+     {
+      "h": "Bleed nipple",
+      "t": "A small valve used to let air out of the brake fluid. This is called bleeding the brakes. What to check: Not seized, and the dust cap is fitted."
+     }
+    ]
+   }
+  ],
+  "quiz": [
+   {
+    "q": "What does the brake pedal push?",
+    "o": [
+     "The brake disc",
+     "A rod into the master cylinder",
+     "The brake pads directly",
+     "The wheel"
+    ]
+   },
+   {
+    "q": "Why is brake fluid used to carry the push to the wheel?",
+    "o": [
+     "It is cheap",
+     "It cannot be squashed",
+     "It cools the engine",
+     "It makes the car lighter"
+    ]
+   },
+   {
+    "q": "What pushes the brake pads onto the disc?",
+    "o": [
+     "The caliper piston",
+     "The slide pins",
+     "The bleed nipple",
+     "The reservoir"
+    ]
+   },
+   {
+    "q": "When the pads squeeze the disc, the car’s movement is turned into…",
+    "o": [
+     "Light",
+     "Electricity",
+     "Heat",
+     "Air"
+    ]
+   },
+   {
+    "q": "The pedal feels spongy and sinks nearly to the floor. What is the most likely fault?",
+    "o": [
+     "Worn brake pads",
+     "Air in the brake line",
+     "A hot disc",
+     "Low tyre pressure"
+    ]
+   }
+  ]
+ },
+ "threadripper-cpu": {
+  "sections": [
+   {
+    "title": "Step by step",
+    "items": [
+     {
+      "h": "Prepare safely",
+      "t": "Switch off and unplug the mains cable from the power supply. Work on an antistatic mat, wear an ESD wrist strap connected to ground, and handle parts by their edges.",
+      "warn": "Skipping the wrist strap: a static discharge too small to feel can still damage the CPU or motherboard."
+     },
+     {
+      "h": "Loosen screws 3 → 2 → 1",
+      "t": "Use a Torx T20 driver to loosen the three captive force-frame screws in reverse order: 3, then 2, then 1. The numbers are printed on the force frame.",
+      "warn": "Using the wrong bit size can strip the Torx heads. Use a T20."
+     },
+     {
+      "h": "Force frame springs open",
+      "t": "The force frame is spring-loaded, so it pops up as the last screw is released. Lift it to the fully open position.",
+      "warn": "Keep fingers, tools and loose items away from the socket area while it is open."
+     },
+     {
+      "h": "Lift the rail frame",
+      "t": "Pull up the tabs on both sides of the rail frame to release it, then lift it to its upright position. It is spring-loaded too, so keep hold of it.",
+      "warn": "Letting the rail frame snap up or down can knock the socket. Move it gently."
+     },
+     {
+      "h": "Remove the external cap",
+      "t": "Slide the clear external cap up and out of the rail frame. Keep it: it goes back in if the board is ever stored or returned without a CPU.",
+      "warn": "The external cap is not the socket cover. The PnP cover cap on the socket stays on for now."
+     },
+     {
+      "h": "Slide in the carrier and CPU",
+      "t": "Hold the orange carrier frame by its tab and slide it down the rails until it clicks into place. It only fits one way: the tab faces up and away from the socket.",
+      "warn": "Never take the CPU out of the orange carrier frame, and never force it into the rails."
+     },
+     {
+      "h": "Remove the PnP cover cap",
+      "t": "Now lift the PnP cover cap off the socket using its tabs. The exposed socket contacts are extremely fragile: don’t touch them or let anything drop onto them.",
+      "warn": "Removing the cap too early leaves the contacts exposed for longer. On this socket the contacts are in the motherboard, so bent contacts usually mean a damaged board."
+     },
+     {
+      "h": "Close both frames",
+      "t": "Lower the rail frame gently until it latches onto the socket housing, then lower the force frame over it.",
+      "warn": "Never press down on the CPU with your fingers to seat it. The force frame does the clamping."
+     },
+     {
+      "h": "Tighten screws 1 → 2 → 3",
+      "t": "Start all three screws in the order 1, 2, 3, then tighten them fully in the same order with a torque-limiting T20 driver. Stop at the click: about 1.6 N·m (14 lbf·in). Check your motherboard manual.",
+      "warn": "Tightening in the wrong order, or over-tightening, can cause serious damage to the socket or the CPU."
+     },
+     {
+      "h": "Apply thermal paste",
+      "t": "If the cooler has paste pre-applied, don’t add more. Otherwise apply paste as the cooler or paste maker’s guide shows. This large lid needs a pattern that spreads across the whole surface, not one small dot.",
+      "warn": "Too much paste lowers heat conductivity and cooling performance."
+     },
+     {
+      "h": "Fit the cooler",
+      "t": "Remove the protective film from the cooler base, lower the cooler straight down onto the CPU, then tighten its screws evenly in a diagonal pattern, a little at a time. Use the cooler’s own instructions and torque, not the socket value.",
+      "warn": "Leaving the protective film on the cooler base blocks heat transfer, so the CPU can overheat."
+     },
+     {
+      "h": "Connect CPU_FAN",
+      "t": "Plug the cooler fan into the CPU_FAN header on the motherboard so the board can read its speed and control it. Then reconnect power and check the CPU temperature and fan speed in the BIOS/UEFI.",
+      "warn": "Forgetting to connect the fan, or using the wrong header, means the board can’t properly monitor or control the CPU fan, and the CPU can overheat."
+     }
+    ]
+   }
+  ],
+  "quiz": [
+   {
+    "q": "In which order do you loosen the force frame screws?",
+    "o": [
+     "1 → 2 → 3",
+     "3 → 2 → 1",
+     "Any order",
+     "2 → 1 → 3"
+    ]
+   },
+   {
+    "q": "When do you remove the PnP cover cap from the socket?",
+    "o": [
+     "Before opening the force frame",
+     "After the carrier frame and CPU are in the rail frame",
+     "After the cooler is fitted",
+     "You never remove it"
+    ]
+   },
+   {
+    "q": "On an sTR5 system, where are the fragile contacts (pins)?",
+    "o": [
+     "On the underside of the CPU",
+     "In the motherboard socket",
+     "On the carrier frame",
+     "On the force frame"
+    ]
+   },
+   {
+    "q": "How do you tighten the force frame screws?",
+    "o": [
+     "In the order 1 → 2 → 3 until the torque driver clicks (about 1.6 N·m)",
+     "As tight as possible with a normal screwdriver",
+     "3 → 2 → 1, by hand only",
+     "Any order, to about 5 N·m"
+    ]
+   },
+   {
+    "q": "Your new cooler has thermal paste already applied. What do you do?",
+    "o": [
+     "Add a large blob on top for extra cooling",
+     "Fit it as supplied without adding more paste",
+     "Wipe it off and use one pea-sized dot",
+     "Put paste on the motherboard instead"
+    ]
+   }
+  ]
+ }
+}
