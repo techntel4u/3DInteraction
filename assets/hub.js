@@ -1,6 +1,6 @@
 // Shared helpers for the simulation hub. Data lives in data/catalog.json.
 export async function loadCatalog(){
-  const r = await fetch('data/catalog.json?v=12', {cache:'no-cache'});
+  const r = await fetch('data/catalog.json?v=13', {cache:'no-cache'});
   return r.json();
 }
 /* ---------- Staff sign-in (Google, college staff accounts only) ----------
@@ -20,7 +20,7 @@ export function initStaff(){
   const wrap = document.querySelector('header.top .wrap'); if (!wrap) return;
   const bar = document.createElement('div'); bar.className = 'staffbar';
   bar.innerHTML = s
-    ? `<a class="linkbtn" href="${requestLink()}">✉️ Request a simulation</a><span>👩‍🏫 Teacher mode · ${esc(s.email)}</span> <button type="button" class="linkbtn" id="staffOut">Sign out</button>`
+    ? `<a class="linkbtn" href="${requestLink()}" target="_blank" rel="noopener">📝 Request a simulation</a><span>👩‍🏫 Teacher mode · ${esc(s.email)}</span> <button type="button" class="linkbtn" id="staffOut">Sign out</button>`
     : `<button type="button" class="linkbtn" id="staffIn">Staff sign in</button>`;
   wrap.prepend(bar);
   initInstall(bar);
@@ -183,12 +183,9 @@ export function miniCard(s, cat){
   return `<a class="mini" href="${esc(s.student)}"><img src="${esc(s.thumb)}" alt="" loading="lazy">
     <span><b>${esc(s.title)}</b><small>${a?esc(a.icon+' '+a.name)+' · ':''}${esc(s.level)}</small><span class="pill new">New</span></span></a>`;
 }
-// Staff-only "Request a simulation" box
-export const REQUEST_EMAIL = 'taylorc@wolvcoll.ac.uk';
-export function requestLink(){
-  const body = ['Curriculum area:','Course(s):','Topic or skill:','What do learners find hard about it?','Level:','Anything else (equipment, safety points, spec reference):','','Requested by:'].join('\n\n');
-  return 'mailto:' + REQUEST_EMAIL + '?subject=' + encodeURIComponent('3D simulation request') + '&body=' + encodeURIComponent(body);
-}
+// Staff-only "Request a simulation": opens the Microsoft Form in a new tab
+export const REQUEST_FORM = 'https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=MGiE95mlWECLAJ2oTSWGmuO6R6IeSGFPiHGI99lOOwhUOUtJQTBXSjVFSVRDUURWT0VaWEY0UVZTVSQlQCN0PWcu';
+export function requestLink(){ return REQUEST_FORM; }
 
 // "Install app": uses the browser's own install prompt where it exists (Chrome/Edge on computers and Android);
 // on iPhone/iPad and other phone browsers it shows the taps needed to add the hub to the home screen.

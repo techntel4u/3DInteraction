@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>3D Learning Simulations – City of Wolverhampton College</title>
 <meta name="description" content="Interactive 3D learning simulations by curriculum area and course.">
-<link rel="stylesheet" href="assets/hub.css?v=12">
+<link rel="stylesheet" href="assets/hub.css?v=13">
 <script src="vendor/qrcode/qrcode.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#16325c">
@@ -36,8 +36,8 @@
     <div class="grid" id="areas"></div>
   </section>
   <div class="sharebar staffonly" style="margin-top:26px">
-    <span><b>Need a simulation for your course?</b><br><span class="note">Tell us the topic and what learners find hard, and we'll look at building it.</span></span>
-    <div class="btns" style="margin:0"><a class="btn primary" id="reqBtn" href="#">✉️ Request a simulation</a></div>
+    <span><b>Need a simulation for your course?</b><br><span class="note">Fill in a short form: the topic and what learners find hard, and we'll look at building it.</span></span>
+    <div class="btns" style="margin:0"><a class="btn primary" id="reqBtn" href="#" target="_blank" rel="noopener">📝 Request a simulation</a></div>
   </div>
   <div class="sharebar staffonly" style="margin-top:12px">
     <span><b>Share this hub</b> <span class="note">with staff or students</span></span>
@@ -46,7 +46,7 @@
 </main>
 <footer>Curriculum areas and courses from <a href="https://www.wolvcoll.ac.uk/" target="_blank" rel="noopener">wolvcoll.ac.uk</a>. Narration by ElevenLabs. 3D by three.js.</footer>
 <script type="module">
-import {loadCatalog, esc, simCard, wireShare, shareButtons, abs, initStaff, statsHtml, isNew, miniCard, requestLink} from './assets/hub.js?v=12';
+import {loadCatalog, esc, simCard, wireShare, shareButtons, abs, initStaff, statsHtml, isNew, miniCard, requestLink} from './assets/hub.js?v=13';
 initStaff();
 const cat = await loadCatalog();
 { const fresh = cat.sims.filter(isNew).sort((a,b) => String(b.added).localeCompare(String(a.added)));
