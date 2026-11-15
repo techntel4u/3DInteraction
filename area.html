@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Curriculum area – 3D Learning Simulations</title>
-<link rel="stylesheet" href="assets/hub.css?v=10">
+<link rel="stylesheet" href="assets/hub.css?v=11">
 <script src="vendor/qrcode/qrcode.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#16325c">
@@ -26,9 +26,9 @@
   </div>
   <div id="sims"></div>
 </main>
-<footer>Curriculum areas from <a href="https://www.wolvcoll.ac.uk/">wolvcoll.ac.uk</a>.</footer>
+<footer>Curriculum areas from <a href="https://www.wolvcoll.ac.uk/" target="_blank" rel="noopener">wolvcoll.ac.uk</a>.</footer>
 <script type="module">
-import {loadCatalog, qs, esc, simCard, wireShare, shareButtons, initStaff, abs, statsHtml} from './assets/hub.js?v=10';
+import {loadCatalog, qs, esc, simCard, wireShare, shareButtons, initStaff, abs, statsHtml} from './assets/hub.js?v=11';
 initStaff();
 const cat = await loadCatalog();
 const a = cat.areas.find(x => x.id === qs('id'));
@@ -38,7 +38,7 @@ else {
   document.title = a.name + ' – 3D Learning Simulations';
   $('crumb').textContent = a.name;
   $('title').textContent = a.icon + ' ' + a.name;
-  $('sub').innerHTML = a.collegeUrl ? `See <a style="color:#fff" href="${a.collegeUrl}">${esc(a.name)} courses on the college website</a>.` : '';
+  $('sub').innerHTML = a.collegeUrl ? `See <a style="color:#fff" href="${a.collegeUrl}" target="_blank" rel="noopener">${esc(a.name)} courses on the college website</a>.` : '';
   const all = cat.sims.filter(s => s.areas.includes(a.id));
   // courses in this area that have at least one simulation
   const courses = cat.courses.filter(c => c.areaId === a.id && all.some(s => s.courses.includes(c.id)));

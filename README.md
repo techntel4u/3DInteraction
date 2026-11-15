@@ -46,7 +46,8 @@ Staff press **Staff sign in** and use their `@wolvcoll.ac.uk` Google account to 
 
 ## Offline, transcripts and worksheets
 
-- **Installable and offline:** `manifest.webmanifest` + `sw.js`. Pages and data load from the network first (updates show at once) and fall back to the saved copy offline. Opening a simulation saves every file listed in `sims/<id>/offline.json`.
+- **Installable and offline:** each card has a "Save for offline" button (saved sims are kept in a separate cache across updates).
+- **Installable and offline (how):** `manifest.webmanifest` + `sw.js`. Pages and data load from the network first (updates show at once) and fall back to the saved copy offline. Opening a simulation saves every file listed in `sims/<id>/offline.json`.
 - **Transcripts** (`sims/<id>/transcript.html`, everyone) and **worksheets** (`sims/<id>/worksheet.html`, shown to staff) are generated:
   `node tools/extract-text.mjs && node tools/build-pages.mjs` — run after adding or changing a simulation (this also rebuilds `offline.json`).
 - **Audio:** narration is MP3, mono, 44.1 kHz, 80 kbps.

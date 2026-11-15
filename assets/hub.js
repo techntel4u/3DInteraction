@@ -1,6 +1,6 @@
 // Shared helpers for the simulation hub. Data lives in data/catalog.json.
 export async function loadCatalog(){
-  const r = await fetch('data/catalog.json?v=10', {cache:'no-cache'});
+  const r = await fetch('data/catalog.json?v=11', {cache:'no-cache'});
   return r.json();
 }
 /* ---------- Staff sign-in (Google, college staff accounts only) ----------
@@ -20,7 +20,7 @@ export function initStaff(){
   const wrap = document.querySelector('header.top .wrap'); if (!wrap) return;
   const bar = document.createElement('div'); bar.className = 'staffbar';
   bar.innerHTML = s
-    ? `<span>👩‍🏫 Teacher mode · ${esc(s.email)}</span> <button type="button" class="linkbtn" id="staffOut">Sign out</button>`
+    ? `<a class="linkbtn" href="${requestLink()}">✉️ Request a simulation</a><span>👩‍🏫 Teacher mode · ${esc(s.email)}</span> <button type="button" class="linkbtn" id="staffOut">Sign out</button>`
     : `<button type="button" class="linkbtn" id="staffIn">Staff sign in</button>`;
   wrap.prepend(bar);
   // "Install app" appears only where the browser supports installing (Chrome/Edge/Android)
@@ -105,7 +105,37 @@ export function shareButtons(url, title, body=''){
   <a class="btn gc" href="${esc(classroomUrl(url, title, body))}" target="_blank" rel="noopener">🎓 Share to Google Classroom</a>
   <button class="btn" data-qr="${esc(url)}" data-title="${esc(title)}">▦ QR code</button>`;
 }
+// "Save for offline": shows ✓ when every file of a simulation is saved on this device
+const simDirOf = rel => { const p = new URL(rel, location.href).pathname; return p.slice(0, p.lastIndexOf('/') + 1); };
+async function offlineState(dir){
+  try {
+    const r = (await caches.match(dir + 'offline.json')) || (await fetch(dir + 'offline.json')); if (!r.ok) return null;
+    const list = await r.clone().json(); let have = 0;
+    for (const f of list.files) if (await caches.match(location.origin + dir + f)) have++;
+    return {total: list.files.length, have};
+  } catch(e){ return null; }
+}
+function wireOffline(root){
+  if (!('serviceWorker' in navigator) || !window.caches) return;
+  root.querySelectorAll('[data-offline]').forEach(async b => {
+    const dir = simDirOf(b.dataset.offline);
+    const done = () => { b.textContent = '✓ Saved for offline'; b.classList.add('saved'); b.disabled = true; b.title = 'This simulation works on this device without internet'; };
+    const st = await offlineState(dir); b.hidden = false;
+    if (st && st.total && st.have >= st.total) return done();
+    b.onclick = async () => {
+      b.disabled = true; b.textContent = 'Saving…';
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        const res = await new Promise((ok, bad) => { const ch = new MessageChannel(); ch.port1.onmessage = e => ok(e.data);
+          (reg.active || navigator.serviceWorker.controller).postMessage({type: 'save-sim', dir}, [ch.port2]); setTimeout(() => bad(new Error('timeout')), 120000); });
+        if (res && res.total && res.saved >= res.total) { done(); toast('Saved – it will work without internet'); }
+        else { b.disabled = false; b.textContent = '⬇ Save for offline'; toast('Could not save everything – check your connection and try again'); }
+      } catch(e){ b.disabled = false; b.textContent = '⬇ Save for offline'; toast('Saving needs an internet connection – try again'); }
+    };
+  });
+}
 export function wireShare(root=document){
+  wireOffline(root);
   root.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => copy(b.dataset.copy));
   root.querySelectorAll('[data-qr]').forEach(b => b.onclick = () => showQR(b.dataset.qr, b.dataset.title));
 }
@@ -124,6 +154,7 @@ export function simCard(s, cat){
       <p class="note">${esc(s.spec)} · ${esc(s.minutes)} · Narration: ${esc(s.narration)}${courseNames?`<br>Used on: ${courseNames}`:''}</p>
       <div class="btns">
         <a class="btn primary" href="${esc(s.student)}">▶ Open simulation</a>
+        <button class="btn offl" data-offline="${esc(s.student)}" hidden>⬇ Save for offline</button>
         ${s.transcript?`<a class="btn" href="${esc(s.transcript)}" title="Everything the narrator says, as text">📄 Transcript</a>`:''}
         ${shareButtons(url, s.classroomTitle||s.title, s.instructions||'')}
         ${s.worksheet&&staff()?`<a class="btn" href="${esc(s.worksheet)}" title="Printable worksheet with tasks and quiz questions">🖨 Worksheet</a>`:''}

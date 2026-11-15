@@ -72,3 +72,6 @@ body:not(.staff) .staffonly{display:none!important}
 .mini>span{padding:10px 12px 12px;display:flex;flex-direction:column;gap:3px}
 .mini small{color:var(--muted);font-size:13px} .mini .pill{align-self:flex-start;margin-top:4px}
 @media (max-width:600px){.newrow{grid-auto-columns:78%}}
+
+.btn.offl.saved{background:#e7f6ec;border-color:#9ccfa9;color:#14532d;cursor:default;opacity:1}
+.staffbar a.linkbtn{text-decoration:none;display:inline-flex;align-items:center}
