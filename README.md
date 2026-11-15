@@ -59,3 +59,6 @@ Staff press **Staff sign in** and use their `@wolvcoll.ac.uk` Google account to 
 Counted: page views (`/hub`, `/area/<id>`, `/sim/<id>`), and per simulation `narration-started`, `tour-complete`, `quiz-complete`,
 `faults-complete` (cavity wall), `challenge-complete` (disc brakes) and a time-spent band (`time-2-5-min` etc.).
 Not counted: staff in teacher mode, browsers with Do Not Track, automated tests.
+
+Teacher mode shows per-simulation usage (opened, narration started, tour/quiz/fault completions) from GoatCounter's public counter
+(`https://wolvcoll-3dsims.goatcounter.com/counter/<path>.json`). Requires *Settings → Allow adding visitor counts on your website* in GoatCounter. No API key is stored in the hub.

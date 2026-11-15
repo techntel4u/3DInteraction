@@ -1,6 +1,6 @@
 // Shared helpers for the simulation hub. Data lives in data/catalog.json.
 export async function loadCatalog(){
-  const r = await fetch('data/catalog.json?v=13', {cache:'no-cache'});
+  const r = await fetch('data/catalog.json?v=14', {cache:'no-cache'});
   return r.json();
 }
 /* ---------- Staff sign-in (Google, college staff accounts only) ----------
@@ -127,8 +127,41 @@ function wireOffline(root){
     };
   });
 }
+// Teacher mode: usage numbers per simulation from GoatCounter's public counter
+// (needs "Allow adding visitor counts on your website" switched on in GoatCounter settings).
+export const STATS_SITE = 'wolvcoll-3dsims';
+export const STATS_DASH = 'https://' + STATS_SITE + '.goatcounter.com';
+async function gcCount(path){
+  const key = 'gc:' + path, now = Date.now();
+  try { const c = JSON.parse(sessionStorage.getItem(key)); if (c && now - c.t < 10*60e3) return c.n; } catch(e){}
+  const r = await fetch(STATS_DASH + '/counter/' + encodeURIComponent(path) + '.json', {cache: 'no-store'});
+  let n;
+  if (r.status === 404) n = 0;
+  else if (!r.ok) throw new Error('counter ' + r.status);
+  else { const j = await r.json(); n = parseInt(String(j.count ?? 0).replace(/[^0-9]/g, ''), 10) || 0; }
+  try { sessionStorage.setItem(key, JSON.stringify({t: now, n})); } catch(e){}
+  return n;
+}
+function wireUsage(root){
+  if (!staff()) return;
+  root.querySelectorAll('[data-usage]').forEach(async el => {
+    if (el.dataset.done) return; el.dataset.done = 1;
+    const id = el.dataset.usage, ev = n => 'sim/' + id + '/' + n;
+    const rows = [['Opened', '/sim/' + id], ['Narration started', ev('narration-started')], ['Finished tour', ev('tour-complete')], ['Quiz completed', ev('quiz-complete')]];
+    if (id === 'cavity-wall') rows.push(['Found all faults', ev('faults-complete')]);
+    if (id === 'disc-brakes') rows.push(['Fault challenge', ev('challenge-complete')]);
+    try {
+      const nums = await Promise.all(rows.map(r => gcCount(r[1])));
+      el.innerHTML = `<b>📊 Student use (all time)</b><span class="uv">${rows.map((r,i) => `<span><b>${nums[i].toLocaleString('en-GB')}</b> ${esc(r[0].toLowerCase())}</span>`).join('')}</span>
+        <a href="${STATS_DASH}/?filter=${encodeURIComponent(id)}" target="_blank" rel="noopener">Full stats ↗</a>`;
+    } catch(e){
+      el.innerHTML = `📊 Usage numbers aren't available yet. In GoatCounter, switch on <i>Settings → Allow adding visitor counts on your website</i>. <a href="${STATS_DASH}" target="_blank" rel="noopener">Open GoatCounter ↗</a>`;
+    }
+  });
+}
 export function wireShare(root=document){
   wireOffline(root);
+  wireUsage(root);
   root.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => copy(b.dataset.copy));
   root.querySelectorAll('[data-qr]').forEach(b => b.onclick = () => showQR(b.dataset.qr, b.dataset.title));
 }
@@ -153,6 +186,7 @@ export function simCard(s, cat){
         ${s.worksheet&&staff()?`<a class="btn" href="${esc(s.worksheet)}" title="Printable worksheet with tasks and quiz questions">🖨 Worksheet</a>`:''}
         ${s.teacher&&staff()?`<a class="btn" href="${esc(s.teacher)}" title="Includes model answers and the quiz answer key">📋 Teacher version</a>`:''}
       </div>
+      ${staff()?`<div class="usage" data-usage="${esc(s.id)}" role="status">📊 Usage: loading…</div>`:''}
     </div>
   </article>`;
 }
