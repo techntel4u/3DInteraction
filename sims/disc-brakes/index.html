@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Disc Brakes &amp; Hydraulics – Interactive 3D</title>
+<script src="../../assets/stats.js?v=1"></script>
 <script type="importmap">
 { "imports": {
   "three": "../../vendor/three/three.module.js",
@@ -912,7 +913,7 @@ function showTour() {
   say(s.text);
 }
 $('tourBtn').onclick = startTour;
-$('tourNext').onclick = () => { if (tour >= TOUR.length - 1) endTour(); else { tour++; showTour(); } };
+$('tourNext').onclick = () => { if (tour >= TOUR.length - 1) { window.simStats&&simStats.once('tour-complete'); endTour(); } else { tour++; showTour(); } };
 $('tourBack').onclick = () => { if (tour > 0) { tour--; showTour(); } };
 $('tourAgain').onclick = showTour;
 $('tourEnd').onclick = endTour;
@@ -926,7 +927,7 @@ function renderQuiz() {
   q.opts.forEach((o, i) => {
     const b = document.createElement('button'); b.textContent = o;
     b.onclick = () => {
-      if (qDone) return; qDone = true; const ok = i === q.a;
+      if (qDone) return; qDone = true; const ok = i === q.a; if (qi === QUIZ.length - 1) window.simStats&&simStats.once('quiz-complete');
       b.classList.add(ok ? 'right' : 'wrong'); $('qOpts').children[q.a].classList.add('right');
       $('qFeed').className = 'feed ' + (ok ? 'ok' : 'no'); $('qFeed').innerHTML = `<b>${ok ? 'Correct!' : 'Not quite.'}</b> ${q.why}`;
       say((ok ? 'Correct. ' : 'Not quite. ') + q.why);
@@ -966,7 +967,7 @@ function startChallenge() {
       if (!ok) b.classList.add('wrong');
       const why = { none: 'The pedal was firm, the pads were thick and the car stopped in a normal distance.', worn: 'The pads were thin, the pedal went down further, the brakes squealed and the car took longer to stop.', air: 'The pedal was spongy and sank nearly to the floor, and the car took much longer to stop. Air can be squashed.' }[S.challenge];
       $('chFeed').className = 'feed ' + (ok ? 'ok' : 'no'); $('chFeed').innerHTML = `<b>${ok ? 'Well spotted!' : 'Not this time.'}</b> ${why}`;
-      say((ok ? 'Well spotted. ' : 'Not this time. ') + why);
+      say((ok ? 'Well spotted. ' : 'Not this time. ') + why); window.simStats&&simStats.once('challenge-complete');
       S.challenge = null; setFaults(k === 'worn' && ok ? true : S.worn, S.air); // reveal stays visible
       setFaults(S.worn, S.air);
     };

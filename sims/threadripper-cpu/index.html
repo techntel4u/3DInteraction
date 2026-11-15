@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Installing an AMD Threadripper CPU (sTR5)</title>
+<script src="../../assets/stats.js?v=1"></script>
 <script type="importmap">
 { "imports": {
   "three": "../../vendor/three/three.module.js",
@@ -777,7 +778,7 @@ QUIZ.forEach((qq,qi)=>{
     fb.innerHTML=`<strong style="color:${right?'var(--ok)':'var(--warn)'}">${right?'Correct.':'Not quite.'}</strong> ${qq.why} `;
     const sm=document.createElement('button');sm.textContent='Show me (step '+(qq.s+1)+')';sm.style.marginTop='6px';
     sm.onclick=()=>{$('mQuiz').classList.remove('open');gotoStage(qq.s,true);};fb.appendChild(document.createElement('br'));fb.appendChild(sm);
-    if(answered===QUIZ.length) $('quizScore').textContent=`Score: ${score} / ${QUIZ.length}`;
+    if(answered===QUIZ.length){ $('quizScore').textContent=`Score: ${score} / ${QUIZ.length}`; window.simStats&&simStats.once('quiz-complete'); }
   };opts.appendChild(b);});
   $('quizList').appendChild(d);
 });
@@ -877,6 +878,7 @@ function frame(){
   }
   const stage=clamp(Math.floor(simTime/D),0,N-1);
   if(stage!==lastStage){
+    if(stage===N-1) window.simStats&&simStats.once('tour-complete');
     lastStage=stage; updateStageUI(stage);
     if(follow&&!frozen) goCam(STAGES[stage].cam,false);
     if(playing){ speak(speed>1.5?STAGES[stage].name:STAGES[stage].narr); }

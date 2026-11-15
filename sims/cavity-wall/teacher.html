@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cavity wall – Teacher version</title>
+<script src="../../assets/stats.js?v=1"></script>
 <script type="importmap">
 { "imports": {
   "three": "../../vendor/three/three.module.js",
@@ -913,7 +914,7 @@ function autoTies(){ SLOTS.forEach(s=>setSlot(s,s.req)); checkTies(); }
 function resetBuild(){ bStep=0; bStepAt={}; bCards=null; bSub=null; bFeedback=null; tieMsg=null; SLOTS.forEach(s=>setSlot(s,false)); goCam('overview'); renderCard(); }
 
 function renderFaults(){
-  const all=found.size===FAULTS.length;
+  const all=found.size===FAULTS.length; if(all) window.simStats&&simStats.once('faults-complete');
   card.innerHTML=`<div class="kicker">Spot the faults</div><h2>Find the ${FAULTS.length} construction faults</h2>
   <p class="caption" style="margin-bottom:6px">The outer leaf is see-through. Rotate the wall and tap anything that looks wrong. Look at the <b>Room side</b> view (key 4) for damp patches.</p>
   <div class="counter">Found ${found.size} of ${FAULTS.length}</div>
@@ -1033,7 +1034,7 @@ function wireQuiz(){
       const j=+b.dataset.a; el.querySelectorAll('[data-a]').forEach(x=>x.classList.remove('right','wrongA'));
       b.classList.add(j===q.a?'right':'wrongA'); qAns[i]=j===q.a;
       el.querySelector('.qfb').innerHTML=`<div class="fb ${j===q.a?'ok':'bad'}">${j===q.a?'<b>Correct.</b> ':'<b>Not quite.</b> '}${j===q.a?q.e:'Try again, or press Show me.'}</div>`;
-      const n=Object.values(qAns).filter(Boolean).length; $('#qScore').textContent=`Score: ${n} / ${QUIZ.length}`;
+      const n=Object.values(qAns).filter(Boolean).length; $('#qScore').textContent=`Score: ${n} / ${QUIZ.length}`; if(Object.keys(qAns).length===QUIZ.length) window.simStats&&simStats.once('quiz-complete');
     });
     el.querySelector('[data-show]').onclick=()=>{ closeDrawer(); jumpStage(q.st); playing=true; };
   });
@@ -1185,7 +1186,7 @@ function frame(){
   if(playing) simTime+=dt*speed;
   if(mode==='tour'){
     const s=curStage();
-    if(s!==lastStage){ if(booted) goCam(STAGES[s].cam); lastStage=s; renderTour(); if(speed<=1.5) speak(STAGES[s].cap,s); else speakStop(); }
+    if(s!==lastStage){ if(s===STAGES.length-1) window.simStats&&simStats.once('tour-complete'); if(booted) goCam(STAGES[s].cam); lastStage=s; renderTour(); if(speed<=1.5) speak(STAGES[s].cap,s); else speakStop(); }
   }
   booted=true;
   computeParts(); applyVisibility();

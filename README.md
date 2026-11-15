@@ -51,3 +51,10 @@ Staff press **Staff sign in** and use their `@wolvcoll.ac.uk` Google account to 
   `node tools/extract-text.mjs && node tools/build-pages.mjs` — run after adding or changing a simulation (this also rebuilds `offline.json`).
 - **Audio:** narration is MP3, mono, 44.1 kHz, 80 kbps.
 - **New badge:** simulations added in the last 45 days (`added` in the catalog) show as New.
+
+## Usage stats
+
+`assets/stats.js` sends anonymous counts to GoatCounter (no cookies, no names). Set `CODE` to the GoatCounter site code to switch it on.
+Counted: page views (`/hub`, `/area/<id>`, `/sim/<id>`), and per simulation `narration-started`, `tour-complete`, `quiz-complete`,
+`faults-complete` (cavity wall), `challenge-complete` (disc brakes) and a time-spent band (`time-2-5-min` etc.).
+Not counted: staff in teacher mode, browsers with Do Not Track, automated tests.
