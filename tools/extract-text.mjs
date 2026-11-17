@@ -41,5 +41,10 @@ s = fs.readFileSync('sims/gamma-pet/index.html','utf8');
   while((m=re.exec(s))) parts.push({h:m[2], t:strip(m[3].replace(/\\'/g,"'"))});
   out['gamma-pet'] = { sections:[{title:'Guided tour', items: grabArray(s,'STAGES').map(x=>({h:x.name.replace(/^\d+ · /,''), t:strip(x.cap)}))},
     {title:'The parts', items: parts}], quiz: grabArray(s,'QS').map(q=>({q:q.q, o:q.o})) }; }
+s = fs.readFileSync('sims/heart/student.html','utf8');
+{ const P = new Function('return ' + s.slice(s.indexOf('{', s.search(/const\s+PARTS\s*=/)), s.indexOf('\n};', s.search(/const\s+PARTS\s*=/))+2))();
+  out['heart'] = { sections:[{title:'Guided tour', items: grabArray(s,'STAGES').map(x=>({h:x.name, t:strip(x.text)}))},
+    {title:'The parts', items: Object.values(P).map(p=>({h:p.name, t:strip(p.job)}))}],
+    quiz: grabArray(s,'QUIZ').map(q=>({q:q.q, o:q.o})) }; }
 fs.writeFileSync('tools/sim-text.json', JSON.stringify(out,null,1));
 for(const [k,v] of Object.entries(out)) console.log(k, v.sections.map(x=>x.title+':'+x.items.length).join(', '), 'quiz:'+v.quiz.length);

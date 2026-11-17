@@ -384,6 +384,20 @@
    "name": "Applied Bio-Medical Science Pearson Level 3 National Extended Diploma",
    "mode": "Full-time",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/applied-bio-medical-science-level-3-national-extended-diploma-3/"
+  },
+  {
+   "id": "sport-l3-foundation-diploma",
+   "areaId": "sport-and-fitness",
+   "name": "Sport Pearson Level 3 BTEC National Foundation Diploma",
+   "mode": "Full-time (16–18)",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/sport-pearson-btec-level-3-national-foundation-diploma-3/"
+  },
+  {
+   "id": "football-academy-l3-foundation-diploma",
+   "areaId": "sport-and-fitness",
+   "name": "Football Academy (in partnership with Wolves Foundation) – Sport Pearson BTEC Level 3 National Foundation Diploma",
+   "mode": "Full-time (16–18)",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/football-academy-in-partnership-with-wolves-foundation-sport-pearson-btec-level-3-national-foundation-diploma-2/"
   }
  ],
  "sims": [
@@ -555,6 +569,41 @@
    "added": "2026-11-15",
    "series": "imaging-treatment",
    "part": 2
+  },
+  {
+   "id": "heart",
+   "title": "Inside the heart",
+   "summary": "Explore a beating 3D heart cut open down the middle. Follow blood through the atria, ventricles and valves, out to the lungs and round the body. Watch the valves open and shut through the cardiac cycle, compare the ventricle walls, see the coronary arteries and follow one blood cell all the way round.",
+   "level": "Level 3",
+   "spec": "Pearson BTEC L3 National Foundation Diploma in Sport (601/7220/4), Unit 1 Anatomy and Physiology, Topic D1 Structure of the cardiovascular system",
+   "minutes": "20–30 min",
+   "tags": [
+    "Atria and ventricles",
+    "Heart valves",
+    "Septum",
+    "Major blood vessels",
+    "Coronary arteries"
+   ],
+   "areas": [
+    "sport-and-fitness"
+   ],
+   "courses": [
+    "sport-l3-foundation-diploma",
+    "football-academy-l3-foundation-diploma"
+   ],
+   "general": false,
+   "student": "sims/heart/student.html",
+   "teacher": "sims/heart/teacher.html",
+   "thumb": "sims/heart/thumb.jpg",
+   "narration": "ElevenLabs (Alice, British)",
+   "updated": "2026-11-17",
+   "added": "2026-11-17",
+   "classroomTitle": "Inside the heart – 3D simulation (Cardiovascular system, Part 1)",
+   "instructions": "Open the link and work through the 3D heart (20–30 minutes). Use headphones and keep the sound on.\n1. Guided tour: follow all 11 stages.\n2. Stages 2–8: say which valves are open and shut at each step.\n3. Stage 9: explain why the left ventricle wall is thicker than the right.\n4. Turn Labels off, then tap each part and name it before the tip appears.\n5. Stage 11: call out each stop before the blood cell reaches it.\n6. Test yourself: answer the 5 questions.\nHand in your notes and your quiz score.",
+   "series": "cardiovascular-system",
+   "part": 1,
+   "transcript": "sims/heart/transcript.html",
+   "worksheet": "sims/heart/worksheet.html"
   }
  ],
  "courseInstructions": "Open the link to see the 3D simulations on this page. Work through each one, starting with the Guided tour (use headphones and press Sound on), then try Build it, Spot the faults and Test yourself. Note your quiz score for each simulation.",
@@ -587,6 +636,37 @@
     {
      "n": 4,
      "title": "Gamma Knife and proton beam therapy",
+     "sim": null
+    }
+   ]
+  },
+  {
+   "id": "cardiovascular-system",
+   "title": "Cardiovascular system",
+   "summary": "A four-part series on the heart and circulation for BTEC Sport Unit 1 – from the structure of the heart to how it responds and adapts to exercise. Work through the parts in order.",
+   "spec": "Pearson BTEC L3 National Foundation Diploma in Sport, Unit 1 Anatomy and Physiology, Topic D",
+   "areas": [
+    "sport-and-fitness"
+   ],
+   "parts": [
+    {
+     "n": 1,
+     "title": "Inside the heart",
+     "sim": "heart"
+    },
+    {
+     "n": 2,
+     "title": "Blood vessels and blood",
+     "sim": null
+    },
+    {
+     "n": 3,
+     "title": "The cardiac cycle and control of heart rate",
+     "sim": null
+    },
+    {
+     "n": 4,
+     "title": "The heart during and after exercise",
      "sim": null
     }
    ]

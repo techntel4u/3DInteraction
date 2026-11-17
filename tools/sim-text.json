@@ -737,5 +737,190 @@
     ]
    }
   ]
+ },
+ "heart": {
+  "sections": [
+   {
+    "title": "Guided tour",
+    "items": [
+     {
+      "h": "Two pumps side by side",
+      "t": "The heart is two pumps side by side. The right side pumps deoxygenated blood to the lungs. The left side pumps oxygenated blood to the body. This is the double circulation. The heart is shown as if you are facing the person, so its right side is on your left."
+     },
+     {
+      "h": "Into the right atrium",
+      "t": "Deoxygenated blood returns from the body in the two venae cavae. The superior vena cava drains the head and arms. The inferior vena cava drains the lower body. Both empty into the right atrium."
+     },
+     {
+      "h": "Through the tricuspid valve",
+      "t": "The atria contract, which is called atrial systole. Blood is pushed through the open tricuspid valve into the right ventricle. The tricuspid valve has three cusps."
+     },
+     {
+      "h": "Out to the lungs",
+      "t": "The ventricles contract, which is called ventricular systole. The tricuspid valve shuts, so blood cannot flow back into the right atrium, and the pulmonary valve opens. Blood leaves through the pulmonary artery. It is an artery because it carries blood away from the heart, even though the blood is deoxygenated."
+     },
+     {
+      "h": "In the lungs",
+      "t": "In the lungs the blood picks up oxygen and gives up carbon dioxide. It leaves the lungs oxygenated. The lungs are drawn as simple shapes here."
+     },
+     {
+      "h": "Into the left atrium",
+      "t": "Oxygenated blood comes back to the heart in the pulmonary veins and enters the left atrium. They are veins because they carry blood towards the heart, even though the blood is oxygenated."
+     },
+     {
+      "h": "Through the bicuspid valve",
+      "t": "When the atria contract, blood is pushed through the open bicuspid valve, also called the mitral valve, into the left ventricle. The bicuspid valve has two cusps."
+     },
+     {
+      "h": "Out to the body",
+      "t": "The ventricles contract. The bicuspid valve shuts and the aortic valve opens. The left ventricle pushes oxygenated blood into the aorta, the largest artery, which carries it to the working muscles and organs."
+     },
+     {
+      "h": "Septum and wall thickness",
+      "t": "The septum is a wall of muscle that keeps the two sides apart, so oxygenated and deoxygenated blood do not mix. Compare the walls: the left ventricle wall is much thicker than the right, because it pumps blood at higher pressure all the way round the body. The right ventricle only pumps blood to the lungs, which are close by."
+     },
+     {
+      "h": "Coronary arteries",
+      "t": "The heart muscle needs its own supply of oxygen. The coronary arteries branch off the aorta and run over the surface of the heart, supplying the heart muscle with oxygenated blood. The front wall is shown solid so you can see them."
+     },
+     {
+      "h": "Follow one blood cell",
+      "t": "Now follow one blood cell from the body to the lungs and back. Say each stop out loud before the cell reaches it. Vena cava, right atrium, tricuspid valve, right ventricle, pulmonary valve, pulmonary artery, lungs, pulmonary vein, left atrium, bicuspid valve, left ventricle, aortic valve, aorta, body."
+     }
+    ]
+   },
+   {
+    "title": "The parts",
+    "items": [
+     {
+      "h": "Right atrium",
+      "t": "Receives deoxygenated blood from the body through the venae cavae."
+     },
+     {
+      "h": "Right ventricle",
+      "t": "Pumps deoxygenated blood to the lungs. Its wall is thinner than the left ventricle."
+     },
+     {
+      "h": "Left atrium",
+      "t": "Receives oxygenated blood from the lungs through the pulmonary veins."
+     },
+     {
+      "h": "Left ventricle",
+      "t": "Pumps oxygenated blood to the whole body. It has the thickest wall."
+     },
+     {
+      "h": "Septum",
+      "t": "Muscle wall between the left and right sides, so oxygenated and deoxygenated blood do not mix."
+     },
+     {
+      "h": "Tricuspid valve",
+      "t": "Between the right atrium and right ventricle. Three cusps. Stops blood flowing back into the right atrium."
+     },
+     {
+      "h": "Bicuspid (mitral) valve",
+      "t": "Between the left atrium and left ventricle. Two cusps. Stops blood flowing back into the left atrium."
+     },
+     {
+      "h": "Pulmonary valve (semi-lunar)",
+      "t": "Between the right ventricle and the pulmonary artery. Stops blood flowing back into the right ventricle."
+     },
+     {
+      "h": "Aortic valve (semi-lunar)",
+      "t": "Between the left ventricle and the aorta. Stops blood flowing back into the left ventricle."
+     },
+     {
+      "h": "Superior vena cava",
+      "t": "Vein. Brings deoxygenated blood from the head and arms to the right atrium."
+     },
+     {
+      "h": "Inferior vena cava",
+      "t": "Vein. Brings deoxygenated blood from the lower body to the right atrium."
+     },
+     {
+      "h": "Pulmonary artery",
+      "t": "Artery. Carries deoxygenated blood away from the heart to the lungs."
+     },
+     {
+      "h": "Pulmonary veins",
+      "t": "Veins. Bring oxygenated blood from the lungs to the left atrium."
+     },
+     {
+      "h": "Aorta",
+      "t": "The largest artery. Carries oxygenated blood away from the left ventricle to the body."
+     },
+     {
+      "h": "Coronary arteries",
+      "t": "Branch off the aorta and supply the heart muscle itself with oxygenated blood."
+     },
+     {
+      "h": "Right lung",
+      "t": "Blood picks up oxygen and gives up carbon dioxide here. (Simplified.)"
+     },
+     {
+      "h": "Left lung",
+      "t": "Blood picks up oxygen and gives up carbon dioxide here. (Simplified.)"
+     },
+     {
+      "h": "Rest of the body",
+      "t": "Working muscles and organs take oxygen out of the blood."
+     },
+     {
+      "h": "Head and arms",
+      "t": "Upper body tissues take oxygen out of the blood."
+     },
+     {
+      "h": "Arteries to the head and arms",
+      "t": "Branches of the aorta carrying oxygenated blood to the upper body."
+     }
+    ]
+   }
+  ],
+  "quiz": [
+   {
+    "q": "Blood returning from the body enters the heart first in which chamber?",
+    "o": [
+     "Left atrium",
+     "Right atrium",
+     "Right ventricle",
+     "Left ventricle"
+    ]
+   },
+   {
+    "q": "Which valve stops blood flowing back into the right atrium when the right ventricle contracts?",
+    "o": [
+     "Bicuspid valve",
+     "Aortic valve",
+     "Tricuspid valve",
+     "Pulmonary valve"
+    ]
+   },
+   {
+    "q": "Which blood vessel carries deoxygenated blood away from the heart?",
+    "o": [
+     "Pulmonary artery",
+     "Pulmonary vein",
+     "Aorta",
+     "Vena cava"
+    ]
+   },
+   {
+    "q": "Why is the wall of the left ventricle thicker than the wall of the right ventricle?",
+    "o": [
+     "It holds more oxygen",
+     "It pumps blood at higher pressure round the whole body",
+     "It contracts before the right ventricle",
+     "It has to push blood through the septum"
+    ]
+   },
+   {
+    "q": "Which order is correct for blood going from the body to the lungs and back?",
+    "o": [
+     "Vena cava → right atrium → right ventricle → pulmonary artery → lungs → pulmonary vein → left atrium → left ventricle → aorta",
+     "Vena cava → left atrium → left ventricle → pulmonary vein → lungs → pulmonary artery → right atrium → right ventricle → aorta",
+     "Aorta → right atrium → right ventricle → pulmonary vein → lungs → pulmonary artery → left atrium → left ventricle → vena cava",
+     "Vena cava → right ventricle → right atrium → pulmonary artery → lungs → pulmonary vein → left ventricle → left atrium → aorta"
+    ]
+   }
+  ]
  }
 }

@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inside the heart – Cardiovascular system Part 1</title>
+<meta name="theme-color" content="#1b2a4a">
+<link rel="icon" href="../../icons/icon-192.png">
+<script src="../../assets/stats.js?v=2"></script>
+<script type="importmap">
+{"imports":{"three":"../../vendor/three/three.module.js","three/addons/":"../../vendor/three/addons/","three-mesh-bvh":"../../vendor/three-mesh-bvh/index.module.js","three-bvh-csg":"../../vendor/three-bvh-csg/index.module.js"}}
+</script>
+<style>
+:root{
+  --navy:#1b2a4a; --navy2:#2c3f66; --ink:#1d2433; --muted:#4a5568; --bg:#eef1f5;
+  --panel:#ffffff; --line:#d5dbe5; --accent:#1b2a4a; --deox:#2f5fc4; --ox:#c81e2c; --hi:#ffd23f;
+  --r:14px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink);-webkit-tap-highlight-color:transparent}
+#app{position:fixed;inset:0}
+#c3d{position:absolute;inset:0;display:block;touch-action:none}
+#labels{position:absolute;inset:0;pointer-events:none;z-index:0}
+button{font:inherit;cursor:pointer}
+.btn{min-height:44px;min-width:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--navy);font-weight:700;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.btn:hover{background:#f4f6fa}
+.btn:focus-visible,.dot:focus-visible,input:focus-visible,.opt:focus-visible{outline:3px solid #4f7cff;outline-offset:2px}
+.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.primary:hover{background:var(--navy2)}
+.btn[aria-pressed="true"]{background:#e3e9f6;border-color:#9fb0d4}
+.btn.icon{padding:0;width:44px}
+/* top bar */
+#top{position:absolute;left:12px;right:12px;top:10px;display:flex;align-items:flex-start;gap:10px;pointer-events:none}
+#titlebox{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:var(--r);padding:8px 14px;pointer-events:auto;box-shadow:0 4px 18px rgba(27,42,74,.08);min-width:0}
+#titlebox h1{margin:0;font-size:19px;line-height:1.2;color:var(--navy);font-weight:800}
+#titlebox .sub{font-size:13px;color:var(--muted);font-weight:600}
+#hubLink{display:inline-block;font-size:13px;font-weight:800;color:var(--navy);text-decoration:none;margin-bottom:2px}
+#hubLink:hover{text-decoration:underline}
+#badge{display:inline-block;margin-left:6px;background:#7a3e00;color:#fff;border-radius:6px;padding:1px 7px;font-size:12px;font-weight:800;vertical-align:middle}
+#topbtns{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;pointer-events:auto}
+/* stage panel */
+#stage{position:absolute;left:12px;bottom:84px;width:min(440px,calc(100% - 24px));background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px 12px;box-shadow:0 6px 24px rgba(27,42,74,.10)}
+#stage .row1{display:flex;align-items:center;gap:8px}
+#stageNum{font-size:12px;font-weight:800;color:#fff;background:var(--navy);border-radius:999px;padding:3px 9px;white-space:nowrap}
+#stageName{margin:0;font-size:18px;font-weight:800;color:var(--navy);line-height:1.2}
+#dots{display:flex;gap:4px;margin:9px 0 8px}
+.dot{flex:1;height:10px;min-width:10px;border-radius:5px;border:none;background:#d7deea;padding:0;position:relative}
+.dot::after{content:"";position:absolute;left:0;right:0;top:-17px;bottom:-17px}
+.dot.done{background:#8ea3cc}.dot.on{background:var(--navy)}
+#caption{font-size:15.5px;line-height:1.45;margin:0;color:var(--ink);max-height:30vh;overflow:auto}
+#stageNav{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap}
+#nextPart{margin-left:auto}
+/* cycle strip */
+#cycle{position:absolute;right:12px;bottom:84px;width:min(380px,calc(100% - 24px));background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;box-shadow:0 6px 24px rgba(27,42,74,.10);font-size:13px}
+#cycle h3{margin:0 0 6px;font-size:14px;color:var(--navy);display:flex;justify-content:space-between;gap:6px}
+#cycle h3 .x{font-weight:600;color:var(--muted)}
+#bar{position:relative;display:flex;height:30px;border-radius:8px;overflow:hidden;border:1px solid #b9c3d6}
+#bar div{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#1d2433;text-align:center;line-height:1.05;padding:0 2px}
+#segA{width:12.5%;background:#f7d9a8}#segV{width:37.5%;background:#f4b3b0}#segD{width:50%;background:#cfe0f6}
+#head{position:absolute;top:-2px;bottom:-2px;width:3px;background:#1b2a4a;left:0;box-shadow:0 0 0 1px #fff}
+#phaseNow{margin:6px 0 4px;font-weight:800;color:var(--navy)}
+.vrow{display:flex;justify-content:space-between;gap:8px;padding:2px 0;border-top:1px dashed #e1e6ef}
+.state{font-weight:800;min-width:56px;text-align:right}
+.state.open{color:#0f6b2f}.state.shut{color:#9b1c1c}
+#cycleSmall{display:none}
+/* control bar */
+#ctrl{position:absolute;left:12px;right:12px;bottom:12px;display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:var(--r);padding:8px;box-shadow:0 6px 24px rgba(27,42,74,.10);overflow-x:auto;scrollbar-width:thin}
+#ctrl > *{flex:none}
+#ctrl .sep{width:1px;align-self:stretch;background:var(--line);flex:none}
+.rate{display:flex;align-items:center;gap:8px;flex:none}
+.rate label{font-weight:800;font-size:14px;color:var(--navy)}
+#bpm{width:150px;height:44px;accent-color:var(--navy)}
+#bpmOut{font-size:13px;line-height:1.15;min-width:150px;color:var(--muted)}
+#bpmOut b{color:var(--ink);font-size:14px}
+select.btn{appearance:auto;padding-right:8px}
+/* legend */
+#legend{position:absolute;right:12px;top:78px;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:13px;line-height:1.5;box-shadow:0 4px 18px rgba(27,42,74,.08)}
+#legend .sw{display:inline-block;width:14px;height:9px;border-radius:5px;margin-right:6px;vertical-align:middle}
+/* follow panel */
+#follow{position:absolute;left:12px;top:86px;width:240px;max-height:calc(100% - 330px);overflow:auto;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;font-size:13.5px;display:none;box-shadow:0 6px 24px rgba(27,42,74,.10)}
+#follow h3{margin:0 0 4px;font-size:15px;color:var(--navy);display:flex;justify-content:space-between;align-items:center}
+#follow ol{margin:4px 0 0;padding-left:22px}
+#follow li{padding:1px 2px;border-radius:5px}
+#follow li.now{background:var(--hi);font-weight:800}
+#follow li.past{color:#5b6475}
+#nowIn{font-weight:800;margin:2px 0 4px}
+#nextStop{display:none;font-size:12.5px}
+/* labels */
+.lbl{background:rgba(255,255,255,.93);color:var(--ink);border:1px solid #b7c2d6;border-radius:8px;padding:2px 7px;font-size:12.5px;font-weight:800;white-space:nowrap;transform:translateY(-12px);box-shadow:0 2px 6px rgba(0,0,0,.08);display:none}
+.lbl.show{display:block}
+.lbl.hl{border:2px solid #b8860b;background:#fff7d6}
+.lbl small{display:block;font-weight:600;color:var(--muted);font-size:11px}
+.lbl.deox{border-left:5px solid var(--deox)} .lbl.ox{border-left:5px solid var(--ox)}
+.orient{font-size:12px;font-weight:800;color:#5a4300;background:#fff3c4;border:1px solid #e6c65a;border-radius:8px;padding:2px 8px;white-space:nowrap}
+#tip{position:absolute;pointer-events:none;background:#1b2a4a;color:#fff;border-radius:10px;padding:8px 10px;font-size:13.5px;max-width:280px;display:none;z-index:30;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+#tip b{display:block;font-size:14.5px}
+/* panels */
+.backdrop{position:absolute;inset:0;background:rgba(20,28,45,.28);display:none;z-index:40}
+.panel{position:absolute;z-index:41;right:12px;top:12px;bottom:12px;width:min(480px,calc(100% - 24px));background:#fff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.25);display:none;flex-direction:column;overflow:hidden}
+.panel.open,.backdrop.open{display:flex}
+.panel header{display:flex;align-items:center;gap:8px;padding:12px 12px 10px 16px;border-bottom:1px solid var(--line)}
+.panel header h2{margin:0;font-size:19px;color:var(--navy);flex:1}
+.panel .body{padding:12px 16px 18px;overflow:auto;font-size:15px;line-height:1.5}
+.panel h3{font-size:16px;color:var(--navy);margin:16px 0 6px}
+.panel ul,.panel ol{padding-left:20px;margin:4px 0}
+.panel li{margin:4px 0}
+.mc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0}
+.mc div{border-radius:10px;padding:8px 10px;font-size:14px}
+.mc .wrong{background:#fde8e8;border:1px solid #f2b8b8}
+.mc .right{background:#e6f6ea;border:1px solid #a9dcb6}
+.spec{background:#f3f6fb;border-left:4px solid var(--navy);padding:8px 12px;border-radius:6px;font-size:14.5px}
+.qcard{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}
+.qcard p{margin:0 0 8px;font-weight:700}
+.opt{display:block;width:100%;text-align:left;min-height:44px;margin:6px 0;padding:8px 12px;border:1px solid #c5cedd;border-radius:10px;background:#fff;font-size:14.5px}
+.opt.correct{background:#e6f6ea;border-color:#3c9a5a}
+.opt.incorrect{background:#fde8e8;border-color:#c24141}
+.fb{font-size:14px;margin:4px 0 6px;display:none}
+.fb.show{display:block}
+.showme{min-height:40px}
+#score{font-weight:800;color:var(--navy)}
+#help kbd{display:inline-block;border:1px solid #b9c3d6;border-bottom-width:2px;border-radius:5px;padding:0 6px;font-size:13px;background:#f7f9fc;min-width:24px;text-align:center}
+#helpPop{position:absolute;z-index:41;right:12px;top:70px;width:min(330px,calc(100% - 24px));background:#fff;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.25);display:none;padding:10px 14px 14px;font-size:14px}
+#helpPop.open{display:block}
+#helpPop table{border-collapse:collapse;width:100%}
+#helpPop td{padding:4px 2px;vertical-align:top}
+#helpPop header{display:flex;align-items:center;justify-content:space-between}
+#helpPop h2{font-size:17px;margin:0;color:var(--navy)}
+/* sound hint */
+#hint{position:absolute;left:50%;top:84px;transform:translateX(-50%);background:var(--navy);color:#fff;border-radius:999px;padding:10px 18px;font-weight:800;font-size:15px;z-index:20;box-shadow:0 6px 18px rgba(0,0,0,.2);text-align:center;max-width:calc(100% - 24px)}
+#loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--navy);font-size:18px;background:var(--bg);z-index:60}
+.note{font-size:12.5px;color:var(--muted)}
+.tn h3{border-top:1px solid var(--line);padding-top:12px}
+.tn .q{font-weight:700}
+.tn .a{margin:0 0 8px 0;color:#24442c}
+/* compact (phones) */
+@media (max-width:760px), (max-height:500px){
+  #titlebox h1{font-size:16px}
+  #titlebox .sub{font-size:11.5px}
+  #topbtns{gap:6px}
+  #topbtns .btn{padding:0 10px;font-size:14px}
+  #topbtns .txt{display:none}
+  #cycle{display:none}
+  #cycleSmall{display:block;margin-top:6px;font-size:12.5px;line-height:1.35}
+  #legend{font-size:12px;padding:4px 8px;line-height:1.4}
+  #legend .note{display:none}
+  #nextPart{display:none}
+  #stageNav{margin-top:8px}
+  #ctrl{bottom:8px;left:8px;right:8px;padding:6px;gap:6px}
+  #bpm{width:110px}
+  #bpmOut{min-width:112px;font-size:11.5px}
+  #stageName{font-size:16px}
+}
+@media (max-width:760px) and (orientation:portrait){
+  #topbtns{max-width:110px}
+  #legend{top:auto;right:auto;left:8px;bottom:calc(76px + var(--stageH,200px) + 6px)}
+  #stage{left:8px;width:calc(100% - 16px);bottom:76px;padding:9px 12px}
+  #dots{margin:7px 0 6px}
+  #caption{font-size:14px;max-height:17vh;line-height:1.4}
+  .panel{left:8px;right:8px;width:auto;top:auto;bottom:8px;max-height:84%}
+  #follow{top:auto;left:8px;right:8px;bottom:calc(76px + var(--stageH,200px) + 6px);width:auto;max-height:none;font-size:12.5px;padding:6px 10px}
+  #follow ol,#follow .note{display:none}
+  #nextStop{display:block}
+  #follow h3{font-size:13.5px}
+}
+@media (max-height:500px) and (orientation:landscape){
+  #top{top:6px;left:8px;right:8px}
+  #titlebox{padding:4px 10px}
+  #titlebox .sub{display:none}
+  #hubLink{display:inline-block!important;margin:0 8px 0 0!important;vertical-align:middle}
+  #titlebox h1{display:inline-block;vertical-align:middle}
+  #stage{left:8px;top:52px;bottom:64px;width:300px;overflow:auto;padding:8px 10px}
+  #caption{max-height:none;font-size:13.5px}
+  #legend{top:58px;right:8px}
+  #follow{top:112px;right:8px;left:auto;width:190px;max-height:calc(100% - 184px);font-size:12.5px}
+  #ctrl{bottom:6px}
+  .panel{left:auto;right:8px;top:8px;bottom:8px;max-height:none;width:min(440px,calc(100% - 16px))}
+  #hint{top:auto!important;bottom:70px;left:auto;right:12px;transform:none;max-width:min(420px,calc(100% - 340px))}
+}
+@media (prefers-reduced-motion:reduce){ *{scroll-behavior:auto} }
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="c3d" aria-label="3D cut-away model of the human heart. Use the stage controls below to step through the route of blood."></canvas>
+  <div id="labels"></div>
+
+  <div id="top">
+    <div id="titlebox">
+      <a id="hubLink" href="../../index.html">← Hub</a>
+      <h1>Inside the heart <span id="badge" hidden>Teacher version</span></h1>
+      <div class="sub">Cardiovascular system · Part 1 of 4 · BTEC L3 Sport Unit 1, Topic D1</div>
+    </div>
+    <div id="topbtns">
+      <button class="btn" id="bLearn" aria-haspopup="dialog">🎯 <span class="txt">What you'll learn</span></button>
+      <button class="btn" id="bQuiz" aria-haspopup="dialog">✅ <span class="txt">Test yourself</span></button>
+      <button class="btn" id="bTeacher" aria-haspopup="dialog" hidden>📋 <span class="txt">Teacher notes</span></button>
+      <button class="btn icon" id="bSound" aria-pressed="true" title="Sound on/off">🔊</button>
+      <button class="btn icon" id="bHelp" aria-haspopup="dialog" title="Keyboard shortcuts and help">?</button>
+    </div>
+  </div>
+
+  <div id="legend" aria-label="Colour key">
+    <div><span class="sw" style="background:var(--deox)"></span><b>Deoxygenated</b> (low oxygen)</div>
+    <div><span class="sw" style="background:var(--ox)"></span><b>Oxygenated</b> (high oxygen)</div>
+    <div class="note">Colours are a code. Real deoxygenated blood is dark red.</div>
+  </div>
+
+  <div id="follow" aria-live="polite">
+    <h3>Follow one blood cell <button class="btn icon" id="followX" title="Stop following" aria-label="Stop following">✕</button></h3>
+    <div class="note">Say the next stop before the cell gets there.</div>
+    <div id="nowIn">Now in: –</div><div id="nextStop"></div>
+    <ol id="route"></ol>
+  </div>
+
+  <section id="stage" aria-live="polite">
+    <div class="row1"><span id="stageNum">1 / 11</span><h2 id="stageName">–</h2></div>
+    <div id="dots" role="tablist" aria-label="Stages"></div>
+    <p id="caption"></p>
+    <div id="cycleSmall"></div>
+    <div id="stageNav">
+      <button class="btn" id="bPrev" title="Previous stage (←)">◀ Back</button>
+      <button class="btn primary" id="bNext" title="Next stage (→)">Next ▶</button>
+      <button class="btn" id="bAuto" aria-pressed="false" title="Play the guided tour automatically">Auto tour</button>
+      <button class="btn" id="nextPart" disabled title="Part 2 is not published yet">Part 2: coming soon</button>
+    </div>
+  </section>
+
+  <section id="cycle" aria-label="Cardiac cycle">
+    <h3>Cardiac cycle <span class="x" id="cycleRate"></span></h3>
+    <div id="bar"><div id="segA">Atria</div><div id="segV">Ventricles contract</div><div id="segD">Whole heart relaxes</div><span id="head"></span></div>
+    <div id="phaseNow">–</div>
+    <div class="vrow"><span>Tricuspid + bicuspid valves</span><span class="state" id="stAV">–</span></div>
+    <div class="vrow"><span>Pulmonary + aortic (semi-lunar) valves</span><span class="state" id="stSL">–</span></div>
+    <div class="note">Timing shown as a share of one beat, roughly as at rest.</div>
+  </section>
+
+  <div id="ctrl" role="toolbar" aria-label="Simulation controls">
+    <button class="btn icon" id="bPlay" title="Pause / play (Space)" aria-label="Pause">⏸</button>
+    <div class="rate">
+      <label for="bpm">Heart rate</label>
+      <input type="range" id="bpm" min="6" max="200" step="1" value="20" aria-describedby="bpmOut">
+      <div id="bpmOut"></div>
+    </div>
+    <span class="sep"></span>
+    <select class="btn" id="cam" aria-label="Camera view">
+      <option value="overview">View: Overview</option>
+      <option value="cutaway">View: Cut-away</option>
+      <option value="right">View: Right side</option>
+      <option value="left">View: Left side</option>
+      <option value="outside">View: Outside</option>
+    </select>
+    <select class="btn" id="wall" aria-label="Front wall of the heart">
+      <option value="cut">Front wall: cut away</option>
+      <option value="ghost">Front wall: see-through</option>
+      <option value="whole">Front wall: solid</option>
+    </select>
+    <button class="btn" id="bLabels" aria-pressed="false">Labels</button>
+    <button class="btn" id="bFollow" aria-pressed="false">Follow a cell</button>
+    <button class="btn" id="bZones" aria-pressed="true">Lungs + body</button>
+  </div>
+
+  <div id="tip" role="tooltip"></div>
+  <div id="hint">🔊 Sound is on – tap anywhere to start the narration</div>
+
+  <div class="backdrop" id="backdrop"></div>
+
+  <aside class="panel" id="pLearn" role="dialog" aria-modal="true" aria-labelledby="hLearn">
+    <header><h2 id="hLearn">What you'll learn</h2><button class="btn icon" data-close aria-label="Close">✕</button></header>
+    <div class="body" id="learnBody"></div>
+  </aside>
+  <aside class="panel" id="pQuiz" role="dialog" aria-modal="true" aria-labelledby="hQuiz">
+    <header><h2 id="hQuiz">Test yourself</h2><span id="score"></span><button class="btn icon" data-close aria-label="Close">✕</button></header>
+    <div class="body" id="quizBody"></div>
+  </aside>
+  <aside class="panel" id="pTeacher" role="dialog" aria-modal="true" aria-labelledby="hTeacher">
+    <header><h2 id="hTeacher">Teacher notes</h2><button class="btn icon" data-close aria-label="Close">✕</button></header>
+    <div class="body tn" id="teacherBody"></div>
+  </aside>
+  <div id="helpPop" role="dialog" aria-labelledby="hHelp">
+    <header><h2 id="hHelp">Controls</h2><button class="btn icon" data-close aria-label="Close">✕</button></header>
+    <table>
+      <tr><td><kbd>Space</kbd></td><td>Pause or play the heartbeat</td></tr>
+      <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Previous or next stage</td></tr>
+      <tr><td><kbd>1</kbd>–<kbd>4</kbd></td><td>Overview, Cut-away, Right side, Left side</td></tr>
+      <tr><td><kbd>L</kbd></td><td>Show all labels</td></tr>
+      <tr><td><kbd>F</kbd></td><td>Follow a blood cell</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Close a panel</td></tr>
+    </table>
+    <p class="note">Drag to turn the heart. Pinch or scroll to zoom. Right-drag or two fingers to move. Tap a part to see what it does.</p>
+  </div>
+  <div id="loading">Building the heart…</div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+import { Brush, Evaluator, SUBTRACTION, ADDITION, INTERSECTION } from 'three-bvh-csg';
+
+const EDITION = 'student'; // 'student' or 'teacher'
+const TEACHER = EDITION === 'teacher';
+
+/* ---------------------------------------------------------------- content */
+const PARTS = {
+  ra:   {name:'Right atrium', job:'Receives deoxygenated blood from the body through the venae cavae.', at:[-1.75,1.25,0.1]},
+  rv:   {name:'Right ventricle', job:'Pumps deoxygenated blood to the lungs. Its wall is thinner than the left ventricle.', at:[-1.15,-1.55,0.1]},
+  la:   {name:'Left atrium', job:'Receives oxygenated blood from the lungs through the pulmonary veins.', at:[1.75,1.3,0.1]},
+  lv:   {name:'Left ventricle', job:'Pumps oxygenated blood to the whole body. It has the thickest wall.', at:[1.45,-1.9,0.1]},
+  sep:  {name:'Septum', job:'Muscle wall between the left and right sides, so oxygenated and deoxygenated blood do not mix.', at:[0.25,-1.25,0.1]},
+  tri:  {name:'Tricuspid valve', job:'Between the right atrium and right ventricle. Three cusps. Stops blood flowing back into the right atrium.', at:[-1.85,0.1,0.2]},
+  mit:  {name:'Bicuspid (mitral) valve', job:'Between the left atrium and left ventricle. Two cusps. Stops blood flowing back into the left atrium.', at:[1.95,0.25,0.2]},
+  pul:  {name:'Pulmonary valve (semi-lunar)', job:'Between the right ventricle and the pulmonary artery. Stops blood flowing back into the right ventricle.', at:[-0.95,0.5,0.35]},
+  aor:  {name:'Aortic valve (semi-lunar)', job:'Between the left ventricle and the aorta. Stops blood flowing back into the left ventricle.', at:[0.95,0.55,0.35]},
+  svc:  {name:'Superior vena cava', job:'Vein. Brings deoxygenated blood from the head and arms to the right atrium.', at:[-1.35,3.3,0.25], blood:'deox', kind:'Vein: towards the heart'},
+  ivc:  {name:'Inferior vena cava', job:'Vein. Brings deoxygenated blood from the lower body to the right atrium.', at:[-1.95,-2.6,-0.9], blood:'deox', kind:'Vein: towards the heart'},
+  pa:   {name:'Pulmonary artery', job:'Artery. Carries deoxygenated blood away from the heart to the lungs.', at:[-0.95,1.9,0.2], blood:'deox', kind:'Artery: away from the heart'},
+  pv:   {name:'Pulmonary veins', job:'Veins. Bring oxygenated blood from the lungs to the left atrium.', at:[2.45,0.6,-0.4], blood:'ox', kind:'Vein: towards the heart'},
+  ao:   {name:'Aorta', job:'The largest artery. Carries oxygenated blood away from the left ventricle to the body.', at:[1.05,1.9,0.1], blood:'ox', kind:'Artery: away from the heart'},
+  cor:  {name:'Coronary arteries', job:'Branch off the aorta and supply the heart muscle itself with oxygenated blood.', at:[-0.9,-0.2,1.4], blood:'ox', kind:'Arteries'},
+  lungR:{name:'Right lung', job:'Blood picks up oxygen and gives up carbon dioxide here. (Simplified.)', at:[-3.55,3.0,-0.6]},
+  lungL:{name:'Left lung', job:'Blood picks up oxygen and gives up carbon dioxide here. (Simplified.)', at:[3.55,3.0,-0.6]},
+  body: {name:'Rest of the body', job:'Working muscles and organs take oxygen out of the blood.', at:[0,-5.35,-1.0]},
+  head: {name:'Head and arms', job:'Upper body tissues take oxygen out of the blood.', at:[-0.35,5.55,-0.3]},
+  arm:  {name:'Arteries to the head and arms', job:'Branches of the aorta carrying oxygenated blood to the upper body.', at:[1.25,4.0,-0.5], blood:'ox', kind:'Arteries'}
+};
+
+const STAGES = [
+  {name:'Two pumps side by side', cam:'overview', hl:['ra','rv','la','lv'], wall:'cut',
+   text:"The heart is two pumps side by side. The right side pumps deoxygenated blood to the lungs. The left side pumps oxygenated blood to the body. This is the double circulation. The heart is shown as if you are facing the person, so its right side is on your left."},
+  {name:'Into the right atrium', cam:'s1', hl:['svc','ivc','ra'],
+   text:"Deoxygenated blood returns from the body in the two venae cavae. The superior vena cava drains the head and arms. The inferior vena cava drains the lower body. Both empty into the right atrium."},
+  {name:'Through the tricuspid valve', cam:'s2', hl:['ra','tri','rv'],
+   text:"The atria contract, which is called atrial systole. Blood is pushed through the open tricuspid valve into the right ventricle. The tricuspid valve has three cusps."},
+  {name:'Out to the lungs', cam:'s3', hl:['rv','tri','pul','pa'],
+   text:"The ventricles contract, which is called ventricular systole. The tricuspid valve shuts, so blood cannot flow back into the right atrium, and the pulmonary valve opens. Blood leaves through the pulmonary artery. It is an artery because it carries blood away from the heart, even though the blood is deoxygenated."},
+  {name:'In the lungs', cam:'lungs', hl:['lungR','lungL','pa','pv'],
+   text:"In the lungs the blood picks up oxygen and gives up carbon dioxide. It leaves the lungs oxygenated. The lungs are drawn as simple shapes here."},
+  {name:'Into the left atrium', cam:'s5', hl:['pv','la'],
+   text:"Oxygenated blood comes back to the heart in the pulmonary veins and enters the left atrium. They are veins because they carry blood towards the heart, even though the blood is oxygenated."},
+  {name:'Through the bicuspid valve', cam:'s6', hl:['la','mit','lv'],
+   text:"When the atria contract, blood is pushed through the open bicuspid valve, also called the mitral valve, into the left ventricle. The bicuspid valve has two cusps."},
+  {name:'Out to the body', cam:'s7', hl:['lv','mit','aor','ao'],
+   text:"The ventricles contract. The bicuspid valve shuts and the aortic valve opens. The left ventricle pushes oxygenated blood into the aorta, the largest artery, which carries it to the working muscles and organs."},
+  {name:'Septum and wall thickness', cam:'cutaway', hl:['sep','lv','rv'],
+   text:"The septum is a wall of muscle that keeps the two sides apart, so oxygenated and deoxygenated blood do not mix. Compare the walls: the left ventricle wall is much thicker than the right, because it pumps blood at higher pressure all the way round the body. The right ventricle only pumps blood to the lungs, which are close by."},
+  {name:'Coronary arteries', cam:'outside', hl:['cor','ao'], wall:'whole',
+   text:"The heart muscle needs its own supply of oxygen. The coronary arteries branch off the aorta and run over the surface of the heart, supplying the heart muscle with oxygenated blood. The front wall is shown solid so you can see them."},
+  {name:'Follow one blood cell', cam:'overview', hl:[], follow:true,
+   text:"Now follow one blood cell from the body to the lungs and back. Say each stop out loud before the cell reaches it. Vena cava, right atrium, tricuspid valve, right ventricle, pulmonary valve, pulmonary artery, lungs, pulmonary vein, left atrium, bicuspid valve, left ventricle, aortic valve, aorta, body."}
+];
+
+const OUTCOMES = [
+  "Name and point to the atria, ventricles, septum, the tricuspid, bicuspid and semi-lunar valves, and the major blood vessels (aorta, vena cava, pulmonary artery, pulmonary vein).",
+  "Trace the route of one blood cell from the body, through the heart and lungs, and back to the body, in the right order.",
+  "Explain how the valves open and shut to keep blood flowing one way.",
+  "Explain why the left ventricle wall is thicker than the right ventricle wall.",
+  "Explain why the pulmonary artery carries deoxygenated blood and the pulmonary veins carry oxygenated blood.",
+  "State what the coronary arteries do."
+];
+const MISCON = [
+  ["Arteries always carry oxygenated blood.","Arteries carry blood away from the heart. The pulmonary artery carries deoxygenated blood to the lungs. Veins carry blood towards the heart, so the pulmonary veins carry oxygenated blood."],
+  ["Deoxygenated blood is blue.","It is dark red. Blue and red are just a colour code used on diagrams."],
+  ["The left of the diagram is the left side of the heart.","Diagrams show the heart as if you are facing the person, so the heart's left side is on your right."],
+  ["Blood goes straight from the right side of the heart to the left side.","The septum keeps the two sides apart. Blood has to go through the lungs to get from the right side to the left side."],
+  ["The valves pump the blood.","Muscle contraction pushes the blood. Valves are one-way doors. They shut when the pressure behind them is higher, which stops blood flowing backwards."],
+  ["Both ventricles have the same wall thickness.","The left ventricle wall is thicker because it pumps blood at higher pressure round the whole body. The right ventricle only pumps to the lungs."]
+];
+const SPEC_QUOTE = "Structure of the cardiovascular system – atria, ventricles, bicuspid valve, tricuspid valve, semi-lunar valves, septum, major blood vessels (aorta, vena cava, pulmonary artery, pulmonary vein), coronary arteries.";
+
+const QUIZ = [
+  {q:"Blood returning from the body enters the heart first in which chamber?", o:["Left atrium","Right atrium","Right ventricle","Left ventricle"], a:1, stage:1,
+   why:"The venae cavae empty deoxygenated blood from the body into the right atrium."},
+  {q:"Which valve stops blood flowing back into the right atrium when the right ventricle contracts?", o:["Bicuspid valve","Aortic valve","Tricuspid valve","Pulmonary valve"], a:2, stage:3,
+   why:"The tricuspid valve sits between the right atrium and the right ventricle and shuts when the ventricle contracts."},
+  {q:"Which blood vessel carries deoxygenated blood away from the heart?", o:["Pulmonary artery","Pulmonary vein","Aorta","Vena cava"], a:0, stage:3,
+   why:"It is an artery because it carries blood away from the heart. It carries deoxygenated blood to the lungs."},
+  {q:"Why is the wall of the left ventricle thicker than the wall of the right ventricle?", o:["It holds more oxygen","It pumps blood at higher pressure round the whole body","It contracts before the right ventricle","It has to push blood through the septum"], a:1, stage:8,
+   why:"The left ventricle pumps blood round the whole body, which needs a higher pressure. The right ventricle only pumps to the nearby lungs."},
+  {q:"Which order is correct for blood going from the body to the lungs and back?", o:[
+    "Vena cava → right atrium → right ventricle → pulmonary artery → lungs → pulmonary vein → left atrium → left ventricle → aorta",
+    "Vena cava → left atrium → left ventricle → pulmonary vein → lungs → pulmonary artery → right atrium → right ventricle → aorta",
+    "Aorta → right atrium → right ventricle → pulmonary vein → lungs → pulmonary artery → left atrium → left ventricle → vena cava",
+    "Vena cava → right ventricle → right atrium → pulmonary artery → lungs → pulmonary vein → left ventricle → left atrium → aorta"], a:0, stage:10,
+   why:"Blood always goes atrium then ventricle on each side, and it must pass through the lungs between the right side and the left side."}
+];
+
+/* ---------------------------------------------------------------- helpers */
+const $ = s => document.querySelector(s);
+const qs = new URLSearchParams(location.search);
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let rngSeed = 1234567;
+const rnd = () => { rngSeed = (rngSeed * 1664525 + 1013904223) >>> 0; return rngSeed / 4294967296; };
+const smooth = (a,b,x)=>{ const t=Math.min(1,Math.max(0,(x-a)/(b-a))); return t*t*(3-2*t); };
+const V = (a)=>new THREE.Vector3(a[0],a[1],a[2]);
+
+/* ---------------------------------------------------------------- renderer */
+const canvas = $('#c3d');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:false});
+renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xeef1f5);
+const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 200);
+camera.position.set(0,0.6,15);
+const labelRenderer = new CSS2DRenderer({element: $('#labels')});
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.minDistance = 3; controls.maxDistance = 30;
+controls.maxPolarAngle = Math.PI*0.66;
+controls.target.set(0,0,0);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0xc9cfdc, 1.35));
+const sun = new THREE.DirectionalLight(0xffffff, 1.9);
+sun.position.set(4,9,8); sun.castShadow = true;
+sun.shadow.mapSize.set(2048,2048); sun.shadow.radius = 6; sun.shadow.bias = -0.0005;
+Object.assign(sun.shadow.camera,{left:-7,right:7,top:8,bottom:-8,near:1,far:30});
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xfff1e6, 0.6); fill.position.set(-6,2,6); scene.add(fill);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(40,40), new THREE.ShadowMaterial({opacity:0.12}));
+ground.rotation.x = -Math.PI/2; ground.position.y = -5.9; ground.receiveShadow = true; scene.add(ground);
+
+/* ------------------------------------------------- heartbeat deformation */
+const beat = { uA:{value:0}, uV:{value:0} };
+function patchBeat(mat){
+  mat.onBeforeCompile = (sh)=>{
+    sh.uniforms.uA = beat.uA; sh.uniforms.uV = beat.uV;
+    sh.vertexShader = 'uniform float uA; uniform float uV;\n' + sh.vertexShader.replace('#include <begin_vertex>',`
+      vec3 transformed = vec3(position);
+      float wa = smoothstep(0.15, 0.75, transformed.y);
+      float wv = 1.0 - smoothstep(-0.25, 0.35, transformed.y);
+      transformed.xz -= (transformed.xz - vec2(0.05,-0.3)) * (0.045*uA*wa);
+      transformed.xz -= (transformed.xz - vec2(0.3,-0.15)) * (0.055*uV*wv);
+      transformed.y  += (0.3 - transformed.y) * (0.035*uV*wv);
+    `);
+  };
+  mat.customProgramCacheKey = ()=>'beat';
+  return mat;
+}
+
+/* ---------------------------------------------------------------- heart (CSG) */
+const matOuter = patchBeat(new THREE.MeshStandardMaterial({color:0xa8323a, roughness:0.55, metalness:0.0}));
+const matLining = patchBeat(new THREE.MeshStandardMaterial({color:0xe9a4a6, roughness:0.6, metalness:0.0}));
+const matCut = patchBeat(new THREE.MeshStandardMaterial({color:0xcf6a63, roughness:0.75, metalness:0.0}));
+
+function prep(g){ g.deleteAttribute('uv'); g.deleteAttribute('normal'); g = mergeVertices(g, 1e-4); g.computeVertexNormals(); return g; }
+function ell(c, r, rotZ, mat, seg=64, taper=0){
+  const sg = new THREE.SphereGeometry(1, seg, Math.round(seg*0.75));
+  if(taper){ const pa=sg.attributes.position; for(let i=0;i<pa.count;i++){ const y=pa.getY(i); if(y<0){ const k=1+taper*y; pa.setX(i,pa.getX(i)*k); pa.setZ(i,pa.getZ(i)*k); } } }
+  const b = new Brush(prep(sg), mat);
+  b.scale.set(r[0],r[1],r[2]); b.position.set(c[0],c[1],c[2]); b.rotation.z = rotZ||0; b.updateMatrixWorld(); return b;
+}
+function cyl(a, b, r, mat){
+  const A=V(a), B=V(b), len=A.distanceTo(B);
+  const br = new Brush(prep(new THREE.CylinderGeometry(r, r, len, 40, 1)), mat);
+  br.position.copy(A).add(B).multiplyScalar(0.5);
+  br.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), B.clone().sub(A).normalize());
+  br.updateMatrixWorld(); return br;
+}
+const heartGroup = new THREE.Group(); scene.add(heartGroup);
+let bodyMesh, frontMesh, frontGhostMats, frontSolidMats;
+function buildHeart(){
+  const ev = new Evaluator(); ev.useGroups = true; ev.attributes = ['position','normal'];
+  const ventr = ell([0.25,-0.8,-0.15],[1.95,2.05,1.45],0.35,matOuter,72,0.42);
+  const atria = ell([0.05,0.85,-0.3],[2.15,1.05,1.25],0,matOuter);
+  let body = ev.evaluate(ventr, atria, ADDITION);
+  const cav = [
+    ell([-1.35,0.8,-0.15],[0.62,0.58,0.6],0,matLining),          // RA
+    ell([-0.75,-0.8,-0.05],[0.7,0.85,0.55],-0.3,matLining),      // RV
+    ell([1.45,0.95,-0.3],[0.55,0.48,0.55],0,matLining),          // LA
+    ell([1.05,-0.9,-0.15],[0.5,1.0,0.55],0.25,matLining),        // LV
+    cyl([-1.2,0.45,-0.1],[-1.2,-0.25,-0.08],0.34,matLining),     // tricuspid opening
+    cyl([1.35,0.6,-0.25],[1.2,-0.35,-0.2],0.27,matLining),       // mitral opening
+    cyl([-0.42,-0.4,-0.05],[-0.35,0.45,-0.05],0.27,matLining),   // RV outflow
+    cyl([-0.35,0.3,-0.05],[-0.31,2.2,-0.07],0.28,matLining),     // pulmonary trunk lumen
+    cyl([0.75,-0.35,-0.17],[0.45,0.5,-0.15],0.27,matLining),     // LV outflow
+    cyl([0.45,0.3,-0.15],[0.43,2.2,-0.2],0.29,matLining),        // aorta lumen
+    cyl([-1.35,0.9,-0.1],[-1.35,2.0,-0.1],0.28,matLining),       // SVC lumen
+    cyl([-1.45,0.5,-0.25],[-1.48,-0.35,-0.65],0.26,matLining),   // IVC lumen
+    cyl([1.6,0.93,-0.3],[2.5,0.9,-0.5],0.17,matLining),          // left pulmonary veins
+    cyl([1.3,0.95,-0.45],[1.1,0.95,-1.15],0.17,matLining)       // right pulmonary veins
+  ];
+  let hole = cav[0];
+  for(let i=1;i<cav.length;i++) hole = ev.evaluate(hole, cav[i], ADDITION);
+  body = ev.evaluate(body, hole, SUBTRACTION);
+  const box = new Brush(prep(new THREE.BoxGeometry(20,20,10)), matCut);
+  box.position.set(0,0,5.05); box.updateMatrixWorld();
+  const back = ev.evaluate(body, box, SUBTRACTION);
+  const boxF = new Brush(prep(new THREE.BoxGeometry(20,20,10)), matOuter);
+  boxF.position.set(0,0,5.05); boxF.updateMatrixWorld();
+  const front = ev.evaluate(body, boxF, INTERSECTION);
+  // flat, clean normals on the cut face
+  { const mats = Array.isArray(back.material)?back.material:[back.material]; const gi = mats.indexOf(matCut); const nA = back.geometry.attributes.normal;
+    const ix = back.geometry.index;
+    for(const g of back.geometry.groups){ if(g.materialIndex!==gi) continue; for(let k=g.start;k<g.start+g.count;k++){ const vi = ix? ix.getX(k) : k; nA.setXYZ(vi,0,0,1); } }
+    nA.needsUpdate = true; }
+  bodyMesh = new THREE.Mesh(back.geometry, back.material);
+  bodyMesh.castShadow = true; bodyMesh.receiveShadow = true; bodyMesh.name='heart';
+  heartGroup.add(bodyMesh);
+  frontSolidMats = (Array.isArray(front.material)?front.material:[front.material]).map(m=>m);
+  frontGhostMats = frontSolidMats.map(m=>{ const g = patchBeat(new THREE.MeshStandardMaterial({color:m.color, roughness:0.5, transparent:true, opacity:0.16, depthWrite:false})); return g; });
+  frontMesh = new THREE.Mesh(front.geometry, frontSolidMats);
+  frontMesh.castShadow = true; frontMesh.visible = false;
+  heartGroup.add(frontMesh);
+}
+
+/* ---------------------------------------------------------------- paths */
+const SEG = {
+  body:{pts:[[1.45,-3.7,-1.55],[1.2,-4.5,-1.2],[0,-4.75,-0.95],[-1.2,-4.5,-1.0],[-1.5,-3.7,-1.05]], z:'cap', r:0.42, where:'Body (muscles and organs)', ox:'drop'},
+  ivc: {pts:[[-1.5,-3.7,-1.05],[-1.55,-2.2,-1.1],[-1.5,-0.8,-0.85],[-1.42,0.15,-0.4]], z:'vein', r:0.2, where:'Inferior vena cava', ox:0},
+  raI: {pts:[[-1.42,0.15,-0.4],[-1.5,0.65,-0.15],[-1.3,0.85,-0.1],[-1.2,0.5,-0.1],[-1.2,0.12,-0.1]], z:'atrium', r:0.36, where:'Right atrium', ox:0},
+  head:{pts:[[0.65,4.3,-0.5],[0.4,4.85,-0.4],[-0.6,5.0,-0.3],[-1.3,4.7,-0.15],[-1.35,4.25,-0.1]], z:'cap', r:0.32, where:'Head and arms', ox:'drop'},
+  svc: {pts:[[-1.35,4.25,-0.1],[-1.35,3.0,-0.1],[-1.35,1.6,-0.1],[-1.35,1.25,-0.1]], z:'vein', r:0.19, where:'Superior vena cava', ox:0},
+  raS: {pts:[[-1.35,1.25,-0.1],[-1.42,0.85,-0.08],[-1.25,0.45,-0.1],[-1.2,0.12,-0.1]], z:'atrium', r:0.36, where:'Right atrium', ox:0},
+  rv:  {pts:[[-1.2,0.12,-0.1],[-1.15,-0.45,-0.05],[-0.95,-1.15,-0.05],[-0.6,-1.35,-0.05],[-0.4,-0.9,-0.05],[-0.38,-0.2,-0.05],[-0.35,0.42,-0.05]], z:'ventricle', r:0.34, where:'Right ventricle', ox:0},
+  pt:  {pts:[[-0.35,0.42,-0.05],[-0.33,1.2,-0.05],[-0.3,1.9,-0.08],[-0.2,2.25,-0.2]], z:'artery', r:0.19, where:'Pulmonary artery', ox:0},
+  rpa: {pts:[[-0.2,2.25,-0.2],[-0.75,2.3,-0.6],[-1.4,2.3,-0.85],[-2.3,2.25,-0.75],[-2.95,2.15,-0.6]], z:'artery', r:0.11, where:'Pulmonary artery', ox:0},
+  lpa: {pts:[[-0.2,2.25,-0.2],[0.3,2.25,-0.85],[1.0,2.3,-0.95],[2.2,2.25,-0.75],[2.95,2.15,-0.6]], z:'artery', r:0.11, where:'Pulmonary artery', ox:0},
+  rlung:{pts:[[-2.95,2.15,-0.6],[-3.6,2.05,-0.55],[-3.95,1.45,-0.6],[-3.65,0.95,-0.65],[-2.95,0.9,-0.65]], z:'cap', r:0.4, where:'Lungs', ox:'gain'},
+  llung:{pts:[[2.95,2.15,-0.6],[3.6,2.05,-0.55],[3.95,1.45,-0.6],[3.65,0.95,-0.65],[2.95,0.9,-0.65]], z:'cap', r:0.4, where:'Lungs', ox:'gain'},
+  rpv: {pts:[[-2.95,0.9,-0.65],[-2.0,0.85,-1.35],[-0.8,0.9,-1.85],[0.5,0.95,-1.75],[1.05,0.95,-1.1],[1.3,0.95,-0.6]], z:'vein', r:0.1, where:'Pulmonary vein', ox:1},
+  lpv: {pts:[[2.95,0.9,-0.65],[2.3,0.9,-0.5],[1.9,0.92,-0.35]], z:'vein', r:0.1, where:'Pulmonary vein', ox:1},
+  laR: {pts:[[1.3,0.95,-0.6],[1.48,0.92,-0.3],[1.4,0.55,-0.25],[1.32,0.28,-0.25]], z:'atrium', r:0.32, where:'Left atrium', ox:1},
+  laL: {pts:[[1.9,0.92,-0.35],[1.58,0.98,-0.25],[1.4,0.55,-0.25],[1.32,0.28,-0.25]], z:'atrium', r:0.32, where:'Left atrium', ox:1},
+  lv:  {pts:[[1.32,0.28,-0.25],[1.25,-0.4,-0.2],[1.25,-1.2,-0.18],[1.05,-1.65,-0.18],[0.8,-1.2,-0.18],[0.7,-0.4,-0.18],[0.55,0.1,-0.17],[0.45,0.42,-0.15]], z:'ventricle', r:0.3, where:'Left ventricle', ox:1},
+  aoAsc:{pts:[[0.45,0.42,-0.15],[0.45,1.3,-0.15],[0.42,2.2,-0.22],[0.5,2.9,-0.4],[0.75,3.25,-0.6]], z:'artery', r:0.2, where:'Aorta', ox:1},
+  aoDesc:{pts:[[0.75,3.25,-0.6],[1.2,3.2,-0.95],[1.5,2.6,-1.4],[1.55,1.2,-1.9],[1.55,-1.0,-2.0],[1.5,-2.6,-1.8],[1.45,-3.7,-1.55]], z:'artery', r:0.19, where:'Aorta', ox:1},
+  aoHead:{pts:[[0.75,3.25,-0.6],[0.72,3.8,-0.55],[0.65,4.3,-0.5]], z:'artery', r:0.1, where:'Artery to head and arms', ox:1}
+};
+for(const k in SEG){ SEG[k].curve = new THREE.CatmullRomCurve3(SEG[k].pts.map(V), false, 'centripetal'); }
+const VALVE_AFTER = {raI:'tri', raS:'tri', rv:'pul', laR:'mit', laL:'mit', lv:'aor'};
+const LOOP_DEF = [
+  ['body','ivc','raI','rv','pt','rpa','rlung','rpv','laR','lv','aoAsc','aoDesc'],
+  ['body','ivc','raI','rv','pt','lpa','llung','lpv','laL','lv','aoAsc','aoDesc'],
+  ['head','svc','raS','rv','pt','rpa','rlung','rpv','laR','lv','aoAsc','aoHead'],
+  ['head','svc','raS','rv','pt','lpa','llung','lpv','laL','lv','aoAsc','aoHead']
+];
+const M = 2400;
+const loops = LOOP_DEF.map(names=>{
+  const segs = names.map(n=>({name:n, ...SEG[n], len:SEG[n].curve.getLength()}));
+  let acc=0; for(const s of segs){ s.s0=acc; acc+=s.len; s.s1=acc; }
+  const len=acc;
+  const pos=new Float32Array(M*3), nrm=new Float32Array(M*3), bin=new Float32Array(M*3), rad=new Float32Array(M), oxy=new Float32Array(M), segIdx=new Uint8Array(M);
+  const tan=new THREE.Vector3(), N=new THREE.Vector3(), B=new THREE.Vector3(), up=new THREE.Vector3(0,0,1), p=new THREE.Vector3();
+  let prevN=null;
+  for(let i=0;i<M;i++){
+    const s=(i/M)*len; let k=0; while(k<segs.length-1 && s>segs[k].s1) k++;
+    const sg=segs[k], u=Math.min(1,Math.max(0,(s-sg.s0)/sg.len));
+    sg.curve.getPointAt(u,p); sg.curve.getTangentAt(u,tan);
+    // parallel-transport-ish frame
+    if(!prevN){ N.copy(up).cross(tan); if(N.lengthSq()<1e-4) N.set(1,0,0).cross(tan); N.normalize(); }
+    else { N.copy(prevN).sub(tan.clone().multiplyScalar(prevN.dot(tan))); if(N.lengthSq()<1e-6){N.copy(up).cross(tan);} N.normalize(); }
+    B.copy(tan).cross(N).normalize(); prevN=N.clone();
+    pos.set([p.x,p.y,p.z],i*3); nrm.set([N.x,N.y,N.z],i*3); bin.set([B.x,B.y,B.z],i*3);
+    rad[i]=sg.r; segIdx[i]=k;
+    oxy[i] = sg.ox==='gain' ? smooth(0.15,0.85,u) : sg.ox==='drop' ? 1-smooth(0.15,0.85,u) : sg.ox;
+  }
+  // smooth radius across joins
+  const w = Math.max(1, Math.round(0.28/len*M)); const rs=new Float32Array(M);
+  for(let i=0;i<M;i++){ let a=0; for(let j=-w;j<=w;j++) a+=rad[(i+j+M)%M]; rs[i]=a/(2*w+1); }
+  const valves = []; segs.forEach(s=>{ if(VALVE_AFTER[s.name]) valves.push({type:VALVE_AFTER[s.name], s:s.s1}); });
+  return {names, segs, len, pos, nrm, bin, rad:rs, oxy, segIdx, valves};
+});
+
+/* ---------------------------------------------------------------- cardiac phase */
+// one beat = 1 cycle. Atrial systole 0–0.125, ventricular systole 0.125–0.5, diastole 0.5–1 (about 0.1 s / 0.3 s / 0.4 s at 75 bpm)
+function phaseInfo(p){
+  const uA = p<0.125 ? Math.sin(Math.PI*p/0.125) : 0;
+  const uV = (p>=0.125 && p<0.5) ? Math.sin(Math.PI*(p-0.125)/0.375) : 0;
+  const av = 1 - smooth(0.125,0.15,p)*(1-smooth(0.5,0.53,p));
+  const sl = smooth(0.14,0.17,p)*(1-smooth(0.47,0.5,p));
+  return {uA,uV,av,sl, name: p<0.125?'atria':p<0.5?'ventricles':'diastole'};
+}
+
+/* ---------------------------------------------------------------- particles */
+const N_P = [72,72,36,36];
+const parts = [];
+LOOP_DEF.forEach((_,l)=>{ for(let i=0;i<N_P[l];i++) parts.push({l, s:rnd()*loops[l].len, j:rnd(), a:rnd()*Math.PI*2, r:Math.sqrt(rnd()), q:new THREE.Quaternion().setFromEuler(new THREE.Euler(rnd()*6.28,rnd()*6.28,rnd()*6.28))}); });
+const follower = {l:0, s:0.15, j:0.35, a:0, r:0, q:new THREE.Quaternion(), follow:true};
+const rbcGeo = new THREE.SphereGeometry(0.062, 12, 8);
+const rbcMat = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.4});
+const rbc = new THREE.InstancedMesh(rbcGeo, rbcMat, parts.length);
+rbc.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+scene.add(rbc);
+const cDeox = new THREE.Color(0x2f5fc4), cOx = new THREE.Color(0xd21f2d), tmpC = new THREE.Color();
+const folMesh = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 12), new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.35}));
+folMesh.scale.set(1,0.5,1); scene.add(folMesh);
+const ringTex = (()=>{ const c=document.createElement('canvas'); c.width=c.height=128; const x=c.getContext('2d'); x.strokeStyle='#ffcc00'; x.lineWidth=12; x.beginPath(); x.arc(64,64,48,0,Math.PI*2); x.stroke(); x.strokeStyle='#1b2a4a'; x.lineWidth=4; x.beginPath(); x.arc(64,64,57,0,Math.PI*2); x.stroke(); const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t; })();
+const ring = new THREE.Sprite(new THREE.SpriteMaterial({map:ringTex, depthTest:false, transparent:true}));
+ring.scale.set(0.55,0.55,1); ring.renderOrder = 10; scene.add(ring);
+folMesh.visible = ring.visible = false;
+
+const VALVE_DEPTH = {tri:0.9, mit:0.8, pul:1.7, aor:1.7};
+function zoneSpeed(z, ph){
+  const vs = ph.name==='ventricles';
+  switch(z){
+    case 'vein': return 2.6;
+    case 'atrium': return ph.name==='atria' ? 5.5 : 2.6;
+    case 'ventricle': return vs ? 9.5 : 3.2;
+    case 'artery': return vs ? 8.5 : 2.0;
+    default: return 2.4;
+  }
+}
+function stepParticle(p, dc, ph){
+  const L = loops[p.l];
+  const idx = Math.floor((p.s/L.len)*M)%M;
+  const sg = L.segs[L.segIdx[idx]];
+  let ns = p.s + zoneSpeed(sg.z, ph)*dc;
+  for(const v of L.valves){
+    const open = (v.type==='tri'||v.type==='mit') ? ph.av>0.5 : ph.sl>0.5;
+    if(!open && p.s < v.s){
+      const stop = v.s - 0.04 - p.j*VALVE_DEPTH[v.type];
+      if(ns > stop) ns = Math.max(p.s, stop);
+    }
+  }
+  if(ns >= L.len) ns -= L.len;
+  p.s = ns;
+}
+const tmpP = new THREE.Vector3(), tmpM = new THREE.Matrix4(), tmpS = new THREE.Vector3(1,0.45,1);
+function particlePos(p, out){
+  const L = loops[p.l]; const f=(p.s/L.len)*M; const i=Math.floor(f)%M, i2=(i+1)%M, t=f-Math.floor(f);
+  const ox=L.pos, n=L.nrm, b=L.bin;
+  const rr = L.rad[i]*p.r; const ca=Math.cos(p.a)*rr, sa=Math.sin(p.a)*rr;
+  out.set(
+    ox[i*3]+(ox[i2*3]-ox[i*3])*t + n[i*3]*ca + b[i*3]*sa,
+    ox[i*3+1]+(ox[i2*3+1]-ox[i*3+1])*t + n[i*3+1]*ca + b[i*3+1]*sa,
+    ox[i*3+2]+(ox[i2*3+2]-ox[i*3+2])*t + n[i*3+2]*ca + b[i*3+2]*sa);
+  if(out.z>0.0 && out.y<1.85 && out.y>-2.6 && Math.abs(out.x)<2.2) out.z = 0.0;
+  return L.oxy[i];
+}
+function updateParticleMeshes(){
+  for(let k=0;k<parts.length;k++){
+    const p=parts[k]; const o=particlePos(p,tmpP);
+    tmpM.compose(tmpP, p.q, tmpS); rbc.setMatrixAt(k,tmpM);
+    tmpC.copy(cDeox).lerp(cOx,o); rbc.setColorAt(k,tmpC);
+  }
+  rbc.instanceMatrix.needsUpdate = true; if(rbc.instanceColor) rbc.instanceColor.needsUpdate = true;
+  const o = particlePos(follower, tmpP);
+  folMesh.position.copy(tmpP); ring.position.copy(tmpP);
+  folMesh.material.color.copy(cDeox).lerp(cOx,o);
+}
+
+/* ---------------------------------------------------------------- vessels (visual tubes) */
+const vesselGroup = new THREE.Group(); scene.add(vesselGroup);
+const pick = []; // meshes that can be hovered/tapped
+function sub(curve,a,b,n=40){ const pts=[]; for(let i=0;i<=n;i++) pts.push(curve.getPointAt(a+(b-a)*i/n)); return new THREE.CatmullRomCurve3(pts); }
+function tube(curve, r, blood, id){
+  const m = new THREE.MeshPhysicalMaterial({color: blood==='ox'?0xe0646b:0x6c8fdc, roughness:0.35, transparent:true, opacity:0.34, depthWrite:false, side:THREE.DoubleSide, emissive:0x000000});
+  const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 80, r, 24, false), m);
+  mesh.userData.part = id; mesh.renderOrder = 2; vesselGroup.add(mesh); pick.push(mesh); return mesh;
+}
+const vessels = {};
+function addV(id, mesh){ (vessels[id] ||= []).push(mesh); }
+function buildVessels(){
+  const S=SEG;
+  addV('svc', tube(sub(S.svc.curve,0.0,0.9), 0.3, 'deox','svc'));
+  addV('ivc', tube(sub(S.ivc.curve,0.0,0.82), 0.32, 'deox','ivc'));
+  addV('pa',  tube(sub(S.pt.curve,0.45,1), 0.3, 'deox','pa'));
+  addV('pa',  tube(S.rpa.curve, 0.18, 'deox','pa'));
+  addV('pa',  tube(S.lpa.curve, 0.18, 'deox','pa'));
+  addV('pv',  tube(sub(S.rpv.curve,0,0.88), 0.15, 'ox','pv'));
+  addV('pv',  tube(sub(S.lpv.curve,0,0.7), 0.15, 'ox','pv'));
+  addV('ao',  tube(sub(S.aoAsc.curve,0.42,1), 0.31, 'ox','ao'));
+  addV('ao',  tube(S.aoDesc.curve, 0.29, 'ox','ao'));
+  addV('arm', tube(S.aoHead.curve, 0.16, 'ox','arm'));
+  // little end caps where vessels join lungs / body so the joins look tidy
+}
+
+/* ---------------------------------------------------------------- zones: lungs, body, head */
+const zoneGroup = new THREE.Group(); scene.add(zoneGroup);
+function zone(geo, pos, color, id, rotZ=0){
+  const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({color, roughness:0.8, transparent:true, opacity:0.2, depthWrite:false, side:THREE.DoubleSide}));
+  m.position.set(...pos); m.rotation.z=rotZ; m.userData.part=id; m.renderOrder=1; zoneGroup.add(m); pick.push(m); return m;
+}
+function buildZones(){
+  const lg = new THREE.SphereGeometry(1, 40, 28);
+  const l1 = zone(lg, [-3.5,1.55,-0.6], 0xf0a5b3, 'lungR'); l1.scale.set(0.85,1.35,0.75);
+  const l2 = zone(lg, [3.5,1.55,-0.6], 0xf0a5b3, 'lungL'); l2.scale.set(0.85,1.35,0.75);
+  zone(new THREE.CapsuleGeometry(0.52, 2.4, 8, 24), [0.0,-4.45,-1.15], 0xb9c4d8, 'body', Math.PI/2);
+  zone(new THREE.CapsuleGeometry(0.42, 1.7, 8, 24), [-0.4,4.8,-0.3], 0xb9c4d8, 'head', Math.PI/2);
+}
+
+/* ---------------------------------------------------------------- valves */
+const valveMat = new THREE.MeshStandardMaterial({color:0xf3e4b4, roughness:0.5, side:THREE.DoubleSide, emissive:0x000000});
+const ringMat = new THREE.MeshStandardMaterial({color:0xe2c98c, roughness:0.6, emissive:0x000000});
+const valves = {};
+function buildValve(id, centre, flowDir, R, cusps){
+  const g = new THREE.Group(); g.position.set(...centre);
+  const yAxis = V(flowDir).normalize().negate();
+  g.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), yAxis);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(R, 0.045, 10, 48), ringMat); rim.rotation.x = Math.PI/2; rim.userData.part=id; g.add(rim); pick.push(rim);
+  const flaps=[];
+  const span = Math.PI*2/cusps;
+  for(let c=0;c<cusps;c++){
+    const tm = c*span + (cusps===2?Math.PI/2:Math.PI/6);
+    const rp = new THREE.Vector3(R*Math.cos(tm),0,R*Math.sin(tm));
+    const pos=[]; const nSeg=14; const Rr=R*0.985;
+    for(let k=0;k<nSeg;k++){
+      const t0 = tm - span/2 + span*(k/nSeg) + 0.02, t1 = tm - span/2 + span*((k+1)/nSeg) - (k===nSeg-1?0.02:0);
+      const ta = k===0? t0 : tm - span/2 + span*(k/nSeg);
+      const a=[Rr*Math.cos(ta),0,Rr*Math.sin(ta)], b=[Rr*Math.cos(t1),0,Rr*Math.sin(t1)];
+      pos.push(0,0.0,0, a[0],a[1],a[2], b[0],b[1],b[2]);
+    }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos,3));
+    geo.translate(-rp.x,-rp.y,-rp.z); geo.computeVertexNormals();
+    const flap = new THREE.Mesh(geo, valveMat); flap.userData.part=id; pick.push(flap);
+    const pivot = new THREE.Group(); pivot.position.copy(rp); pivot.add(flap); g.add(pivot);
+    flaps.push({pivot, axis:new THREE.Vector3(-Math.sin(tm),0,Math.cos(tm))});
+  }
+  heartGroup.add(g);
+  valves[id] = {g, flaps, av: id==='tri'||id==='mit'};
+}
+function setValves(ph){
+  for(const id in valves){
+    const v = valves[id]; const open = v.av ? ph.av : ph.sl;
+    const ang = v.av ? (-0.2 + open*(1.42)) : (-0.25 + open*(1.6));
+    for(const f of v.flaps) f.pivot.quaternion.setFromAxisAngle(f.axis, ang);
+  }
+}
+
+/* ---------------------------------------------------------------- coronary arteries */
+let corGroup;
+function buildCoronary(){
+  corGroup = new THREE.Group(); heartGroup.add(corGroup);
+  const mat = patchBeat(new THREE.MeshStandardMaterial({color:0xd51c2a, roughness:0.4, emissive:0x000000}));
+  const rc = new THREE.Raycaster();
+  const proj = (xy)=>{ rc.set(new THREE.Vector3(xy[0],xy[1],6), new THREE.Vector3(0,0,-1)); const h = rc.intersectObject(frontMesh,false)[0]; if(!h) return null; const n = h.face.normal.clone(); return h.point.clone().add(n.multiplyScalar(0.06)); };
+  const paths = [
+    [[0.25,1.0],[-0.3,0.55],[-0.95,0.25],[-1.55,-0.2],[-1.8,-0.9],[-1.55,-1.7],[-1.0,-2.2]],   // right coronary artery
+    [[0.6,1.0],[0.45,0.45],[0.35,-0.3],[0.42,-1.1],[0.62,-1.9],[0.85,-2.45]],                  // left anterior descending
+    [[0.55,0.55],[1.15,0.35],[1.75,0.0],[2.05,-0.6]]                                               // circumflex
+  ];
+  for(const path of paths){
+    const pts = path.map(proj).filter(Boolean);
+    if(pts.length<3) continue;
+    const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 60, 0.075, 10, false), mat);
+    m.userData.part='cor'; corGroup.add(m); pick.push(m);
+  }
+  // root stubs from the aorta
+  const aRoot = new THREE.Vector3(0.45,1.0,-0.15);
+  for(const end of [[0.25,1.0],[0.6,1.0]]){ const e=proj(end); if(!e) continue;
+    const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(aRoot, e), 4, 0.075, 10, false), mat); m.userData.part='cor'; corGroup.add(m); }
+  corGroup.visible = false;
+}
+
+/* ---------------------------------------------------------------- labels */
+const labelObjs = {};
+function buildLabels(){
+  for(const id in PARTS){
+    const P = PARTS[id]; const d = document.createElement('div');
+    d.className = 'lbl' + (P.blood ? ' '+P.blood : '');
+    d.innerHTML = P.name + (P.kind ? `<small>${P.kind}${P.blood?', '+(P.blood==='ox'?'oxygenated':'deoxygenated')+' blood':''}</small>` : '');
+    const o = new CSS2DObject(d); o.position.set(...P.at); scene.add(o); labelObjs[id] = {o, d};
+  }
+  const mk=(txt,pos)=>{ const d=document.createElement('div'); d.className='orient'; d.textContent=txt; const o=new CSS2DObject(d); o.position.set(...pos); scene.add(o); };
+  mk("Person's RIGHT side", [-2.6,-2.9,0.4]);
+  mk("Person's LEFT side", [2.75,-2.9,0.4]);
+}
+let showAll = false, hlSet = new Set(), hoverId = null;
+function refreshLabels(){
+  const zonesOn = zoneGroup.visible;
+  for(const id in labelObjs){
+    const {d} = labelObjs[id];
+    const isZone = ['lungR','lungL','body','head'].includes(id);
+    let show = showAll || hlSet.has(id) || hoverId===id;
+    if(id==='cor' && !corGroup.visible) show = false;
+    if(isZone && !zonesOn) show = false;
+    if((id==='arm') && !showAll && hoverId!==id) show = hlSet.has(id);
+    d.classList.toggle('show', show);
+    d.classList.toggle('hl', hlSet.has(id));
+  }
+}
+
+/* ---------------------------------------------------------------- highlight glow on meshes */
+function setHighlight(ids, t){
+  const k = 0.18 + 0.12*Math.sin(t*4);
+  for(const id in vessels) for(const m of vessels[id]){ m.material.emissive.setHex(ids.has(id)?0xffc400:0x000000); m.material.emissiveIntensity = ids.has(id)?k:0; m.material.opacity = ids.size && !ids.has(id) ? 0.22 : (ids.has(id)?0.45:0.34); }
+  for(const id in valves){ /* shared mats – handled via rim colour */ }
+  valveMat.emissive.setHex(['tri','mit','pul','aor'].some(i=>ids.has(i))?0x6b5200:0x000000);
+  valveMat.emissiveIntensity = ['tri','mit','pul','aor'].some(i=>ids.has(i))? (0.5+0.5*Math.sin(t*4)) : 0;
+}
+
+/* ---------------------------------------------------------------- camera */
+const CAMS = {
+  overview:{p:[0,0.6,16.5], t:[0,0.1,0]},
+  cutaway: {p:[0,0.0,8.6], t:[0,-0.35,0]},
+  right:   {p:[-2.4,0.4,6.8], t:[-0.95,-0.1,0]},
+  left:    {p:[2.4,0.3,6.8], t:[1.0,-0.2,0]},
+  outside: {p:[2.2,0.6,8.4], t:[0.2,-0.4,0]},
+  s1:      {p:[-3.0,1.2,9.0], t:[-1.1,0.3,0]},
+  s2:      {p:[-2.1,0.4,6.2], t:[-1.0,0.0,0]},
+  s3:      {p:[-1.2,1.0,7.6], t:[-0.6,0.4,0]},
+  lungs:   {p:[0,1.6,13.5], t:[0,1.2,0]},
+  s5:      {p:[2.9,1.1,7.4], t:[1.4,0.6,-0.3]},
+  s6:      {p:[2.1,0.2,6.2], t:[1.15,-0.2,0]},
+  s7:      {p:[1.6,1.2,8.2], t:[0.7,0.6,0]}
+};
+let camAnim = null;
+function narrowFactor(){ const a = innerWidth/innerHeight; return a < 0.8 ? 1.75 : a < 1.2 ? 1.25 : 1; }
+function goCam(name, instant=false){
+  const c = CAMS[name]; if(!c) return;
+  const f = narrowFactor();
+  const t = V(c.t); const p = V(c.p).sub(t).multiplyScalar(f).add(t);
+  // on phones the stage panel covers the lower screen: aim a little lower so the model sits higher
+  // keep the model in the part of the screen that panels do not cover
+  const W=innerWidth, H=innerHeight, dist=p.distanceTo(t), halfH=Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*dist, unit=halfH/(H/2);
+  const st=$('#stage').getBoundingClientRect();
+  if(W<=760 && H>W){ const top=110, bottom=st.top-6; const dy=(H/2-(top+bottom)/2)*unit; t.y-=dy; p.y-=dy; }
+  else if(H<=500 && W>H){ const left=st.right+6, right=W; const dx=((left+right)/2-W/2)*unit; t.x-=dx; p.x-=dx; }
+  else if(name!=='overview' && name!=='lungs'){ const dx = -0.09*dist; t.x += dx; p.x += dx; }
+  if(instant || reduceMotion){ camera.position.copy(p); controls.target.copy(t); camAnim=null; return; }
+  camAnim = {p0:camera.position.clone(), t0:controls.target.clone(), p1:p, t1:t, k:0};
+}
+
+/* ---------------------------------------------------------------- state & UI */
+let stageIdx = 0, playing = !reduceMotion, cycles = 0, simTime = 0, bpm = 20, autoTour = false, autoTimer = null;
+let followOn = false, soundOn = true, audioReady = false, frontMode = 'cut';
+const bpmEl = $('#bpm');
+function bpmText(v){
+  let d = v<40 ? 'Slow motion – a resting heart beats about 60–100 bpm' : v<60 ? 'Low: some very fit athletes rest this low' : v<=100 ? 'Typical resting range' : v<=150 ? 'Raised: exercise' : 'High: hard exercise';
+  return `<b>${v} bpm</b><br>${d}`;
+}
+function setBpm(v){ bpm = v; bpmEl.value = v; $('#bpmOut').innerHTML = bpmText(v); $('#cycleRate').textContent = `1 beat = ${(60/v).toFixed(2)} s`; }
+
+function setWall(m){
+  frontMode = m; $('#wall').value = m;
+  frontMesh.visible = m!=='cut';
+  frontMesh.material = m==='ghost' ? frontGhostMats : frontSolidMats;
+  corGroup.visible = m!=='cut';
+}
+function setZones(on){ zoneGroup.visible = on; $('#bZones').setAttribute('aria-pressed', on); refreshLabels(); }
+function setFollow(on){
+  followOn = on; $('#bFollow').setAttribute('aria-pressed', on);
+  $('#follow').style.display = on ? 'block' : 'none';
+  folMesh.visible = ring.visible = on;
+  if(on){ setZones(true); if(camera.position.distanceTo(controls.target) < 9) goCam('overview'); }
+}
+
+const ROUTE = ['Inferior vena cava','Right atrium','Tricuspid valve','Right ventricle','Pulmonary valve','Pulmonary artery','Lungs','Pulmonary vein','Left atrium','Bicuspid valve','Left ventricle','Aortic valve','Aorta','Body (muscles and organs)'];
+$('#route').innerHTML = ROUTE.map(r=>`<li>${r}</li>`).join('');
+function followerWhere(){
+  const L = loops[follower.l]; const idx = Math.floor((follower.s/L.len)*M)%M; const sg = L.segs[L.segIdx[idx]];
+  for(const v of L.valves){ if(Math.abs(follower.s - v.s) < 0.12) return {tri:'Tricuspid valve',mit:'Bicuspid valve',pul:'Pulmonary valve',aor:'Aortic valve'}[v.type]; }
+  return sg.where;
+}
+let lastWhere = '';
+function updateFollowPanel(){
+  const w = followerWhere(); if(w===lastWhere) return; lastWhere = w;
+  $('#nowIn').textContent = 'Now in: ' + w;
+  const i = ROUTE.indexOf(w);
+  $('#nextStop').textContent = i>=0 ? 'Next stop: ' + ROUTE[(i+1)%ROUTE.length] : '';
+  [...$('#route').children].forEach((li,k)=>{ li.className = k===i ? 'now' : (i>=0 && k<i ? 'past' : ''); });
+}
+
+/* dots + stage */
+$('#dots').innerHTML = STAGES.map((s,i)=>`<button class="dot" role="tab" aria-label="Stage ${i+1}: ${s.name}" data-i="${i}"></button>`).join('');
+$('#dots').addEventListener('click', e=>{ const b=e.target.closest('.dot'); if(b) goStage(+b.dataset.i); });
+function goStage(i, speak=true){
+  stageIdx = Math.max(0, Math.min(STAGES.length-1, i));
+  const S = STAGES[stageIdx];
+  $('#stageNum').textContent = `${stageIdx+1} / ${STAGES.length}`;
+  $('#stageName').textContent = S.name;
+  $('#caption').textContent = S.text;
+  [...$('#dots').children].forEach((d,k)=>{ d.className = 'dot' + (k<stageIdx?' done':'') + (k===stageIdx?' on':''); d.setAttribute('aria-selected', k===stageIdx); });
+  hlSet = new Set(S.hl);
+  setWall(S.wall || (stageIdx===9 ? 'whole' : 'cut'));
+  setFollow(!!S.follow);
+  if(stageIdx===4) setZones(true);
+  goCam(S.cam);
+  refreshLabels();
+  $('#bPrev').disabled = stageIdx===0;
+  $('#bNext').disabled = stageIdx===STAGES.length-1;
+  if(stageIdx===STAGES.length-1) tourDone();
+  if(speak) narrate(S);
+  syncStageH();
+}
+function syncStageH(){ document.documentElement.style.setProperty('--stageH', $('#stage').offsetHeight+'px'); }
+try{ new ResizeObserver(syncStageH).observe($('#stage')); }catch(e){}
+
+/* narration (Web Speech; replaced with recorded clips on the hub) */
+let voice = null;
+function pickVoice(){ try{ const vs = speechSynthesis.getVoices(); voice = vs.find(v=>/en-GB/i.test(v.lang) && /female|libby|sonia|serena|kate|google uk english female/i.test(v.name)) || vs.find(v=>/en-GB/i.test(v.lang)) || vs.find(v=>/^en/i.test(v.lang)) || null; }catch(e){} }
+try{ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }catch(e){}
+/* Recorded narration (ElevenLabs, Alice). ONE shared Audio element: iPhones only let a player the student
+   started keep playing, so reusing it keeps narration working as the tour moves on by itself. */
+const NARR = {"The heart is two pumps side by side. The right side pumps deoxygenated blood to the lungs. The left side pumps oxygenated blood to the body. This is the double circulation. The heart is shown as if you are facing the person, so its right side is on your left.": "audio/heart-tour1.mp3", "Deoxygenated blood returns from the body in the two venae cavae. The superior vena cava drains the head and arms. The inferior vena cava drains the lower body. Both empty into the right atrium.": "audio/heart-tour2.mp3", "The atria contract, which is called atrial systole. Blood is pushed through the open tricuspid valve into the right ventricle. The tricuspid valve has three cusps.": "audio/heart-tour3.mp3", "The ventricles contract, which is called ventricular systole. The tricuspid valve shuts, so blood cannot flow back into the right atrium, and the pulmonary valve opens. Blood leaves through the pulmonary artery. It is an artery because it carries blood away from the heart, even though the blood is deoxygenated.": "audio/heart-tour4.mp3", "In the lungs the blood picks up oxygen and gives up carbon dioxide. It leaves the lungs oxygenated. The lungs are drawn as simple shapes here.": "audio/heart-tour5.mp3", "Oxygenated blood comes back to the heart in the pulmonary veins and enters the left atrium. They are veins because they carry blood towards the heart, even though the blood is oxygenated.": "audio/heart-tour6.mp3", "When the atria contract, blood is pushed through the open bicuspid valve, also called the mitral valve, into the left ventricle. The bicuspid valve has two cusps.": "audio/heart-tour7.mp3", "The ventricles contract. The bicuspid valve shuts and the aortic valve opens. The left ventricle pushes oxygenated blood into the aorta, the largest artery, which carries it to the working muscles and organs.": "audio/heart-tour8.mp3", "The septum is a wall of muscle that keeps the two sides apart, so oxygenated and deoxygenated blood do not mix. Compare the walls: the left ventricle wall is much thicker than the right, because it pumps blood at higher pressure all the way round the body. The right ventricle only pumps blood to the lungs, which are close by.": "audio/heart-tour9.mp3", "The heart muscle needs its own supply of oxygen. The coronary arteries branch off the aorta and run over the surface of the heart, supplying the heart muscle with oxygenated blood. The front wall is shown solid so you can see them.": "audio/heart-tour10.mp3", "Now follow one blood cell from the body to the lungs and back. Say each stop out loud before the cell reaches it. Vena cava, right atrium, tricuspid valve, right ventricle, pulmonary valve, pulmonary artery, lungs, pulmonary vein, left atrium, bicuspid valve, left ventricle, aortic valve, aorta, body.": "audio/heart-tour11.mp3", "Right atrium. Receives deoxygenated blood from the body through the venae cavae.": "audio/heart-part-ra.mp3", "Right ventricle. Pumps deoxygenated blood to the lungs. Its wall is thinner than the left ventricle.": "audio/heart-part-rv.mp3", "Left atrium. Receives oxygenated blood from the lungs through the pulmonary veins.": "audio/heart-part-la.mp3", "Left ventricle. Pumps oxygenated blood to the whole body. It has the thickest wall.": "audio/heart-part-lv.mp3", "Septum. Muscle wall between the left and right sides, so oxygenated and deoxygenated blood do not mix.": "audio/heart-part-sep.mp3", "Tricuspid valve. Between the right atrium and right ventricle. Three cusps. Stops blood flowing back into the right atrium.": "audio/heart-part-tri.mp3", "Bicuspid (mitral) valve. Between the left atrium and left ventricle. Two cusps. Stops blood flowing back into the left atrium.": "audio/heart-part-mit.mp3", "Pulmonary valve (semi-lunar). Between the right ventricle and the pulmonary artery. Stops blood flowing back into the right ventricle.": "audio/heart-part-pul.mp3", "Aortic valve (semi-lunar). Between the left ventricle and the aorta. Stops blood flowing back into the left ventricle.": "audio/heart-part-aor.mp3", "Superior vena cava. Vein. Brings deoxygenated blood from the head and arms to the right atrium.": "audio/heart-part-svc.mp3", "Inferior vena cava. Vein. Brings deoxygenated blood from the lower body to the right atrium.": "audio/heart-part-ivc.mp3", "Pulmonary artery. Artery. Carries deoxygenated blood away from the heart to the lungs.": "audio/heart-part-pa.mp3", "Pulmonary veins. Veins. Bring oxygenated blood from the lungs to the left atrium.": "audio/heart-part-pv.mp3", "Aorta. The largest artery. Carries oxygenated blood away from the left ventricle to the body.": "audio/heart-part-ao.mp3", "Coronary arteries. Branch off the aorta and supply the heart muscle itself with oxygenated blood.": "audio/heart-part-cor.mp3", "Right lung. Blood picks up oxygen and gives up carbon dioxide here. (Simplified.)": "audio/heart-part-lungR.mp3", "Left lung. Blood picks up oxygen and gives up carbon dioxide here. (Simplified.)": "audio/heart-part-lungL.mp3", "Rest of the body. Working muscles and organs take oxygen out of the blood.": "audio/heart-part-body.mp3", "Head and arms. Upper body tissues take oxygen out of the blood.": "audio/heart-part-head.mp3", "Arteries to the head and arms. Branches of the aorta carrying oxygenated blood to the upper body.": "audio/heart-part-arm.mp3", "Correct. The venae cavae empty deoxygenated blood from the body into the right atrium.": "audio/heart-quiz1-right.mp3", "Correct. The tricuspid valve sits between the right atrium and the right ventricle and shuts when the ventricle contracts.": "audio/heart-quiz2-right.mp3", "Correct. It is an artery because it carries blood away from the heart. It carries deoxygenated blood to the lungs.": "audio/heart-quiz3-right.mp3", "Correct. The left ventricle pumps blood round the whole body, which needs a higher pressure. The right ventricle only pumps to the nearby lungs.": "audio/heart-quiz4-right.mp3", "Correct. Blood always goes atrium then ventricle on each side, and it must pass through the lungs between the right side and the left side.": "audio/heart-quiz5-right.mp3", "Not quite. Try again, or tap “Show me”.": "audio/heart-quiz-wrong.mp3", "Tour complete. Now try Test yourself.": "audio/heart-tour-done.mp3"};
+const __narr = new Audio(); __narr.preload = 'auto'; let __cur = null, speaking = false;
+function __norm(t){ return String(t).replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim(); }
+function __stopClip(){ if(__cur){ try{ __cur.pause(); }catch(e){} __cur = null; } }
+function __playClip(text, onEnd){ const src = NARR[__norm(text)]; if(!src) return false;
+  __stopClip(); const a = __narr; a.muted = false;
+  if(a._src !== src){ a.src = src; a._src = src; } else { try{ a.currentTime = 0; }catch(e){} }
+  a.onended = ()=>{ if(__cur===a) __cur = null; onEnd && onEnd(); };
+  __cur = a; const p = a.play(); if(p && p.catch) p.catch(()=>{ onEnd && onEnd(); }); return true; }
+function __primeClip(){ try{ const a = __narr; if(!a.src){ const f = Object.values(NARR)[0]; a.src = f; a._src = f; } a.muted = true; const p = a.play();
+  if(p && p.then) p.then(()=>{ if(__cur!==a) a.pause(); a.muted = false; }, ()=>{ a.muted = false; }); else a.muted = false; }catch(e){ __narr.muted = false; } }
+function clipPlaying(){ return !!(__cur && !__cur.paused && !__cur.ended); }
+function narrating(){ return speaking || clipPlaying(); }
+function say(text, onEnd){
+  try{ speechSynthesis.cancel(); }catch(e){} __stopClip(); speaking = false;
+  if(!(soundOn && audioReady)) return false;
+  if(__playClip(text, onEnd)) return true;
+  try{ const u = new SpeechSynthesisUtterance(__norm(text)); if(voice) u.voice = voice; u.lang = 'en-GB'; u.rate = 0.95;
+    u.onend = u.onerror = ()=>{ speaking = false; onEnd && onEnd(); }; speaking = true; speechSynthesis.speak(u); return true; }catch(e){ speaking = false; return false; }
+}
+function tourDone(){ window.simStats && simStats.once('tour-complete'); }
+function narrate(S){
+  clearTimeout(autoTimer);
+  const words = (S.text.split(/\s+/).length);
+  const readMs = Math.max(6000, words/2.6*1000 + 1500);
+  const next = ()=>{ if(autoTour && stageIdx < STAGES.length-1){ autoTimer = setTimeout(()=>goStage(stageIdx+1), 1500); }
+    else if(autoTour){ setAuto(false); setTimeout(()=>{ if(!narrating()) say('Tour complete. Now try Test yourself.'); }, 600); } };
+  let done = false; const fin = ()=>{ if(done) return; done = true; next(); };
+  // hold each stage until its clip has finished; fall back to reading time when sound is off
+  if(!say(S.text, fin)){ if(autoTour) autoTimer = setTimeout(fin, readMs); return; }
+  if(autoTour) autoTimer = setTimeout(()=>{ if(!narrating()) fin(); else { const w = setInterval(()=>{ if(!narrating()){ clearInterval(w); fin(); } }, 400); } }, readMs*2.2);
+}
+function setAuto(on){ autoTour = on; $('#bAuto').setAttribute('aria-pressed', on); if(on) narrate(STAGES[stageIdx]); else clearTimeout(autoTimer); }
+function startAudio(e){
+  if(audioReady) return; audioReady = true; $('#hint').style.display='none';
+  if(e && e.target && e.target.closest && e.target.closest('#bSound')){ __primeClip(); return; }
+  if(soundOn) narrate(STAGES[stageIdx]); else __primeClip();
+}
+// phones only allow audio when the tap ends, so listen for pointerup (not pointerdown)
+['pointerup','click','keydown'].forEach(ev=>window.addEventListener(ev, startAudio, {capture:true}));
+
+$('#bSound').onclick = ()=>{ soundOn = !soundOn; $('#bSound').textContent = soundOn?'🔊':'🔇'; $('#bSound').setAttribute('aria-pressed', soundOn); if(!soundOn){ try{speechSynthesis.cancel();}catch(e){} __stopClip(); $('#hint').style.display='none'; } else if(audioReady) narrate(STAGES[stageIdx]); };
+$('#bPrev').onclick = ()=>goStage(stageIdx-1);
+$('#bNext').onclick = ()=>goStage(stageIdx+1);
+$('#bAuto').onclick = ()=>setAuto(!autoTour);
+$('#bPlay').onclick = ()=>setPlaying(!playing);
+function setPlaying(on){ playing = on; $('#bPlay').textContent = on?'⏸':'▶'; $('#bPlay').setAttribute('aria-label', on?'Pause':'Play'); }
+bpmEl.oninput = ()=>setBpm(+bpmEl.value);
+$('#cam').onchange = e=>goCam(e.target.value);
+$('#wall').onchange = e=>setWall(e.target.value);
+$('#bLabels').onclick = ()=>{ showAll=!showAll; $('#bLabels').setAttribute('aria-pressed', showAll); refreshLabels(); };
+$('#bFollow').onclick = ()=>setFollow(!followOn);
+$('#followX').onclick = ()=>setFollow(false);
+$('#bZones').onclick = ()=>setZones(!zoneGroup.visible);
+
+/* panels */
+function openPanel(id){ closeAll(); $(id).classList.add('open'); if(id!=='#helpPop') $('#backdrop').classList.add('open'); const c=$(id).querySelector('[data-close]'); c && c.focus(); }
+function closeAll(){ document.querySelectorAll('.panel.open,#helpPop.open,.backdrop.open').forEach(e=>e.classList.remove('open')); }
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeAll);
+$('#backdrop').onclick = closeAll;
+$('#bLearn').onclick = ()=>openPanel('#pLearn');
+$('#bQuiz').onclick = ()=>openPanel('#pQuiz');
+$('#bHelp').onclick = ()=>{ $('#helpPop').classList.contains('open') ? closeAll() : openPanel('#helpPop'); };
+document.addEventListener('pointerdown', e=>{ const hp=$('#helpPop'); if(hp.classList.contains('open') && !hp.contains(e.target) && e.target!==$('#bHelp')) hp.classList.remove('open'); });
+window.addEventListener('keydown', e=>{
+  if(e.target.tagName==='INPUT' && e.key!=='Escape') return;
+  if(e.key==='Escape') return closeAll();
+  if(document.querySelector('.panel.open')) return;
+  if(e.key===' '){ e.preventDefault(); setPlaying(!playing); }
+  else if(e.key==='ArrowRight') goStage(stageIdx+1);
+  else if(e.key==='ArrowLeft') goStage(stageIdx-1);
+  else if(['1','2','3','4'].includes(e.key)){ const n=['overview','cutaway','right','left'][+e.key-1]; $('#cam').value=n; goCam(n); }
+  else if(e.key==='l'||e.key==='L') $('#bLabels').click();
+  else if(e.key==='f'||e.key==='F') $('#bFollow').click();
+});
+
+$('#learnBody').innerHTML = `
+  <h3>By the end, you can…</h3><ol>${OUTCOMES.map(o=>`<li>${o}</li>`).join('')}</ol>
+  <h3>Common misconceptions</h3>
+  ${MISCON.map(m=>`<div class="mc"><div class="wrong"><b>✗ Wrong idea</b><br>${m[0]}</div><div class="right"><b>✓ Correct idea</b><br>${m[1]}</div></div>`).join('')}
+  <h3>Specification link</h3>
+  <p>Pearson BTEC Level 3 National Foundation Diploma in Sport (601/7220/4)<br>
+  Unit 1: Anatomy and Physiology (externally assessed)<br>
+  Topic D: The effects of sport and exercise performance on the cardiovascular system<br>
+  <b>D1 Structure of the cardiovascular system</b></p>
+  <p class="spec">“${SPEC_QUOTE}”</p>
+  <p class="note">This is Part 1 of 4 and focuses on the heart and the major blood vessels joined to it.</p>`;
+
+/* quiz */
+let answered = {};
+function renderQuiz(){
+  $('#quizBody').innerHTML = QUIZ.map((q,i)=>`
+    <div class="qcard" data-q="${i}"><p>${i+1}. ${q.q}</p>
+      ${q.o.map((o,k)=>`<button class="opt" data-k="${k}">${o}</button>`).join('')}
+      <div class="fb"></div>
+      <button class="btn showme" data-stage="${q.stage}">Show me ▶</button>
+    </div>`).join('') + `<p class="note">Tap an answer to check it. “Show me” jumps to the part of the simulation that answers the question.</p>`;
+  updateScore();
+}
+function updateScore(){ const n=Object.keys(answered).length, c=Object.values(answered).filter(Boolean).length; $('#score').textContent = n?`${c} / ${QUIZ.length}`:''; }
+$('#quizBody').addEventListener('click', e=>{
+  const opt = e.target.closest('.opt'); const sm = e.target.closest('.showme');
+  if(sm){ closeAll(); goStage(+sm.dataset.stage); return; }
+  if(!opt) return;
+  const card = opt.closest('.qcard'); const qi=+card.dataset.q; const q=QUIZ[qi]; const k=+opt.dataset.k;
+  card.querySelectorAll('.opt').forEach(b=>b.classList.remove('correct','incorrect'));
+  const right = k===q.a; opt.classList.add(right?'correct':'incorrect');
+  if(answered[qi]===undefined) answered[qi]=right;
+  const fb = card.querySelector('.fb'); fb.classList.add('show');
+  fb.innerHTML = right ? `<b>Correct.</b> ${q.why}` : `<b>Not quite.</b> Try again, or tap “Show me”.`;
+  say(right ? 'Correct. ' + q.why : 'Not quite. Try again, or tap “Show me”.');
+  updateScore();
+  if(Object.keys(answered).length===QUIZ.length) window.simStats && simStats.once('quiz-complete');
+});
+renderQuiz();
+
+/* teacher notes */
+function teacherHTML(){ return ''; }
+if(TEACHER){
+  $('#badge').hidden = false; $('#bTeacher').hidden = false;
+  $('#teacherBody').innerHTML = teacherHTML();
+  $('#bTeacher').onclick = ()=>openPanel('#pTeacher');
+}
+
+/* hover / tap */
+const ray = new THREE.Raycaster(); const mouse = new THREE.Vector2();
+const tip = $('#tip'); let downAt = null;
+function pickAt(x,y){
+  const r = canvas.getBoundingClientRect(); mouse.set(((x-r.left)/r.width)*2-1, -((y-r.top)/r.height)*2+1);
+  ray.setFromCamera(mouse, camera);
+  const objs = [bodyMesh, ...(frontMesh.visible?[frontMesh]:[]), ...pick.filter(o=>{ let p=o; while(p){ if(!p.visible) return false; p=p.parent; } return true; })];
+  const hits = ray.intersectObjects(objs, false);
+  for(const h of hits){
+    if(h.object.userData.part) return h.object.userData.part;
+    if(h.object===bodyMesh || h.object===frontMesh) return regionPart(h.point, h.object===frontMesh);
+  }
+  return null;
+}
+function regionPart(p, isFront){
+  if(isFront) return null;
+  // which chamber / wall is under the pointer (by position)
+  const inE=(c,r,rot)=>{ const dx=p.x-c[0], dy=p.y-c[1]; const cr=Math.cos(-rot), sr=Math.sin(-rot); const x=dx*cr-dy*sr, y=dx*sr+dy*cr; return (x/r[0])**2+(y/r[1])**2 < 1.25; };
+  if(inE([-1.35,0.8],[0.62,0.58],0)) return 'ra';
+  if(inE([1.45,0.95],[0.55,0.48],0)) return 'la';
+  if(p.x>0.0 && p.x<0.5 && p.y<-0.2 && p.y>-2.2) return 'sep';
+  if(inE([-0.75,-0.8],[0.7,0.85],-0.3)) return 'rv';
+  if(inE([1.05,-0.9],[0.5,1.0],0.25) || (p.x>0.5 && p.y<-0.1)) return 'lv';
+  if(p.x<0 && p.y<-0.1) return 'rv';
+  return null;
+}
+function showTip(id,x,y){
+  if(!id){ tip.style.display='none'; return; }
+  const P=PARTS[id]; tip.innerHTML = `<b>${P.name}</b>${P.job}`;
+  tip.style.display='block';
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.min(innerWidth-w-8, Math.max(8, x+14))+'px';
+  tip.style.top = Math.min(innerHeight-h-8, Math.max(8, y+14))+'px';
+}
+canvas.addEventListener('pointermove', e=>{ if(e.pointerType!=='mouse' || e.buttons) return; const id=pickAt(e.clientX,e.clientY); if(id!==hoverId){ hoverId=id; refreshLabels(); } showTip(id,e.clientX,e.clientY); canvas.style.cursor = id?'pointer':'grab'; });
+canvas.addEventListener('pointerleave', ()=>{ hoverId=null; refreshLabels(); showTip(null); });
+canvas.addEventListener('pointerdown', e=>{ downAt=[e.clientX,e.clientY]; });
+canvas.addEventListener('pointerup', e=>{
+  if(!downAt || Math.hypot(e.clientX-downAt[0], e.clientY-downAt[1])>6){ downAt=null; return; }
+  downAt=null; const id=pickAt(e.clientX,e.clientY); hoverId=id; refreshLabels(); showTip(id,e.clientX,e.clientY);
+  if(id && PARTS[id]) say(PARTS[id].name + '. ' + PARTS[id].job);
+  if(e.pointerType!=='mouse'){ clearTimeout(showTip._t); showTip._t=setTimeout(()=>{ showTip(null); hoverId=null; refreshLabels(); }, 4000); }
+});
+
+/* resize */
+function resize(){
+  const w=innerWidth, h=innerHeight; renderer.setSize(w,h,false); labelRenderer.setSize(w,h);
+  camera.aspect=w/h; camera.updateProjectionMatrix();
+  controls.maxDistance = 30*narrowFactor();
+  syncStageH();
+}
+addEventListener('resize', ()=>{ resize(); });
+
+/* ---------------------------------------------------------------- loop */
+const FIXED = 1/240; // cycles per sub-step
+function advance(dcTotal){
+  let rem = dcTotal;
+  while(rem > 1e-9){
+    const dc = Math.min(FIXED, rem); rem -= dc;
+    const ph = phaseInfo(cycles - Math.floor(cycles));
+    for(const p of parts) stepParticle(p, dc, ph);
+    stepParticle(follower, dc, ph);
+    cycles += dc;
+  }
+}
+function applyPhase(){
+  const p = cycles - Math.floor(cycles); const ph = phaseInfo(p);
+  beat.uA.value = ph.uA; beat.uV.value = ph.uV;
+  setValves(ph);
+  $('#head').style.left = `calc(${(p*100).toFixed(2)}% - 1px)`;
+  const names = {atria:'Atrial systole: the atria contract', ventricles:'Ventricular systole: the ventricles contract', diastole:'Diastole: the whole heart relaxes and fills'};
+  $('#phaseNow').textContent = names[ph.name];
+  const av = ph.av>0.5, sl = ph.sl>0.5;
+  const sAV=$('#stAV'), sSL=$('#stSL');
+  sAV.textContent = av?'OPEN':'SHUT'; sAV.className='state '+(av?'open':'shut');
+  sSL.textContent = sl?'OPEN':'SHUT'; sSL.className='state '+(sl?'open':'shut');
+  $('#cycleSmall').innerHTML = `<b>${names[ph.name]}</b><br>Tricuspid + bicuspid: <b>${av?'open':'shut'}</b> · Pulmonary + aortic: <b>${sl?'open':'shut'}</b>`;
+}
+
+let last = performance.now();
+function frame(now){
+  const dt = Math.min(0.1, (now-last)/1000); last = now;
+  if(playing){ simTime += dt; advance(dt*bpm/60); }
+  applyPhase();
+  updateParticleMeshes();
+  if(followOn){ updateFollowPanel();
+    const d = ring.position.clone().sub(controls.target).multiplyScalar(Math.min(1, dt*3));
+    controls.target.add(d); camera.position.add(d); }
+  if(camAnim){ camAnim.k = Math.min(1, camAnim.k + dt/1.1); const e = camAnim.k<.5?4*camAnim.k**3:1-(-2*camAnim.k+2)**3/2;
+    camera.position.lerpVectors(camAnim.p0, camAnim.p1, e); controls.target.lerpVectors(camAnim.t0, camAnim.t1, e); if(camAnim.k>=1) camAnim=null; }
+  setHighlight(hlSet, now/1000);
+  controls.update();
+  renderer.render(scene, camera); labelRenderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+/* ---------------------------------------------------------------- boot */
+function boot(){
+  buildHeart();
+  buildValve('tri', [-1.2,0.12,-0.1], [0,-1,0], 0.3, 3);
+  buildValve('mit', [1.32,0.28,-0.25], [-0.19,-0.98,0.08], 0.26, 2);
+  buildValve('pul', [-0.35,0.42,-0.05], [0.03,1,0], 0.26, 3);
+  buildValve('aor', [0.45,0.42,-0.15], [0,1,0], 0.27, 3);
+  buildVessels(); buildZones(); buildCoronary(); buildLabels();
+  resize();
+  setBpm(+(qs.get('bpm')||20));
+  advance(6); // let the blood settle into a natural pattern
+  const st = qs.has('stage') ? (+qs.get('stage')) : 0;
+  goStage(st, false); goCam(STAGES[st].cam, true);
+  if(qs.has('t')){ advance(+qs.get('t')*bpm/60); setPlaying(false); }
+  if(qs.has('cam')){ goCam(qs.get('cam'), true); }
+  if(qs.has('wall')) setWall(qs.get('wall'));
+  if(qs.has('labels')){ showAll=true; refreshLabels(); }
+  if(qs.has('follow')) setFollow(true);
+  if(reduceMotion) setPlaying(false);
+  if(qs.has('panel')) openPanel('#'+qs.get('panel'));
+  if(qs.has('nohint')) $('#hint').style.display='none';
+  $('#loading').style.display='none';
+  requestAnimationFrame(frame);
+}
+window.__sim = {camera, controls, goCam, CAMS};
+try{ boot(); }catch(err){ console.error(err); $('#loading').textContent = 'Sorry – the 3D heart could not load on this device.'; }
+</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('../../sw.js',{scope:'../../'}).catch(function(){});</script>
+</body>
+</html>
