@@ -604,6 +604,80 @@
    "part": 1,
    "transcript": "sims/heart/transcript.html",
    "worksheet": "sims/heart/worksheet.html"
+  },
+  {
+   "id": "bonds-stretcher",
+   "title": "Stretcher bond",
+   "summary": "Meet the brick and see why walls are bonded. Build a half-brick stretcher bond wall course by course, turn a corner by swapping the quoin brick, finish a stopped end with a half bat and keep to 75 mm gauge. Switch on the straight joints check, then spot the fault in a badly bonded wall.",
+   "level": "Level 1",
+   "spec": "City & Guilds 6705-13 Level 1 Diploma in Bricklaying, Unit 104 Carrying out bricklaying activities",
+   "minutes": "15–20 min",
+   "tags": [
+    "Stretcher bond",
+    "Half lap",
+    "Quoin",
+    "Half bat",
+    "Gauge"
+   ],
+   "areas": [
+    "construction"
+   ],
+   "courses": [
+    "bricklaying",
+    "bricklaying-l1-award",
+    "bricklaying-l1-diploma",
+    "bricklaying-l2-diploma"
+   ],
+   "general": false,
+   "student": "sims/bonds-stretcher/student.html",
+   "teacher": "sims/bonds-stretcher/teacher.html",
+   "thumb": "sims/bonds-stretcher/thumb.jpg",
+   "narration": "Browser voice (ElevenLabs Alice clips to follow)",
+   "updated": "2026-11-18",
+   "added": "2026-11-18",
+   "classroomTitle": "Stretcher bond – 3D simulation (Solid walling bonds, Part 1)",
+   "instructions": "Open the link and work through the 3D stretcher bond simulation (15–20 minutes). Use headphones and keep the sound on.\n1. Guided tour: follow all 8 stages.\n2. Stage 2: explain what a straight joint is and why it weakens a wall.\n3. Stage 5: describe the half lap in your own words.\n4. Stage 6: say where the half bats go and why.\n5. Stage 7: work out the height of 6 courses at 75 mm gauge.\n6. Spot the fault: find the mistake and explain it.\n7. Test yourself: answer the 5 questions.\nHand in your notes and your quiz score.",
+   "transcript": "sims/bonds-stretcher/transcript.html",
+   "worksheet": "sims/bonds-stretcher/worksheet.html",
+   "series": "solid-walling-bonds",
+   "part": 1
+  },
+  {
+   "id": "bonds-english-flemish",
+   "title": "English and Flemish bond",
+   "summary": "Step up from stretcher bond to one-brick solid walls, written for Level 1 learners. See how headers tie the wall together, where the queen closer goes next to the quoin header, and how the quarter lap keeps joints apart. Compare English and Flemish bond at the same height, look at the wall from above, then find the missing closer in a faulty wall.",
+   "level": "Level 2",
+   "spec": "City & Guilds 6705-23 Level 2 Diploma in Bricklaying, Unit 204 Building solid walling, isolated and attached piers (AC 3.6, 4.4)",
+   "minutes": "15–20 min",
+   "tags": [
+    "English bond",
+    "Flemish bond",
+    "Queen closer",
+    "Quarter lap",
+    "Solid walling"
+   ],
+   "areas": [
+    "construction"
+   ],
+   "courses": [
+    "bricklaying",
+    "bricklaying-l1-award",
+    "bricklaying-l1-diploma",
+    "bricklaying-l2-diploma"
+   ],
+   "general": false,
+   "student": "sims/bonds-english-flemish/student.html",
+   "teacher": "sims/bonds-english-flemish/teacher.html",
+   "thumb": "sims/bonds-english-flemish/thumb.jpg",
+   "narration": "Browser voice (ElevenLabs Alice clips to follow)",
+   "updated": "2026-11-18",
+   "added": "2026-11-18",
+   "classroomTitle": "English and Flemish bond – 3D simulation (Solid walling bonds, Part 2)",
+   "instructions": "Open the link and work through the 3D English and Flemish bond simulation (15–20 minutes). Use headphones and keep the sound on.\n1. Guided tour: follow all 8 stages.\n2. Stage 3: say where the queen closer goes and why.\n3. Switch the Bond menu between English and Flemish and describe the difference.\n4. Plan view: explain how headers tie the wall together.\n5. Spot the fault: find the mistake and explain it.\n6. Test yourself: answer the 5 questions.\nHand in your notes and your quiz score.",
+   "transcript": "sims/bonds-english-flemish/transcript.html",
+   "worksheet": "sims/bonds-english-flemish/worksheet.html",
+   "series": "solid-walling-bonds",
+   "part": 2
   }
  ],
  "courseInstructions": "Open the link to see the 3D simulations on this page. Work through each one, starting with the Guided tour (use headphones and press Sound on), then try Build it, Spot the faults and Test yourself. Note your quiz score for each simulation.",
@@ -668,6 +742,27 @@
      "n": 4,
      "title": "The heart during and after exercise",
      "sim": null
+    }
+   ]
+  },
+  {
+   "id": "solid-walling-bonds",
+   "title": "Solid walling bonds",
+   "summary": "A two-part series on brick bonding: start with half-brick stretcher bond, then step up to one-brick English and Flemish bond. Work through the parts in order.",
+   "spec": "City & Guilds 6705 Diploma in Bricklaying (Level 1 Unit 104, Level 2 Unit 204)",
+   "areas": [
+    "construction"
+   ],
+   "parts": [
+    {
+     "n": 1,
+     "title": "Stretcher bond",
+     "sim": "bonds-stretcher"
+    },
+    {
+     "n": 2,
+     "title": "English and Flemish bond",
+     "sim": "bonds-english-flemish"
     }
    ]
   }

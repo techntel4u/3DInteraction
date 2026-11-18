@@ -922,5 +922,227 @@
     ]
    }
   ]
+ },
+ "bonds-stretcher": {
+  "sections": [
+   {
+    "title": "Guided tour",
+    "items": [
+     {
+      "h": "Meet the brick",
+      "t": "A standard UK brick is 215 mm long, 102.5 mm wide and 65 mm high. The long side is the stretcher face. The short end is the header face. The top and bottom are the bed faces."
+     },
+     {
+      "h": "Why we bond",
+      "t": "Here every course is laid the same way, so the joints line up. The red lines show these straight joints. A wall like this is weak along those lines and can crack there."
+     },
+     {
+      "h": "Course 1",
+      "t": "Stretcher bond is half a brick thick. Lay stretchers end to end with a 10 mm joint between them. One brick plus one joint measures 225 mm."
+     },
+     {
+      "h": "Turning the corner",
+      "t": "At the corner, the quoin brick swaps direction every course. Its end shows as a header on the return wall. That starts the half lap on the return."
+     },
+     {
+      "h": "Half lap",
+      "t": "Each brick sits across two bricks below, with its joint halfway along. This is a half lap. The straight joints check is on and there are no red lines."
+     },
+     {
+      "h": "Stopped end",
+      "t": "At a stopped end, every other course finishes with a half bat. A half bat is a brick cut in half across its length. It keeps the half lap right to the end."
+     },
+     {
+      "h": "Keep to gauge",
+      "t": "Each course is 75 mm: a 65 mm brick plus a 10 mm bed joint. Four courses measure 300 mm. Check the height against the gauge rod as you build."
+     },
+     {
+      "h": "Spot the fault",
+      "t": "This wall has a fault. Tap a brick in the course where the mistake starts. Need a clue? Turn on Straight joints."
+     }
+    ]
+   },
+   {
+    "title": "Common mix-ups",
+    "items": [
+     {
+      "h": "Mix-up: A small straight joint does not matter.",
+      "t": "Right idea: Any joint that lines up with the joint below weakens the wall. Keep the half lap every course."
+     },
+     {
+      "h": "Mix-up: The corner brick goes the same way every course.",
+      "t": "Right idea: The quoin swaps direction every course. That is what ties the two walls together."
+     },
+     {
+      "h": "Mix-up: A half bat and a queen closer are the same thing.",
+      "t": "Right idea: A half bat is cut across the brick. A queen closer is cut down its length. Stretcher bond uses half bats."
+     },
+     {
+      "h": "Mix-up: Course height does not matter if the wall is level.",
+      "t": "Right idea: Keep to 75 mm gauge per course so the wall matches the gauge rod and the drawing."
+     }
+    ]
+   }
+  ],
+  "quiz": [
+   {
+    "q": "Which face of a brick is the stretcher face?",
+    "o": [
+     "The long side face",
+     "The short end",
+     "The top bed face",
+     "The bottom bed face"
+    ]
+   },
+   {
+    "q": "What is a straight joint?",
+    "o": [
+     "A joint that lines up with the joint directly below",
+     "A joint that is perfectly level",
+     "A joint with no mortar in it",
+     "The joint at the corner of a wall"
+    ]
+   },
+   {
+    "q": "What lap does stretcher bond use?",
+    "o": [
+     "A half lap",
+     "A quarter lap",
+     "No lap",
+     "A three-quarter lap"
+    ]
+   },
+   {
+    "q": "What finishes every other course at a stopped end?",
+    "o": [
+     "A half bat",
+     "A queen closer",
+     "A header",
+     "A three-quarter bat"
+    ]
+   },
+   {
+    "q": "One course is 75 mm high. How high are four courses?",
+    "o": [
+     "300 mm",
+     "260 mm",
+     "280 mm",
+     "320 mm"
+    ]
+   }
+  ]
+ },
+ "bonds-english-flemish": {
+  "sections": [
+   {
+    "title": "Guided tour",
+    "items": [
+     {
+      "h": "One brick thick",
+      "t": "This wall is one brick thick: 215 mm, the length of a brick. A half-brick wall is only 102.5 mm. In this first course, the left-hand wall is two rows of stretchers side by side. On their own, those two rows are not tied together."
+     },
+     {
+      "h": "Headers tie the wall",
+      "t": "In English bond, the next course is all headers. A header lies across the wall and shows its short end. Each header ties the front row to the back row."
+     },
+     {
+      "h": "The queen closer",
+      "t": "At the corner, the header course starts with the quoin header. Next to it goes a queen closer. This is a brick cut down its length, 46 mm on the face. It moves the joints along by a quarter of a brick."
+     },
+     {
+      "h": "Quarter lap",
+      "t": "Now every joint sits a quarter brick away from the joint below. This is a quarter lap. The straight joints check is on and there are no red lines."
+     },
+     {
+      "h": "Flemish bond",
+      "t": "Flemish bond mixes them up. Every course goes header, stretcher, header, stretcher. Each header sits in the middle of the stretcher below it."
+     },
+     {
+      "h": "Flemish corner",
+      "t": "At a Flemish corner, one face starts with the quoin stretcher. The return face starts with the quoin header, then a queen closer. On the next course they swap over."
+     },
+     {
+      "h": "Compare the bonds",
+      "t": "English bond has whole courses of headers and whole courses of stretchers. Flemish bond has both in every course. Here both walls are one brick thick and both keep a quarter lap. Switch between them with the Bond menu."
+     },
+     {
+      "h": "Spot the fault",
+      "t": "This English bond wall has a fault. Tap the brick where the mistake starts. Need a clue? Turn on Straight joints."
+     }
+    ]
+   },
+   {
+    "title": "Common mix-ups",
+    "items": [
+     {
+      "h": "Mix-up: English bond has headers and stretchers in the same course.",
+      "t": "Right idea: That is Flemish bond. English bond has whole courses of headers, then whole courses of stretchers."
+     },
+     {
+      "h": "Mix-up: The queen closer goes right on the corner.",
+      "t": "Right idea: The quoin header goes on the corner. The queen closer goes next to it."
+     },
+     {
+      "h": "Mix-up: A queen closer is the same as a half bat.",
+      "t": "Right idea: A queen closer is cut down its length (46 mm on the face). A half bat is cut across its length."
+     },
+     {
+      "h": "Mix-up: A one-brick wall is just two half-brick walls side by side.",
+      "t": "Right idea: Without headers the two rows would split apart. Headers tie them together."
+     },
+     {
+      "h": "Mix-up: Leaving out one closer is no big deal.",
+      "t": "Right idea: Without it, the joints sit right above each other and you get straight joints all along the wall."
+     }
+    ]
+   }
+  ],
+  "quiz": [
+   {
+    "q": "How thick is a one-brick wall?",
+    "o": [
+     "215 mm",
+     "102.5 mm",
+     "65 mm",
+     "225 mm"
+    ]
+   },
+   {
+    "q": "In English bond, what ties the front and back rows together?",
+    "o": [
+     "The header courses",
+     "The queen closers",
+     "The mortar on its own",
+     "Wall ties"
+    ]
+   },
+   {
+    "q": "Where does the queen closer go?",
+    "o": [
+     "Next to the quoin header",
+     "Right on the corner",
+     "At the end of every stretcher course",
+     "In the middle of the wall"
+    ]
+   },
+   {
+    "q": "Which bond has headers and stretchers in the same course?",
+    "o": [
+     "Flemish bond",
+     "English bond",
+     "Stretcher bond",
+     "None of them"
+    ]
+   },
+   {
+    "q": "What lap do English and Flemish bond keep?",
+    "o": [
+     "A quarter lap",
+     "A half lap",
+     "No lap",
+     "A three-quarter lap"
+    ]
+   }
+  ]
  }
 }

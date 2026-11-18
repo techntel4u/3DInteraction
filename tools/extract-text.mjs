@@ -46,5 +46,14 @@ s = fs.readFileSync('sims/heart/student.html','utf8');
   out['heart'] = { sections:[{title:'Guided tour', items: grabArray(s,'STAGES').map(x=>({h:x.name, t:strip(x.text)}))},
     {title:'The parts', items: Object.values(P).map(p=>({h:p.name, t:strip(p.job)}))}],
     quiz: grabArray(s,'QUIZ').map(q=>({q:q.q, o:q.o})) }; }
+for (const [id, file] of [['bonds-stretcher','sims/bonds-stretcher/student.html'],['bonds-english-flemish','sims/bonds-english-flemish/student.html']]) {
+  const src = fs.readFileSync(file,'utf8');
+  const a = src.indexOf('{', src.search(/const\s+PARTS\s*=/)), b = src.indexOf('\n}};', a) + 3;
+  const PARTS = new Function('return ' + src.slice(a, b))();
+  const part = +src.match(/const PART = (\d)/)[1], P = PARTS[part];
+  out[id] = { sections:[{title:'Guided tour', items: P.stages.map(x=>({h:x.name, t:strip(x.cap)}))},
+    {title:'Common mix-ups', items: P.misc.map(([w,r])=>({h:'Mix-up: '+w, t:'Right idea: '+r}))}],
+    quiz: P.quiz.map(q=>({q:q.q, o:q.o})) };
+}
 fs.writeFileSync('tools/sim-text.json', JSON.stringify(out,null,1));
 for(const [k,v] of Object.entries(out)) console.log(k, v.sections.map(x=>x.title+':'+x.items.length).join(', '), 'quiz:'+v.quiz.length);

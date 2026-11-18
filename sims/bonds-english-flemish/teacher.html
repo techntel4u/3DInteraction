@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solid walling bonds · Part 2: English and Flemish bond (Teacher)</title>
+<meta name="theme-color" content="#1b2a4a">
+<link rel="icon" href="../../icons/icon-192.png">
+<script src="../../assets/stats.js?v=2"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "../../vendor/three/three.module.js",
+  "three/addons/": "../../vendor/three/addons/"
+} }
+</script>
+<style>
+:root{--navy:#1b2a4a;--navy2:#2c4170;--ink:#1d2433;--muted:#4a5568;--bg:#eef0f3;--card:#ffffff;--line:#d6dbe3;--ok:#1d7a3a;--bad:#b42318;--focus:#f2a900}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);-webkit-tap-highlight-color:transparent}
+#app{position:fixed;inset:0}
+canvas#c{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#labels{position:absolute;inset:0;pointer-events:none}
+button,select{font:inherit}
+.btn{min-height:44px;min-width:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--navy);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.btn:hover{background:#f4f6fa}
+.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn:focus-visible,select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+#top{position:absolute;left:0;right:0;top:0;height:56px;display:flex;align-items:center;gap:8px;padding:0 10px;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);z-index:5}
+#top h1{font-size:16px;margin:0;color:var(--navy);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#top h1 small{display:block;font-size:12px;font-weight:600;color:var(--muted)}
+.badge{background:#7a3b22;color:#fff;font-size:12px;font-weight:700;padding:4px 8px;border-radius:6px;white-space:nowrap}
+#topBtns{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+#topBtns::-webkit-scrollbar{display:none}
+#stage{position:absolute;left:12px;top:68px;width:360px;max-height:calc(100% - 160px);overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;z-index:4;box-shadow:0 4px 18px rgba(20,30,60,.08)}
+#stage .count{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+#stage h2{margin:2px 0 8px;font-size:20px;color:var(--navy)}
+#strip{display:flex;gap:4px;margin-bottom:10px}
+#strip button{flex:1;height:10px;min-height:10px;border-radius:5px;border:0;background:#d6dbe3;cursor:pointer;padding:0;position:relative}
+#strip button::after{content:"";position:absolute;inset:-14px 0}
+#strip button.done{background:#8ea0c4}
+#strip button.active{background:var(--navy)}
+#caption{font-size:16px;line-height:1.5;margin:0 0 10px}
+#readouts{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:14px;margin:0;border-top:1px solid var(--line);padding-top:8px}
+#readouts > div{display:contents}
+#readouts dt{color:var(--muted);font-weight:600}
+#readouts dd{margin:0;font-weight:700}
+#capToggle{display:none}
+#nextPartWrap{margin-top:10px}
+#legend{position:absolute;right:12px;top:68px;width:210px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;z-index:4;font-size:14px}
+#legend h3{margin:0 0 6px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+#legend .row{display:flex;align-items:center;gap:8px;margin:5px 0}
+#legend .sw{width:30px;height:18px;border-radius:3px;border:1px solid rgba(0,0,0,.25);background-size:cover;flex:none}
+#legend .x{display:none}
+#controls{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);border-top:1px solid var(--line);z-index:5;padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+#row{display:flex;gap:8px;align-items:center;overflow-x:auto;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.grp{display:flex;gap:6px;align-items:center;padding-right:8px;border-right:1px solid var(--line)}
+.grp:last-child{border-right:0}
+.grp label{font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}
+#speed{width:120px;height:44px}
+#courseN{min-width:24px;text-align:center;font-weight:700}
+select{min-height:44px;border-radius:10px;border:1px solid var(--line);padding:0 8px;background:#fff;color:var(--navy);font-weight:600}
+#speedVal{font-size:13px;font-weight:700;min-width:30px}
+#tip{position:absolute;z-index:9;pointer-events:none;background:var(--navy);color:#fff;padding:8px 10px;border-radius:8px;font-size:14px;max-width:260px;line-height:1.35;display:none;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+#tip b{display:block;margin-bottom:2px}
+#hint{position:absolute;left:50%;transform:translateX(-50%);bottom:96px;z-index:6;background:var(--navy);color:#fff;padding:10px 16px;border-radius:24px;font-weight:600;font-size:15px;box-shadow:0 6px 18px rgba(0,0,0,.2);text-align:center;max-width:92vw}
+#fault{margin-top:10px;background:#fff8e1;border:2px solid #f2c230;border-radius:12px;padding:10px 12px;display:none}
+#fault p{margin:0 0 8px;font-size:15px;line-height:1.45}
+#fault .acts{display:flex;gap:8px;flex-wrap:wrap}
+#fault .res.ok{color:var(--ok);font-weight:700}
+#fault .res.bad{color:var(--bad);font-weight:700}
+.lbl{background:rgba(27,42,74,.92);color:#fff;font-size:12px;font-weight:600;padding:3px 7px;border-radius:6px;white-space:nowrap}
+.lbl.lap{background:#fff;color:var(--navy);border:2px solid var(--navy);font-size:13px}
+.lbl.gauge{background:#fff;color:var(--navy);border:1px solid var(--navy)}
+#backdrop{position:absolute;inset:0;background:rgba(15,22,40,.35);z-index:7;display:none}
+.panel{position:absolute;top:0;right:0;bottom:0;width:min(460px,100vw);background:#fff;z-index:8;display:none;flex-direction:column;box-shadow:-8px 0 30px rgba(0,0,0,.15)}
+.panel.open{display:flex}
+.panel header{display:flex;align-items:center;gap:8px;padding:10px 12px 10px 16px;border-bottom:1px solid var(--line)}
+.panel header h2{flex:1;margin:0;font-size:18px;color:var(--navy)}
+.panel .body{overflow:auto;padding:14px 16px 30px;font-size:15px;line-height:1.5}
+.panel h3{color:var(--navy);font-size:16px;margin:18px 0 6px}
+.panel ul{padding-left:20px;margin:6px 0}
+.panel li{margin:4px 0}
+.mis{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:8px 0}
+.mis .w{color:var(--bad);font-weight:600}
+.mis .r{color:var(--ok);font-weight:600}
+.q{border:1px solid var(--line);border-radius:12px;padding:12px;margin:0 0 12px}
+.q p{margin:0 0 8px;font-weight:600}
+.q .opts{display:grid;gap:6px}
+.q .opts button{text-align:left;justify-content:flex-start;white-space:normal;padding:8px 12px}
+.q .opts button.right{background:#e6f4ea;border-color:var(--ok);color:var(--ok)}
+.q .opts button.wrong{background:#fdecea;border-color:var(--bad);color:var(--bad)}
+.q .fb{margin-top:8px;display:none}
+.q .fb.show{display:block}
+.tabs{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+.spec{background:#f4f6fa;border-left:4px solid var(--navy);padding:8px 10px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+kbd{background:#eef0f3;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-family:inherit;font-weight:700}
+.note{font-size:13px;color:var(--muted)}
+/* Phone portrait */
+@media (max-width:640px){
+  #top{height:52px}
+  #top h1{font-size:14px}
+  #top .lab{display:none}
+  #stage{left:8px;right:8px;top:60px;width:auto;padding:10px 12px;max-height:44vh}
+  #stage h2{font-size:17px;margin-bottom:6px}
+  #caption{font-size:15px;margin-bottom:6px}
+  #stage.collapsed #caption,#stage.collapsed #readouts,#stage.collapsed #nextPartWrap{display:none}
+  #readouts{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:13px} #readouts > div{display:block;white-space:nowrap} #readouts dt,#readouts dd{display:inline} #readouts dt::after{content:': '}
+  #fault{padding:8px 10px} #fault p{font-size:14px;margin-bottom:6px} #fault .acts .btn{min-height:40px;padding:0 10px;font-size:14px}
+  #readouts{font-size:13px}
+  #capToggle{display:inline-flex;position:absolute;right:8px;top:6px;min-height:36px;min-width:44px;padding:0 8px;font-size:13px}
+  #legend{display:none;top:auto;bottom:86px;left:8px;right:auto;width:220px}
+  #legend.show{display:block}
+  #legend .x{display:inline-flex;position:absolute;right:4px;top:4px;min-height:36px}
+  #hint{bottom:84px}
+}
+/* Phone landscape */
+@media (max-height:500px) and (orientation:landscape){
+  #top{height:48px}
+  #top .lab{display:none}
+  #stage{left:8px;top:54px;bottom:74px;width:280px;max-height:none;padding:10px 12px}
+  #stage h2{font-size:16px}
+  #caption{font-size:14px}
+  #legend{display:none;top:54px;right:8px;bottom:auto}
+  #legend.show{display:block}
+  #legend .x{display:inline-flex;position:absolute;right:4px;top:4px;min-height:36px}
+  #controls{padding:6px 8px}
+  #hint{bottom:72px}
+  #stage.faultmode #readouts,#stage.faultmode #caption{display:none} #fault p{font-size:13px;margin-bottom:4px} #fault .acts .btn{min-height:38px;padding:0 8px;font-size:13px}
+}
+@media (min-width:641px) and (min-height:501px){ #keyBtn{display:none} }
+@media (min-width:900px) and (min-height:501px){ #row{flex-wrap:wrap;overflow:visible} }
+@media (min-width:1600px) and (min-height:900px){ #stage{width:460px;padding:18px 20px} #stage h2{font-size:26px} #caption{font-size:20px} #readouts{font-size:17px} #legend{width:250px;font-size:17px} .btn{min-height:50px;font-size:17px} #top{height:64px} #top h1{font-size:20px} #stage,#legend{top:76px} .lbl{font-size:15px} }
+#hubLink{flex:none;min-height:44px;display:inline-flex!important;align-items:center;padding:0 10px;border-radius:10px;border:1px solid var(--line);font-weight:700;font-size:14px;color:var(--navy);text-decoration:none;background:#fff}
+@media (max-width:640px){#hubLink{padding:0 8px!important;font-size:13px!important;min-height:40px!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="c" aria-label="3D model of a brick wall. Drag to rotate, pinch or scroll to zoom."></canvas>
+  <div id="labels"></div>
+
+  <div id="top">
+    <a id="hubLink" href="../../index.html">← Hub</a>
+    <h1 id="title"></h1>
+    <span class="badge" id="tbadge">Teacher version</span>
+    <div id="topBtns">
+      <button class="btn" id="learnBtn" aria-haspopup="dialog"><span aria-hidden="true">🎯</span><span class="lab">What you'll learn</span></button>
+      <button class="btn" id="quizBtn" aria-haspopup="dialog"><span aria-hidden="true">✅</span><span class="lab">Test yourself</span></button>
+      <button class="btn" id="teachBtn" aria-haspopup="dialog"><span aria-hidden="true">📋</span><span class="lab">Teacher notes</span></button>
+      <button class="btn" id="helpBtn" aria-haspopup="dialog" aria-label="Help and keyboard shortcuts">?</button>
+      <a class="btn" id="partLink" style="display:none;text-decoration:none"></a>
+    </div>
+  </div>
+
+  <section id="stage" aria-live="polite">
+    <button class="btn" id="capToggle" aria-expanded="true">Hide</button>
+    <div class="count" id="stageCount"></div>
+    <h2 id="stageName"></h2>
+    <div id="strip" role="tablist" aria-label="Stages"></div>
+    <p id="caption"></p>
+    <dl id="readouts"></dl>
+    <div id="nextPartWrap"></div>
+    <div id="fault" role="region" aria-label="Spot the fault">
+      <p id="faultQ"></p>
+      <p class="res" id="faultRes"></p>
+      <div class="acts">
+        <button class="btn" id="clueBtn">Clue: straight joints</button>
+        <button class="btn" id="revealBtn">Show me the fault</button>
+        <button class="btn" id="fixBtn">Show it built right</button>
+      </div>
+    </div>
+  </section>
+
+  <aside id="legend" aria-label="Colour key">
+    <button class="btn x" id="legendClose" aria-label="Close key">✕</button>
+    <h3>Key</h3>
+    <div id="legendRows"></div>
+  </aside>
+
+  <div id="tip" role="status"></div>
+  <div id="hint">🔊 Sound is on – tap anywhere to start the narration</div>
+
+
+  <div id="controls">
+    <div id="row">
+      <div class="grp">
+        <button class="btn" id="prevBtn" aria-label="Previous stage">◀</button>
+        <button class="btn primary" id="playBtn" aria-label="Pause">❚❚</button>
+        <button class="btn" id="nextBtn" aria-label="Next stage">▶</button>
+      </div>
+      <div class="grp">
+        <label for="speed">Speed</label>
+        <input type="range" id="speed" min="0" max="4" step="1" value="2" aria-label="Building speed">
+        <span id="speedVal">1×</span>
+      </div>
+      <div class="grp">
+        <label>Courses</label>
+        <button class="btn" id="cMinus" aria-label="Remove a course">−</button>
+        <span id="courseN">0</span>
+        <button class="btn" id="cPlus" aria-label="Add a course">+</button>
+      </div>
+      <div class="grp">
+        <label for="bondSel">Bond</label>
+        <select id="bondSel"></select>
+      </div>
+      <div class="grp">
+        <button class="btn" id="tLabels" aria-pressed="false">Labels</button>
+        <button class="btn" id="tJoints" aria-pressed="false">Straight joints</button>
+        <button class="btn on" id="tMortar" aria-pressed="true">Mortar</button>
+        <button class="btn" id="tBack" aria-pressed="false">See inside</button>
+        <span id="typeToggles" style="display:flex;gap:6px"></span>
+      </div>
+      <div class="grp" id="camGrp"></div>
+      <div class="grp">
+        <button class="btn" id="faultBtn">Spot the fault</button>
+        <button class="btn" id="keyBtn" aria-pressed="false">Key</button>
+        <button class="btn on" id="soundBtn" aria-pressed="true" aria-label="Sound on">🔊</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="backdrop"></div>
+
+  <div class="panel" id="learnPanel" role="dialog" aria-modal="true" aria-labelledby="learnH">
+    <header><h2 id="learnH">What you'll learn</h2><button class="btn close" aria-label="Close">✕</button></header>
+    <div class="body" id="learnBody"></div>
+  </div>
+  <div class="panel" id="quizPanel" role="dialog" aria-modal="true" aria-labelledby="quizH">
+    <header><h2 id="quizH">Test yourself</h2><button class="btn close" aria-label="Close">✕</button></header>
+    <div class="body" id="quizBody"></div>
+  </div>
+  <div class="panel" id="helpPanel" role="dialog" aria-modal="true" aria-labelledby="helpH">
+    <header><h2 id="helpH">Help</h2><button class="btn close" aria-label="Close">✕</button></header>
+    <div class="body">
+      <h3>Moving around</h3>
+      <ul><li>Drag to turn the wall all the way round.</li><li>Pinch or scroll to zoom. Two-finger drag or right-drag to move sideways.</li><li>Tap or hover over a brick to see its name and job.</li></ul>
+      <h3>Keyboard shortcuts</h3>
+      <ul><li><kbd>Space</kbd> play or pause</li><li><kbd>←</kbd> <kbd>→</kbd> previous or next stage</li><li><kbd>1</kbd>–<kbd>4</kbd> camera views</li><li><kbd>L</kbd> labels, <kbd>J</kbd> straight joints</li><li><kbd>+</kbd> <kbd>−</kbd> add or remove a course</li><li><kbd>Esc</kbd> close a panel</li></ul>
+      <h3>Sound</h3>
+      <p>Narration reads each stage out loud. Captions show the same words. Use the speaker button to turn sound off.</p>
+      <p class="note">Colours and patterns are for learning only. Real bricks in a wall are usually all the same colour.</p>
+    </div>
+  </div>
+  
+  <div class="panel" id="teachPanel" role="dialog" aria-modal="true" aria-labelledby="teachH">
+    <header><h2 id="teachH">Teacher notes</h2><button class="btn close" aria-label="Close">✕</button></header>
+    <div class="body" id="teachBody"></div>
+  </div>
+  
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+const PART = 2;
+const EDITION = 'teacher';
+const OTHER_URL = '../bonds-stretcher/teacher.html';
+
+/* ---------- Brick sizes (mm) ---------- */
+const BL = 215, BW = 102.5, BH = 65, J = 10, CH = 75, QC = 46.25;
+const S = 0.001; // mm to metres
+
+/* ---------- Content ---------- */
+const TYPES = {
+  stretcher: { name: 'Stretcher', job: 'A whole brick laid lengthways along the wall. You see its long face.', col: '#c4673f', pat: 'plain' },
+  header: { name: 'Header', job: 'A whole brick laid across the wall. You see its short end. It ties the front and back of the wall together.', col: '#7a3b22', pat: 'dots' },
+  closer: { name: 'Queen closer', job: 'A brick cut down its length, 46 mm on the face. It goes next to the quoin header to start the quarter lap.', col: '#f2c230', pat: 'stripes' },
+  bat: { name: 'Half bat', job: 'A brick cut in half across its length. It finishes every other course at a stopped end.', col: '#8e5bd6', pat: 'hatch' },
+};
+const QUOIN = { name: 'Quoin (corner brick)', job: 'The brick on the corner. It shows a stretcher face on one wall and a header face on the return. It swaps direction every course.' };
+
+const PARTS = {
+1: {
+  title: 'Solid walling bonds',
+  sub: 'Part 1: Stretcher bond',
+  bonds: [['stretcher', 'Stretcher bond'], ['stack', 'No bond (joints in line)']],
+  legend: ['stretcher', 'bat'],
+  typeToggles: [['bat', 'Half bats']],
+  other: { label: 'Part 2<span class="lab">: English and Flemish bond</span> →' },
+  faultQ: 'This half-brick wall has a fault. Tap a brick in the course where the mistake starts.',
+  faultRight: 'Yes. Course 3 was set out the same as course 2. The quoin should have swapped direction, so now the joints sit straight above the ones below.',
+  faultWrong: 'Not that one. Look for the course whose joints line up with the course underneath it.',
+  faultCheck: (b) => b.c === 2,
+  stages: [
+    { name: 'Meet the brick', bond: 'stretcher', courses: 0, cam: 'brick', specimen: true,
+      cap: 'A standard UK brick is 215 mm long, 102.5 mm wide and 65 mm high. The long side is the stretcher face. The short end is the header face. The top and bottom are the bed faces.' },
+    { name: 'Why we bond', bond: 'stack', courses: 5, cam: 'overview', straight: true,
+      cap: 'Here every course is laid the same way, so the joints line up. The red lines show these straight joints. A wall like this is weak along those lines and can crack there.' },
+    { name: 'Course 1', bond: 'stretcher', courses: 1, cam: 'overview', hi: ['stretcher'],
+      cap: 'Stretcher bond is half a brick thick. Lay stretchers end to end with a 10 mm joint between them. One brick plus one joint measures 225 mm.' },
+    { name: 'Turning the corner', bond: 'stretcher', courses: 2, cam: 'corner', hi: ['quoin'],
+      cap: 'At the corner, the quoin brick swaps direction every course. Its end shows as a header on the return wall. That starts the half lap on the return.' },
+    { name: 'Half lap', bond: 'stretcher', courses: 4, cam: 'face', lap: true, straight: true,
+      cap: 'Each brick sits across two bricks below, with its joint halfway along. This is a half lap. The straight joints check is on and there are no red lines.' },
+    { name: 'Stopped end', bond: 'stretcher', courses: 4, cam: 'end', hi: ['bat'],
+      cap: 'At a stopped end, every other course finishes with a half bat. A half bat is a brick cut in half across its length. It keeps the half lap right to the end.' },
+    { name: 'Keep to gauge', bond: 'stretcher', courses: 8, cam: 'overview', gauge: true,
+      cap: 'Each course is 75 mm: a 65 mm brick plus a 10 mm bed joint. Four courses measure 300 mm. Check the height against the gauge rod as you build.' },
+    { name: 'Spot the fault', bond: 'stretcher', courses: 6, cam: 'overview', fault: true,
+      cap: 'This wall has a fault. Tap a brick in the course where the mistake starts. Need a clue? Turn on Straight joints.' },
+  ],
+  outcomes: [
+    'Name the stretcher, header and bed faces of a brick.',
+    'Explain why we bond brickwork and what a straight joint is.',
+    'Build stretcher bond with a half lap, course by course.',
+    'Turn a corner by swapping the quoin brick every course.',
+    'Finish a stopped end with a half bat and keep to 75 mm gauge.',
+  ],
+  misc: [
+    ['A small straight joint does not matter.', 'Any joint that lines up with the joint below weakens the wall. Keep the half lap every course.'],
+    ['The corner brick goes the same way every course.', 'The quoin swaps direction every course. That is what ties the two walls together.'],
+    ['A half bat and a queen closer are the same thing.', 'A half bat is cut across the brick. A queen closer is cut down its length. Stretcher bond uses half bats.'],
+    ['Course height does not matter if the wall is level.', 'Keep to 75 mm gauge per course so the wall matches the gauge rod and the drawing.'],
+  ],
+  spec: `<p class="spec"><b>City &amp; Guilds Level 1 Diploma in Bricklaying (6705-13)</b><br>Unit 104 Carrying out bricklaying activities (Y/504/6887)</p>
+  <p>Outcome wording from City &amp; Guilds: “know how to build brick walling, returns and junctions in half brick stretcher bond”.</p>
+  <p class="note">This wording comes from City &amp; Guilds' digital badge for 6705-13. Check the full assessment criteria in your course handbook.</p>`,
+  quiz: [
+    { q: 'Which face of a brick is the stretcher face?', o: ['The long side face', 'The short end', 'The top bed face', 'The bottom bed face'], a: 0, s: 0, why: 'The stretcher face is the long side. It is the face you see along a stretcher bond wall.' },
+    { q: 'What is a straight joint?', o: ['A joint that lines up with the joint directly below', 'A joint that is perfectly level', 'A joint with no mortar in it', 'The joint at the corner of a wall'], a: 0, s: 1, why: 'When joints line up one above another, the wall is not bonded at that point and can crack there.' },
+    { q: 'What lap does stretcher bond use?', o: ['A half lap', 'A quarter lap', 'No lap', 'A three-quarter lap'], a: 0, s: 4, why: 'Each joint sits halfway along the brick below, so each brick laps over two bricks.' },
+    { q: 'What finishes every other course at a stopped end?', o: ['A half bat', 'A queen closer', 'A header', 'A three-quarter bat'], a: 0, s: 5, why: 'A half bat (a brick cut in half across its length) keeps the half lap at the end of the wall.' },
+    { q: 'One course is 75 mm high. How high are four courses?', o: ['300 mm', '260 mm', '280 mm', '320 mm'], a: 0, s: 6, why: '4 × 75 mm = 300 mm. Each course is a 65 mm brick plus a 10 mm bed joint.' },
+  ],
+  
+  teacher: `
+  <h3>Questions to ask the class</h3>
+  <ul>
+   <li><b>Why does the quoin swap direction every course?</b> Model answer: so the bricks overlap at the corner and tie the two walls together. If it went the same way every time, the corner would have a straight joint all the way up.</li>
+   <li><b>Where do you see a half bat, and why is it there?</b> At the stopped end on every other course. Without it the course would finish with a full brick and the joints would line up with the course below.</li>
+   <li><b>What does one brick plus one joint measure?</b> 225 mm. That is why bricks are set out in multiples of 225 mm.</li>
+   <li><b>Pause on stage 2: what would happen to this wall under load?</b> It would behave like separate thin columns and could split along the straight joints.</li>
+  </ul>
+  <h3>Quiz answer key</h3>
+  <ol>
+   <li>The long side face. It is the face that shows in stretcher bond.</li>
+   <li>A joint lining up with the joint directly below. It breaks the bond at that point.</li>
+   <li>Half lap. Each brick sits over two bricks with its joint halfway along.</li>
+   <li>A half bat, cut across the brick's length.</li>
+   <li>300 mm (4 × 75 mm).</li>
+  </ol>
+  <h3>Safety reminders</h3>
+  <ul>
+   <li>Cutting half bats with a bolster and club hammer: follow the workshop risk assessment for eye protection and gloves.</li>
+   <li>Cutting with a cut-off saw makes respirable crystalline silica (RCS) dust. HSE guidance is to use water suppression and RPE such as an FFP3 mask. Only trained, authorised people use disc cutters.</li>
+   <li>Lift bricks and mortar boards with good manual handling, and keep the work area clear.</li>
+  </ul>
+  <h3>Delivery tips</h3>
+  <ul>
+   <li>Run the guided tour on the projector first, pausing on stage 2 (straight joints) for discussion.</li>
+   <li>Then let learners use the course + and − buttons and the Straight joints check on their own devices.</li>
+   <li>Switch the bond to “No bond (joints in line)” to compare with stretcher bond.</li>
+   <li>Finish with Spot the fault before learners go to the workshop to build their own corner.</li>
+  </ul>
+  <h3>Extension ideas</h3>
+  <ul>
+   <li>Ask faster learners to sketch a T-junction in stretcher bond and work out where the cut goes.</li>
+   <li>Ask them to set out a wall length in multiples of 225 mm that needs no cuts.</li>
+   <li>Move on to Part 2 (English and Flemish bond), which previews the Level 2 solid walling unit.</li>
+  </ul>
+  <h3>Simplifications in this simulation</h3>
+  <ul>
+   <li>Bricks are perfect 215 × 102.5 × 65 mm blocks with no frog or texture differences.</li>
+   <li>Mortar is shown as a flat recessed joint, not a finished joint profile.</li>
+   <li>Colours and patterns are for teaching. Real walls usually use one brick colour.</li>
+   <li>The wall is short (5 bricks each way) so the whole corner fits on screen.</li>
+   <li>A half-brick wall is not a solid wall under the City &amp; Guilds glossary (solid walls are 1 brick and thicker). Part 1 is the groundwork for Part 2.</li>
+   <li>City &amp; Guilds lists the last registration date for 6705-13 as 31 August 2026. Check the replacement qualification for new cohorts.</li>
+  </ul>
+  <h3>Sources</h3>
+  <ul>
+   <li>City &amp; Guilds, Bricklaying (6705) qualification page and 6705-13 digital badge (unit outcome wording).</li>
+   <li>City &amp; Guilds 6705-23 Qualification Handbook v1.7 (unit numbers and glossary).</li>
+   <li>Designing Buildings Wiki, Brick sizes (215 × 102.5 × 65 mm, 10 mm joints, 225 mm and 75 mm coordinating sizes).</li>
+   <li>Building magazine, Bond patterns in brickwork (stretcher bond: each brick laps over two).</li>
+   <li>Sikana, How to build a half brick wall using a stretcher bond (half bat at stopped ends, quoin swapping).</li>
+   <li>HSE, Wet cutting and Cutting paving blocks, kerbs and flags (RCS dust, water suppression, FFP3).</li>
+  </ul>`,
+  
+},
+2: {
+  title: 'Solid walling bonds',
+  sub: 'Part 2: English and Flemish bond',
+  bonds: [['english', 'English bond'], ['flemish', 'Flemish bond']],
+  legend: ['stretcher', 'header', 'closer'],
+  typeToggles: [['header', 'Headers'], ['closer', 'Closers']],
+  other: { label: '← Part 1<span class="lab">: Stretcher bond</span>' },
+  faultQ: 'This English bond wall has a fault. Tap the brick where the mistake starts.',
+  faultRight: 'Yes. The queen closer is missing next to the quoin header on the long face. Without it, every joint in the header courses sits straight above a joint below.',
+  faultWrong: 'Not there. Look at the corner of the long face and compare the header courses with the stretcher courses.',
+  faultCheck: (b) => b.c % 2 === 1 && b.z0 < 0.5 && b.x0 < 230,
+  stages: [
+    { name: 'One brick thick', bond: 'english', courses: 1, cam: 'overview',
+      cap: 'This wall is one brick thick: 215 mm, the length of a brick. A half-brick wall is only 102.5 mm. In this first course, the left-hand wall is two rows of stretchers side by side. On their own, those two rows are not tied together.' },
+    { name: 'Headers tie the wall', bond: 'english', courses: 2, cam: 'overview', hi: ['header'],
+      cap: 'In English bond, the next course is all headers. A header lies across the wall and shows its short end. Each header ties the front row to the back row.' },
+    { name: 'The queen closer', bond: 'english', courses: 2, cam: 'corner', hi: ['closer'],
+      cap: 'At the corner, the header course starts with the quoin header. Next to it goes a queen closer. This is a brick cut down its length, 46 mm on the face. It moves the joints along by a quarter of a brick.' },
+    { name: 'Quarter lap', bond: 'english', courses: 4, cam: 'face', lap: true, straight: true,
+      cap: 'Now every joint sits a quarter brick away from the joint below. This is a quarter lap. The straight joints check is on and there are no red lines.' },
+    { name: 'Flemish bond', bond: 'flemish', courses: 2, cam: 'overview', hi: ['header'],
+      cap: 'Flemish bond mixes them up. Every course goes header, stretcher, header, stretcher. Each header sits in the middle of the stretcher below it.' },
+    { name: 'Flemish corner', bond: 'flemish', courses: 2, cam: 'corner', hi: ['closer', 'quoin'],
+      cap: 'At a Flemish corner, one face starts with the quoin stretcher. The return face starts with the quoin header, then a queen closer. On the next course they swap over.' },
+    { name: 'Compare the bonds', bond: 'flemish', courses: 6, cam: 'overview', lap: true, straight: true,
+      cap: 'English bond has whole courses of headers and whole courses of stretchers. Flemish bond has both in every course. Here both walls are one brick thick and both keep a quarter lap. Switch between them with the Bond menu.' },
+    { name: 'Spot the fault', bond: 'english', courses: 6, cam: 'overview', fault: true,
+      cap: 'This English bond wall has a fault. Tap the brick where the mistake starts. Need a clue? Turn on Straight joints.' },
+  ],
+  outcomes: [
+    'Say how thick a one-brick wall is and why it needs headers.',
+    'Tell English bond from Flemish bond by looking at a wall.',
+    'Explain what a queen closer is and place it next to the quoin header.',
+    'Explain what a quarter lap is and spot straight joints.',
+    'Follow how a corner is built course by course in both bonds.',
+  ],
+  misc: [
+    ['English bond has headers and stretchers in the same course.', 'That is Flemish bond. English bond has whole courses of headers, then whole courses of stretchers.'],
+    ['The queen closer goes right on the corner.', 'The quoin header goes on the corner. The queen closer goes next to it.'],
+    ['A queen closer is the same as a half bat.', 'A queen closer is cut down its length (46 mm on the face). A half bat is cut across its length.'],
+    ['A one-brick wall is just two half-brick walls side by side.', 'Without headers the two rows would split apart. Headers tie them together.'],
+    ['Leaving out one closer is no big deal.', 'Without it, the joints sit right above each other and you get straight joints all along the wall.'],
+  ],
+  spec: `<p class="spec"><b>City &amp; Guilds Level 2 Diploma in Bricklaying (6705-23)</b><br>Unit 204 Building solid walling, isolated and attached piers (J/504/6920)</p>
+  <ul><li>AC 3.6 “describe methods of establishing face bonds for solid walls” (range includes English bond and Flemish bond)</li>
+  <li>AC 4.4 “construct one-brick walling to form: straight lengths, returns, junctions”</li></ul>
+  <p class="note">English and Flemish bond are not in the Level 1 Diploma (6705-13). For Level 1 learners this part is a step up and a preview of Level 2.</p>`,
+  quiz: [
+    { q: 'How thick is a one-brick wall?', o: ['215 mm', '102.5 mm', '65 mm', '225 mm'], a: 0, s: 0, why: 'A one-brick wall is the length of a brick: 215 mm.' },
+    { q: 'In English bond, what ties the front and back rows together?', o: ['The header courses', 'The queen closers', 'The mortar on its own', 'Wall ties'], a: 0, s: 1, why: 'Headers lie across the full thickness of the wall, so they tie the two rows of stretchers together.' },
+    { q: 'Where does the queen closer go?', o: ['Next to the quoin header', 'Right on the corner', 'At the end of every stretcher course', 'In the middle of the wall'], a: 0, s: 2, why: 'The quoin header goes on the corner and the queen closer goes next to it to start the quarter lap.' },
+    { q: 'Which bond has headers and stretchers in the same course?', o: ['Flemish bond', 'English bond', 'Stretcher bond', 'None of them'], a: 0, s: 4, why: 'Flemish bond alternates header, stretcher, header in every course.' },
+    { q: 'What lap do English and Flemish bond keep?', o: ['A quarter lap', 'A half lap', 'No lap', 'A three-quarter lap'], a: 0, s: 3, why: 'Both are quarter bonded: each joint sits a quarter of a brick away from the joint below.' },
+  ],
+  
+  teacher: `
+  <h3>Questions to ask the class</h3>
+  <ul>
+   <li><b>Why can't a one-brick wall be two rows of stretchers all the way up?</b> Model answer: nothing would tie the two rows together. They could separate. Headers go through the wall and tie them.</li>
+   <li><b>Pause on stage 3: what would happen if we left the queen closer out?</b> The headers would sit straight above the stretcher joints and we would get straight joints up the wall. (Spot the fault shows this.)</li>
+   <li><b>How do you tell English from Flemish bond on a real building?</b> English: whole rows of headers and whole rows of stretchers. Flemish: header, stretcher, header in every row.</li>
+   <li><b>Where does the closer go in Flemish bond?</b> Next to the quoin header, on alternate courses, the same as English bond.</li>
+  </ul>
+  <h3>Quiz answer key</h3>
+  <ol>
+   <li>215 mm, the length of one brick.</li>
+   <li>The header courses. Headers run through the full thickness.</li>
+   <li>Next to the quoin header, not on the corner.</li>
+   <li>Flemish bond.</li>
+   <li>A quarter lap. Both bonds are quarter bonded.</li>
+  </ol>
+  <h3>Safety reminders</h3>
+  <ul>
+   <li>Queen closers are cut with a bolster and club hammer or a saw. Follow the workshop risk assessment for eye protection and gloves.</li>
+   <li>Cut-off saws make respirable crystalline silica (RCS) dust. HSE guidance is to use water suppression and RPE such as an FFP3 mask. Only trained, authorised people use disc cutters.</li>
+   <li>Solid walls are heavy work: good manual handling, and keep walkways clear of bricks and boards.</li>
+  </ul>
+  <h3>Delivery tips</h3>
+  <ul>
+   <li>Run the tour on the projector. Pause at stage 3 and ask learners to point to the closer before you highlight it.</li>
+   <li>Use Plan view (key 4) to show how headers go right through the wall.</li>
+   <li>Turn on See inside to show the back row of stretchers in English bond.</li>
+   <li>Let learners switch Bond between English and Flemish at the same height and describe the difference out loud.</li>
+   <li>Run Spot the fault as a pairs challenge: first pair to find it explains why it matters.</li>
+  </ul>
+  <h3>Extension ideas</h3>
+  <ul>
+   <li>Research English garden wall bond and Flemish garden wall bond (both in the Level 2 range for AC 3.6).</li>
+   <li>Dry bond the first two courses of an English bond corner on the bench using real bricks and a cut closer.</li>
+   <li>Find a Flemish bond building near college and photograph a corner with its closers.</li>
+  </ul>
+  <h3>Simplifications in this simulation</h3>
+  <ul>
+   <li>Bricks are perfect 215 × 102.5 × 65 mm blocks with 10 mm joints. Real bricks vary slightly.</li>
+   <li>The quarter lap is drawn between joint centres (about 56 mm with the coordinating size). The closer itself is 46 mm on the face.</li>
+   <li>The back face of the wall is shown but not discussed. In this English bond model it also shows English bond.</li>
+   <li>The fault wall has the closer missing on every header course of the long face, so the straight joints are easy to see.</li>
+   <li>Colours and patterns are for teaching. Real walls usually use one brick colour.</li>
+  </ul>
+  <h3>Sources</h3>
+  <ul>
+   <li>City &amp; Guilds 6705-23 Level 2 Diploma in Bricklaying Qualification Handbook v1.7 (Unit 204 criteria and range; glossary: queen closer “cut to 46 mm on face”; solid walls “1 brick and greater”).</li>
+   <li>City &amp; Guilds Bricklaying (6705) qualification page (6705-13 units and last registration date).</li>
+   <li>Building magazine, Bond patterns in brickwork (English and Flemish bond used in walls one brick or thicker; quarter bonded).</li>
+   <li>Designing Buildings Wiki, Brick sizes (215 × 102.5 × 65 mm, 10 mm joints).</li>
+   <li>Wikipedia, Brickwork (queen closer cut, Flemish corner arrangement).</li>
+   <li>HSE, Wet cutting and Cutting paving blocks, kerbs and flags (RCS dust, water suppression, FFP3).</li>
+  </ul>`,
+  
+}};
+const P = PARTS[PART];
+const STAGES = P.stages;
+
+/* ---------- Wall generation ---------- */
+const DIMS = { stretcher: { L: 1115, T: BW }, stack: { L: 1115, T: BW }, english: { L: 1115, T: BL }, flemish: { L: 1227.5, T: BL } };
+
+function genCourse(bond, c, fault) {
+  let p = c % 2;
+  if (bond === 'stack') p = 0;
+  if ((bond === 'stretcher') && fault && c === 2) p = 1;
+  const out = [];
+  const primA = p === 0;  // primary wall (holds the quoin) is A when p = 0
+  const secA = !primA;
+  const put = (isA, u0, u1, v0, v1, type, quoin) => {
+    if (isA) out.push({ type, quoin: !!quoin, x0: u0, x1: u1, z0: v0, z1: v1, c });
+    else out.push({ type, quoin: !!quoin, x0: v0, x1: v1, z0: u0, z1: u1, c });
+  };
+  if (bond === 'stretcher' || bond === 'stack') {
+    for (let i = 0; i < 5; i++) put(primA, i * 225, i * 225 + BL, 0, BW, 'stretcher', i === 0);
+    for (let i = 0; i < 4; i++) { const u = 112.5 + i * 225; put(secA, u, u + BL, 0, BW, 'stretcher'); }
+    put(secA, 1012.5, 1115, 0, BW, 'bat');
+  } else if (bond === 'english') {
+    for (let i = 0; i < 5; i++) put(primA, i * 225, i * 225 + BL, 0, BW, 'stretcher', i === 0);
+    for (let i = 1; i < 5; i++) put(primA, i * 225, i * 225 + BL, BW + J, BL, 'stretcher');
+    const bad = fault && secA;
+    if (!bad) {
+      put(secA, 112.5, 112.5 + QC, 0, BL, 'closer');
+      for (let k = 0; k < 7; k++) { const u = 168.75 + k * 112.5; put(secA, u, u + BW, 0, BL, 'header'); }
+      put(secA, 956.25, 956.25 + QC, 0, BL, 'closer');
+      put(secA, 1012.5, 1115, 0, BL, 'header');
+    } else {
+      for (let k = 0; k < 9; k++) { const u = 112.5 + k * 112.5; put(secA, u, u + BW, 0, BL, 'header'); }
+    }
+  } else if (bond === 'flemish') {
+    let u = 0;
+    ['S', 'H', 'S', 'H', 'S', 'H', 'S'].forEach((t, i) => {
+      if (t === 'S') { put(primA, u, u + BL, 0, BW, 'stretcher', i === 0); if (i > 0) put(primA, u, u + BL, BW + J, BL, 'stretcher'); u += 225; }
+      else { put(primA, u, u + BW, 0, BL, 'header'); u += 112.5; }
+    });
+    const bad = fault && secA;
+    const seq = bad ? ['S', 'H', 'S', 'H', 'S', 'H', 'H'] : ['Q', 'S', 'H', 'S', 'H', 'S', 'Q', 'H'];
+    u = 112.5;
+    for (const t of seq) {
+      if (t === 'S') { put(secA, u, u + BL, 0, BW, 'stretcher'); put(secA, u, u + BL, BW + J, BL, 'stretcher'); u += 225; }
+      else if (t === 'H') { put(secA, u, u + BW, 0, BL, 'header'); u += 112.5; }
+      else { put(secA, u, u + QC, 0, BL, 'closer'); u += 56.25; }
+    }
+  }
+  return out;
+}
+
+/* ---------- Three.js setup ---------- */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#eef0f3');
+const camera = new THREE.PerspectiveCamera(40, 1, 0.02, 50);
+const labelRenderer = new CSS2DRenderer({ element: document.getElementById('labels') });
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.minDistance = 0.35; controls.maxDistance = 6;
+controls.maxPolarAngle = Math.PI * 0.49;
+controls.target.set(0.5, 0.22, 0.5);
+
+scene.add(new THREE.HemisphereLight('#ffffff', '#b8b2a6', 1.15));
+const sun = new THREE.DirectionalLight('#ffffff', 1.6);
+sun.position.set(-1.6, 2.6, -1.2);
+sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -1.5, right: 1.5, top: 1.5, bottom: -1.5, near: 0.5, far: 8 });
+sun.shadow.bias = -0.0004; sun.shadow.radius = 4;
+sun.target.position.set(0.5, 0, 0.5); scene.add(sun, sun.target);
+
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(14, 14), new THREE.MeshStandardMaterial({ color: '#e3e6ea', roughness: 1 }));
+floor.rotation.x = -Math.PI / 2; floor.position.y = -0.061; floor.receiveShadow = true; scene.add(floor);
+const found = new THREE.Group(); scene.add(found);
+const foundMat = new THREE.MeshStandardMaterial({ color: '#b9bcc2', roughness: 0.95 });
+
+/* textures */
+function brickTex(col, pat) {
+  const cv = document.createElement('canvas'); cv.width = 128; cv.height = 64;
+  const g = cv.getContext('2d');
+  g.fillStyle = col; g.fillRect(0, 0, 128, 64);
+  for (let i = 0; i < 260; i++) { g.fillStyle = `rgba(${Math.random() < .5 ? '0,0,0' : '255,255,255'},${Math.random() * .08})`; g.fillRect(Math.random() * 128, Math.random() * 64, 2, 2); }
+  g.strokeStyle = 'rgba(0,0,0,.33)'; g.fillStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 4;
+  if (pat === 'dots') { for (let x = 10; x < 128; x += 20) for (let y = 10; y < 64; y += 20) { g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill(); } }
+  if (pat === 'stripes') { g.strokeStyle = 'rgba(0,0,0,.35)'; for (let x = -64; x < 160; x += 18) { g.beginPath(); g.moveTo(x, 64); g.lineTo(x + 64, 0); g.stroke(); } }
+  if (pat === 'hatch') { g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 3; for (let x = -64; x < 160; x += 18) { g.beginPath(); g.moveTo(x, 64); g.lineTo(x + 64, 0); g.stroke(); g.beginPath(); g.moveTo(x, 0); g.lineTo(x + 64, 64); g.stroke(); } }
+  return cv;
+}
+const MATS = {};
+for (const [k, t] of Object.entries(TYPES)) {
+  const cv = brickTex(t.col, t.pat); t.swatch = cv.toDataURL();
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  const base = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.88 });
+  const hi = base.clone(); hi.emissive = new THREE.Color('#ffffff'); hi.emissiveIntensity = 0.0;
+  const ghost = base.clone(); ghost.transparent = true; ghost.opacity = 0.15; ghost.depthWrite = false;
+  MATS[k] = { base, hi, ghost };
+}
+const mortarMat = new THREE.MeshStandardMaterial({ color: '#cfc9bf', roughness: 1 });
+const boxGeo = new THREE.BoxGeometry(1, 1, 1);
+const redMat = new THREE.MeshBasicMaterial({ color: '#e0201b' });
+const navyMat = new THREE.MeshBasicMaterial({ color: '#1b2a4a' });
+
+/* ---------- State ---------- */
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const st = {
+  stage: 0, simTime: 0, paused: reduced, auto: !reduced, speedIdx: 2,
+  bond: null, fault: false, courses: 0,
+  show: { stretcher: true, header: true, closer: true, bat: true },
+  labels: false, straight: false, mortar: true, back: false,
+  faultFound: false, faultReveal: false, soundOn: true, unlocked: false,
+  stageRealStart: performance.now(), buildDoneAt: 0,
+};
+const SPEEDS = [0.25, 0.5, 1, 1.5, 2];
+const wall = new THREE.Group(); scene.add(wall);
+let courseObjs = [];
+const extras = new THREE.Group(); scene.add(extras);
+let labelObjs = [];
+const INTERVAL = 0.09;
+
+function mkBox(x0, x1, y0, y1, z0, z1, mat) {
+  const m = new THREE.Mesh(boxGeo, mat);
+  m.scale.set((x1 - x0) * S, (y1 - y0) * S, (z1 - z0) * S);
+  m.position.set((x0 + x1) / 2 * S, (y0 + y1) / 2 * S, (z0 + z1) / 2 * S);
+  return m;
+}
+function makeCourse(bond, c, fault) {
+  const data = genCourse(bond, c, fault);
+  const meshes = data.map(b => {
+    const m = mkBox(b.x0, b.x1, c * CH + J, c * CH + CH, b.z0, b.z1, MATS[b.type].base);
+    m.castShadow = true; m.receiveShadow = true; m.userData.b = b; m.userData.baseY = m.position.y;
+    wall.add(m); return m;
+  });
+  const { L, T } = DIMS[bond]; const inset = 4;
+  const mortar = [
+    mkBox(inset, L - inset, c * CH, c * CH + CH - 3, inset, T - inset, mortarMat),
+    mkBox(inset, T - inset, c * CH, c * CH + CH - 3, T - inset, L - inset, mortarMat),
+  ];
+  mortar.forEach(m => { m.receiveShadow = true; wall.add(m); });
+  return { data, meshes, mortar };
+}
+function removeCourse(co) { if (!co) return; [...co.meshes, ...co.mortar].forEach(m => wall.remove(m)); }
+
+function buildFoundation(bond) {
+  found.clear();
+  const { L, T } = DIMS[bond]; const pad = 60;
+  found.add(mkBox(-pad, L + pad, -60, 0, -pad, T + pad, foundMat));
+  found.add(mkBox(-pad, T + pad, -60, 0, T + pad, L + pad, foundMat));
+  found.children.forEach(m => m.receiveShadow = true);
+}
+
+function setWall(bond, courses, fault, animate = true) {
+  if (bond !== st.bond || fault !== st.fault) {
+    courseObjs.forEach(removeCourse); courseObjs = []; st.bond = bond; st.fault = fault; st.courses = 0; buildFoundation(bond);
+  }
+  let k = 0;
+  const t0 = st.simTime + 0.05;
+  for (let c = st.courses; c < courses; c++) {
+    const co = makeCourse(bond, c, fault); courseObjs[c] = co;
+    co.meshes.forEach(m => { m.userData.tAppear = animate && !reduced ? t0 + (k++) * INTERVAL : -10; });
+    co.tStart = co.meshes[0].userData.tAppear;
+    co.tEnd = co.meshes[co.meshes.length - 1].userData.tAppear + 0.4;
+  }
+  for (let c = courses; c < st.courses; c++) removeCourse(courseObjs[c]);
+  courseObjs.length = courses; st.courses = courses;
+  st.buildDoneAt = (animate && !reduced) ? t0 + k * INTERVAL + 0.4 : st.simTime;
+  afterWallChange();
+}
+
+function faceJoints(data, face) {
+  const iv = [];
+  for (const b of data) { if (face === 'A' && b.z0 < 0.5) iv.push([b.x0, b.x1]); if (face === 'B' && b.x0 < 0.5) iv.push([b.z0, b.z1]); }
+  iv.sort((a, b) => a[0] - b[0]);
+  const j = []; for (let i = 1; i < iv.length; i++) j.push((iv[i - 1][1] + iv[i][0]) / 2); return j;
+}
+
+let jointBars = [], lapObjs = [];
+function afterWallChange() {
+  extras.clear(); labelObjs.forEach(o => o.parent && o.parent.remove(o)); labelObjs = [];
+  jointBars = []; lapObjs = [];
+  // straight joints
+  for (let c = 1; c < st.courses; c++) {
+    for (const face of ['A', 'B']) {
+      const up = faceJoints(courseObjs[c].data, face), dn = faceJoints(courseObjs[c - 1].data, face);
+      for (const j of up) if (dn.some(d => Math.abs(d - j) < 12)) {
+        const y0 = (c - 1) * CH + J, y1 = c * CH + CH;
+        const bar = face === 'A' ? mkBox(j - 4, j + 4, y0, y1, -6, -1, redMat) : mkBox(-6, -1, y0, y1, j - 4, j + 4, redMat);
+        bar.userData.tAppear = courseObjs[c].tEnd; extras.add(bar); jointBars.push(bar);
+      }
+    }
+  }
+  // lap marker on face A, top two courses
+  const n = st.courses;
+  if (n >= 2 && STAGES[st.stage].lap) {
+    const up = faceJoints(courseObjs[n - 1].data, 'A'), dn = faceJoints(courseObjs[n - 2].data, 'A');
+    let best = null;
+    for (const j of up) { if (j < 300 || j > 900) continue; for (const d of dn) { const g = Math.abs(d - j); if (g > 12 && g < 130 && (!best || Math.abs(j - 560) < Math.abs(best[0] - 560))) best = [j, d]; } }
+    if (best) {
+      const [a, b] = best; const y = (n - 1) * CH + 5; const lo = Math.min(a, b), hi = Math.max(a, b);
+      const bar = mkBox(lo, hi, y - 3, y + 3, -9, -3, navyMat); extras.add(bar);
+      const t1 = mkBox(a - 2, a + 2, y, y + 40, -9, -3, navyMat), t2 = mkBox(b - 2, b + 2, y - 40, y, -9, -3, navyMat); extras.add(t1, t2);
+      const el = document.createElement('div'); el.className = 'lbl lap';
+      el.textContent = (st.bond === 'stretcher') ? '½ brick lap' : '¼ brick lap';
+      const lo2 = new CSS2DObject(el); lo2.position.set((lo + hi) / 2 * S, (y - 30) * S, -0.012); extras.add(lo2);
+      lapObjs = [bar, t1, t2, lo2]; lapObjs.forEach(o => o.userData.tAppear = courseObjs[n - 1].tEnd);
+    }
+  }
+  // gauge rod
+  if (STAGES[st.stage].gauge) {
+    const g = new THREE.Group(); const h = st.courses * CH;
+    g.add(mkBox(-90, -70, 0, h, -90, -70, new THREE.MeshStandardMaterial({ color: '#f5f0e1' })));
+    for (let i = 0; i <= st.courses; i++) g.add(mkBox(-96, -64, i * CH - 1.5, i * CH + 1.5, -96, -64, navyMat));
+    [[4, '4 courses = 300 mm'], [8, '8 courses = 600 mm']].forEach(([cn, txt]) => {
+      if (cn > st.courses) return;
+      const el = document.createElement('div'); el.className = 'lbl gauge'; el.textContent = txt;
+      const o = new CSS2DObject(el); o.position.set(-0.08, cn * CH * S + 0.02, -0.08); g.add(o);
+    });
+    g.children.forEach(o => o.userData.tAppear = st.buildDoneAt);
+    extras.add(g);
+  }
+  // specimen brick
+  if (STAGES[st.stage].specimen) {
+    const spec = new THREE.Group();
+    const m = new THREE.Mesh(boxGeo, MATS.stretcher.base); m.scale.set(BL * S, BH * S, BW * S); m.castShadow = true; spec.add(m);
+    spec.position.set(0.45, -0.061 + BH * S / 2, -0.5); spec.rotation.y = -0.35;
+    const add = (txt, x, y, z) => { const el = document.createElement('div'); el.className = 'lbl'; el.textContent = txt; const o = new CSS2DObject(el); o.position.set(x, y, z); spec.add(o); };
+    add('Stretcher face 215 × 65', 0, 0.0, -BW * S / 2 - 0.005);
+    add('Header face 102.5 × 65', BL * S / 2 + 0.01, -0.01, 0);
+    add('Bed face', 0, BH * S / 2 + 0.03, 0);
+    m.userData.b = { type: 'stretcher', specimen: true };
+    extras.add(spec); spec.userData.tAppear = -10;
+  }
+  buildLabels();
+  updateReadouts();
+  applyMats();
+}
+
+function buildLabels() {
+  if (!st.labels || st.courses === 0) return;
+  const top = courseObjs[st.courses - 1];
+  const seen = new Set();
+  const pick = [];
+  for (const m of top.meshes) {
+    const b = m.userData.b; if (!(b.z0 < 0.5 || b.x0 < 0.5)) continue;
+    const key = b.quoin ? 'quoin' : b.type;
+    if (seen.has(key)) continue;
+    if (key === 'stretcher' && b.x0 < 200 && b.z0 < 0.5 && b.x1 < 300) continue;
+    seen.add(key); pick.push([m, key]);
+  }
+  for (const [m, key] of pick) {
+    const el = document.createElement('div'); el.className = 'lbl';
+    el.textContent = key === 'quoin' ? 'Quoin' : TYPES[key].name;
+    const o = new CSS2DObject(el);
+    const b = m.userData.b;
+    o.position.set(((b.x0 + b.x1) / 2) * S, (st.courses * CH + 30) * S, ((b.z0 + b.z1) / 2) * S);
+    o.userData.tAppear = courseObjs[st.courses - 1].tEnd; extras.add(o); labelObjs.push(o);
+  }
+}
+
+function applyMats() {
+  const stg = STAGES[st.stage]; const hi = new Set(stg.hi || []);
+  for (const co of courseObjs) for (const m of co.meshes) {
+    const b = m.userData.b; const front = b.z0 < 0.5 || b.x0 < 0.5;
+    let state = 'base';
+    if (st.show[b.type] === false) state = 'ghost';
+    else if (st.back && !front) state = 'ghost';
+    else if (hi.has(b.type) || (b.quoin && hi.has('quoin'))) state = 'hi';
+    if (st.faultReveal && P.faultCheck(b)) state = 'hi';
+    m.material = MATS[b.type][state];
+    m.castShadow = state !== 'ghost';
+  }
+  for (const co of courseObjs) co.mortar.forEach(m => m.visible = st.mortar);
+}
+
+function updateReadouts() {
+  const one = st.bond === 'english' || st.bond === 'flemish';
+  const lap = st.bond === 'stack' ? 'None, joints line up' : one ? 'Quarter brick' : 'Half brick';
+  const bn = P.bonds.find(b => b[0] === st.bond)[1];
+  document.getElementById('readouts').innerHTML =
+    `<div><dt>Bond</dt><dd>${bn}${st.fault ? ' (with a fault)' : ''}</dd></div>` +
+    `<div><dt>Wall thickness</dt><dd>${one ? '215 mm (one brick)' : '102.5 mm (half brick)'}</dd></div>` +
+    `<div><dt>Lap</dt><dd>${lap}</dd></div>` +
+    `<div><dt>Courses</dt><dd>${st.courses} (height ${st.courses * CH} mm)</dd></div>`;
+  document.getElementById('courseN').textContent = st.courses;
+  document.getElementById('bondSel').value = st.bond;
+}
+
+/* ---------- Cameras ---------- */
+const CAMS = {
+  overview: { label: 'Overview', p: [-0.85, 1.0, -1.35], t: [0.5, 0.22, 0.5] },
+  corner: { label: 'Corner', p: [-0.5, 0.55, -0.55], t: [0.14, 0.16, 0.14] },
+  face: { label: 'Face', p: [0.62, 0.42, -1.45], t: [0.62, 0.2, 0] },
+  plan: { label: 'Plan', p: [0.6, 2.3, 0.52], t: [0.6, 0, 0.6] },
+  end: { label: 'End', p: [1.6, 0.5, -0.6], t: [1.05, 0.14, 0.05] },
+  faultA: { label: 'Fault', p: [-0.15, 0.62, -1.45], t: [0.4, 0.2, 0] },
+  brick: { label: 'Brick', p: [-0.2, 0.38, -1.25], t: [0.45, -0.02, -0.5] },
+};
+const CAM_KEYS = ['overview', 'corner', 'face', 'plan'];
+let camTween = null;
+function camFactor(key) { const a = innerWidth / innerHeight; let f = a < 1 ? Math.min(2.6, 0.95 / a) : a < 1.3 ? 1.2 : 1; if (a < 1 && (key === 'face' || key === 'end' || key === 'corner')) f *= 1.25; return Math.max(1, f); }
+function goCam(key, instant) {
+  const c = CAMS[key]; const f = camFactor(key);
+  const t = new THREE.Vector3(...c.t), p0 = new THREE.Vector3(...c.p);
+  const p = t.clone().add(p0.sub(t).multiplyScalar(f));
+  controls.maxDistance = Math.max(6, p.distanceTo(t) * 1.6);
+  if (instant) { camera.position.copy(p); controls.target.copy(t); controls.update(); camTween = null; return; }
+  camTween = { fp: camera.position.clone(), ft: controls.target.clone(), tp: p, tt: t, s: performance.now(), d: reduced ? 250 : 900 };
+}
+
+/* ---------- Stage handling ---------- */
+function goStage(i, opts = {}) {
+  st.stage = Math.max(0, Math.min(STAGES.length - 1, i));
+  const s = STAGES[st.stage];
+  st.straight = !!s.straight; st.faultFound = false; st.faultReveal = false;
+  setToggle('tJoints', st.straight);
+  setWall(s.bond, s.courses, !!s.fault, !opts.instant);
+  if (opts.instant) st.simTime = Math.max(st.simTime, st.buildDoneAt);
+  goCam(s.cam, opts.instant);
+  st.stageRealStart = performance.now();
+  renderStagePanel();
+  document.getElementById('fault').style.display = s.fault ? 'block' : 'none';
+  const sp = document.getElementById('stage');
+  sp.classList.toggle('faultmode', !!s.fault);
+  if (innerWidth <= 640) { if (s.fault) { sp.classList.add('collapsed', 'auto'); } else if (sp.classList.contains('auto')) sp.classList.remove('collapsed', 'auto'); document.getElementById('capToggle').textContent = sp.classList.contains('collapsed') ? 'Show' : 'Hide'; }
+  resize();
+  document.getElementById('faultRes').textContent = ''; document.getElementById('faultRes').className = 'res';
+  speak(s);
+  if (st.stage === STAGES.length - 1 && st.auto) window.simStats && simStats.once('tour-complete');
+}
+function renderStagePanel() {
+  const s = STAGES[st.stage];
+  document.getElementById('stageCount').textContent = `Stage ${st.stage + 1} of ${STAGES.length}`;
+  document.getElementById('stageName').textContent = s.name;
+  document.getElementById('caption').textContent = s.cap;
+  [...document.getElementById('strip').children].forEach((b, i) => { b.className = i === st.stage ? 'active' : i < st.stage ? 'done' : ''; b.setAttribute('aria-selected', i === st.stage); });
+  const np = document.getElementById('nextPartWrap');
+  np.innerHTML = (st.stage === STAGES.length - 1 && OTHER_URL && PART === 1) ? `<a class="btn primary" style="text-decoration:none" href="${OTHER_URL}">${P.other.label}</a>` : '';
+  resize();
+}
+
+/* ---------- Narration ---------- */
+const NARR = {};
+const FIX_LINE = 'Here is the same wall built right. Turn on Straight joints: no red lines.';
+const WRONG_LINE = 'Not quite. Try again, or tap Show me.';
+let speaking = false, narrEnd = 0, voice = null;
+const __narr = new Audio(); __narr.preload = 'auto'; let __cur = null;
+function __norm(t) { return String(t).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(); }
+function __stopClip() { if (__cur) { try { __cur.pause(); } catch (e) { } __cur = null; } }
+function __playClip(text) { const src = NARR[__norm(text)]; if (!src) return false;
+  __stopClip(); const a = __narr; a.muted = false;
+  if (a._src !== src) { a.src = src; a._src = src; } else { try { a.currentTime = 0; } catch (e) { } }
+  a.onended = () => { if (__cur === a) __cur = null; };
+  __cur = a; const pr = a.play(); if (pr && pr.catch) pr.catch(() => { if (__cur === a) __cur = null; }); return true; }
+function __primeClip() { try { const a = __narr; const vals = Object.values(NARR); if (!vals.length) return; if (!a.src) { a.src = vals[0]; a._src = vals[0]; } a.muted = true; const pr = a.play();
+  if (pr && pr.then) pr.then(() => { if (__cur !== a) a.pause(); a.muted = false; }, () => { a.muted = false; }); else a.muted = false; } catch (e) { __narr.muted = false; } }
+function clipPlaying() { return !!(__cur && !__cur.paused && !__cur.ended); }
+function narrating() { return clipPlaying() || (speaking && performance.now() < narrEnd + 4000); }
+function stageLine(s) { return `${s.name}. ${s.cap}`; }
+function say(text) {
+  try { speechSynthesis.cancel(); } catch (e) { } __stopClip(); speaking = false;
+  if (!st.soundOn || !st.unlocked) return;
+  if (__playClip(text)) { if (st.paused) __narr.pause(); return; }
+  narrEnd = performance.now() + text.split(/\s+/).length * 420;
+  try {
+    const u = new SpeechSynthesisUtterance(__norm(text)); u.lang = 'en-GB'; u.rate = 0.95; if (voice) u.voice = voice;
+    u.onend = () => { speaking = false; }; u.onerror = () => { speaking = false; };
+    speaking = true; speechSynthesis.speak(u);
+    if (st.paused) speechSynthesis.pause();
+  } catch (e) { speaking = false; }
+}
+window.__narrLines = () => {
+  const out = [];
+  STAGES.forEach((s, i) => out.push(['tour' + (i + 1), stageLine(s)]));
+  P.quiz.forEach((q, i) => out.push(['quiz' + (i + 1) + '-right', 'Correct. ' + q.why]));
+  out.push(['quiz-wrong', WRONG_LINE], ['fault-right', P.faultRight], ['fault-wrong', P.faultWrong], ['fault-fixed', FIX_LINE]);
+  return out;
+};
+function pickVoice() { try { const v = speechSynthesis.getVoices(); voice = v.find(x => x.lang === 'en-GB') || v.find(x => /en[-_]GB/i.test(x.lang)) || v.find(x => /^en/i.test(x.lang)) || null; } catch (e) { } }
+try { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; } catch (e) { }
+function speak(s) { say(SPEEDS[st.speedIdx] > 1.5 ? s.name : stageLine(s)); }
+function unlock(e) {
+  if (st.unlocked) return; st.unlocked = true;
+  document.getElementById('hint').style.display = 'none';
+  st.stageRealStart = performance.now();
+  if (e && e.target && e.target.closest && e.target.closest('#soundBtn')) { __primeClip(); return; }
+  speak(STAGES[st.stage]);
+}
+['pointerup', 'click', 'keydown'].forEach(ev => window.addEventListener(ev, unlock, { capture: true }));
+
+/* ---------- UI build ---------- */
+document.getElementById('title').innerHTML = `${P.title}<small>${P.sub}</small>`;
+const strip = document.getElementById('strip');
+STAGES.forEach((s, i) => { const b = document.createElement('button'); b.setAttribute('role', 'tab'); b.setAttribute('aria-label', `Stage ${i + 1}: ${s.name}`); b.onclick = () => { st.auto = false; updatePlay(); goStage(i); }; strip.appendChild(b); });
+const bondSel = document.getElementById('bondSel');
+P.bonds.forEach(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; bondSel.appendChild(o); });
+bondSel.onchange = () => { st.auto = false; updatePlay(); hideFault(); setWall(bondSel.value, Math.max(st.courses, 2), false); };
+document.getElementById('cPlus').onclick = () => { st.auto = false; updatePlay(); setWall(st.bond, Math.min(8, st.courses + 1), st.fault); };
+document.getElementById('cMinus').onclick = () => { st.auto = false; updatePlay(); setWall(st.bond, Math.max(0, st.courses - 1), st.fault); };
+const camGrp = document.getElementById('camGrp');
+CAM_KEYS.forEach((k, i) => { const b = document.createElement('button'); b.className = 'btn'; b.textContent = CAMS[k].label; b.title = `Key ${i + 1}`; b.onclick = () => goCam(k); camGrp.appendChild(b); });
+function setToggle(id, on) { const b = document.getElementById(id); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); }
+document.getElementById('tLabels').onclick = () => { st.labels = !st.labels; setToggle('tLabels', st.labels); afterWallChange(); };
+document.getElementById('tJoints').onclick = () => { st.straight = !st.straight; setToggle('tJoints', st.straight); };
+document.getElementById('tMortar').onclick = () => { st.mortar = !st.mortar; setToggle('tMortar', st.mortar); applyMats(); };
+document.getElementById('tBack').onclick = () => { st.back = !st.back; setToggle('tBack', st.back); applyMats(); };
+const tt = document.getElementById('typeToggles');
+P.typeToggles.forEach(([k, l]) => { const b = document.createElement('button'); b.className = 'btn on'; b.id = 't_' + k; b.textContent = l; b.setAttribute('aria-pressed', 'true');
+  b.onclick = () => { const on = !st.show[k]; st.show[k] = on; if (k === 'closer') st.show.bat = on; setToggle('t_' + k, on); applyMats(); }; tt.appendChild(b); });
+// legend
+const lr = document.getElementById('legendRows');
+P.legend.forEach(k => { lr.insertAdjacentHTML('beforeend', `<div class="row"><span class="sw" style="background-image:url(${TYPES[k].swatch})"></span>${TYPES[k].name}</div>`); });
+lr.insertAdjacentHTML('beforeend', `<div class="row"><span class="sw" style="background:#fff;border:3px solid #1b2a4a;box-shadow:0 0 6px #fff inset"></span>Glowing: look here</div>`);
+lr.insertAdjacentHTML('beforeend', `<div class="row"><span class="sw" style="background:linear-gradient(90deg,transparent 40%,#e0201b 40%,#e0201b 60%,transparent 60%)"></span>Straight joint</div>`);
+lr.insertAdjacentHTML('beforeend', `<div class="row"><span class="sw" style="background:linear-gradient(transparent 40%,#1b2a4a 40%,#1b2a4a 60%,transparent 60%)"></span>Lap measure</div>`);
+document.getElementById('keyBtn').onclick = () => { const on = !document.getElementById('legend').classList.contains('show'); document.getElementById('legend').classList.toggle('show', on); setToggle('keyBtn', on); };
+document.getElementById('legendClose').onclick = () => { document.getElementById('legend').classList.remove('show'); setToggle('keyBtn', false); };
+// part link
+if (OTHER_URL) { const a = document.getElementById('partLink'); a.href = OTHER_URL; a.innerHTML = P.other.label; a.style.display = 'inline-flex'; }
+// play / step
+function updatePlay() { const b = document.getElementById('playBtn'); const playing = !st.paused && st.auto; b.textContent = playing ? '❚❚' : '▶︎'; b.setAttribute('aria-label', playing ? 'Pause' : 'Play'); b.style.fontSize = '18px'; }
+document.getElementById('playBtn').textContent = '';
+function togglePlay() {
+  if (st.paused || !st.auto) { st.paused = false; st.auto = true; try { speechSynthesis.resume(); } catch (e) { } if (__cur && __cur.paused) __cur.play().catch(() => { }); }
+  else { st.paused = true; try { speechSynthesis.pause(); } catch (e) { } if (__cur) __cur.pause(); }
+  updatePlay();
+}
+document.getElementById('playBtn').onclick = togglePlay;
+document.getElementById('prevBtn').onclick = () => { st.auto = false; updatePlay(); goStage(st.stage - 1); };
+document.getElementById('nextBtn').onclick = () => { st.auto = false; updatePlay(); goStage(st.stage + 1); };
+const speedEl = document.getElementById('speed');
+speedEl.oninput = () => { st.speedIdx = +speedEl.value; document.getElementById('speedVal').textContent = SPEEDS[st.speedIdx] + '×'; };
+document.getElementById('soundBtn').onclick = () => { st.soundOn = !st.soundOn; setToggle('soundBtn', st.soundOn); const b = document.getElementById('soundBtn'); b.textContent = st.soundOn ? '🔊' : '🔇'; b.setAttribute('aria-label', st.soundOn ? 'Sound on' : 'Sound off'); if (!st.soundOn) { try { speechSynthesis.cancel(); } catch (e) { } __stopClip(); speaking = false; } else speak(STAGES[st.stage]); };
+// caption collapse (phones)
+document.getElementById('capToggle').onclick = () => { const sp = document.getElementById('stage'); const c = sp.classList.toggle('collapsed'); document.getElementById('capToggle').textContent = c ? 'Show' : 'Hide'; document.getElementById('capToggle').setAttribute('aria-expanded', !c); setTimeout(resize, 30); };
+
+/* panels */
+const backdrop = document.getElementById('backdrop');
+let openPanel = null;
+function showPanel(id) { closePanel(); const p = document.getElementById(id); if (!p) return; p.classList.add('open'); backdrop.style.display = 'block'; openPanel = p; p.querySelector('.close').focus(); }
+function closePanel() { if (openPanel) openPanel.classList.remove('open'); openPanel = null; backdrop.style.display = 'none'; }
+backdrop.onclick = closePanel;
+document.querySelectorAll('.panel .close').forEach(b => b.onclick = closePanel);
+document.getElementById('learnBtn').onclick = () => showPanel('learnPanel');
+document.getElementById('quizBtn').onclick = () => showPanel('quizPanel');
+document.getElementById('helpBtn').onclick = () => showPanel('helpPanel');
+const tb = document.getElementById('teachBtn'); if (tb) tb.onclick = () => showPanel('teachPanel');
+
+document.getElementById('learnBody').innerHTML =
+  `<h3>By the end, you can…</h3><ul>${P.outcomes.map(o => `<li>${o}</li>`).join('')}</ul>` +
+  `<h3>Common mix-ups</h3>${P.misc.map(([w, r]) => `<div class="mis"><div class="w">✗ ${w}</div><div class="r">✓ ${r}</div></div>`).join('')}` +
+  `<h3>Specification link</h3>${P.spec}`;
+const tbody = document.getElementById('teachBody'); if (tbody && P.teacher) tbody.innerHTML = P.teacher;
+
+const qb = document.getElementById('quizBody'); const quizRight = new Set();
+P.quiz.forEach((q, qi) => {
+  const order = q.o.map((t, i) => i); // shuffle display order deterministically per question
+  const rot = (qi * 2 + 1) % q.o.length; const shown = order.slice(rot).concat(order.slice(0, rot));
+  const d = document.createElement('div'); d.className = 'q';
+  d.innerHTML = `<p>${qi + 1}. ${q.q}</p><div class="opts">${shown.map(i => `<button class="btn" data-i="${i}">${q.o[i]}</button>`).join('')}</div><div class="fb"></div>`;
+  d.querySelectorAll('.opts button').forEach(btn => btn.onclick = () => {
+    const i = +btn.dataset.i; const fb = d.querySelector('.fb');
+    d.querySelectorAll('.opts button').forEach(x => x.classList.remove('right', 'wrong'));
+    btn.classList.add(i === q.a ? 'right' : 'wrong');
+    fb.className = 'fb show';
+    say(i === q.a ? 'Correct. ' + q.why : WRONG_LINE);
+    if (i === q.a) { quizRight.add(qi); if (quizRight.size === P.quiz.length) window.simStats && simStats.once('quiz-complete'); }
+    fb.innerHTML = `<b style="color:${i === q.a ? 'var(--ok)' : 'var(--bad)'}">${i === q.a ? '✓ Correct.' : '✗ Not quite. Try again or look at the stage.'}</b> ${i === q.a ? q.why : ''} <div style="margin-top:6px"><button class="btn">Show me</button></div>`;
+    fb.querySelector('button').onclick = () => { closePanel(); st.auto = false; updatePlay(); goStage(q.s); };
+  });
+  qb.appendChild(d);
+});
+
+/* fault box */
+document.getElementById('faultQ').textContent = P.faultQ;
+document.getElementById('faultBtn').onclick = () => { st.auto = false; updatePlay(); goStage(STAGES.length - 1); };
+document.getElementById('clueBtn').onclick = () => { st.straight = true; setToggle('tJoints', true); };
+document.getElementById('revealBtn').onclick = () => { st.faultReveal = true; st.straight = true; setToggle('tJoints', true); applyMats(); goCam(PART === 2 ? 'faultA' : 'overview'); faultMsg(true, true); };
+document.getElementById('fixBtn').onclick = () => { st.faultReveal = false; setWall(st.bond, st.courses, false); document.getElementById('faultRes').className = 'res ok'; document.getElementById('faultRes').textContent = FIX_LINE; say(FIX_LINE); };
+function hideFault() { document.getElementById('fault').style.display = 'none'; }
+function faultMsg(ok, revealed) { const r = document.getElementById('faultRes'); r.className = 'res ' + (ok ? 'ok' : 'bad'); r.textContent = revealed ? 'Glowing bricks: ' + P.faultRight : ok ? P.faultRight : P.faultWrong; say(ok ? P.faultRight : P.faultWrong); if (ok && !revealed) window.simStats && simStats.once('faults-complete'); }
+
+/* ---------- Picking ---------- */
+const ray = new THREE.Raycaster(); const ndc = new THREE.Vector2();
+const tip = document.getElementById('tip');
+function pick(e) {
+  const r = canvas.getBoundingClientRect();
+  ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const objs = wall.children.filter(m => m.userData.b && m.visible && m.material.opacity > 0.5);
+  extras.traverse(o => { if (o.isMesh && o.userData.b) objs.push(o); });
+  const h = ray.intersectObjects(objs, false)[0];
+  return h ? h.object : null;
+}
+function showTip(m, x, y) {
+  if (!m) { tip.style.display = 'none'; return; }
+  const b = m.userData.b; const info = b.quoin ? QUOIN : TYPES[b.type];
+  tip.innerHTML = `<b>${info.name}</b>${info.job}${b.c !== undefined ? `<div class="note" style="color:#cdd6ea;margin-top:3px">Course ${b.c + 1}</div>` : ''}`;
+  tip.style.display = 'block';
+  const w = tip.offsetWidth, hgt = tip.offsetHeight;
+  tip.style.left = Math.min(innerWidth - w - 8, Math.max(8, x + 14)) + 'px';
+  tip.style.top = Math.min(innerHeight - hgt - 8, Math.max(60, y - hgt - 10)) + 'px';
+}
+let down = null, tipTimer = 0;
+canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY }; });
+canvas.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' && !e.buttons) showTip(pick(e), e.clientX, e.clientY); });
+canvas.addEventListener('pointerleave', () => { tip.style.display = 'none'; });
+canvas.addEventListener('pointerup', e => {
+  if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 8) { down = null; return; }
+  down = null;
+  const m = pick(e);
+  if (e.pointerType !== 'mouse') { showTip(m, e.clientX, e.clientY); clearTimeout(tipTimer); tipTimer = setTimeout(() => tip.style.display = 'none', 3500); }
+  if (STAGES[st.stage].fault && st.fault && m && m.userData.b && m.userData.b.c !== undefined) {
+    const ok = P.faultCheck(m.userData.b); faultMsg(ok, false);
+    if (ok) { st.faultReveal = true; st.straight = true; setToggle('tJoints', true); applyMats(); }
+  }
+});
+
+/* keyboard */
+window.addEventListener('keydown', e => {
+  if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+  if (e.key === 'Escape') { closePanel(); document.getElementById('legend').classList.remove('show'); return; }
+  if (openPanel) return;
+  if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+  else if (e.key === 'ArrowRight') { st.auto = false; updatePlay(); goStage(st.stage + 1); }
+  else if (e.key === 'ArrowLeft') { st.auto = false; updatePlay(); goStage(st.stage - 1); }
+  else if (/^[1-4]$/.test(e.key)) goCam(CAM_KEYS[+e.key - 1]);
+  else if (e.key === 'l' || e.key === 'L') document.getElementById('tLabels').click();
+  else if (e.key === 'j' || e.key === 'J') document.getElementById('tJoints').click();
+  else if (e.key === '+' || e.key === '=') document.getElementById('cPlus').click();
+  else if (e.key === '-') document.getElementById('cMinus').click();
+});
+
+/* ---------- Resize with view offset so the model sits in the free space ---------- */
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false); labelRenderer.setSize(w, h);
+  camera.aspect = w / h;
+  const top = document.getElementById('top').getBoundingClientRect();
+  const sp = document.getElementById('stage').getBoundingClientRect();
+  const ctr = document.getElementById('controls').getBoundingClientRect();
+  let ox = 0, oy = 0;
+  const landscapePhone = h <= 500 && w > h;
+  if (landscapePhone || w > 640) { ox = -(sp.right) / 2 * (landscapePhone ? 1 : 0.6); oy = -((top.bottom) - (h - ctr.top)) / 2; }
+  else { oy = -((sp.bottom) - (h - ctr.top)) / 2; }
+  camera.setViewOffset(w, h, ox, oy, w, h);
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', () => { resize(); });
+
+/* ---------- Loop ---------- */
+const clock = new THREE.Clock();
+function ease(t) { return 1 - Math.pow(1 - t, 3); }
+function frame() {
+  const dt = Math.min(clock.getDelta(), 0.1);
+  if (!st.paused) st.simTime += dt * SPEEDS[st.speedIdx];
+  const T = st.simTime;
+  for (const co of courseObjs) {
+    let any = false;
+    for (const m of co.meshes) {
+      const a = T - m.userData.tAppear;
+      if (a < 0) { m.visible = false; continue; }
+      m.visible = true; any = true;
+      const k = Math.min(1, a / 0.35); m.position.y = m.userData.baseY + (1 - ease(k)) * 0.12;
+    }
+    co.mortar.forEach(m => m.visible = st.mortar && any);
+  }
+  extras.traverse(o => { if (o === extras) return; const ta = o.userData.tAppear; if (ta === undefined) return; let v = T >= ta; if (jointBars.includes(o)) v = v && st.straight; o.visible = v; if (o.isCSS2DObject) o.element.style.display = v ? '' : 'none'; });
+  const pulse = 0.16 + 0.12 * Math.sin(performance.now() / 260);
+  for (const k in MATS) MATS[k].hi.emissiveIntensity = pulse;
+  if (camTween) {
+    const k = Math.min(1, (performance.now() - camTween.s) / camTween.d), e = ease(k);
+    camera.position.lerpVectors(camTween.fp, camTween.tp, e); controls.target.lerpVectors(camTween.ft, camTween.tt, e);
+    if (k >= 1) camTween = null;
+  }
+  controls.update();
+  // tour auto-advance
+  if (st.auto && !st.paused && st.stage < STAGES.length - 1 && !STAGES[st.stage].fault) {
+    const waitAudio = st.soundOn && !st.unlocked;
+    const talking = st.soundOn && SPEEDS[st.speedIdx] <= 1.5 && narrating();
+    const minReal = (STAGES[st.stage].cap.split(/\s+/).length * 330) / SPEEDS[st.speedIdx];
+    if (!waitAudio && !talking && T >= st.buildDoneAt && performance.now() - st.stageRealStart > Math.max(3500, minReal)) goStage(st.stage + 1);
+  }
+  renderer.render(scene, camera); labelRenderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+/* ---------- Start ---------- */
+const q = new URLSearchParams(location.search);
+const startStage = q.has('stage') ? (+q.get('stage') - 1) : 0;
+if (q.has('stage') || q.has('t')) { st.unlocked = true; document.getElementById('hint').style.display = 'none'; st.soundOn = false; st.auto = false; }
+updatePlay();
+resize();
+goStage(startStage, { instant: q.has('stage') });
+if (q.has('t')) st.simTime += +q.get('t');
+if (q.get('reveal')) document.getElementById('revealBtn').click();
+if (q.get('labels')) document.getElementById('tLabels').click();
+if (q.get('cam')) goCam(q.get('cam'), true);
+if (q.get('panel')) showPanel(q.get('panel'));
+if (reduced) document.getElementById('hint').textContent = '🔊 Sound is on – tap anywhere to start the narration (paused: press play to start the tour)';
+setTimeout(resize, 50);
+window.__dbg = { camera, controls };
+requestAnimationFrame(frame);
+</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('../../sw.js',{scope:'../../'}).catch(function(){});</script>
+</body>
+</html>
