@@ -72,6 +72,14 @@ select{min-height:44px;border-radius:10px;border:1px solid var(--line);padding:0
 .lbl{background:rgba(27,42,74,.92);color:#fff;font-size:12px;font-weight:600;padding:3px 7px;border-radius:6px;white-space:nowrap}
 .lbl.lap{background:#fff;color:var(--navy);border:2px solid var(--navy);font-size:13px}
 .lbl.gauge{background:#fff;color:var(--navy);border:1px solid var(--navy)}
+#startCard{position:absolute;inset:0;z-index:10;background:rgba(15,22,40,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+#startCard.hide{display:none}
+#startCard .sc{background:#fff;border-radius:18px;padding:22px 22px 18px;width:min(460px,94vw);max-height:92vh;overflow:auto;box-shadow:0 18px 50px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:10px}
+#startCard h2{margin:0;font-size:24px;color:var(--navy)}
+#startCard p{margin:0;font-size:16px;line-height:1.5}
+.sc-eyebrow{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.btn.big{min-height:56px;font-size:19px}
+@media (max-height:500px){#startCard .sc{padding:14px 16px;gap:6px}#startCard h2{font-size:19px}#startCard p{font-size:14px}.btn.big{min-height:48px;font-size:17px}}
 #backdrop{position:absolute;inset:0;background:rgba(15,22,40,.35);z-index:7;display:none}
 .panel{position:absolute;top:0;right:0;bottom:0;width:min(460px,100vw);background:#fff;z-index:8;display:none;flex-direction:column;box-shadow:-8px 0 30px rgba(0,0,0,.15)}
 .panel.open{display:flex}
@@ -180,7 +188,17 @@ kbd{background:#eef0f3;border:1px solid var(--line);border-radius:4px;padding:1p
   </aside>
 
   <div id="tip" role="status"></div>
-  <div id="hint">🔊 Sound is on – tap anywhere to start the narration</div>
+  <div id="hint" style="display:none"></div>
+  <div id="startCard" role="dialog" aria-modal="true" aria-labelledby="startH">
+    <div class="sc">
+      <div class="sc-eyebrow" id="startSeries"></div>
+      <h2 id="startH"></h2>
+      <p>A guided tour talks you through all <b id="startN"></b> stages and moves on by itself. Keep your sound on, or use headphones.</p>
+      <button class="btn primary big" id="startTour">▶ Start guided tour</button>
+      <button class="btn" id="startExplore">Explore on my own</button>
+      <p class="note">You can pause the tour at any time with ❚❚, and pick it up again with ▶.</p>
+    </div>
+  </div>
 
 
   <div id="controls">
@@ -604,7 +622,7 @@ const navyMat = new THREE.MeshBasicMaterial({ color: '#1b2a4a' });
 /* ---------- State ---------- */
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const st = {
-  stage: 0, simTime: 0, paused: reduced, auto: !reduced, speedIdx: 2,
+  stage: 0, simTime: 0, paused: false, auto: false, speedIdx: 2,
   bond: null, fault: false, courses: 0,
   show: { stretcher: true, header: true, closer: true, bat: true },
   labels: false, straight: false, mortar: true, back: false,
@@ -882,7 +900,7 @@ function unlock(e) {
   if (st.unlocked) return; st.unlocked = true;
   document.getElementById('hint').style.display = 'none';
   st.stageRealStart = performance.now();
-  if (e && e.target && e.target.closest && e.target.closest('#soundBtn')) { __primeClip(); return; }
+  if (e && e.target && e.target.closest && (e.target.closest('#soundBtn') || e.target.closest('#startCard'))) { __primeClip(); return; }
   speak(STAGES[st.stage]);
 }
 ['pointerup', 'click', 'keydown'].forEach(ev => window.addEventListener(ev, unlock, { capture: true }));
@@ -920,11 +938,21 @@ if (OTHER_URL) { const a = document.getElementById('partLink'); a.href = OTHER_U
 function updatePlay() { const b = document.getElementById('playBtn'); const playing = !st.paused && st.auto; b.textContent = playing ? '❚❚' : '▶︎'; b.setAttribute('aria-label', playing ? 'Pause' : 'Play'); b.style.fontSize = '18px'; }
 document.getElementById('playBtn').textContent = '';
 function togglePlay() {
+  if (!document.getElementById('startCard').classList.contains('hide')) { startTour(); return; }
   if (st.paused || !st.auto) { st.paused = false; st.auto = true; try { speechSynthesis.resume(); } catch (e) { } if (__cur && __cur.paused) __cur.play().catch(() => { }); }
   else { st.paused = true; try { speechSynthesis.pause(); } catch (e) { } if (__cur) __cur.pause(); }
   updatePlay();
 }
 document.getElementById('playBtn').onclick = togglePlay;
+const startCard = document.getElementById('startCard');
+document.getElementById('startSeries').textContent = P.title;
+document.getElementById('startH').textContent = P.sub.replace(/<[^>]+>/g, '');
+document.getElementById('startN').textContent = STAGES.length;
+function closeStart() { startCard.classList.add('hide'); }
+function startTour() { closeStart(); st.soundOn = true; st.paused = false; st.auto = true; updatePlay(); goStage(0); }
+function exploreAlone() { closeStart(); st.auto = false; st.paused = false; updatePlay(); speak(STAGES[st.stage]); }
+document.getElementById('startTour').onclick = startTour;
+document.getElementById('startExplore').onclick = exploreAlone;
 document.getElementById('prevBtn').onclick = () => { st.auto = false; updatePlay(); goStage(st.stage - 1); };
 document.getElementById('nextBtn').onclick = () => { st.auto = false; updatePlay(); goStage(st.stage + 1); };
 const speedEl = document.getElementById('speed');
@@ -1018,6 +1046,7 @@ canvas.addEventListener('pointerup', e => {
 /* keyboard */
 window.addEventListener('keydown', e => {
   if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+  if (!startCard.classList.contains('hide')) { if (e.key === 'Escape') exploreAlone(); return; }
   if (e.key === 'Escape') { closePanel(); document.getElementById('legend').classList.remove('show'); return; }
   if (openPanel) return;
   if (e.key === ' ') { e.preventDefault(); togglePlay(); }
@@ -1087,7 +1116,7 @@ function frame() {
 /* ---------- Start ---------- */
 const q = new URLSearchParams(location.search);
 const startStage = q.has('stage') ? (+q.get('stage') - 1) : 0;
-if (q.has('stage') || q.has('t')) { st.unlocked = true; document.getElementById('hint').style.display = 'none'; st.soundOn = false; st.auto = false; }
+if (q.has('stage') || q.has('t')) { startCard.classList.add('hide'); st.unlocked = true; document.getElementById('hint').style.display = 'none'; st.soundOn = false; st.auto = false; }
 updatePlay();
 resize();
 goStage(startStage, { instant: q.has('stage') });
@@ -1096,7 +1125,7 @@ if (q.get('reveal')) document.getElementById('revealBtn').click();
 if (q.get('labels')) document.getElementById('tLabels').click();
 if (q.get('cam')) goCam(q.get('cam'), true);
 if (q.get('panel')) showPanel(q.get('panel'));
-if (reduced) document.getElementById('hint').textContent = '🔊 Sound is on – tap anywhere to start the narration (paused: press play to start the tour)';
+if (!startCard.classList.contains('hide')) setTimeout(() => { try { document.getElementById('startTour').focus(); } catch (e) { } }, 100);
 setTimeout(resize, 50);
 window.__dbg = { camera, controls };
 requestAnimationFrame(frame);
