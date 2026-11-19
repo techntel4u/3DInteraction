@@ -1144,5 +1144,219 @@
     ]
    }
   ]
+ },
+ "suspended-floors": {
+  "sections": [
+   {
+    "title": "Guided tour",
+    "items": [
+     {
+      "h": "Suspended ground floors",
+      "t": "A suspended floor is held up off the ground, with a gap of air underneath called the void. Air moving through the void keeps the floor timbers dry. This is a suspended timber floor. Watch how each part is built, then switch to beam-and-block to compare."
+     },
+     {
+      "h": "Oversite",
+      "t": "First the ground inside the walls is covered with oversite concrete. It resists damp and stops plants growing. Its top must not be lower than the ground outside. Under a timber floor: 100 mm of concrete, or 50 mm of concrete on polythene laid on 50 mm of sand blinding (NHBC 5.2.10)."
+     },
+     {
+      "h": "Walls and DPC",
+      "t": "The cavity walls are built up past floor level. A damp-proof course, or DPC, goes in both leaves at least 150 mm above the outside ground. It stops damp rising up the wall. The concrete cavity fill stops well below the DPC so any water in the cavity can drain away."
+     },
+     {
+      "h": "Sleeper walls",
+      "t": "Sleeper walls are low half-brick walls built inside the void to support the floor part way across. They are honeycombed: gaps are left in the bond so air can flow straight through. They let the joists span a shorter distance, so smaller timbers can be used."
+     },
+     {
+      "h": "Wall plates and joists",
+      "t": "A DPC is laid on each sleeper wall, then a timber wall plate. The joists sit on the plates and are carried in joist hangers at the outside walls. Leave at least 75 mm of air under the wall plates and 150 mm under the joists. These are the minimum gaps for a ventilated space under a timber floor (Approved Document C; NHBC 5.2.10)."
+     },
+     {
+      "h": "Airbricks",
+      "t": "Airbricks let outside air into the void. They go in at least two opposite walls, at least 150 mm above the ground. A sleeve carries the air across the cavity, with a cavity tray above it because it sits above the DPC. Openings must give at least 1500 mm² per metre run of external wall or 500 mm² per m² of floor area, whichever is greater. Under timber floors NHBC asks for vents at no more than 2 m centres and within 450 mm of the floor edge. Check the free area marked on the airbrick."
+     },
+     {
+      "h": "Cross-ventilation",
+      "t": "Air comes in on one side, passes through the honeycomb sleeper walls and leaves on the opposite side. This steady flow carries damp air away, so the timber stays dry and does not rot. Blue dots show the outside air. Their speed and paths are for illustration only."
+     },
+     {
+      "h": "Floor covering",
+      "t": "Finally the floor covering is fixed to the joists. Floorboards or chipboard sheets make the surface you walk on. The void stays open and ventilated underneath. Part of the floor is left uncovered here so you can still see the joists. New floors also have insulation between the joists."
+     },
+     {
+      "h": "Beam-and-block floor",
+      "t": "A beam-and-block floor uses precast concrete beams instead of timber joists. The beams sit on a DPC on the inner leaf, and concrete blocks fill the gaps between them. Insulation and a screed go on top. It still needs a ventilated void of at least 150 mm. Topsoil is removed underneath and the ground isn't left lower than outside unless it drains freely. Use the supplier's layout drawing for beam spacing and bearing."
+     },
+     {
+      "h": "Spot the faults",
+      "t": "Damp timber rots. Most rot in suspended floors comes from blocked airflow or timber touching damp masonry. This floor has four faults. Tap each one to find it. Turn on Airflow to see how the faults change the air in the void."
+     }
+    ]
+   },
+   {
+    "title": "The parts",
+    "items": [
+     {
+      "h": "Ground",
+      "t": "The outside ground level. DPCs and airbricks are measured up from here."
+     },
+     {
+      "h": "Foundation and substructure",
+      "t": "Concrete foundation and walls below ground that carry the building."
+     },
+     {
+      "h": "Oversite concrete",
+      "t": "Covers the ground inside the walls to resist damp and stop plants growing. 100 mm of concrete, or 50 mm on polythene on sand blinding. Top not lower than the ground outside."
+     },
+     {
+      "h": "Hardcore",
+      "t": "Compacted broken stone or rubble that gives a firm base under the oversite."
+     },
+     {
+      "h": "Outer leaf (brick)",
+      "t": "The outside skin of the cavity wall. The airbricks are built into it."
+     },
+     {
+      "h": "Inner leaf (block)",
+      "t": "The inside skin of the cavity wall. Joist hangers and beam bearings sit on it."
+     },
+     {
+      "h": "Cavity fill below DPC",
+      "t": "Concrete in the cavity below ground. It stops well below the DPC so water can drain away."
+     },
+     {
+      "h": "Damp-proof course (DPC)",
+      "t": "A waterproof layer in both leaves, at least 150 mm above the outside ground, that stops damp rising."
+     },
+     {
+      "h": "Sleeper wall (honeycombed)",
+      "t": "A low half-brick wall in the void that supports the floor part way across. Gaps left in the bond let air flow through."
+     },
+     {
+      "h": "DPC on sleeper wall",
+      "t": "Keeps damp in the sleeper wall away from the timber wall plate."
+     },
+     {
+      "h": "Wall plate",
+      "t": "A timber laid on the sleeper wall DPC. It spreads the load and gives the joists a level seat."
+     },
+     {
+      "h": "Floor joists",
+      "t": "Timber beams that span across the void and carry the floor. At least 150 mm of air underneath them."
+     },
+     {
+      "h": "Joist hangers",
+      "t": "Galvanised steel shoes built into the inner leaf that carry the joist ends without touching the cavity."
+     },
+     {
+      "h": "Floor covering (boards)",
+      "t": "Floorboards or chipboard sheets fixed to the joists. This is the surface you walk on."
+     },
+     {
+      "h": "Airbricks",
+      "t": "Grilles in the outer leaf that let outside air into the void. In at least two opposite walls, at least 150 mm above the ground."
+     },
+     {
+      "h": "Sleeve across the cavity",
+      "t": "A sealed duct that carries air from the airbrick across the cavity and through the inner leaf."
+     },
+     {
+      "h": "Cavity tray over sleeve",
+      "t": "Because the sleeve sits above the DPC, a tray above it sends cavity water back out instead of along the sleeve."
+     },
+     {
+      "h": "DPC under beam bearings",
+      "t": "Stops damp in the inner leaf reaching the ends of the precast beams."
+     },
+     {
+      "h": "Precast concrete beams",
+      "t": "Prestressed concrete T-beams that span wall to wall in place of timber joists."
+     },
+     {
+      "h": "Infill blocks",
+      "t": "Concrete blocks that sit on the beam flanges and fill the gaps between beams."
+     },
+     {
+      "h": "Floor insulation",
+      "t": "Rigid insulation boards laid over the beams and blocks to keep heat in."
+     },
+     {
+      "h": "Screed",
+      "t": "A sand and cement layer (or dry boards) that gives a smooth, level floor finish."
+     },
+     {
+      "h": "Cleared ground",
+      "t": "Topsoil is removed under a beam-and-block floor. The ground isn't left lower than outside unless it drains freely."
+     }
+    ]
+   },
+   {
+    "title": "Spot the faults",
+    "items": [
+     {
+      "h": "Blocked airbrick",
+      "t": "Soil has been heaped against the wall. It covers the airbrick so no air gets in, and it bridges the DPC so damp can get round it. Keep the ground at least 150 mm below the DPC and keep airbricks clear."
+     },
+     {
+      "h": "Solid sleeper wall",
+      "t": "This length of sleeper wall was built solid, with no honeycomb gaps. Air can't get through, so a pocket of still, damp air forms behind it. Sleeper walls need openings so air can pass straight through."
+     },
+     {
+      "h": "Joist end built into the wall",
+      "t": "This joist end is built through the inner leaf into the cavity. It picks up damp from the wall and the end rots. Joist ends are carried in hangers here, or kept off damp masonry with a DPC."
+     },
+     {
+      "h": "No DPC under the wall plate",
+      "t": "There is no DPC under this length of wall plate. Damp rises up the sleeper wall into the timber. A DPC must go between timber and any masonry that can carry moisture from the ground."
+     }
+    ]
+   }
+  ],
+  "quiz": [
+   {
+    "q": "Why are sleeper walls built with a honeycomb bond?",
+    "o": [
+     "To let air flow through the void",
+     "To use fewer bricks",
+     "To let water drain through",
+     "To carry pipes and cables"
+    ]
+   },
+   {
+    "q": "What is the minimum ventilated space under the joists of a suspended timber floor?",
+    "o": [
+     "50 mm",
+     "75 mm",
+     "150 mm",
+     "225 mm"
+    ]
+   },
+   {
+    "q": "Where must the airbricks go?",
+    "o": [
+     "In one wall only",
+     "In at least two opposite external walls",
+     "In the internal walls",
+     "In the floor boards"
+    ]
+   },
+   {
+    "q": "What goes directly between the top of a sleeper wall and the timber wall plate?",
+    "o": [
+     "A bed of mortar only",
+     "Insulation",
+     "A DPC",
+     "A joist hanger"
+    ]
+   },
+   {
+    "q": "In a beam-and-block floor, what fills the gaps between the precast beams?",
+    "o": [
+     "Concrete blocks",
+     "Timber noggins",
+     "Hardcore",
+     "Sleeper walls"
+    ]
+   }
+  ]
  }
 }

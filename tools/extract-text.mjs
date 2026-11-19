@@ -55,5 +55,15 @@ for (const [id, file] of [['bonds-stretcher','sims/bonds-stretcher/student.html'
     {title:'Common mix-ups', items: P.misc.map(([w,r])=>({h:'Mix-up: '+w, t:'Right idea: '+r}))}],
     quiz: P.quiz.map(q=>({q:q.q, o:q.o})) };
 }
+{ const src = fs.readFileSync('sims/suspended-floors/student.html','utf8');
+  const a = src.indexOf('{', src.search(/const\s+PART_INFO\s*=/)), b = src.indexOf('\n};', a) + 2;
+  const PI = new Function('return ' + src.slice(a, b))();
+  const faults = []; const re = /\{id:'f\d', name:'([^']*)', pos:\[[^\]]*\], text:'((?:[^'\\]|\\.)*)'\}/g; let m;
+  while((m = re.exec(src))) faults.push({h:m[1], t:strip(m[2].replace(/\\'/g,"'"))});
+  out['suspended-floors'] = { sections:[
+    {title:'Guided tour', items: grabArray(src,'STAGES').map(x=>({h:x.name, t:strip(x.cap)+(x.more?' '+strip(x.more):'')}))},
+    {title:'The parts', items: Object.values(PI).map(p=>({h:p.label, t:strip(p.job)}))},
+    {title:'Spot the faults', items: faults}],
+    quiz: grabArray(src,'QUIZ').map(q=>({q:q.q, o:q.o})) }; }
 fs.writeFileSync('tools/sim-text.json', JSON.stringify(out,null,1));
 for(const [k,v] of Object.entries(out)) console.log(k, v.sections.map(x=>x.title+':'+x.items.length).join(', '), 'quiz:'+v.quiz.length);

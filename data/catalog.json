@@ -678,6 +678,41 @@
    "worksheet": "sims/bonds-english-flemish/worksheet.html",
    "series": "solid-walling-bonds",
    "part": 2
+  },
+  {
+   "id": "suspended-floors",
+   "title": "Suspended ground floors",
+   "summary": "See how a suspended ground floor is built and kept dry, written for Level 2 bricklayers. Build a timber floor stage by stage: oversite, DPC, honeycombed sleeper walls, wall plates, joists and airbricks. Watch air cross the void, switch to a beam-and-block floor, then find four faults that would cause damp and rot.",
+   "level": "Level 2",
+   "spec": "City & Guilds 6705-23 Level 2 Diploma in Bricklaying, Unit 202/602 Principles of building construction, information and communication (LO14, AC 14.1)",
+   "minutes": "15–20 min",
+   "tags": [
+    "Suspended floors",
+    "Sleeper walls",
+    "Airbricks",
+    "Beam and block",
+    "DPC"
+   ],
+   "areas": [
+    "construction"
+   ],
+   "courses": [
+    "bricklaying",
+    "bricklaying-l2-diploma"
+   ],
+   "general": false,
+   "student": "sims/suspended-floors/student.html",
+   "teacher": "sims/suspended-floors/teacher.html",
+   "thumb": "sims/suspended-floors/thumb.jpg",
+   "narration": "ElevenLabs (Alice, British)",
+   "updated": "2026-11-19",
+   "added": "2026-11-19",
+   "classroomTitle": "Suspended ground floors – 3D simulation (Inside the building, Part 2)",
+   "instructions": "Open the link and work through the 3D suspended ground floors simulation (15–20 minutes). Use headphones and keep the sound on.\n1. Guided tour: follow all 10 stages.\n2. Stage 4: explain why sleeper walls are honeycombed.\n3. Stage 5: write down the two minimum air gaps.\n4. Turn on Airflow and describe how air crosses the void.\n5. Switch to Beam-and-block and list what replaces the joists.\n6. Spot the faults: find all four and explain each.\n7. Test yourself: answer the 5 questions.\nHand in your notes and your quiz score.",
+   "transcript": "sims/suspended-floors/transcript.html",
+   "worksheet": "sims/suspended-floors/worksheet.html",
+   "series": "inside-the-building",
+   "part": 2
   }
  ],
  "courseInstructions": "Open the link to see the 3D simulations on this page. Work through each one, starting with the Guided tour (use headphones and press Sound on), then try Build it, Spot the faults and Test yourself. Note your quiz score for each simulation.",
@@ -763,6 +798,37 @@
      "n": 2,
      "title": "English and Flemish bond",
      "sim": "bonds-english-flemish"
+    }
+   ]
+  },
+  {
+   "id": "inside-the-building",
+   "title": "Inside the building",
+   "summary": "A four-part series on what goes on inside the walls, floors and roof: cavity insulation, suspended floors, pitched roofs and flat roofs. Work through the parts in order.",
+   "spec": "City & Guilds 6705-23 Level 2 Diploma in Bricklaying, Unit 202/602 Principles of building construction, information and communication",
+   "areas": [
+    "construction"
+   ],
+   "parts": [
+    {
+     "n": 1,
+     "title": "Cavity insulation materials",
+     "sim": null
+    },
+    {
+     "n": 2,
+     "title": "Suspended ground floors",
+     "sim": "suspended-floors"
+    },
+    {
+     "n": 3,
+     "title": "Pitched roofs",
+     "sim": null
+    },
+    {
+     "n": 4,
+     "title": "Flat roofs",
+     "sim": null
     }
    ]
   }

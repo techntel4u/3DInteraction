@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Suspended ground floors</title>
+<meta name="theme-color" content="#14284b">
+<link rel="icon" href="../../icons/icon-192.png">
+<script src="../../assets/stats.js?v=2"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "../../vendor/three/three.module.js",
+  "three/addons/": "../../vendor/three/addons/"
+} }
+</script>
+<style>
+:root{--navy:#14284b;--navy2:#1f3c6e;--ink:#1b2230;--muted:#4a5568;--bg:#eef1f5;--card:#ffffff;--line:#d5dbe4;--amber:#e08a00;--ok:#1d7a3e;--bad:#b42318;--air:#1f6fe0}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+.short{display:none}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink)}
+#app{position:fixed;inset:0}
+#c3d{position:absolute;inset:0;display:block;touch-action:none}
+#labels{position:absolute;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+button{font:inherit;cursor:pointer}
+.btn{min-height:44px;min-width:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--navy);font-weight:600;font-size:14px;white-space:nowrap}
+.btn:hover{background:#f3f6fb}
+.btn[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.btn:disabled{opacity:.45;cursor:default}
+#top{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,.94);border-bottom:1px solid var(--line);z-index:5}
+#top h1{font-size:17px;margin:0;color:var(--navy);line-height:1.15}
+#top .sub{font-size:12px;color:var(--muted);margin-top:2px}
+#top .spacer{flex:1}
+#hubLink{flex:none;min-height:44px;display:inline-flex!important;align-items:center;padding:0 10px;border-radius:10px;border:1px solid var(--line);font-weight:700;font-size:14px;color:var(--navy);text-decoration:none;background:#fff}
+@media (max-width:760px){#hubLink{padding:0 8px!important;font-size:13px!important;min-height:40px!important}}
+#topBtns{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+#topBtns::-webkit-scrollbar{display:none}
+.badge{display:inline-block;background:var(--amber);color:#1b1200;font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:middle}
+#stagePanel{position:absolute;left:12px;top:72px;width:360px;max-width:calc(100% - 24px);background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:14px;padding:12px 14px;z-index:4;box-shadow:0 6px 20px rgba(20,40,75,.10)}
+#stageHead{display:flex;align-items:center;gap:8px}
+#stageNum{font-size:12px;color:var(--muted);font-weight:600}
+#stageName{font-size:17px;font-weight:700;color:var(--navy);margin:2px 0 6px;flex:1}
+#collapseBtn{min-height:36px;min-width:36px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--navy);font-weight:700}
+#strip{display:flex;gap:3px;margin:4px 0 8px}
+#strip button{flex:1;height:10px;min-height:10px;border:0;border-radius:4px;background:#d7dde7;padding:0;position:relative}
+#strip button::after{content:"";position:absolute;left:0;right:0;top:-12px;bottom:-12px}
+#strip button.done{background:#9fb1cf}
+#strip button.on{background:var(--navy)}
+#caption{font-size:15px;line-height:1.45}
+#more{font-size:13px;line-height:1.4;color:var(--muted);margin-top:6px}
+#stagePanel.collapsed #caption,#stagePanel.collapsed #more,#stagePanel.collapsed #strip{display:none}
+#legend{font-size:12px;color:var(--muted);margin-top:8px;display:flex;gap:10px;flex-wrap:wrap}
+#legend span i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+#controls{position:absolute;left:0;right:0;bottom:0;z-index:5;background:rgba(255,255,255,.96);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom));display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:thin}
+#controls .grp{display:flex;gap:4px;align-items:center;padding-right:8px;margin-right:2px;border-right:1px solid var(--line)}
+#controls .grp:last-child{border-right:0}
+#controls label.sl{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);font-weight:600}
+#speed{width:110px;height:44px}
+#speedVal{min-width:34px;font-variant-numeric:tabular-nums;color:var(--navy)}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;border-radius:0;min-height:44px;padding:0 12px;background:#fff;color:var(--navy);font-weight:600;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+#hint{position:absolute;left:50%;transform:translateX(-50%);top:70px;z-index:6;background:var(--navy);color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.2);pointer-events:none;max-width:92vw;text-align:center}
+#tip{position:absolute;z-index:7;pointer-events:none;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;max-width:280px;font-size:13px;line-height:1.35;box-shadow:0 6px 18px rgba(0,0,0,.15);display:none}
+#tip b{color:var(--navy);display:block;margin-bottom:2px}
+.lbl{background:rgba(255,255,255,.92);border:1px solid #b9c3d3;color:var(--navy);font-size:12px;font-weight:600;padding:3px 7px;border-radius:7px;white-space:nowrap;pointer-events:none}
+.dim{background:var(--amber);color:#1b1200;font-size:12px;font-weight:700;padding:3px 7px;border-radius:7px;white-space:nowrap}
+.fmark{width:34px;height:34px;border-radius:50%;border:3px solid var(--bad);background:rgba(255,255,255,.75);color:var(--bad);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px}
+#faultHud{position:absolute;right:12px;top:72px;z-index:4;background:#fff;border:2px solid var(--bad);border-radius:12px;padding:10px 12px;width:300px;max-width:calc(100% - 24px);display:none;font-size:14px;box-shadow:0 6px 18px rgba(0,0,0,.12)}
+#faultHud h3{margin:0 0 4px;font-size:15px;color:var(--bad)}
+#faultMsg{font-size:13px;line-height:1.4;margin:6px 0}
+#faultHud .row{display:flex;gap:6px;flex-wrap:wrap}
+.modal{position:absolute;inset:0;z-index:20;background:rgba(14,24,44,.45);display:none;align-items:center;justify-content:center;padding:12px}
+.modal.open{display:flex}
+.sheet{background:#fff;border-radius:16px;max-width:680px;width:100%;max-height:calc(100% - 24px);overflow:auto;padding:18px 20px 20px;position:relative;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.sheet h2{margin:0 44px 10px 0;color:var(--navy);font-size:20px}
+.sheet h3{color:var(--navy);font-size:16px;margin:16px 0 6px}
+.sheet p,.sheet li{font-size:14px;line-height:1.5}
+.sheet ul{padding-left:20px;margin:6px 0}
+.x{position:absolute;right:10px;top:10px;width:44px;height:44px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:20px;color:var(--navy)}
+.mis{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:6px 0;font-size:14px;line-height:1.45}
+.mis .no{color:var(--bad);font-weight:600}
+.mis .yes{color:var(--ok);font-weight:600}
+blockquote{margin:6px 0;padding:6px 10px;border-left:4px solid var(--navy2);background:#f4f6fa;font-size:14px}
+.q{border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0}
+.q p{margin:0 0 8px;font-weight:600}
+.opts{display:grid;gap:6px}
+.opts button{text-align:left;min-height:44px;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:14px;color:var(--ink)}
+.opts button.right{background:#e6f4ea;border-color:var(--ok)}
+.opts button.wrong{background:#fdecea;border-color:var(--bad)}
+.fb{font-size:13px;margin-top:8px;line-height:1.4}
+.kbd{display:inline-block;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:0 6px;font-size:12px;margin-right:4px}
+table.k{border-collapse:collapse;font-size:14px}
+table.k td{padding:4px 8px 4px 0}
+@media (max-width:760px){
+  #top{padding:6px 8px;gap:6px}
+  #top h1{font-size:15px}
+  #top .sub{display:none}
+  #topBtns .btn{padding:0 10px;font-size:13px}
+  .full{display:none}.short{display:inline}
+  #top h1 .badge{display:block;width:max-content;margin:2px 0 0}
+  #stagePanel{left:8px;right:8px;width:auto;top:auto;bottom:70px;padding:10px 12px;max-height:38vh;overflow:auto}
+  #caption{font-size:14px}
+  #more{font-size:12px}
+  #faultHud{top:62px;right:8px;left:8px;width:auto;padding:8px 10px}
+  #faultHud .btn{min-height:40px}
+  #hint{top:64px;font-size:13px}
+}
+@media (max-height:500px) and (orientation:landscape){
+  #top{padding:4px 8px}
+  #top .sub{display:none}
+  .full{display:none}.short{display:inline}
+  #stagePanel{left:8px;top:56px;bottom:66px;width:300px;max-height:none;overflow:auto;right:auto}
+  #faultHud{left:auto;right:8px;top:56px;bottom:auto;width:280px}
+  #caption{font-size:13px}
+  #hint{top:56px}
+  #stagePanel.collapsed{bottom:auto}
+  #faultHud{width:250px;padding:8px 10px;font-size:13px}
+  #faultHud .btn{min-height:40px;padding:0 10px;font-size:13px}
+  #faultMsg{font-size:12px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="c3d" aria-label="3D model of a suspended ground floor"></canvas>
+  <div id="labels"></div>
+  <div id="top">
+    <a id="hubLink" href="../../index.html">← Hub</a>
+    <div>
+      <h1>Suspended ground floors</h1>
+      <div class="sub">Inside the building · Part 2 of 4 · Next: Part 3 Pitched roofs (coming soon)</div>
+    </div>
+    <div class="spacer"></div>
+    <div id="topBtns">
+      <button class="btn" id="learnBtn"><span class="full">What you'll learn</span><span class="short">Learn</span></button>
+      <button class="btn" id="quizBtn"><span class="full">Test yourself</span><span class="short">Quiz</span></button>
+      
+      <button class="btn" id="soundBtn" aria-pressed="true" title="Narration on or off" aria-label="Narration on or off">🔊<span class="full"> Sound</span></button>
+      <button class="btn" id="helpBtn" aria-label="Help and keyboard shortcuts">?</button>
+    </div>
+  </div>
+
+  <div id="hint">🔊 Sound is on – tap anywhere to start the narration</div>
+
+  <section id="stagePanel" aria-live="polite">
+    <div id="stageHead"><div style="flex:1"><div id="stageNum"></div><div id="stageName"></div></div><button id="collapseBtn" aria-label="Collapse or expand the text panel">▾</button></div>
+    <div id="strip" role="tablist" aria-label="Stages"></div>
+    <div id="caption"></div>
+    <div id="more"></div>
+    <div id="legend"></div>
+  </section>
+
+  <section id="faultHud" aria-live="polite">
+    <h3>Spot the faults: <span id="fCount">0</span> of 4 found</h3>
+    <div id="faultMsg">Tap anything on the floor you think will cause damp or rot.</div>
+    <div class="row"><button class="btn" id="fAnswers">Show answers</button><button class="btn" id="fReset">Reset</button><button class="btn" id="fClose" aria-label="Close spot the faults">✕</button></div>
+  </section>
+
+  <div id="tip"></div>
+
+  <nav id="controls" aria-label="Simulation controls">
+    <div class="grp">
+      <button class="btn" id="prevBtn" aria-label="Previous stage">⏮</button>
+      <button class="btn primary" id="playBtn" aria-label="Play or pause">▶ Play</button>
+      <button class="btn" id="nextBtn" aria-label="Next stage">⏭</button>
+    </div>
+    <div class="grp"><label class="sl">Speed <input type="range" id="speed" min="0.25" max="2" step="0.25" value="1" aria-label="Tour speed"><span id="speedVal">1×</span></label></div>
+    <div class="grp"><div class="seg" role="group" aria-label="Floor type"><button id="ftTimber" aria-pressed="true">Timber</button><button id="ftBB" aria-pressed="false">Beam-and-block</button></div></div>
+    <div class="grp">
+      <button class="btn" id="airBtn" aria-pressed="false">Airflow</button>
+      <button class="btn" id="secBtn" aria-pressed="true">Section</button>
+      <button class="btn" id="lblBtn" aria-pressed="false">Labels</button>
+      <button class="btn" id="faultBtn" aria-pressed="false">Spot the faults</button>
+    </div>
+    <div class="grp">
+      <button class="btn" data-cam="0">Overview</button>
+      <button class="btn" data-cam="1">Section view</button>
+      <button class="btn" data-cam="2">In the void</button>
+      <button class="btn" data-cam="3">Outside wall</button>
+    </div>
+  </nav>
+
+  <div class="modal" id="learnModal" role="dialog" aria-modal="true" aria-labelledby="learnTitle"><div class="sheet">
+    <button class="x" data-close aria-label="Close">✕</button>
+    <h2 id="learnTitle">What you'll learn</h2>
+    <h3>By the end, you can…</h3>
+    <ul>
+      <li>describe the parts of a suspended timber floor: oversite, sleeper walls, DPC, wall plates, joists, joist hangers and floor covering</li>
+      <li>describe a beam-and-block floor: precast beams on a DPC, infill blocks, insulation and screed</li>
+      <li>explain why sleeper walls are honeycombed and why airbricks go in opposite walls</li>
+      <li>state the minimum air gaps: 75 mm under wall plates and 150 mm under joists or beams</li>
+      <li>spot the building faults that lead to damp and rot in a suspended floor</li>
+    </ul>
+    <h3>Common misconceptions</h3>
+    <div class="mis"><span class="no">Wrong:</span> airbricks are there to ventilate the room.<br><span class="yes">Right:</span> they ventilate the void under the floor, so the timbers stay dry.</div>
+    <div class="mis"><span class="no">Wrong:</span> blocking an airbrick just stops a draught and does no harm.<br><span class="yes">Right:</span> it stops the air moving through the void. Damp builds up and the timber can rot.</div>
+    <div class="mis"><span class="no">Wrong:</span> sleeper walls are solid like any other wall.<br><span class="yes">Right:</span> they are honeycombed, with gaps in the brickwork so air can pass through.</div>
+    <div class="mis"><span class="no">Wrong:</span> a concrete beam-and-block floor doesn't need a ventilated void.<br><span class="yes">Right:</span> it still needs a void of at least 150 mm, ventilated from opposite sides.</div>
+    <div class="mis"><span class="no">Wrong:</span> the DPC only goes in the outside walls.<br><span class="yes">Right:</span> there must be a DPC between timber and any masonry that can carry damp from the ground, including the top of sleeper walls.</div>
+    <h3>Specification link</h3>
+    <p>City &amp; Guilds Level 2 Diploma in Bricklaying (6705-23), Unit 202/602 Principles of building construction, information and communication.</p>
+    <p>Learning outcome 14: <b>"know about construction of floors"</b></p>
+    <blockquote>14.1 "describe floor components"<br>14.2 "calculate the linear quantity of floor boarding to cover an irregular shaped area"<br>14.3 "calculate additional quantities of wastage using percentage."</blockquote>
+    <p>Range for floor components: <i>"Hardcore, blinding sand, Damp Proof Membrane (DPM), insulation, oversite concrete, block and beam, pre-cast floor panels, screed (dry, self-levelling) sleeper walls, wall plates, DPC, joists, joist hangers, floor covering."</i></p>
+    <p>This simulation covers 14.1. Airbricks and the ventilated void aren't named in the range, but they explain why the components are built the way they are. Floors make up 4 of the 40 questions in the Unit 202 multiple-choice test.</p>
+  </div></div>
+
+  <div class="modal" id="quizModal" role="dialog" aria-modal="true" aria-labelledby="quizTitle"><div class="sheet">
+    <button class="x" data-close aria-label="Close">✕</button>
+    <h2 id="quizTitle">Test yourself</h2>
+    <div id="quizBox"></div>
+    <p id="quizScore" style="font-weight:700;color:var(--navy)"></p>
+  </div></div>
+
+  <div class="modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="sheet">
+    <button class="x" data-close aria-label="Close">✕</button>
+    <h2 id="helpTitle">How to use this</h2>
+    <p>Drag to turn the model, pinch or scroll to zoom, and drag with two fingers (or right-click) to move it. Tap any part to see its name and job.</p>
+    <table class="k">
+      <tr><td><span class="kbd">Space</span></td><td>Play or pause the tour</td></tr>
+      <tr><td><span class="kbd">←</span><span class="kbd">→</span></td><td>Previous or next stage</td></tr>
+      <tr><td><span class="kbd">1</span>–<span class="kbd">4</span></td><td>Camera: overview, section, in the void, outside wall</td></tr>
+      <tr><td><span class="kbd">L</span></td><td>Labels on or off</td></tr>
+      <tr><td><span class="kbd">A</span></td><td>Airflow on or off</td></tr>
+      <tr><td><span class="kbd">Esc</span></td><td>Close a panel</td></tr>
+    </table>
+    <p>The blue dots show outside air moving through the void. Their speed and paths are for illustration only.</p>
+  </div></div>
+
+  
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+const EDITION = 'student';
+const qs = new URLSearchParams(location.search);
+const $ = id => document.getElementById(id);
+
+/* ---------------- renderer, scene, camera ---------------- */
+const canvas = $('c3d');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio||1));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.localClippingEnabled = true;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xeef1f5);
+const camera = new THREE.PerspectiveCamera(40, 1, 0.02, 200);
+const labelRenderer = new CSS2DRenderer({element:$('labels')});
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0xb7a58a, 1.15));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+sun.position.set(6, 10, -4);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-6,right:6,top:6,bottom:-6,near:1,far:30});
+sun.shadow.bias = -0.0005;
+scene.add(sun);
+
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 0.6;
+controls.maxDistance = 16;
+controls.maxPolarAngle = Math.PI*0.53;
+
+/* ---------------- clipping (section) ---------------- */
+const CUT_X = 2.4;
+const secPlane = new THREE.Plane(new THREE.Vector3(-1,0,0), CUT_X);
+
+/* ---------------- textures ---------------- */
+function canvasTex(w,h,draw,rep){
+  const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d'); draw(g,w,h);
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=4; return t;
+}
+const texBrick = canvasTex(512,256,(g,w,h)=>{
+  g.fillStyle='#d8d1c4'; g.fillRect(0,0,w,h);
+  const rows=4, rh=h/rows, bw=w/2, j=8;
+  for(let r=0;r<rows;r++){ const off=(r%2)?bw/2:0;
+    for(let b=-1;b<3;b++){ const x=b*bw+off; const shade=150+((r*7+b*13)%5)*9;
+      g.fillStyle=`rgb(${shade+20},${Math.round(shade*0.52)},${Math.round(shade*0.38)})`;
+      g.fillRect(x+j/2, r*rh+j/2, bw-j, rh-j); } }
+});
+const texBlock = canvasTex(512,256,(g,w,h)=>{
+  g.fillStyle='#cfccc4'; g.fillRect(0,0,w,h); const j=6;
+  for(let r=0;r<2;r++){ const off=r?w/4:0; for(let b=-1;b<3;b++){ g.fillStyle=(b+r)%2?'#b9b8b2':'#c2c1bb'; g.fillRect(b*w/2+off+j/2, r*h/2+j/2, w/2-j, h/2-j);} }
+});
+const texTimber = canvasTex(256,64,(g,w,h)=>{
+  g.fillStyle='#d9b27c'; g.fillRect(0,0,w,h);
+  for(let i=0;i<26;i++){ g.strokeStyle=`rgba(140,90,40,${0.15+Math.random()*0.2})`; g.lineWidth=1+Math.random()*1.5; g.beginPath(); const y=Math.random()*h; g.moveTo(0,y); for(let x=0;x<=w;x+=16) g.lineTo(x,y+Math.sin(x*0.05+i)*2); g.stroke(); }
+});
+const texAirbrick = canvasTex(256,96,(g,w,h)=>{
+  g.fillStyle='#a5532e'; g.fillRect(0,0,w,h); g.fillStyle='#2a1a12';
+  for(let r=0;r<3;r++) for(let c=0;c<9;c++) g.fillRect(14+c*26, 14+r*24, 16, 14);
+});
+const texBoard = canvasTex(256,256,(g,w,h)=>{
+  g.fillStyle='#c79a63'; g.fillRect(0,0,w,h);
+  for(let i=0;i<8;i++){ g.fillStyle=i%2?'#c0935c':'#cba06a'; g.fillRect(0,i*32,w,31); g.fillStyle='#8a6438'; g.fillRect(0,i*32+31,w,1);}
+});
+function repTex(base, rx, ry){ const t=base.clone(); t.needsUpdate=true; t.repeat.set(rx,ry); return t; }
+
+/* ---------------- materials ---------------- */
+const MATS = {
+  brick:{color:0xffffff,rough:.9,tex:texBrick,mod:[0.45,0.3]},
+  block:{color:0xffffff,rough:.95,tex:texBlock,mod:[0.9,0.45]},
+  dpc:{color:0x16181d,rough:.45},
+  conc:{color:0xa9a9a3,rough:.95},
+  fill:{color:0x8f8f88,rough:.95},
+  soil:{color:0x7a5a3c,rough:1},
+  grass:{color:0x6e9b4c,rough:1},
+  hardcore:{color:0x9c9384,rough:1},
+  timber:{color:0xffffff,rough:.8,tex:texTimber,mod:[1.2,0.3]},
+  board:{color:0xffffff,rough:.75,tex:texBoard,mod:[1,1]},
+  steel:{color:0xb8c0c8,rough:.35,metal:.85},
+  airbrick:{color:0xffffff,rough:.8,tex:texAirbrick,mod:[0.215,0.075]},
+  sleeve:{color:0x2b2f36,rough:.6},
+  beam:{color:0xc9c7c0,rough:.85},
+  infill:{color:0x9da3a8,rough:.95},
+  ins:{color:0xe9e3a6,rough:.8},
+  screed:{color:0xd6d1c6,rough:.95},
+  rot:{color:0x4a3524,rough:1},
+  damp:{color:0x6b5232,rough:1},
+};
+function mkMat(key, w=1, h=1){
+  const b = MATS[key];
+  const m = new THREE.MeshStandardMaterial({color:b.color, roughness:b.rough??.8, metalness:b.metal??0, side:THREE.DoubleSide});
+  if(b.tex){ m.map = repTex(b.tex, Math.max(1,w/b.mod[0]), Math.max(1,h/b.mod[1])); }
+  m.clippingPlanes = [secPlane]; m.clipShadows = true;
+  m.userData.baseOpacity = 1;
+  return m;
+}
+
+/* ---------------- parts registry ---------------- */
+const PART_INFO = {
+  ground:{label:'Ground', job:'The outside ground level. DPCs and airbricks are measured up from here.'},
+  found:{label:'Foundation and substructure', job:'Concrete foundation and walls below ground that carry the building.'},
+  oversite:{label:'Oversite concrete', job:'Covers the ground inside the walls to resist damp and stop plants growing. 100 mm of concrete, or 50 mm on polythene on sand blinding. Top not lower than the ground outside.'},
+  hardcore:{label:'Hardcore', job:'Compacted broken stone or rubble that gives a firm base under the oversite.'},
+  outer:{label:'Outer leaf (brick)', job:'The outside skin of the cavity wall. The airbricks are built into it.'},
+  inner:{label:'Inner leaf (block)', job:'The inside skin of the cavity wall. Joist hangers and beam bearings sit on it.'},
+  cavfill:{label:'Cavity fill below DPC', job:'Concrete in the cavity below ground. It stops well below the DPC so water can drain away.'},
+  dpc:{label:'Damp-proof course (DPC)', job:'A waterproof layer in both leaves, at least 150 mm above the outside ground, that stops damp rising.'},
+  sleeper:{label:'Sleeper wall (honeycombed)', job:'A low half-brick wall in the void that supports the floor part way across. Gaps left in the bond let air flow through.'},
+  sdpc:{label:'DPC on sleeper wall', job:'Keeps damp in the sleeper wall away from the timber wall plate.'},
+  plate:{label:'Wall plate', job:'A timber laid on the sleeper wall DPC. It spreads the load and gives the joists a level seat.'},
+  joists:{label:'Floor joists', job:'Timber beams that span across the void and carry the floor. At least 150 mm of air underneath them.'},
+  hangers:{label:'Joist hangers', job:'Galvanised steel shoes built into the inner leaf that carry the joist ends without touching the cavity.'},
+  boards:{label:'Floor covering (boards)', job:'Floorboards or chipboard sheets fixed to the joists. This is the surface you walk on.'},
+  airbricks:{label:'Airbricks', job:'Grilles in the outer leaf that let outside air into the void. In at least two opposite walls, at least 150 mm above the ground.'},
+  sleeves:{label:'Sleeve across the cavity', job:'A sealed duct that carries air from the airbrick across the cavity and through the inner leaf.'},
+  trays:{label:'Cavity tray over sleeve', job:'Because the sleeve sits above the DPC, a tray above it sends cavity water back out instead of along the sleeve.'},
+  bdpc:{label:'DPC under beam bearings', job:'Stops damp in the inner leaf reaching the ends of the precast beams.'},
+  beams:{label:'Precast concrete beams', job:'Prestressed concrete T-beams that span wall to wall in place of timber joists.'},
+  infill:{label:'Infill blocks', job:'Concrete blocks that sit on the beam flanges and fill the gaps between beams.'},
+  bbins:{label:'Floor insulation', job:'Rigid insulation boards laid over the beams and blocks to keep heat in.'},
+  screed:{label:'Screed', job:'A sand and cement layer (or dry boards) that gives a smooth, level floor finish.'},
+  bbground:{label:'Cleared ground', job:'Topsoil is removed under a beam-and-block floor. The ground isn\'t left lower than outside unless it drains freely.'},
+};
+const parts = {};
+function part(name){ if(!parts[name]){ const g=new THREE.Group(); g.name=name; g.userData.part=name; scene.add(g); parts[name]=g; g.userData.mats=[]; } return parts[name]; }
+function box(name, matKey, w,h,d, x,y,z, opts={}){
+  const g = part(name);
+  const texW = opts.texW ?? Math.max(w,d), texH = opts.texH ?? h;
+  const m = mkMat(matKey, texW, texH);
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), m);
+  mesh.position.set(x,y,z); mesh.castShadow = opts.shadow!==false; mesh.receiveShadow = true;
+  mesh.userData.part = opts.as || name;
+  (opts.parent||g).add(mesh); g.userData.mats.push(m);
+  return mesh;
+}
+
+/* ---------------- geometry: dimensions (metres, y up, outside ground y=0) ---------------- */
+const HX=3, HZ=2;             // outer face of outer leaf
+const OL=0.1025, CAV=0.10, IL=0.10;
+const IX = HX-OL-CAV-IL, IZ = HZ-OL-CAV-IL; // inner face of inner leaf
+const WALL_BOT=-0.65, WALL_TOP=0.72, DPC_Y=0.15;
+const OVER_TOP=0.02, SL_TOP=0.32, PLATE_B=0.33, JOIST_B=0.38, JOIST_T=0.53, BOARD_T=0.552;
+const AB_Y=0.2575, AB_XS=[-2.4,-0.8,0.8,2.4];
+const SLEEPER_Z=[-0.6,0.6];
+
+/* ground: four strips around the footprint, plus soil under the house */
+function groundStrip(w,d,x,z){
+  const g=part('ground');
+  const mats=[mkMat('soil'),mkMat('soil'),mkMat('grass'),mkMat('soil'),mkMat('soil'),mkMat('soil')];
+  const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,1.2,d),mats); mesh.position.set(x,-0.6,z); mesh.receiveShadow=true; mesh.userData.part='ground';
+  g.add(mesh); mats.forEach(m=>g.userData.mats.push(m));
+}
+const GW=9, GD=7;
+groundStrip(GW, (GD-2*HZ)/2, 0, -HZ-(GD-2*HZ)/4);
+groundStrip(GW, (GD-2*HZ)/2, 0,  HZ+(GD-2*HZ)/4);
+groundStrip((GW-2*HX)/2, 2*HZ, -HX-(GW-2*HX)/4, 0);
+groundStrip((GW-2*HX)/2, 2*HZ,  HX+(GW-2*HX)/4, 0);
+box('found','soil', 2*IX, 0.95, 2*IZ, 0, -0.705, 0, {shadow:false, as:'ground'});
+
+/* foundations under the cavity wall */
+const midO = HX-(OL+CAV+IL)/2, midZ = HZ-(OL+CAV+IL)/2;
+for(const s of [-1,1]){
+  box('found','conc', 2*HX+0.3, 0.25, 0.6, 0, -0.9+0.125, s*midZ);
+  box('found','conc', 0.6, 0.25, 2*HZ-0.6, s*midO, -0.9+0.125, 0);
+}
+
+/* walls: outer leaf (brick), inner leaf (block), DPC, cavity fill */
+function ring(name, mat, inset, thick, y0, y1){
+  const xo=HX-inset, zo=HZ-inset, h=y1-y0, yc=(y0+y1)/2;
+  for(const s of [-1,1]){
+    box(name, mat, 2*xo, h, thick, 0, yc, s*(zo-thick/2), {texW:2*xo});
+    box(name, mat, thick, h, 2*(zo-thick), s*(xo-thick/2), yc, 0, {texW:2*zo});
+  }
+}
+const wallSeg = (name, mat, inset, thick)=>{ ring(name, mat, inset, thick, WALL_BOT, DPC_Y-0.005); ring(name, mat, inset, thick, DPC_Y+0.005, WALL_TOP); };
+wallSeg('outer','brick',0,OL);
+wallSeg('inner','block',OL+CAV,IL);
+ring('dpc','dpc',0,OL,DPC_Y-0.005,DPC_Y+0.005);
+ring('dpc','dpc',OL+CAV,IL,DPC_Y-0.005,DPC_Y+0.005);
+ring('cavfill','fill',OL,CAV,WALL_BOT,-0.10);
+
+/* timber floor: hardcore + oversite */
+box('hardcore','hardcore', 2*IX, 0.15, 2*IZ, 0, -0.08-0.075, 0);
+box('oversite','conc', 2*IX, 0.10, 2*IZ, 0, OVER_TOP-0.05, 0);
+
+/* sleeper walls: half-brick honeycomb, courses 75 mm */
+const BR=0.215, CO=0.075;
+const sleeperGapBricks = []; // filler bricks for fault F2
+for(const z of SLEEPER_Z){
+  for(let c=0;c<4;c++){
+    const y = OVER_TOP + c*CO + CO/2;
+    if(c===0 || c===3){ box('sleeper','brick', 2*IX, CO-0.01, OL, 0, y, z, {texW:2*IX}); continue; }
+    const mod=0.325, off=(c%2)?mod/2:0;
+    for(let x=-IX+off; x<IX; x+=mod){
+      const x0=Math.max(-IX,x), x1=Math.min(IX,x+BR); if(x1-x0<0.04) continue;
+      box('sleeper','brick', x1-x0, CO-0.01, OL, (x0+x1)/2, y, z, {texW:x1-x0, texH:CO});
+      const gx0=x1, gx1=Math.min(IX,x+mod);
+      if(z<0 && gx1-gx0>0.02 && gx0>-0.25 && gx1<1.35){ sleeperGapBricks.push([gx1-gx0,(gx0+gx1)/2,y,z]); }
+    }
+  }
+  // bed joints (mortar lines) as thin grey strips for readability
+}
+box('sdpc','dpc', 2*IX, 0.01, OL+0.004, 0, SL_TOP+0.005, SLEEPER_Z[0]);
+box('sdpc','dpc', IX+0.3, 0.01, OL+0.004, (-IX+0.3)/2, SL_TOP+0.005, SLEEPER_Z[1]);
+const sdpcFault = box('sdpc','dpc', 1.3, 0.01, OL+0.004, 0.95, SL_TOP+0.005, SLEEPER_Z[1]);
+const sdpcB3 = box('sdpc','dpc', IX-1.6, 0.01, OL+0.004, (1.6+IX)/2, SL_TOP+0.005, SLEEPER_Z[1]);
+
+/* wall plates (100 x 50) */
+box('plate','timber', 2*IX, 0.05, 0.1, 0, PLATE_B+0.025, SLEEPER_Z[0], {texW:2*IX});
+box('plate','timber', IX+0.3, 0.05, 0.1, (-IX+0.3)/2, PLATE_B+0.025, SLEEPER_Z[1], {texW:IX+0.3});
+const plateFault = box('plate','timber', 1.3, 0.05, 0.1, 0.95, PLATE_B+0.025, SLEEPER_Z[1], {texW:1.3});
+box('plate','timber', IX-1.6, 0.05, 0.1, (1.6+IX)/2, PLATE_B+0.025, SLEEPER_Z[1], {texW:IX-1.6});
+
+/* joists 47 x 150 at 400 centres, spanning z, carried in hangers at the inner leaf */
+const JX=[]; for(let x=-2.6; x<=2.61; x+=0.4) JX.push(+x.toFixed(2));
+const joistFaultX = -2.2;
+let faultJoist=null, faultJoistNormal=null, faultHanger=null;
+for(const x of JX){
+  const m = box('joists','timber', 0.047, JOIST_T-JOIST_B, 2*IZ-0.01, x, (JOIST_B+JOIST_T)/2, 0, {texW:2*IZ, texH:0.15});
+  if(x===joistFaultX) faultJoistNormal = m;
+  for(const s of [-1,1]){
+    const h = new THREE.Group(); part('hangers').add(h);
+    const mk=(w,hh,d,px,py,pz)=>{ const mm=mkMat('steel'); part('hangers').userData.mats.push(mm); const me=new THREE.Mesh(new THREE.BoxGeometry(w,hh,d),mm); me.position.set(px,py,pz); me.castShadow=true; me.userData.part='hangers'; h.add(me); };
+    const zf = s*(IZ-0.0);
+    mk(0.06,0.004,0.08, x, JOIST_B-0.002, zf - s*0.04);          // seat
+    mk(0.004,0.15,0.08, x-0.026, (JOIST_B+JOIST_T)/2, zf - s*0.04); // sides
+    mk(0.004,0.15,0.08, x+0.026, (JOIST_B+JOIST_T)/2, zf - s*0.04);
+    mk(0.06,0.004,0.1, x, JOIST_T+0.002, zf + s*0.05);            // top flange into bed joint
+    if(x===joistFaultX && s===1) faultHanger = h;
+  }
+}
+/* floor covering only on part of the floor so the joists can be seen */
+const BOARD_X1 = -0.4;
+box('boards','board', BOARD_X1+IX, 0.022, 2*IZ, (BOARD_X1-IX)/2, (JOIST_T+BOARD_T)/2, 0, {texW:BOARD_X1+IX, texH:2*IZ});
+{ const b = parts.boards.children[0]; b.material.map.repeat.set((BOARD_X1+IX)/1.0, 2*IZ/1.0); b.material.map.rotation = Math.PI/2; }
+
+/* airbricks, sleeves, cavity trays, inner grilles */
+for(const s of [-1,1]) for(const x of AB_XS){
+  const zo = s*(HZ-OL/2);
+  box('airbricks','airbrick', 0.215, 0.065, OL+0.008, x, AB_Y, zo, {texW:0.215, texH:0.075});
+  box('sleeves','sleeve', 0.2, 0.06, CAV+IL+0.02, x, AB_Y, s*(HZ-OL-(CAV+IL)/2), {shadow:false});
+  // cavity tray: sloping DPC above the sleeve, with stop ends
+  const t = box('trays','dpc', 0.36, 0.006, CAV+0.02, x, AB_Y+0.07, s*(HZ-OL-CAV/2));
+  t.rotation.x = s*-0.35;
+  box('trays','dpc', 0.006, 0.05, CAV, x-0.18, AB_Y+0.09, s*(HZ-OL-CAV/2));
+  box('trays','dpc', 0.006, 0.05, CAV, x+0.18, AB_Y+0.09, s*(HZ-OL-CAV/2));
+  box('sleeves','sleeve', 0.22, 0.07, 0.008, x, AB_Y, s*(IZ-0.004), {shadow:false});
+}
+
+/* beam-and-block floor */
+box('bbground','soil', 2*IX, 0.05, 2*IZ, 0, -0.025, 0, {shadow:false});
+for(const s of [-1,1]) box('bdpc','dpc', 2*IX, 0.01, IL+0.004, 0, JOIST_B-0.005, s*(IZ+IL/2));
+const BX=[]; for(let x=-2.55; x<=2.56; x+=0.51) BX.push(+x.toFixed(2));
+const beamLen = 2*IZ + 2*0.1;
+for(const x of BX){
+  const g=part('beams');
+  box('beams','beam', 0.16, 0.05, beamLen, x, JOIST_B+0.025, 0, {texW:beamLen});
+  box('beams','beam', 0.07, 0.10, beamLen, x, JOIST_B+0.10, 0, {texW:beamLen});
+}
+for(let i=0;i<BX.length-1;i++){
+  const x0=BX[i]+0.08, x1=BX[i+1]-0.08, w=x1-x0+0.04;
+  for(let z=-IZ+0.11; z<IZ; z+=0.225){
+    box('infill','block', w, 0.10, 0.215, (x0+x1)/2, JOIST_B+0.05+0.05, z, {texW:w, texH:0.1});
+  }
+}
+box('bbins','ins', 0.7+IX, 0.07, 2*IZ, (0.7-IX)/2, JOIST_T+0.035, 0);
+box('screed','screed', BOARD_X1+IX, 0.065, 2*IZ, (BOARD_X1-IX)/2, JOIST_T+0.07+0.0325, 0);
+
+/* ---------------- faults ---------------- */
+const faultGroup = part('faults');
+// F1 soil heaped against the front wall, covering an airbrick and bridging the DPC
+const heapMat = mkMat('soil');
+const heap = new THREE.Mesh(new THREE.SphereGeometry(1,24,12,0,Math.PI*2,0,Math.PI/2), heapMat);
+heap.scale.set(0.75,0.34,0.45); heap.position.set(0.8,0,-HZ-0.05); heap.userData.part='f1'; heap.castShadow=true; heap.receiveShadow=true;
+faultGroup.add(heap); faultGroup.userData.mats.push(heapMat);
+// F2 filler bricks making a solid length of sleeper wall + still-air haze
+for(const [w,x,y,z] of sleeperGapBricks){ const m=box('faults','brick', w, CO-0.01, OL, x, y, z, {texW:w,texH:CO}); m.userData.part='f2'; }
+const hazeMat = new THREE.MeshBasicMaterial({color:0x6b5a3a, transparent:true, opacity:0.22, depthWrite:false, side:THREE.DoubleSide, clippingPlanes:[secPlane]});
+const haze = new THREE.Mesh(new THREE.BoxGeometry(1.5, JOIST_B-OVER_TOP-0.02, 1.15), hazeMat);
+haze.position.set(0.55, (JOIST_B+OVER_TOP)/2, 0); haze.userData.part='f2'; haze.userData.noTint=true; haze.raycast=()=>{}; faultGroup.add(haze);
+// F3 joist end built right through the inner leaf into the cavity
+const f3 = box('faults','rot', 0.047, JOIST_T-JOIST_B, 0.26, joistFaultX, (JOIST_B+JOIST_T)/2, IZ+0.12); f3.userData.part='f3';
+// F4 damp stain on the wall plate with no DPC under it
+const f4 = box('faults','damp', 1.3, 0.052, 0.104, 0.95, PLATE_B+0.025, SLEEPER_Z[1]); f4.userData.part='f4';
+
+const FAULTS = [
+  {id:'f1', name:'Blocked airbrick', pos:[0.8,0.4,-HZ-0.1], text:'Soil has been heaped against the wall. It covers the airbrick so no air gets in, and it bridges the DPC so damp can get round it. Keep the ground at least 150 mm below the DPC and keep airbricks clear.'},
+  {id:'f2', name:'Solid sleeper wall', pos:[0.2,0.24,-0.6], text:'This length of sleeper wall was built solid, with no honeycomb gaps. Air can\'t get through, so a pocket of still, damp air forms behind it. Sleeper walls need openings so air can pass straight through.'},
+  {id:'f3', name:'Joist end built into the wall', pos:[joistFaultX,0.7,IZ+0.1], text:'This joist end is built through the inner leaf into the cavity. It picks up damp from the wall and the end rots. Joist ends are carried in hangers here, or kept off damp masonry with a DPC.'},
+  {id:'f4', name:'No DPC under the wall plate', pos:[1.2,0.36,0.6], text:'There is no DPC under this length of wall plate. Damp rises up the sleeper wall into the timber. A DPC must go between timber and any masonry that can carry moisture from the ground.'},
+];
+const fFound = new Set(); let faultsOn=false, faultsRevealed=false;
+const faultMarks = FAULTS.map((f,i)=>{ const d=document.createElement('div'); d.className='fmark'; d.textContent=i+1; const o=new CSS2DObject(d); o.position.set(...f.pos); o.visible=false; scene.add(o); return o; });
+
+/* ---------------- airflow particles ---------------- */
+const NP = 520;
+const pGeo = new THREE.BufferGeometry();
+const pPos = new Float32Array(NP*3); pGeo.setAttribute('position', new THREE.BufferAttribute(pPos,3));
+const dotTex = canvasTex(64,64,(g,w,h)=>{ g.clearRect(0,0,w,h); g.fillStyle='#fff'; g.beginPath(); g.arc(32,32,26,0,Math.PI*2); g.fill(); });
+const pMat = new THREE.PointsMaterial({color:0x1f6fe0, size:0.055, map:dotTex, alphaTest:0.4, sizeAttenuation:true, transparent:true, opacity:0.9, depthWrite:false});
+const pts = new THREE.Points(pGeo,pMat); pts.frustumCulled=false; scene.add(pts);
+let rs=12345; const rnd=()=>{ rs=(rs*16807)%2147483647; return rs/2147483647; };
+const P = Array.from({length:NP},(_,i)=>({lane:i%4, seed:rnd(), jx:(rnd()*2-1), jy:OVER_TOP+0.05+rnd()*(JOIST_B-OVER_TOP-0.09)}));
+function updateParticles(t){
+  for(let i=0;i<NP;i++){
+    const p=P[i], ax=AB_XS[p.lane];
+    let u=(p.seed + t*0.045)%1; let x,y,z;
+    if(faultsOn && p.lane===2){ pPos[i*3+1]=-50; continue; } // blocked airbrick lane
+    if(u<0.08){ z=-HZ-0.15+(u/0.08)*(0.15+HZ-IZ); x=ax; y=AB_Y; }
+    else if(u>0.92){ z=IZ+((u-0.92)/0.08)*(HZ-IZ+0.15); x=ax; y=AB_Y; }
+    else { const k=(u-0.08)/0.84; z=-IZ+k*2*IZ; const b=Math.sin(Math.PI*k);
+      let tx = ax + p.jx*0.9;
+      if(faultsOn && tx>-0.35 && tx<1.45) tx = tx<0.55 ? -0.45-(tx+0.35)*0.3 : 1.55+(1.45-tx)*0.3;   // air bends round the solid sleeper wall
+      x = ax + (tx-ax)*b; y = AB_Y + (p.jy-AB_Y)*b; }
+    x=Math.max(-IX+0.03,Math.min(IX-0.03,x));
+    if(secOn && x>CUT_X+0.15 && Math.abs(z)<IZ){ y=-50; }
+    pPos[i*3]=x; pPos[i*3+1]=y; pPos[i*3+2]=z;
+  }
+  pGeo.attributes.position.needsUpdate=true;
+}
+
+/* ---------------- labels and dimension callouts ---------------- */
+const LABEL_POS = {
+  oversite:[-1.6,0.05,-1.2], hardcore:[2.3,-0.15,-1.0], outer:[-1.6,0.6,-HZ], inner:[-2.0,0.65,-IZ], dpc:[-2.7,DPC_Y,-HZ],
+  sleeper:[-0.2,0.2,-0.6], sdpc:[1.8,SL_TOP,-0.6], plate:[0.3,0.36,0.6], joists:[0.6,0.53,0.2], hangers:[1.4,0.5,-IZ+0.03],
+  boards:[-1.6,0.56,0.6], airbricks:[-0.8,0.26,-HZ-0.02], sleeves:[2.3,0.26,-HZ+0.15], trays:[2.3,0.34,-HZ+0.15],
+  bdpc:[1.2,0.37,-IZ-0.05], beams:[0.98,0.55,-0.4], infill:[0.7,0.52,0.9], bbins:[-1.0,0.6,0.9], screed:[-1.7,0.66,0.3], bbground:[1.8,0.01,0.6],
+  cavfill:[-2.9,-0.15,-HZ+0.15],
+};
+const labelObjs = {};
+for(const [k,p] of Object.entries(LABEL_POS)){ const d=document.createElement('div'); d.className='lbl'; d.textContent=PART_INFO[k].label; const o=new CSS2DObject(d); o.position.set(...p); o.visible=false; scene.add(o); labelObjs[k]=o; }
+
+function dimLine(a,b,text){
+  const g=new THREE.Group();
+  const geo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a),new THREE.Vector3(...b)]);
+  const ln=new THREE.Line(geo,new THREE.LineBasicMaterial({color:0xe08a00,depthTest:false})); ln.renderOrder=10; g.add(ln);
+  for(const p of [a,b]){ const t=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.006,0.006),new THREE.MeshBasicMaterial({color:0xe08a00,depthTest:false})); t.position.set(...p); t.renderOrder=10; g.add(t); }
+  const d=document.createElement('div'); d.className='dim'; d.textContent=text; const o=new CSS2DObject(d);
+  o.position.set((a[0]+b[0])/2+0.02,(a[1]+b[1])/2,(a[2]+b[2])/2); g.add(o);
+  g.userData.lbl=o; g.visible=false; scene.add(g); return g;
+}
+const DIMS = {
+  dpc150: dimLine([CUT_X-0.02,0,-HZ-0.08],[CUT_X-0.02,DPC_Y,-HZ-0.08],'DPC ≥150 mm above ground'),
+  plate75: dimLine([CUT_X-0.05,OVER_TOP,-0.45],[CUT_X-0.05,PLATE_B,-0.45],'≥75 mm to wall plate'),
+  joist150: dimLine([CUT_X-0.05,OVER_TOP,-1.1],[CUT_X-0.05,JOIST_B,-1.1],'≥150 mm to joists'),
+  ab150: dimLine([1.9,0,-HZ-0.08],[1.9,AB_Y-0.0325,-HZ-0.08],'Airbrick ≥150 mm above ground'),
+  beam150: dimLine([CUT_X-0.05,0,-1.1],[CUT_X-0.05,JOIST_B,-1.1],'≥150 mm void under beams'),
+};
+
+/* ---------------- stages ---------------- */
+const D = 9; // seconds per stage at 1×
+const STAGES = [
+  {name:'Suspended ground floors', cam:0, floor:'timber', hi:[],
+   cap:'A suspended floor is held up off the ground, with a gap of air underneath called the void. Air moving through the void keeps the floor timbers dry. This is a suspended timber floor.',
+   more:'Watch how each part is built, then switch to beam-and-block to compare.'},
+  {name:'Oversite', cam:0, floor:'timber', hi:['oversite'],
+   cap:'First the ground inside the walls is covered with oversite concrete. It resists damp and stops plants growing. Its top must not be lower than the ground outside.',
+   more:'Under a timber floor: 100 mm of concrete, or 50 mm of concrete on polythene laid on 50 mm of sand blinding (NHBC 5.2.10).'},
+  {name:'Walls and DPC', cam:1, floor:'timber', hi:['dpc'], dims:['dpc150'],
+   cap:'The cavity walls are built up past floor level. A damp-proof course, or DPC, goes in both leaves at least 150 mm above the outside ground. It stops damp rising up the wall.',
+   more:'The concrete cavity fill stops well below the DPC so any water in the cavity can drain away.'},
+  {name:'Sleeper walls', cam:4, floor:'timber', hi:['sleeper'],
+   cap:'Sleeper walls are low half-brick walls built inside the void to support the floor part way across. They are honeycombed: gaps are left in the bond so air can flow straight through.',
+   more:'They let the joists span a shorter distance, so smaller timbers can be used.'},
+  {name:'Wall plates and joists', cam:1, floor:'timber', hi:['sdpc','plate','joists','hangers'], dims:['plate75','joist150'],
+   cap:'A DPC is laid on each sleeper wall, then a timber wall plate. The joists sit on the plates and are carried in joist hangers at the outside walls. Leave at least 75 mm of air under the wall plates and 150 mm under the joists.',
+   more:'These are the minimum gaps for a ventilated space under a timber floor (Approved Document C; NHBC 5.2.10).'},
+  {name:'Airbricks', cam:3, floor:'timber', hi:['airbricks','sleeves','trays'], dims:['ab150'],
+   cap:'Airbricks let outside air into the void. They go in at least two opposite walls, at least 150 mm above the ground. A sleeve carries the air across the cavity, with a cavity tray above it because it sits above the DPC.',
+   more:'Openings must give at least 1500 mm² per metre run of external wall or 500 mm² per m² of floor area, whichever is greater. Under timber floors NHBC asks for vents at no more than 2 m centres and within 450 mm of the floor edge. Check the free area marked on the airbrick.'},
+  {name:'Cross-ventilation', cam:1, floor:'timber', hi:['sleeper'], air:true,
+   cap:'Air comes in on one side, passes through the honeycomb sleeper walls and leaves on the opposite side. This steady flow carries damp air away, so the timber stays dry and does not rot.',
+   more:'Blue dots show the outside air. Their speed and paths are for illustration only.'},
+  {name:'Floor covering', cam:0, floor:'timber', hi:['boards'],
+   cap:'Finally the floor covering is fixed to the joists. Floorboards or chipboard sheets make the surface you walk on. The void stays open and ventilated underneath.',
+   more:'Part of the floor is left uncovered here so you can still see the joists. New floors also have insulation between the joists.'},
+  {name:'Beam-and-block floor', cam:4, floor:'bb', hi:['bdpc','beams','infill','bbins','screed'], dims:['beam150'],
+   cap:'A beam-and-block floor uses precast concrete beams instead of timber joists. The beams sit on a DPC on the inner leaf, and concrete blocks fill the gaps between them. Insulation and a screed go on top. It still needs a ventilated void of at least 150 mm.',
+   more:'Topsoil is removed underneath and the ground isn\'t left lower than outside unless it drains freely. Use the supplier\'s layout drawing for beam spacing and bearing.'},
+  {name:'Spot the faults', cam:0, floor:'timber', hi:[], faults:true,
+   cap:'Damp timber rots. Most rot in suspended floors comes from blocked airflow or timber touching damp masonry. This floor has four faults. Tap each one to find it.',
+   more:'Turn on Airflow to see how the faults change the air in the void.'},
+];
+const T0 = i=>i*D;
+const TOTAL = STAGES.length*D;
+
+/* ---------------- state ---------------- */
+let simTime = 0, playing = false, speed = 1, curStage = -1;
+let floorType = 'timber', floorOverride = false;
+let airOn = false, secOn = true, labelsOn = false;
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* appear rules for the timber build (stage index each part appears at) */
+const APPEAR = {oversite:1, hardcore:1, outer:2, inner:2, dpc:2, cavfill:2, sleeper:3, sdpc:4, plate:4, joists:4, hangers:4, airbricks:5, sleeves:5, trays:5, boards:7};
+const BB_SEQ = {bbground:0, bdpc:0.5, beams:1.5, infill:3.5, bbins:5.5, screed:6.5};
+
+const TIMBER_ONLY = ['oversite','hardcore','sleeper','sdpc','plate','joists','hangers','boards'];
+const BB_ONLY = ['bbground','bdpc','beams','infill','bbins','screed'];
+const ease = p=>p<=0?0:p>=1?1:1-Math.pow(1-p,3);
+
+function partState(name, s, ts){
+  // returns {vis, ghost, drop}
+  if(name==='ground'||name==='found') return {vis:true,ghost:false,drop:0};
+  if(name==='faults') return {vis:faultsOn && floorType==='timber', ghost:false, drop:0};
+  const bb = floorType==='bb';
+  if(bb && TIMBER_ONLY.includes(name)) return {vis:false};
+  if(!bb && BB_ONLY.includes(name)) return {vis:false};
+  if(bb && BB_ONLY.includes(name)){
+    if(s===8 && !floorOverride){ const p=(ts-BB_SEQ[name])/1.0; return {vis:p>0, ghost:false, drop:1-ease(p)}; }
+    return {vis:true,ghost:false,drop:0};
+  }
+  // timber build or walls
+  if(s===0||s>=7||floorOverride||bb){
+    if(name==='boards' && s>0 && s<7 && !floorOverride) return {vis:false};
+    return {vis:true,ghost:false,drop:0};
+  }
+  const a = APPEAR[name];
+  if(a===undefined) return {vis:true,ghost:false,drop:0};
+  if(['outer','inner','dpc','cavfill'].includes(name) && s<a) return {vis:true,ghost:true,drop:0};
+  if(s<a) return {vis:false};
+  if(s===a){ const p=(ts-0.6)/1.2; return {vis:true,ghost:false,drop:1-ease(p)}; }
+  return {vis:true,ghost:false,drop:0};
+}
+
+const highlightColor = new THREE.Color(0xff9a1a);
+function applyParts(s, ts){
+  const hi = STAGES[s].hi;
+  const pulse = 0.35+0.25*Math.sin(simTime*4);
+  for(const [name,g] of Object.entries(parts)){
+    const st = partState(name, s, ts);
+    g.visible = !!st.vis;
+    if(!g.visible) continue;
+    g.position.y = (st.drop||0)*0.7;
+    let isHi = hi.includes(name) && (floorType===STAGES[s].floor);
+    if(isHi && s===8 && !floorOverride){ let cur=null; for(const [k,v] of Object.entries(BB_SEQ)) if(v<=ts && (cur===null||v>=BB_SEQ[cur])) cur=k; isHi = name===cur; }
+    for(const m of g.userData.mats){
+      const op = st.ghost?0.15:1;
+      if(m.opacity!==op){ m.opacity=op; m.transparent=op<1; m.depthWrite=op>=1; m.needsUpdate=true; }
+      if(m.emissive){ if(isHi){ m.emissive.copy(highlightColor); m.emissiveIntensity=pulse*0.55; } else if(m.emissiveIntensity!==0){ m.emissiveIntensity=0; } }
+    }
+  }
+  // fault-specific swaps
+  const fOn = faultsOn && floorType==='timber' && parts.faults.visible;
+  if(faultJoistNormal) faultJoistNormal.visible = true;
+  if(faultHanger) faultHanger.visible = !fOn;
+  sdpcFault.visible = !fOn; plateFault.visible = !fOn;
+  haze.visible = fOn;
+  faultMarks.forEach((o,i)=>{ o.visible = fOn && (faultsRevealed || fFound.has(FAULTS[i].id)); });
+  // dimension callouts
+  const dims = STAGES[s].dims||[];
+  for(const [k,g] of Object.entries(DIMS)){
+    let v = dims.includes(k) && floorType===STAGES[s].floor;
+    if(k==='dpc150'||k==='ab150') v = v; else if(!secOn) v=false;
+    g.visible = v; g.userData.lbl.visible = v;
+  }
+  // labels
+  for(const [k,o] of Object.entries(labelObjs)) o.visible = labelsOn && parts[k] && parts[k].visible && !(partState(k,s,ts).ghost);
+  pts.visible = airOn;
+}
+let airAuto=false;
+
+/* ---------------- camera presets ---------------- */
+const CAMS = [
+  {name:'Overview', pos:[5.6,4.2,-5.4], tgt:[0,0.1,0]},
+  {name:'Section', pos:[6.4,1.0,-0.7], tgt:[2.0,0.2,-0.8]},
+  {name:'In the void', pos:[CUT_X+0.9,0.22,-1.4], tgt:[-1.5,0.2,0.4]},
+  {name:'Outside wall', pos:[1.7,0.6,-3.5], tgt:[1.0,0.22,-2]},
+  {name:'Sleepers', pos:[4.2,2.4,-3.2], tgt:[0,0.15,0]},
+];
+let camAnim=null;
+function narrowScale(){ const a=camera.aspect; return a<0.6?1.75:a<0.85?1.45:a<1.2?1.25:1; }
+function camTarget(i){
+  const c=CAMS[i], k=narrowScale();
+  const t=new THREE.Vector3(...c.tgt), p=new THREE.Vector3(...c.pos);
+  if(i!==2) p.sub(t).multiplyScalar(k).add(t);
+  return {p,t};
+}
+function goCam(i, instant=false){
+  const {p,t}=camTarget(i);
+  controls.maxDistance = 16*narrowScale();
+  if(instant||reduceMotion){ camera.position.copy(p); controls.target.copy(t); controls.update(); camAnim=null; return; }
+  camAnim={p0:camera.position.clone(), t0:controls.target.clone(), p1:p, t1:t, start:performance.now(), dur:1100};
+}
+
+/* ---------------- UI: strip, captions ---------------- */
+const strip=$('strip');
+STAGES.forEach((st,i)=>{ const b=document.createElement('button'); b.setAttribute('aria-label',`Stage ${i+1}: ${st.name}`); b.title=st.name; b.onclick=()=>{ jumpStage(i); }; strip.appendChild(b); });
+function renderStageUI(s){
+  $('stageNum').textContent = `Stage ${s+1} of ${STAGES.length}`;
+  $('stageName').textContent = STAGES[s].name;
+  $('caption').textContent = STAGES[s].cap;
+  $('more').textContent = STAGES[s].more||'';
+  [...strip.children].forEach((b,i)=>{ b.className = i===s?'on':(i<s?'done':''); });
+  const leg=[];
+  if(pts.visible || STAGES[s].air) leg.push('<span><i style="background:#1f6fe0"></i>Outside air (illustrative)</span>');
+  if(STAGES[s].hi.length) leg.push('<span><i style="background:#ff9a1a"></i>Highlighted part</span>');
+  leg.push('<span><i style="background:#16181d"></i>DPC</span>');
+  $('legend').innerHTML = leg.join('');
+}
+
+function setFloor(t, manual){
+  floorType=t; floorOverride=!!manual && t!==STAGES[Math.max(0,curStage)].floor;
+  $('ftTimber').setAttribute('aria-pressed', t==='timber'); $('ftBB').setAttribute('aria-pressed', t==='bb');
+  if(t==='bb') setFaults(false, true);
+}
+function enterStage(s){
+  if(STAGES[s].air && !airOn){ airOn=true; airAuto=true; }
+  else if(!STAGES[s].air && airAuto){ airOn=false; airAuto=false; }
+  $('airBtn').setAttribute('aria-pressed',airOn);
+  curStage=s; floorOverride=false; setFloor(STAGES[s].floor,false);
+  if(STAGES[s].faults) setFaults(true, true); else if(faultsOn) setFaults(false, true);
+  goCam(STAGES[s].cam);
+  renderStageUI(s);
+  speak(s);
+}
+function jumpStage(s){ s=Math.max(0,Math.min(STAGES.length-1,s)); simTime=T0(s)+0.001; enterStage(s); if(s===STAGES.length-1) setPlaying(false); }
+
+/* ---------------- narration ---------------- */
+const NARR = {"Suspended ground floors. A suspended floor is held up off the ground, with a gap of air underneath called the void. Air moving through the void keeps the floor timbers dry. This is a suspended timber floor.": "audio/floors-tour1.mp3", "Oversite. First the ground inside the walls is covered with oversite concrete. It resists damp and stops plants growing. Its top must not be lower than the ground outside.": "audio/floors-tour2.mp3", "Walls and DPC. The cavity walls are built up past floor level. A damp-proof course, or DPC, goes in both leaves at least 150 mm above the outside ground. It stops damp rising up the wall.": "audio/floors-tour3.mp3", "Sleeper walls. Sleeper walls are low half-brick walls built inside the void to support the floor part way across. They are honeycombed: gaps are left in the bond so air can flow straight through.": "audio/floors-tour4.mp3", "Wall plates and joists. A DPC is laid on each sleeper wall, then a timber wall plate. The joists sit on the plates and are carried in joist hangers at the outside walls. Leave at least 75 mm of air under the wall plates and 150 mm under the joists.": "audio/floors-tour5.mp3", "Airbricks. Airbricks let outside air into the void. They go in at least two opposite walls, at least 150 mm above the ground. A sleeve carries the air across the cavity, with a cavity tray above it because it sits above the DPC.": "audio/floors-tour6.mp3", "Cross-ventilation. Air comes in on one side, passes through the honeycomb sleeper walls and leaves on the opposite side. This steady flow carries damp air away, so the timber stays dry and does not rot.": "audio/floors-tour7.mp3", "Floor covering. Finally the floor covering is fixed to the joists. Floorboards or chipboard sheets make the surface you walk on. The void stays open and ventilated underneath.": "audio/floors-tour8.mp3", "Beam-and-block floor. A beam-and-block floor uses precast concrete beams instead of timber joists. The beams sit on a DPC on the inner leaf, and concrete blocks fill the gaps between them. Insulation and a screed go on top. It still needs a ventilated void of at least 150 mm.": "audio/floors-tour9.mp3", "Spot the faults. Damp timber rots. Most rot in suspended floors comes from blocked airflow or timber touching damp masonry. This floor has four faults. Tap each one to find it.": "audio/floors-tour10.mp3", "Ground. The outside ground level. DPCs and airbricks are measured up from here.": "audio/floors-part-ground.mp3", "Foundation and substructure. Concrete foundation and walls below ground that carry the building.": "audio/floors-part-found.mp3", "Oversite concrete. Covers the ground inside the walls to resist damp and stop plants growing. 100 mm of concrete, or 50 mm on polythene on sand blinding. Top not lower than the ground outside.": "audio/floors-part-oversite.mp3", "Hardcore. Compacted broken stone or rubble that gives a firm base under the oversite.": "audio/floors-part-hardcore.mp3", "Outer leaf (brick). The outside skin of the cavity wall. The airbricks are built into it.": "audio/floors-part-outer.mp3", "Inner leaf (block). The inside skin of the cavity wall. Joist hangers and beam bearings sit on it.": "audio/floors-part-inner.mp3", "Cavity fill below DPC. Concrete in the cavity below ground. It stops well below the DPC so water can drain away.": "audio/floors-part-cavfill.mp3", "Damp-proof course (DPC). A waterproof layer in both leaves, at least 150 mm above the outside ground, that stops damp rising.": "audio/floors-part-dpc.mp3", "Sleeper wall (honeycombed). A low half-brick wall in the void that supports the floor part way across. Gaps left in the bond let air flow through.": "audio/floors-part-sleeper.mp3", "DPC on sleeper wall. Keeps damp in the sleeper wall away from the timber wall plate.": "audio/floors-part-sdpc.mp3", "Wall plate. A timber laid on the sleeper wall DPC. It spreads the load and gives the joists a level seat.": "audio/floors-part-plate.mp3", "Floor joists. Timber beams that span across the void and carry the floor. At least 150 mm of air underneath them.": "audio/floors-part-joists.mp3", "Joist hangers. Galvanised steel shoes built into the inner leaf that carry the joist ends without touching the cavity.": "audio/floors-part-hangers.mp3", "Floor covering (boards). Floorboards or chipboard sheets fixed to the joists. This is the surface you walk on.": "audio/floors-part-boards.mp3", "Airbricks. Grilles in the outer leaf that let outside air into the void. In at least two opposite walls, at least 150 mm above the ground.": "audio/floors-part-airbricks.mp3", "Sleeve across the cavity. A sealed duct that carries air from the airbrick across the cavity and through the inner leaf.": "audio/floors-part-sleeves.mp3", "Cavity tray over sleeve. Because the sleeve sits above the DPC, a tray above it sends cavity water back out instead of along the sleeve.": "audio/floors-part-trays.mp3", "DPC under beam bearings. Stops damp in the inner leaf reaching the ends of the precast beams.": "audio/floors-part-bdpc.mp3", "Precast concrete beams. Prestressed concrete T-beams that span wall to wall in place of timber joists.": "audio/floors-part-beams.mp3", "Infill blocks. Concrete blocks that sit on the beam flanges and fill the gaps between beams.": "audio/floors-part-infill.mp3", "Floor insulation. Rigid insulation boards laid over the beams and blocks to keep heat in.": "audio/floors-part-bbins.mp3", "Screed. A sand and cement layer (or dry boards) that gives a smooth, level floor finish.": "audio/floors-part-screed.mp3", "Cleared ground. Topsoil is removed under a beam-and-block floor. The ground isn't left lower than outside unless it drains freely.": "audio/floors-part-bbground.mp3", "Blocked airbrick. Soil has been heaped against the wall. It covers the airbrick so no air gets in, and it bridges the DPC so damp can get round it. Keep the ground at least 150 mm below the DPC and keep airbricks clear.": "audio/floors-fault1.mp3", "Solid sleeper wall. This length of sleeper wall was built solid, with no honeycomb gaps. Air can't get through, so a pocket of still, damp air forms behind it. Sleeper walls need openings so air can pass straight through.": "audio/floors-fault2.mp3", "Joist end built into the wall. This joist end is built through the inner leaf into the cavity. It picks up damp from the wall and the end rots. Joist ends are carried in hangers here, or kept off damp masonry with a DPC.": "audio/floors-fault3.mp3", "No DPC under the wall plate. There is no DPC under this length of wall plate. Damp rises up the sleeper wall into the timber. A DPC must go between timber and any masonry that can carry moisture from the ground.": "audio/floors-fault4.mp3", "That part looks right. Keep looking.": "audio/floors-fault-wrong.mp3", "Correct. The gaps let air pass straight through, so no part of the void is left with still, damp air.": "audio/floors-quiz1-right.mp3", "Not quite. The gaps let air pass straight through, so no part of the void is left with still, damp air.": "audio/floors-quiz1-wrong.mp3", "Correct. 150 mm under the joists. The 75 mm figure is the minimum under the wall plates.": "audio/floors-quiz2-right.mp3", "Not quite. 150 mm under the joists. The 75 mm figure is the minimum under the wall plates.": "audio/floors-quiz2-wrong.mp3", "Correct. Opposite walls give cross-ventilation: air comes in one side and leaves on the other.": "audio/floors-quiz3-right.mp3", "Not quite. Opposite walls give cross-ventilation: air comes in one side and leaves on the other.": "audio/floors-quiz3-wrong.mp3", "Correct. A DPC stops damp in the brickwork reaching the timber.": "audio/floors-quiz4-right.mp3", "Not quite. A DPC stops damp in the brickwork reaching the timber.": "audio/floors-quiz4-wrong.mp3", "Correct. Infill blocks sit on the bottom flanges of the beams.": "audio/floors-quiz5-right.mp3", "Not quite. Infill blocks sit on the bottom flanges of the beams.": "audio/floors-quiz5-wrong.mp3", "Sound is on.": "audio/floors-sound-on.mp3"};
+const LINES = {
+  wrongPart:'That part looks right. Keep looking.',
+  allFound:'All four found. Well spotted.',
+  soundOn:'Sound is on.',
+};
+let soundOn=true, audioUnlocked=false, speaking=false, narrEnd=0, voice=null;
+const __narr = new Audio(); __narr.preload='auto'; let __cur=null;
+function __norm(t){ return String(t).replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim(); }
+function __stopClip(){ if(__cur){ try{ __cur.pause(); }catch(e){} __cur=null; } }
+function __playClip(text){ const src=NARR[__norm(text)]; if(!src) return false;
+  __stopClip(); const a=__narr; a.muted=false;
+  if(a._src!==src){ a.src=src; a._src=src; } else { try{ a.currentTime=0; }catch(e){} }
+  a.onended=()=>{ if(__cur===a) __cur=null; };
+  __cur=a; const pr=a.play(); if(pr&&pr.catch) pr.catch(()=>{ if(__cur===a) __cur=null; }); return true; }
+function __primeClip(){ try{ const a=__narr; const vals=Object.values(NARR); if(!vals.length) return; if(!a.src){ a.src=vals[0]; a._src=vals[0]; } a.muted=true; const pr=a.play();
+  if(pr&&pr.then) pr.then(()=>{ if(__cur!==a) a.pause(); a.muted=false; },()=>{ a.muted=false; }); else a.muted=false; }catch(e){ __narr.muted=false; } }
+function clipPlaying(){ return !!(__cur && !__cur.paused && !__cur.ended); }
+function narrating(){ return clipPlaying() || (speaking && performance.now() < narrEnd + 4000); }
+function pickVoice(){ try{ const vs=speechSynthesis.getVoices(); voice = vs.find(v=>v.lang==='en-GB') || vs.find(v=>/en[-_]GB/i.test(v.lang)) || null; }catch(e){} }
+try{ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }catch(e){}
+function say(text){
+  try{ speechSynthesis.cancel(); }catch(e){} __stopClip(); speaking=false;
+  if(!soundOn||!audioUnlocked) return;
+  if(__playClip(text)) return;
+  narrEnd = performance.now() + __norm(text).split(/\s+/).length*420;
+  try{
+    const u=new SpeechSynthesisUtterance(__norm(text)); u.lang='en-GB'; u.rate=0.95; if(voice) u.voice=voice;
+    u.onend=u.onerror=()=>{ speaking=false; };
+    speaking=true; speechSynthesis.speak(u);
+  }catch(e){ speaking=false; }
+}
+const stageLine = st => `${st.name}. ${st.cap}`;
+function speak(s){ say(speed>1.5 ? STAGES[s].name : stageLine(STAGES[s])); }
+window.__narrLines = () => {
+  const out=[];
+  STAGES.forEach((st,i)=>out.push(['tour'+(i+1), stageLine(st)]));
+  Object.entries(PART_INFO).forEach(([k,v])=>out.push(['part-'+k, `${v.label}. ${v.job}`]));
+  FAULTS.forEach((f,i)=>out.push(['fault'+(i+1), `${f.name}. ${f.text}`]));
+  out.push(['fault-wrong', LINES.wrongPart]);
+  QUIZ.forEach((q,i)=>{ out.push(['quiz'+(i+1)+'-right','Correct. '+q.why], ['quiz'+(i+1)+'-wrong','Not quite. '+q.why]); });
+  out.push(['sound-on', LINES.soundOn]);
+  return out;
+};
+function unlockAudio(e){
+  if(audioUnlocked) return; audioUnlocked=true; $('hint').style.display='none';
+  if(e && e.target && e.target.closest && e.target.closest('#soundBtn')){ __primeClip(); return; }
+  if(soundOn) speak(Math.max(0,curStage)); else __primeClip();
+}
+['pointerup','click','keydown'].forEach(ev=>window.addEventListener(ev,unlockAudio,{capture:true}));
+$('soundBtn').onclick=()=>{ soundOn=!soundOn; $('soundBtn').setAttribute('aria-pressed',soundOn); $('soundBtn').innerHTML=(soundOn?'🔊':'🔇')+'<span class="full"> Sound</span>'; if(!soundOn){ try{ speechSynthesis.cancel(); }catch(e){} __stopClip(); speaking=false; } else say(LINES.soundOn); };
+
+/* ---------------- controls wiring ---------------- */
+function setPlaying(p){ playing=p; if(!p){ __stopClip(); try{ speechSynthesis.cancel(); }catch(e){} speaking=false; } $('playBtn').textContent = p?'⏸ Pause':'▶ Play'; if(p && curStage===STAGES.length-1 && simTime>=TOTAL-0.1) jumpStage(0); }
+$('playBtn').onclick=()=>setPlaying(!playing);
+$('prevBtn').onclick=()=>jumpStage(curStage-1);
+$('nextBtn').onclick=()=>jumpStage(curStage+1);
+$('speed').oninput=e=>{ speed=+e.target.value; $('speedVal').textContent=speed+'×'; };
+$('ftTimber').onclick=()=>setFloor('timber',true);
+$('ftBB').onclick=()=>setFloor('bb',true);
+$('airBtn').onclick=()=>{ airOn=!airOn; airAuto=false; $('airBtn').setAttribute('aria-pressed',airOn); };
+$('secBtn').onclick=()=>{ secOn=!secOn; secPlane.constant = secOn?CUT_X:100; $('secBtn').setAttribute('aria-pressed',secOn); };
+$('lblBtn').onclick=()=>{ labelsOn=!labelsOn; $('lblBtn').setAttribute('aria-pressed',labelsOn); };
+$('faultBtn').onclick=()=>setFaults(!faultsOn);
+document.querySelectorAll('[data-cam]').forEach(b=>b.onclick=()=>goCam(+b.dataset.cam));
+$('collapseBtn').onclick=()=>{ const p=$('stagePanel'); p.classList.toggle('collapsed'); $('collapseBtn').textContent=p.classList.contains('collapsed')?'▴':'▾'; };
+
+function setFaults(on, fromStage){
+  faultsOn=on; $('faultBtn').setAttribute('aria-pressed',on); $('faultHud').style.display=on?'block':'none';
+  if(on && (innerWidth<=760 || innerHeight<=500)){ $('stagePanel').classList.add('collapsed'); $('collapseBtn').textContent='▴'; }
+  if(on){ if(floorType!=='timber') setFloor('timber',true); fFound.clear(); faultsRevealed=false; updateFaultHud(); if(!fromStage) goCam(0); }
+}
+function updateFaultHud(msg){ $('fCount').textContent=faultsRevealed?4:fFound.size; if(msg) $('faultMsg').innerHTML=msg; else $('faultMsg').textContent = fFound.size===4?'All four found. Well spotted.':'Tap anything on the floor you think will cause damp or rot.'; }
+$('fAnswers').onclick=()=>{ faultsRevealed=true; updateFaultHud('<b>Answers:</b> 1 blocked airbrick, 2 solid sleeper wall, 3 joist end built into the wall, 4 no DPC under the wall plate. Tap a numbered part to read why.'); };
+$('fReset').onclick=()=>{ fFound.clear(); faultsRevealed=false; updateFaultHud(); };
+$('fClose').onclick=()=>setFaults(false);
+
+/* modals */
+const modals=['learnModal','quizModal','helpModal','teachModal'].map(id=>$(id)).filter(Boolean);
+function openModal(id){ modals.forEach(m=>m.classList.remove('open')); $(id).classList.add('open'); $(id).querySelector('.x').focus(); }
+function closeModals(){ modals.forEach(m=>m.classList.remove('open')); }
+modals.forEach(m=>{ m.addEventListener('click',e=>{ if(e.target===m || e.target.hasAttribute('data-close')) closeModals(); }); });
+$('learnBtn').onclick=()=>openModal('learnModal');
+$('quizBtn').onclick=()=>openModal('quizModal');
+$('helpBtn').onclick=()=>openModal('helpModal');
+if(EDITION==='teacher' && $('teachBtn')){ $('teachBtn').hidden=false; $('teachBtn').onclick=()=>openModal('teachModal'); if($('edBadge')) $('edBadge').hidden=false; }
+
+/* quiz */
+const QUIZ = [
+  {q:'Why are sleeper walls built with a honeycomb bond?', o:['To let air flow through the void','To use fewer bricks','To let water drain through','To carry pipes and cables'], a:0, why:'The gaps let air pass straight through, so no part of the void is left with still, damp air.', stage:3},
+  {q:'What is the minimum ventilated space under the joists of a suspended timber floor?', o:['50 mm','75 mm','150 mm','225 mm'], a:2, why:'150 mm under the joists. The 75 mm figure is the minimum under the wall plates.', stage:4},
+  {q:'Where must the airbricks go?', o:['In one wall only','In at least two opposite external walls','In the internal walls','In the floor boards'], a:1, why:'Opposite walls give cross-ventilation: air comes in one side and leaves on the other.', stage:5},
+  {q:'What goes directly between the top of a sleeper wall and the timber wall plate?', o:['A bed of mortar only','Insulation','A DPC','A joist hanger'], a:2, why:'A DPC stops damp in the brickwork reaching the timber.', stage:4},
+  {q:'In a beam-and-block floor, what fills the gaps between the precast beams?', o:['Concrete blocks','Timber noggins','Hardcore','Sleeper walls'], a:0, why:'Infill blocks sit on the bottom flanges of the beams.', stage:8},
+];
+const qState=QUIZ.map(()=>null);
+function renderQuiz(){
+  const box=$('quizBox'); box.innerHTML='';
+  QUIZ.forEach((qq,i)=>{
+    const d=document.createElement('div'); d.className='q';
+    d.innerHTML=`<p>${i+1}. ${qq.q}</p><div class="opts"></div><div class="fb"></div>`;
+    const opts=d.querySelector('.opts');
+    qq.o.forEach((t,j)=>{ const b=document.createElement('button'); b.textContent=t;
+      if(qState[i]!==null){ if(j===qq.a) b.className='right'; else if(j===qState[i]) b.className='wrong'; }
+      b.onclick=()=>{ qState[i]=j; renderQuiz(); say((j===qq.a?'Correct. ':'Not quite. ')+qq.why); if(qState.every(x=>x!==null)) window.simStats&&simStats.once('quiz-complete'); }; opts.appendChild(b); });
+    if(qState[i]!==null){ const fb=d.querySelector('.fb'); const ok=qState[i]===qq.a;
+      fb.innerHTML=`<b style="color:${ok?'var(--ok)':'var(--bad)'}">${ok?'Correct.':'Not quite.'}</b> ${qq.why} `;
+      const sm=document.createElement('button'); sm.className='btn'; sm.style.marginTop='6px'; sm.textContent='Show me'; sm.onclick=()=>{ closeModals(); jumpStage(qq.stage); setPlaying(false); }; fb.appendChild(sm); }
+    box.appendChild(d);
+  });
+  const done=qState.filter(x=>x!==null).length, right=qState.filter((x,i)=>x===QUIZ[i].a).length;
+  $('quizScore').textContent = done? `Score: ${right} out of ${QUIZ.length}${done<QUIZ.length?' so far':''}` : '';
+}
+renderQuiz();
+
+/* keyboard */
+window.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ closeModals(); $('tip').style.display='none'; return; }
+  if(modals.some(m=>m.classList.contains('open'))) return;
+  if(e.key===' '){ e.preventDefault(); setPlaying(!playing); }
+  else if(e.key==='ArrowRight') jumpStage(curStage+1);
+  else if(e.key==='ArrowLeft') jumpStage(curStage-1);
+  else if(['1','2','3','4'].includes(e.key)) goCam(+e.key-1);
+  else if(e.key.toLowerCase()==='l') $('lblBtn').click();
+  else if(e.key.toLowerCase()==='a') $('airBtn').click();
+});
+
+/* picking: hover tips, tap tips, fault finding */
+const ray=new THREE.Raycaster(); const ndc=new THREE.Vector2();
+let downXY=null;
+function pick(cx,cy){
+  const r=canvas.getBoundingClientRect(); ndc.set(((cx-r.left)/r.width)*2-1, -((cy-r.top)/r.height)*2+1);
+  ray.setFromCamera(ndc,camera);
+  const objs=[]; for(const g of Object.values(parts)) if(g.visible) g.traverse(o=>{ if(o.isMesh && o.visible) objs.push(o); });
+  const hits=ray.intersectObjects(objs,false);
+  for(const h of hits){
+    let o=h.object, vis=true; for(let p=o;p;p=p.parent) if(p.visible===false){ vis=false; break; }
+    if(!vis) continue;
+    if(secOn && h.point.x>CUT_X+0.001) continue;
+    if(o.material && o.material.opacity<0.5 && !o.userData.part.startsWith('f')) continue;
+    return o.userData.part;
+  }
+  return null;
+}
+function showTip(cx,cy,title,body){ const t=$('tip'); t.innerHTML=`<b>${title}</b>${body}`; t.style.display='block';
+  const w=t.offsetWidth,h=t.offsetHeight; t.style.left=Math.min(innerWidth-w-8,Math.max(8,cx+14))+'px'; t.style.top=Math.min(innerHeight-h-8,Math.max(60,cy+14))+'px'; }
+canvas.addEventListener('pointerdown',e=>{ downXY=[e.clientX,e.clientY]; });
+canvas.addEventListener('pointermove',e=>{
+  if(e.pointerType!=='mouse'||e.buttons) return;
+  const k=pick(e.clientX,e.clientY);
+  if(k && PART_INFO[k]){ showTip(e.clientX,e.clientY,PART_INFO[k].label,PART_INFO[k].job); say(`${PART_INFO[k].label}. ${PART_INFO[k].job}`); } else $('tip').style.display='none';
+});
+canvas.addEventListener('pointerup',e=>{
+  if(!downXY || Math.hypot(e.clientX-downXY[0],e.clientY-downXY[1])>8) return;
+  const k=pick(e.clientX,e.clientY);
+  if(faultsOn){
+    const fid = k && /^f[1-4]$/.test(k) ? k : null;
+    if(fid){ const f=FAULTS.find(x=>x.id===fid); fFound.add(fid); updateFaultHud(`<b>${FAULTS.indexOf(f)+1}. ${f.name}.</b> ${f.text}`); $('tip').style.display='none';
+      if(fFound.size===4 && !faultsRevealed){ window.simStats&&simStats.once('faults-complete'); }
+      say(fFound.size===4 && !faultsRevealed ? `${f.name}. ${f.text}` : `${f.name}. ${f.text}`); return; }
+    if(k){ updateFaultHud(`That part (${PART_INFO[k]?.label||k}) looks right. Keep looking.`); say(LINES.wrongPart); return; }
+  }
+  if(k && PART_INFO[k]) showTip(e.clientX,e.clientY,PART_INFO[k].label,PART_INFO[k].job); else $('tip').style.display='none';
+});
+
+/* ---------------- resize ---------------- */
+function resize(){
+  const w=innerWidth,h=innerHeight; renderer.setSize(w,h,false); labelRenderer.setSize(w,h);
+  camera.aspect=w/h; camera.updateProjectionMatrix(); controls.maxDistance=16*narrowScale();
+}
+addEventListener('resize',()=>{ resize(); if(curStage>=0) goCam(STAGES[curStage].cam,true); });
+resize();
+
+/* ---------------- start ---------------- */
+const tParam = qs.has('t') ? parseFloat(qs.get('t')) : null;
+const sParam = qs.has('stage') ? parseInt(qs.get('stage')) : null;
+if(tParam!==null){ simTime=Math.max(0,Math.min(TOTAL-0.01,tParam)); }
+else if(sParam!==null){ simTime=T0(Math.max(0,Math.min(STAGES.length-1,sParam)))+3; }
+const startStage = Math.min(STAGES.length-1, Math.floor(simTime/D));
+enterStage(startStage); goCam(STAGES[startStage].cam,true);
+if(qs.get('floor')==='bb') setFloor('bb',true);
+if(qs.get('air')==='1'){ airOn=true; $('airBtn').setAttribute('aria-pressed',true); }
+if(qs.get('labels')==='1'){ labelsOn=true; $('lblBtn').setAttribute('aria-pressed',true); }
+if(qs.has('cam')) goCam(+qs.get('cam'),true);
+if(qs.get('reveal')==='1'){ setFaults(true,true); faultsRevealed=true; updateFaultHud(); }
+if(qs.has('t')||qs.has('stage')||qs.has('nohint')) $('hint').style.display='none';
+if(!(tParam!==null||sParam!==null) && !reduceMotion) setPlaying(false);
+
+/* ---------------- loop ---------------- */
+const clock=new THREE.Clock();
+let airTime=0;
+function loop(){
+  const dt=Math.min(0.05,clock.getDelta());
+  if(playing){
+    const s=curStage, end=T0(s+1);
+    let nt = simTime + dt*speed;
+    if(nt>=end){
+      const holdForVoice = soundOn && audioUnlocked && speed<=1.5 && narrating();
+      if(holdForVoice) nt = end-0.0001;
+      else if(s<STAGES.length-1){ simTime=end+0.0001; enterStage(s+1); nt=simTime; }
+      else { nt=TOTAL-0.0001; setPlaying(false); window.simStats&&simStats.once('tour-complete'); }
+    }
+    simTime = nt;
+  }
+  const s=curStage, ts=simTime-T0(s);
+  applyParts(s, ts);
+  if(!(tParam!==null && !playing)) airTime += dt*speed;
+  if(pts.visible) updateParticles(tParam!==null && !playing ? simTime : airTime);
+  if(camAnim){ const k=Math.min(1,(performance.now()-camAnim.start)/camAnim.dur), e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+    camera.position.lerpVectors(camAnim.p0,camAnim.p1,e); controls.target.lerpVectors(camAnim.t0,camAnim.t1,e); if(k>=1) camAnim=null; }
+  controls.update();
+  if(camera.position.y<0.08) camera.position.y=0.08;
+  renderer.render(scene,camera); labelRenderer.render(scene,camera);
+  requestAnimationFrame(loop);
+}
+window.__sim = {jumpStage, setFaults, goCam, get stage(){return curStage;}};
+loop();
+</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('../../sw.js',{scope:'../../'}).catch(function(){});</script>
+</body>
+</html>
