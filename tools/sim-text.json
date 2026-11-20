@@ -1358,5 +1358,91 @@
     ]
    }
   ]
+ },
+ "esol-at-the-doctors": {
+  "sections": [
+   {
+    "title": "The conversation",
+    "items": [
+     {
+      "h": "Dr Shah: Hello, come in and take a seat. What seems to be the problem today?",
+      "t": "Your notes: Your back hurts. Tell the doctor what has happened. A good answer: I've hurt my back."
+     },
+     {
+      "h": "Dr Shah: How long have you had the pain?",
+      "t": "Your notes: Today is Friday. The pain started on Monday. A good answer: I've had it since Monday. Or: I've had it for four days."
+     },
+     {
+      "h": "Dr Shah: I see. And what happened on Monday? How did you hurt it?",
+      "t": "Your notes: On Monday you were at work. You lifted some heavy boxes. A good answer: I lifted some heavy boxes at work."
+     },
+     {
+      "h": "Dr Shah: Have you taken anything for the pain?",
+      "t": "Your notes: Yes. Ibuprofen tablets. You took them last night. A good answer: Yes, I took some ibuprofen last night."
+     },
+     {
+      "h": "Dr Shah: Have you ever had back pain before?",
+      "t": "Your notes: No. Never. This is the first time. A good answer: No, I've never had back pain before. Or: No, I haven't."
+     },
+     {
+      "h": "Dr Shah: You said you lift boxes at work. Do you still work there? How long have you worked there?",
+      "t": "Your notes: Yes, you still work at the warehouse. You started two years ago, in 2024. A good answer: I've worked there for two years. Or: I've worked there since 2024."
+     }
+    ]
+   },
+   {
+    "title": "Dr Shah's advice",
+    "items": [
+     {
+      "h": "At the end",
+      "t": "Thank you, that's really helpful. Back pain like this usually gets better within a few weeks. Try to stay active and keep doing your normal things. Don't stay in bed for a long time. A hot water bottle wrapped in a towel can help. Always read the instructions on painkillers. If it isn't getting better, come back and see me."
+     }
+    ]
+   }
+  ],
+  "quiz": [
+   {
+    "q": "Which sentence is correct?",
+    "o": [
+     "I have it since Monday.",
+     "I've had it since Monday."
+    ]
+   },
+   {
+    "q": "Which sentence is correct?",
+    "o": [
+     "I've had it for four days.",
+     "I've had it since four days."
+    ]
+   },
+   {
+    "q": "Which sentence is correct?",
+    "o": [
+     "I have lifted some boxes on Monday.",
+     "I lifted some boxes on Monday."
+    ]
+   },
+   {
+    "q": "Which sentence is correct?",
+    "o": [
+     "I took some ibuprofen last night.",
+     "I have taken some ibuprofen last night."
+    ]
+   },
+   {
+    "q": "Which sentence is correct?",
+    "o": [
+     "No, I never had back pain before.",
+     "No, I've never had back pain before."
+    ]
+   },
+   {
+    "q": "You still work at the warehouse. Which sentence is correct?",
+    "o": [
+     "I worked there for two years.",
+     "I've worked there for two years."
+    ]
+   }
+  ]
  }
 }

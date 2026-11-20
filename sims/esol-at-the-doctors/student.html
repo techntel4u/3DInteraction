@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>At the doctor's: present perfect and past simple</title>
+<meta name="theme-color" content="#14284b">
+<link rel="icon" href="../../icons/icon-192.png">
+<script src="../../assets/stats.js?v=2"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "../../vendor/three/three.module.js",
+  "three/addons/": "../../vendor/three/addons/"
+} }
+</script>
+<style>
+:root{--navy:#14284b;--navy2:#1f3c6e;--ink:#1b2230;--muted:#4a5568;--bg:#eef1f5;--card:#fff;--line:#d5dbe4;--amber:#e08a00;--ok:#1d7a3e;--okbg:#e7f5ec;--bad:#b42318;--badbg:#fdecea;--nudge:#8a5a00;--nudgebg:#fff5e0}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink)}
+#c3d{position:fixed;inset:0;display:block;touch-action:none}
+#labels{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.lbl{position:absolute;transform:translate(-50%,-100%);background:rgba(20,40,75,.92);color:#fff;font-size:13px;font-weight:600;padding:4px 9px;border-radius:8px;white-space:nowrap}
+button{font:inherit;cursor:pointer}
+.btn{min-height:44px;min-width:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--navy);font-weight:600;font-size:14px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{background:#f3f6fb}
+.btn[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.primary:hover{background:var(--navy2)}
+.btn.go{background:var(--ok);color:#fff;border-color:var(--ok)}
+.btn:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.btn:disabled{opacity:.45;cursor:default}
+#top{position:fixed;left:0;right:0;top:0;display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,.95);border-bottom:1px solid var(--line);z-index:5}
+#top h1{font-size:17px;margin:0;color:var(--navy);line-height:1.15}
+#top .sub{font-size:12px;color:var(--muted);margin-top:2px}
+#top .ttl{min-width:0;flex:1}
+#hubLink{flex:none;min-height:44px;display:inline-flex!important;align-items:center;padding:0 10px;border-radius:10px;border:1px solid var(--line);font-weight:700;font-size:14px;color:var(--navy);text-decoration:none;background:#fff}
+#topBtns{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:none;max-width:62%}
+#topBtns::-webkit-scrollbar{display:none}
+.badge{display:inline-block;background:var(--amber);color:#1b1200;font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:middle}
+/* talk panel */
+#talk{position:fixed;right:12px;top:72px;bottom:12px;width:420px;max-width:calc(100% - 24px);background:rgba(255,255,255,.97);border:1px solid var(--line);border-radius:16px;z-index:4;box-shadow:0 8px 28px rgba(20,40,75,.14);display:flex;flex-direction:column;overflow:hidden}
+#talkScroll{overflow-y:auto;padding:12px 14px 14px;flex:1;-webkit-overflow-scrolling:touch}
+#prog{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:600;margin-bottom:8px}
+#dots{display:flex;gap:4px;flex:1}
+#dots span{flex:1;height:8px;border-radius:4px;background:#d7dde7}
+#dots span.on{background:var(--navy)}
+#dots span.first{background:var(--ok)}
+#dots span.fixed{background:#4c9a6a}
+#dots span.shown{background:var(--amber)}
+.bubble{background:#eaf0fa;border:1px solid #c9d6ec;border-radius:14px 14px 14px 4px;padding:10px 12px;margin-bottom:10px}
+.who{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.who .sp{flex:1}
+.who .btn{min-height:36px;font-size:13px;padding:0 10px}
+#docText{margin:0;font-size:17px;line-height:1.45}
+.card{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:#fff}
+.card h3{margin:0 0 6px;font-size:14px;color:var(--navy)}
+#notesList{margin:0;padding-left:20px;font-size:15.5px;line-height:1.5}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+#gHelp{background:#fffbea;border-color:#f1d78a}
+#gHelp p{margin:0 0 6px;font-size:15px;line-height:1.5}
+#gHelp svg{width:100%;height:auto;display:block;margin-top:4px}
+#modes{display:flex;gap:6px;margin:4px 0 8px}
+#modes .btn{flex:1;padding:0 8px}
+.pane{margin-bottom:8px}
+#micBtn{width:100%;min-height:64px;font-size:18px;border-radius:14px}
+#micBtn.listening{background:var(--bad);border-color:var(--bad);color:#fff;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 8px rgba(180,35,24,.18)}}
+#heard{font-size:16px;margin:8px 0 0;min-height:1.4em}
+#heard b{color:var(--navy)}
+.small{font-size:13px;color:var(--muted);margin:6px 0 0;line-height:1.4}
+#typeIn{width:100%;min-height:48px;font-size:17px;padding:8px 12px;border:1.5px solid #9aa7bb;border-radius:10px;font-family:inherit}
+#tileAns{min-height:52px;border:1.5px dashed #9aa7bb;border-radius:10px;padding:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#tileAns:empty::before{content:"Tap the words in order";color:var(--muted);font-size:14px;padding-left:6px}
+#tilePool{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tile{min-height:44px;padding:0 12px;border-radius:10px;border:1px solid #b9c4d6;background:#f4f7fc;color:var(--ink);font-size:16px;font-weight:600}
+#tileAns .tile{background:var(--navy);color:#fff;border-color:var(--navy)}
+#fbBtns{margin:0 0 10px}
+#fb{border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:15.5px;line-height:1.5}
+#fb.ok{background:var(--okbg);border:1px solid #a9d9b9}
+#fb.err{background:var(--badbg);border:1px solid #f1b5ae}
+#fb.nudge,#fb.unknown{background:var(--nudgebg);border:1px solid #efd08f}
+#fb .v{font-weight:800;font-size:16.5px}
+#fb.ok .v{color:var(--ok)} #fb.err .v{color:var(--bad)} #fb.nudge .v,#fb.unknown .v{color:var(--nudge)}
+#fb p{margin:4px 0}
+.model{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:6px;font-weight:700;color:var(--navy);font-size:17px}
+/* overlays */
+.ov{position:fixed;inset:0;background:rgba(14,26,48,.55);z-index:20;display:flex;align-items:center;justify-content:center;padding:16px}
+.ovc{background:#fff;border-radius:18px;max-width:640px;width:100%;max-height:calc(100% - 8px);overflow:auto;padding:20px 22px;position:relative;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.ovc h2{margin:0 0 8px;color:var(--navy);font-size:22px}
+.ovc h3{color:var(--navy);margin:16px 0 6px;font-size:16.5px}
+.ovc p,.ovc li{font-size:15.5px;line-height:1.55}
+.ovc .x{position:absolute;right:10px;top:10px}
+.modal{display:none}
+.modal.open{display:flex}
+#hint{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:9px 14px;border-radius:999px;font-size:14px;z-index:6;white-space:nowrap}
+table.sum{width:100%;border-collapse:collapse;margin-top:8px;font-size:14.5px}
+table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700}
+.tag.first{background:var(--okbg);color:var(--ok)} .tag.fixed{background:#e3f1e8;color:#2c6b45} .tag.shown{background:var(--nudgebg);color:var(--nudge)}
+.kbd{display:inline-block;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:0 6px;font-size:13px;background:#f7f9fc}
+.bigscore{font-size:40px;font-weight:800;color:var(--navy);margin:4px 0}
+.misc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0}
+.misc div{border-radius:10px;padding:8px 10px;font-size:15px}
+.misc .w{background:var(--badbg)} .misc .r{background:var(--okbg)}
+@media (max-width:900px) and (orientation:portrait), (max-width:600px){
+  #top{padding:6px 8px;gap:6px}
+  #top h1{font-size:14.5px}
+  #top .sub{display:none}
+  #topBtns{max-width:55%}
+  #topBtns .btn{padding:0 9px}
+  .full{display:none}
+  #hubLink{padding:0 8px!important;font-size:13px!important;min-height:40px!important}
+  #talk{left:6px!important;right:6px!important;width:auto!important;max-width:none!important;top:auto!important;bottom:6px!important;height:56%;border-radius:16px}
+  #talkScroll{padding:10px 12px}
+  #docText{font-size:16px}
+  .ovc{padding:18px 16px}
+  .misc{grid-template-columns:1fr}
+}
+@media (orientation:landscape) and (max-height:500px){
+  #top{padding:4px 8px}
+  #top h1{font-size:14px}
+  #top .sub{display:none}
+  .full{display:none}
+  #topBtns .btn{min-height:40px;padding:0 9px}
+  #hubLink{min-height:40px!important;padding:0 8px!important;font-size:13px!important}
+  #talk{top:54px!important;bottom:6px!important;right:6px!important;width:48%!important;height:auto!important;left:auto!important}
+  #talkScroll{padding:8px 10px}
+  #docText{font-size:15px}
+  #micBtn{min-height:52px}
+  .ovc{max-height:calc(100% - 4px);padding:14px 16px}
+}
+@media (prefers-reduced-motion:reduce){#micBtn.listening{animation:none}}
+</style>
+</head>
+<body>
+<canvas id="c3d" aria-label="3D doctor's consulting room. Dr Shah sits at her desk."></canvas>
+<div id="labels"></div>
+
+<header id="top">
+  <a id="hubLink" href="../../index.html">← Hub</a>
+  <div class="ttl"><h1>At the doctor's<span id="edBadge" class="badge" hidden>Teacher version</span></h1><div class="sub">ESOL Entry 3 · Present perfect and past simple · Speaking practice</div></div>
+  <div id="topBtns">
+    <button class="btn" id="soundBtn" aria-pressed="true" title="Sound on or off">🔊<span class="full"> Sound</span></button>
+    <button class="btn" id="viewBtn" title="Change the view">📷<span class="full"> View</span></button>
+    <button class="btn" id="lblBtn" aria-pressed="false" title="Show the words for things in the room">🏷<span class="full"> Words</span></button>
+    <button class="btn" id="learnBtn" title="What you'll learn">📘<span class="full"> Learn</span></button>
+    <button class="btn" id="helpBtn" title="How to use this">❓</button>
+    <button class="btn" id="teachBtn" hidden>🧑‍🏫<span class="full"> Teacher notes</span></button>
+  </div>
+</header>
+
+<section id="talk" aria-label="Conversation with Dr Shah">
+ <div id="talkScroll">
+  <div id="prog"><span id="qNum">Question 1 of 6</span><div id="dots"></div></div>
+  <div class="bubble" aria-live="polite">
+    <div class="who">👩🏽‍⚕️ Dr Shah<span class="sp"></span><button class="btn" id="replayBtn" title="Listen again">🔁 Listen</button></div>
+    <p id="docText"></p>
+  </div>
+  <div id="fb" hidden></div>
+  <div class="row" id="fbBtns" hidden></div>
+  <div class="card" id="notesCard">
+    <h3>📝 Your notes</h3>
+    <ul id="notesList"></ul>
+    <div class="row"><button class="btn" id="gBtn" aria-expanded="false">💡 Grammar help</button><button class="btn" id="calBtn" hidden>📅 Look at the calendar</button></div>
+  </div>
+  <div class="card" id="gHelp" hidden><h3 id="gTitle"></h3><p id="gText"></p><div id="gTl"></div></div>
+
+  <div id="answerArea">
+    <div id="modes" role="tablist" aria-label="How do you want to answer?">
+      <button class="btn" role="tab" id="tabSpeak" data-mode="speak">🎤 Speak</button>
+      <button class="btn" role="tab" id="tabType" data-mode="type">⌨️ Type</button>
+      <button class="btn" role="tab" id="tabTiles" data-mode="tiles">🧩 Tiles</button>
+    </div>
+    <div class="pane" id="mSpeak">
+      <button class="btn primary" id="micBtn">🎤 Tap and speak to Dr Shah</button>
+      <p id="heard"></p>
+      <div class="row" id="heardBtns" hidden><button class="btn go" id="heardOk">✓ Check my answer</button><button class="btn" id="heardAgain">🎤 Say it again</button><button class="btn" id="heardType">✏️ Fix it</button></div>
+      <p class="small">The computer listens and writes what it heard. It sometimes hears words wrongly. If it is wrong, say it again or fix it.</p>
+    </div>
+    <div class="pane" id="mType" hidden>
+      <label for="typeIn" class="small" style="display:block;margin:0 0 6px">Write your answer to Dr Shah:</label>
+      <input id="typeIn" type="text" autocomplete="off" autocapitalize="sentences" spellcheck="false" enterkeyhint="send">
+      <div class="row"><button class="btn go" id="typeOk">✓ Check my answer</button></div>
+    </div>
+    <div class="pane" id="mTiles" hidden>
+      <div id="tileAns" aria-label="Your sentence"></div>
+      <div id="tilePool" aria-label="Words"></div>
+      <div class="row"><button class="btn go" id="tileOk">✓ Check my answer</button><button class="btn" id="tileClear">↺ Clear</button></div>
+      <p class="small">Some words are extra. You don't need every word.</p>
+    </div>
+  </div>
+ </div>
+</section>
+
+<div id="hint" hidden>🔊 Sound is on – tap Start to begin</div>
+
+<!-- Start -->
+<div class="ov" id="startOv">
+ <div class="ovc">
+  <h2>At the doctor's</h2>
+  <p>Today <b>you are the patient</b>. Your back hurts, so you have come to see <b>Dr Shah</b>, your GP.</p>
+  <p>Dr Shah asks you 6 questions. Answer each one in a full sentence. Look at <b>📝 Your notes</b> for what to say. Think about the grammar:</p>
+  <ul>
+   <li><b>I've had</b> it <b>since</b> Monday / <b>for</b> four days (it started in the past and is still true now)</li>
+   <li><b>I lifted</b> some boxes <b>on Monday</b> (a finished time)</li>
+  </ul>
+  <p>You can <b>🎤 speak</b>, <b>⌨️ type</b> or use <b>🧩 word tiles</b>. Dr Shah tells you if something is wrong and helps you fix it.</p>
+  <p class="small">🔊 Sound is on. Use headphones if you can. This is English practice, not medical advice.</p>
+  <div class="row"><button class="btn primary" id="startBtn" style="min-height:52px;font-size:17px;padding:0 22px">▶ Start</button></div>
+ </div>
+</div>
+
+<!-- Summary -->
+<div class="ov modal" id="sumModal" role="dialog" aria-modal="true" aria-labelledby="sumH">
+ <div class="ovc">
+  <button class="btn x" aria-label="Close">✕</button>
+  <h2 id="sumH">Your appointment</h2>
+  <p>Right first time:</p>
+  <div class="bigscore" id="sumScore"></div>
+  <div id="sumBody"></div>
+  <div class="row"><button class="btn primary" id="againBtn">↺ Start again</button><button class="btn" id="printBtn">🖨 Print</button></div>
+ </div>
+</div>
+
+<!-- View -->
+<div class="ov modal" id="viewModal" role="dialog" aria-modal="true" aria-labelledby="viewH">
+ <div class="ovc" style="max-width:420px">
+  <button class="btn x" aria-label="Close">✕</button>
+  <h2 id="viewH">Change the view</h2>
+  <p class="small">Drag to look around. Pinch or scroll to zoom.</p>
+  <div class="row">
+   <button class="btn" data-cam="0">👩🏽‍⚕️ Dr Shah <span class="kbd">1</span></button>
+   <button class="btn" data-cam="1">🏠 The room <span class="kbd">2</span></button>
+   <button class="btn" data-cam="2">📅 Calendar <span class="kbd">3</span></button>
+   <button class="btn" data-cam="3">🖥 Computer <span class="kbd">4</span></button>
+  </div>
+ </div>
+</div>
+
+<!-- Learn -->
+<div class="ov modal" id="learnModal" role="dialog" aria-modal="true" aria-labelledby="learnH">
+ <div class="ovc">
+  <button class="btn x" aria-label="Close">✕</button>
+  <h2 id="learnH">What you'll learn</h2>
+  <h3>By the end, you can</h3>
+  <ul>
+   <li>say how long something has been true with <b>I've had it for... / since...</b></li>
+   <li>choose <b>for</b> (a length of time) or <b>since</b> (the start)</li>
+   <li>use the past simple with a finished time: <b>I lifted</b> some boxes <b>on Monday</b>, <b>I took</b> some tablets <b>last night</b></li>
+   <li>answer <b>Have you ever...?</b> with <b>No, I've never...</b> or <b>No, I haven't</b></li>
+   <li>explain a health problem to a GP in clear, full sentences</li>
+  </ul>
+  <h3>Common mistakes</h3>
+  <div class="misc">
+   <div class="w">✗ I have it since Monday.</div><div class="r">✓ I've had it since Monday.</div>
+   <div class="w">✗ I've had it since four days.</div><div class="r">✓ I've had it for four days.</div>
+   <div class="w">✗ I have lifted boxes on Monday.</div><div class="r">✓ I lifted some boxes on Monday.</div>
+   <div class="w">✗ I worked there for two years. (You still work there.)</div><div class="r">✓ I've worked there for two years.</div>
+   <div class="w">✗ I never had back pain before.</div><div class="r">✓ I've never had back pain before.</div>
+  </div>
+  <h3>Curriculum link</h3>
+  <p>Adult ESOL Core Curriculum, Entry 3 (Speaking).</p>
+  <p><b>Sc/E3.4a</b> Express clearly statements of fact: use with some accuracy suitable verb forms to make clear the time to which the statement of fact refers, including the past simple and present perfect, together with appropriate time markers.</p>
+  <p><b>Sc/E3.3b</b> Ask questions to obtain personal or factual information, for example <i>How long have you worked there?</i></p>
+  <p>Entry 3 key grammar includes the present perfect with <i>since/for</i>, <i>ever/never</i> and <i>yet/already</i>. Check the wording against your awarding body's Entry 3 ESOL Skills for Life specification.</p>
+ </div>
+</div>
+
+<!-- Help -->
+<div class="ov modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpH">
+ <div class="ovc">
+  <button class="btn x" aria-label="Close">✕</button>
+  <h2 id="helpH">How to use this</h2>
+  <ol>
+   <li>Listen to Dr Shah. Tap <b>🔁 Listen</b> to hear her again.</li>
+   <li>Read <b>📝 Your notes</b>. They tell you what to say. Tap <b>💡 Grammar help</b> if you are not sure.</li>
+   <li>Answer in a full sentence: <b>🎤 Speak</b>, <b>⌨️ Type</b> or <b>🧩 Tiles</b>.</li>
+   <li>If something is wrong, read the tip and try again. After two tries you see the answer.</li>
+   <li>At the end you see your results.</li>
+  </ol>
+  <h3>Speaking</h3>
+  <p>Your browser asks to use the microphone. Tap <b>Allow</b>. Speaking works best in Chrome, Edge or Safari. If it doesn't work, type your answer.</p>
+  <h3>Keys</h3>
+  <p><span class="kbd">1</span>–<span class="kbd">4</span> change the view · <span class="kbd">Enter</span> check a typed answer · <span class="kbd">Esc</span> close a box</p>
+ </div>
+</div>
+
+
+
+<script>
+/* ---------- Dialogue and grammar checker (GP surgery, ESOL Entry 3) ---------- */
+const NUM = {1:'one',2:'two',3:'three',4:'four',5:'five',6:'six',7:'seven',8:'eight',9:'nine'};
+function norm(s){
+  s = String(s||'').toLowerCase().replace(/[’‘`´]/g,"'").replace(/[^a-z0-9' ]+/g,' ');
+  const C = [[/\bi ?'?ve\b/g,'i have'],[/\bive\b/g,'i have'],[/\bhaven'?t\b/g,'have not'],[/\bhasn'?t\b/g,'has not'],
+    [/\bdidn'?t\b/g,'did not'],[/\bdon'?t\b/g,'do not'],[/\bdoesn'?t\b/g,'does not'],[/\bi'?m\b/g,'i am'],
+    [/\bit'?s been\b/g,'it has been'],[/\bit'?s\b/g,'it is'],[/\bi'?d\b/g,'i would'],[/\bcan'?t\b/g,'can not'],
+    [/\bwe'?ve\b/g,'we have'],[/\byou'?ve\b/g,'you have'],[/\bthat'?s\b/g,'that is'],[/\bthere'?s\b/g,'there is']];
+  for(const [a,b] of C) s = s.replace(a,b);
+  s = s.replace(/\b([1-9])\b/g,(m,d)=>NUM[d]).replace(/'/g,'').replace(/\s+/g,' ').trim();
+  return s;
+}
+const DAYS = '(monday|tuesday|wednesday|thursday|friday|saturday|sunday)';
+const PLACE = '(there |at the warehouse |at a warehouse |in the warehouse |in a warehouse |at work |here |at that place )?';
+
+/* v: ok = correct, err = grammar error (counts), nudge = try again, no penalty.
+   tip = short rule shown on screen. say = what Dr Shah says back (a recast). */
+const QS = [
+ { id:'problem', doc:'Hello, come in and take a seat. What seems to be the problem today?',
+   notes:['Your back hurts.','Tell the doctor what has happened.'],
+   model:"I've hurt my back.", tiles:["I've","hurt","hurted","my","back","on","in"],
+   ack:"Oh dear, I'm sorry to hear that.", record:'Problem: pain in lower back',
+   help:{title:'Present perfect for a result now', text:"Something happened in the past and you feel the result now. <b>I've hurt my back.</b> (It still hurts.)", tl:'result'},
+   rules:[
+    {v:'err', re:/\bhurted\b/, tip:"Hurt is irregular: hurt, hurt, hurt. Say: I've hurt my back.", say:"Ah, you've hurt your back."},
+    {v:'err', re:/\b(pain|ache|problem)s? on (my|the) (lower )?back\b/, tip:"We say a pain in your back, not on your back.", say:"A pain in your back? I see."},
+    {v:'err', re:/\bi (am|has) hurt\b|\bi (am )?hurting my\b|\bi have hurting\b/, tip:"Use have + hurt: I've hurt my back.", say:"Ah, you've hurt your back."},
+    {v:'err', re:/\bmy back hurt( a lot| very much| now| today| really bad| really badly)?$/, tip:"Add -s for now: my back hurts. Or say: I've hurt my back.", say:"Ah, your back hurts."},
+    {v:'ok', re:/\bi (have )?(hurt|injured|strained|pulled|done something to) my (lower )?back\b/},
+    {v:'ok', re:/\bmy (lower )?back (hurts|is hurting|is painful|is sore|is bad|is very painful|is really painful|has been hurting|has been painful|aches|is aching)\b/},
+    {v:'ok', re:/\bi have (got )?(a |some )?(very |really )?(bad |terrible |painful |sore |)?(back ?ache|back pain|pain in my (lower )?back|bad back|sore back|problem with my back)\b/},
+    {v:'ok', re:/\bthere is (a )?pain in my (lower )?back\b/},
+    {v:'nudge', re:/\bback\b/, tip:"Try a full sentence, for example: I've hurt my back."},
+   ]},
+ { id:'howlong', doc:'How long have you had the pain?',
+   notes:['Today is Friday.','The pain started on Monday.'],
+   model:"I've had it since Monday.", alt:"I've had it for four days.", tiles:["I've","I","have","had","it","since","for","Monday","four days"],
+   ack:'Four days. OK.', record:'Duration: since Monday (4 days)',
+   help:{title:'for and since', text:"The pain started in the past and you still have it now. Use <b>have had</b>.<br><b>since</b> + the start: since Monday<br><b>for</b> + how long: for four days", tl:'since'},
+   rules:[
+    {v:'err', re:/\bsince (a |one |two |three |four |five |six |a few |few |several )?(day|days|week|weeks)\b/, tip:"Use for with a length of time (for four days). Use since with the start (since Monday).", say:"So, you've had it for four days?"},
+    {v:'err', re:new RegExp('\\bfor (last )?'+DAYS+'\\b'), tip:"Use since with the start (since Monday). Use for with a length of time (for four days).", say:"So, you've had it since Monday?"},
+    {v:'err', re:new RegExp('\\bfrom (last )?'+DAYS+'\\b'), not:/\bsince\b/, tip:"Use since with the start: I've had it since Monday.", say:"So, you've had it since Monday?"},
+    {v:'err', re:/\bi have (?!had\b|been\b)(got )?((it|the pain|pain|this pain|a pain|back pain|this|this problem|the back pain) )?(since|for)\b/, tip:"The pain started in the past and you still have it. Use have had: I've had it since Monday.", say:m=>/\bfor\b/.test(m)?"So, you've had it for four days?":"So, you've had it since Monday?"},
+    {v:'err', re:/\b(i am having|it is hurting|it is hurt|it is painful|it hurts|it is sore|my back hurts|my back is hurting)\b.*\b(since|for)\b/, tip:"For something that started in the past and goes on now, use present perfect: I've had it since Monday, or it's been hurting since Monday.", say:m=>/\bfor\b/.test(m)?"So, it's been hurting for four days?":"So, it's been hurting since Monday?"},
+    {v:'err', re:/\bi had (it |the pain |pain |this |this pain |back pain )?(since|for)\b/, tip:"I had it means the pain has stopped. It still hurts, so say: I've had it since Monday.", say:m=>/\bfor\b/.test(m)?"So, you've had it for four days, and it still hurts?":"So, you've had it since Monday, and it still hurts?"},
+    {v:'err', re:/\b(it )?started since\b/, tip:"Say it started on Monday, or I've had it since Monday.", say:"It started on Monday. So you've had it since Monday."},
+    {v:'err', re:/\bi have has\b|\bi has had\b|\bi have have\b/, tip:"Use have + had: I've had it since Monday.", say:"So, you've had it since Monday?"},
+    {v:'ok', re:/\bi have had (it|the pain|pain|this pain|this|back pain|a pain|the back pain|this problem|it now)? ?(since|for)\b/},
+    {v:'ok', re:/\b(it|my back|the pain) has been (hurting|painful|sore|bad|like this|there|aching)( now)? (for|since)\b/},
+    {v:'ok', re:/\b(it|my back) has (hurt|ached) (for|since)\b/},
+    {v:'ok', re:/\bi have been in pain (for|since)\b/},
+    {v:'nudge', re:/\b(it )?started (on )?(last )?monday\b/, tip:"Yes, it started on Monday. Now say how long: I've had it since Monday."},
+    {v:'nudge', re:/\b(since|for)\b/, tip:"Good start. Try a full sentence: I've had it since Monday."},
+   ]},
+ { id:'how', doc:'I see. And what happened on Monday? How did you hurt it?',
+   notes:['On Monday you were at work.','You lifted some heavy boxes.'],
+   model:'I lifted some heavy boxes at work.', tiles:['I','have','lifted','lift','some','heavy','boxes','at work'],
+   ack:'Ah, heavy lifting. That often causes back pain.', record:'Cause: lifting heavy boxes at work (Monday)',
+   help:{title:'Past simple for a finished time', text:"Monday is finished. Use the past simple: <b>I lifted</b> some heavy boxes. Not <i>I have lifted</i>.", tl:'point'},
+   rules:[
+    {v:'err', re:/\b(i|it) (have|has) (lifted|hurt|picked|carried|moved|happened|done|injured|pulled|strained)\b.*\b(monday|yesterday|ago|last)\b/, tip:"Monday is a finished time. Use the past simple: I lifted some heavy boxes on Monday.", say:"Ah, you lifted some heavy boxes on Monday."},
+    {v:'err', re:/\bi have (lifted|picked|carried|moved)\b/, tip:"You are talking about Monday, a finished time. Use the past simple: I lifted some heavy boxes.", say:"Ah, you lifted some heavy boxes."},
+    {v:'err', re:/\b(liftted|lifed|carryed|hurted|picket)\b/, tip:"Check the past form: lift, lifted. Carry, carried. Hurt, hurt.", say:"Ah, you lifted some heavy boxes."},
+    {v:'err', re:/\bi (was |am )?lifting(?! some| boxes| a| heavy| the)\b|\bi lifting\b|\bi am lifting\b/, tip:"Use the past: I lifted some heavy boxes.", say:"Ah, you lifted some heavy boxes."},
+    {v:'err', re:/\bi (was )?(lift|carry|move)\b|\bi pick up\b/, tip:"Use the past simple. Add -ed: lift, lifted.", say:"Ah, you lifted some heavy boxes."},
+    {v:'ok', re:/\bi (lifted|carried|picked up|picked|moved|was lifting|was carrying|was moving|hurt it|injured it|did it|pulled it|strained it)\b/},
+    {v:'ok', re:/\bit happened\b.*\b(when|while|at work|lifting|carrying)\b/},
+    {v:'ok', re:/\bwhen i (lifted|was lifting|carried|was carrying)\b/},
+    {v:'nudge', re:/\b(box|boxes|lifting|heavy|work)\b/, tip:"Try a full sentence in the past: I lifted some heavy boxes at work."},
+   ]},
+ { id:'taken', doc:'Have you taken anything for the pain?',
+   notes:['Yes. Ibuprofen tablets.','You took them last night.'],
+   model:'Yes, I took some ibuprofen last night.', tiles:['Yes,','I','have','took','taken','some','ibuprofen','last night'],
+   ack:'OK, thank you.', record:'Medication: ibuprofen (last night)',
+   help:{title:'Past simple with last night', text:"<b>Have you taken...?</b> asks about up to now. When you say <b>last night</b>, the time is finished, so use the past simple: <b>I took</b>.<br>take, took, taken", tl:'point'},
+   rules:[
+    {v:'err', re:/\bi have (taken|took|take|had)\b.*\b(last night|yesterday|ago|last|this morning)\b/, tip:"Last night is a finished time. Use the past simple: I took some ibuprofen last night.", say:"Ah, you took some ibuprofen last night. Good."},
+    {v:'err', re:/\bi have took\b/, tip:"After have, use taken: I have taken. But with last night, say: I took.", say:"Ah, you've taken some ibuprofen."},
+    {v:'err', re:/\b(taked|tooked)\b/, tip:"Take is irregular: take, took, taken.", say:"Ah, you took some ibuprofen."},
+    {v:'err', re:/\bi (take|taking)\b.*\b(last night|yesterday)\b/, tip:"The past of take is took: I took some ibuprofen last night.", say:"Ah, you took some ibuprofen last night."},
+    {v:'err', re:/^yes i did\b(?!.*\btook\b)/, tip:"The question starts Have you...? so the short answer is Yes, I have.", say:"Yes, you have. What did you take?"},
+    {v:'ok', re:/\bi (took|did take)\b/},
+    {v:'ok', re:/\bi have taken\b/},
+    {v:'ok', re:/\bi had (some |an |a |two |one )?(ibuprofen|tablet|tablets|painkiller|painkillers|pill|pills)\b/},
+    {v:'nudge', re:/^(yes )?i have$|^yes$/, tip:"Good short answer. Now say what and when: I took some ibuprofen last night."},
+    {v:'nudge', re:/\b(ibuprofen|tablet|tablets|painkiller|painkillers|last night)\b/, tip:"Try a full sentence: I took some ibuprofen last night."},
+   ]},
+ { id:'ever', doc:'Have you ever had back pain before?',
+   notes:['No. Never.','This is the first time.'],
+   model:"No, I've never had back pain before.", alt:"No, I haven't.", tiles:['No,',"I've",'never','had','have','back pain','before','did'],
+   ack:'Good. That helps me.', record:'No previous back pain',
+   help:{title:'Have you ever...?', text:"<b>ever</b> means at any time in your life up to now. Answer with the present perfect: <b>No, I've never had</b> back pain before. Or the short answer: <b>No, I haven't.</b>", tl:'life'},
+   rules:[
+    {v:'err', re:/\bi have never have\b|\bi have not have\b|\bi have never has\b/, tip:"Use have + had: I've never had back pain before.", say:"So, you've never had back pain before."},
+    {v:'err', re:/\bi have not never\b|\bi have never not\b|\bi do not never\b/, tip:"Use one negative word: I've never had it, or I haven't had it before.", say:"So, you've never had it before."},
+    {v:'err', re:/\bi never had\b|\bi did not (have|had)\b|\bi did never\b|^no i did not\b/, tip:"Ever and before here mean up to now, so use the present perfect: I've never had back pain before.", say:"So, you've never had back pain before."},
+    {v:'err', re:/\bi do not have (it |back pain |this |that |pain )?before\b|\bi do not have ever\b|\bi never have\b|^no i do not\b/, tip:"Use the present perfect: No, I've never had back pain before. Or: No, I haven't.", say:"So, you've never had back pain before."},
+    {v:'err', re:/\bi have never (hurt|hurted)\b.*\bbefore\b(?!.*\bhad\b)|\bi have ever had\b/, tip:"Say: No, I've never had back pain before.", say:"So, you've never had back pain before."},
+    {v:'ok', re:/\bi have never (had|been)\b/},
+    {v:'ok', re:/\bi have not (had|ever had)\b/},
+    {v:'ok', re:/^no i have not\b/},
+    {v:'ok', re:/\b(this|it) is the first time\b/},
+    {v:'nudge', re:/^yes\b/, tip:"Check your notes: this is the first time. Try: No, I've never had back pain before."},
+    {v:'nudge', re:/^(no|never|no never|not before|no not before|never before|no never before)$/, tip:"Try a full sentence: No, I've never had back pain before."},
+   ]},
+ { id:'work', doc:'You said you lift boxes at work. Do you still work there? How long have you worked there?',
+   notes:['Yes, you still work at the warehouse.','You started two years ago, in 2024.'],
+   model:"I've worked there for two years.", alt:"I've worked there since 2024.", tiles:["I've",'I','worked','work','there','for','since','two years','2024'],
+   ack:'Two years at the warehouse. Thank you.', record:'Job: warehouse worker (2 years)',
+   help:{title:'Still true now: present perfect', text:"You started in the past and you still work there. Use the present perfect: <b>I've worked</b> there <b>for</b> two years / <b>since</b> 2024.<br><i>I worked there</i> means you don't work there now.", tl:'since2'},
+   rules:[
+    {v:'err', re:/\bsince (two|a couple of|three|one|a|a few|few) (year|years|month|months)\b/, tip:"Use for with a length of time: for two years. Use since with the start: since 2024.", say:"So, you've worked there for two years."},
+    {v:'err', re:/\bfor (20[0-9][0-9]|last year)\b/, tip:"Use since with the start: since 2024. Use for with a length of time: for two years.", say:"So, you've worked there since 2024."},
+    {v:'err', re:/\bi have (worked|been)\b.*\bago\b/, tip:"Ago goes with the past simple: I started two years ago. Or say: I've worked there for two years.", say:"So, you started two years ago. You've worked there for two years."},
+    {v:'err', re:new RegExp('\\bi (work|am working|working) '+PLACE+'(for|since)\\b'), tip:"You started in the past and still work there. Use the present perfect: I've worked there for two years.", say:m=>/\bsince\b/.test(m)?"So, you've worked there since 2024.":"So, you've worked there for two years."},
+    {v:'err', re:new RegExp('\\bi worked '+PLACE+'(for|since)\\b'), tip:"I worked there means you don't work there now. You still work there, so say: I've worked there for two years.", say:m=>/\bsince\b/.test(m)?"So, you've worked there since 2024, and you still work there.":"So, you've worked there for two years, and you still work there."},
+    {v:'err', re:/\bi have work\b|\bi have working\b/, tip:"Add -ed: I've worked there for two years.", say:"So, you've worked there for two years."},
+    {v:'ok', re:new RegExp('\\bi have (worked|been working|been) '+PLACE+'(for|since)\\b')},
+    {v:'ok', re:/\bi started (there |work |working there |working |at the warehouse |that job )?(two years ago|in 2024|in twenty twenty four)\b/},
+    {v:'nudge', re:/^(yes )?(for|since)\b|\b(years|2024)$/, tip:"Try a full sentence: I've worked there for two years."},
+   ]},
+];
+const CLOSE = "Thank you, that's really helpful. Back pain like this usually gets better within a few weeks. Try to stay active and keep doing your normal things. Don't stay in bed for a long time. A hot water bottle wrapped in a towel can help. Always read the instructions on painkillers. If it isn't getting better, come back and see me.";
+const UNKNOWN = "Sorry, I didn't quite understand. Look at your notes and try again.";
+const PRAISE = ['Good.',"That's right.",'Well done.','Perfect.','Great.','Very good.'];
+
+function check(qi, text){
+  const q = QS[qi], n = norm(text);
+  if(!n) return {v:'none', n};
+  for(const r of q.rules){
+    if(r.re.test(n) && !(r.not && r.not.test(n))){
+      return {v:r.v, tip:r.tip||'', say: typeof r.say==='function' ? r.say(n) : (r.say||''), n};
+    }
+  }
+  return {v:'unknown', tip:UNKNOWN, n};
+}
+
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+const EDITION = 'student';
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ================= 3D scene ================= */
+const canvas = $('c3d');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0xeef1f5);
+const camera = new THREE.PerspectiveCamera(50, 1, 0.05, 50);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.enablePan = false; controls.minDistance = 0.6; controls.maxDistance = 4.6;
+controls.maxPolarAngle = Math.PI*0.62; controls.minPolarAngle = Math.PI*0.2;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0xb9a98f, 1.25));
+const sun = new THREE.DirectionalLight(0xfff4e2, 1.6); sun.position.set(2.2, 3.2, 1.5); sun.castShadow = true;
+sun.shadow.mapSize.set(1024,1024); sun.shadow.camera.left=-3; sun.shadow.camera.right=3; sun.shadow.camera.top=3; sun.shadow.camera.bottom=-3; sun.shadow.bias=-0.0006; sun.shadow.radius=4;
+scene.add(sun);
+
+const M = (c, o={}) => new THREE.MeshStandardMaterial(Object.assign({color:c, roughness:0.75, metalness:0}, o));
+function box(w,h,d,mat,x,y,z,parent=scene){ const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat); m.position.set(x,y,z); m.castShadow=m.receiveShadow=true; parent.add(m); return m; }
+function cyl(rt,rb,h,mat,x,y,z,parent=scene,seg=20){ const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),mat); m.position.set(x,y,z); m.castShadow=m.receiveShadow=true; parent.add(m); return m; }
+function sph(r,mat,x,y,z,parent=scene){ const m=new THREE.Mesh(new THREE.SphereGeometry(r,24,16),mat); m.position.set(x,y,z); m.castShadow=true; parent.add(m); return m; }
+function cap(r,l,mat,parent){ const m=new THREE.Mesh(new THREE.CapsuleGeometry(r,l,6,14),mat); m.castShadow=true; parent.add(m); return m; }
+function canvasTex(w,h,draw){ const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d'); draw(g,w,h); const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=4; t.userData={c,g,draw}; return t; }
+
+/* room */
+const RW=5, RD=5, RH=2.7;
+const floorTex = canvasTex(512,512,(g,w,h)=>{ g.fillStyle='#c9cfd4'; g.fillRect(0,0,w,h); for(let i=0;i<1400;i++){ g.fillStyle=`rgba(${90+Math.random()*60|0},${100+Math.random()*60|0},${110+Math.random()*60|0},.18)`; g.fillRect(Math.random()*w,Math.random()*h,2,2);} g.strokeStyle='rgba(0,0,0,.06)'; for(let i=0;i<=4;i++){ g.beginPath(); g.moveTo(i*w/4,0); g.lineTo(i*w/4,h); g.stroke(); g.beginPath(); g.moveTo(0,i*h/4); g.lineTo(w,i*h/4); g.stroke(); } });
+floorTex.wrapS=floorTex.wrapT=THREE.RepeatWrapping; floorTex.repeat.set(3,3);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(RW,RD), M(0xffffff,{map:floorTex,roughness:0.6})); floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
+const wallMat = M(0xe9ecdf,{roughness:0.95}), wallMat2 = M(0xdfe7ef,{roughness:0.95});
+box(RW,RH,0.06,wallMat,0,RH/2,-RD/2);            // back wall
+box(0.06,RH,RD,wallMat2,-RW/2,RH/2,0);           // left wall
+box(0.06,RH,RD,wallMat2,RW/2,RH/2,0);            // right wall
+box(RW,0.12,0.02,M(0x9aa6b3),0,0.06,-RD/2+0.04); // skirting
+const ceil = new THREE.Mesh(new THREE.PlaneGeometry(RW,RD), M(0xf6f6f2)); ceil.rotation.x=Math.PI/2; ceil.position.y=RH; scene.add(ceil);
+// ceiling light panel
+box(1.2,0.03,0.6,M(0xffffff,{emissive:0xffffff,emissiveIntensity:0.6}),0,RH-0.02,0);
+
+const pickables = []; // {mesh, name}
+function addPick(obj,name,anchor){ obj.traverse(o=>{ if(o.isMesh) pickables.push({mesh:o,name,anchor}); }); LABELS.push({name, anchor, el:null}); }
+const LABELS = [];
+
+// window with blinds (back wall, right)
+const winGrp = new THREE.Group(); winGrp.position.set(1.15,1.55,-RD/2+0.04); scene.add(winGrp);
+const skyTex = canvasTex(256,256,(g,w,h)=>{ const gr=g.createLinearGradient(0,0,0,h); gr.addColorStop(0,'#8ec5f2'); gr.addColorStop(1,'#d8ecfb'); g.fillStyle=gr; g.fillRect(0,0,w,h); g.fillStyle='#7fae6e'; g.beginPath(); g.ellipse(70,h,110,60,0,0,Math.PI*2); g.fill(); g.fillStyle='#6a9a5c'; g.beginPath(); g.ellipse(210,h+10,120,70,0,0,Math.PI*2); g.fill(); g.fillStyle='rgba(255,255,255,.9)'; g.beginPath(); g.ellipse(160,60,40,14,0,0,Math.PI*2); g.fill(); });
+const pane = new THREE.Mesh(new THREE.PlaneGeometry(1.3,1.05), new THREE.MeshBasicMaterial({map:skyTex})); winGrp.add(pane);
+const frameM = M(0xffffff,{roughness:0.5});
+box(1.42,0.06,0.06,frameM,0,0.555,0.02,winGrp); box(1.42,0.06,0.06,frameM,0,-0.555,0.02,winGrp);
+box(0.06,1.1,0.06,frameM,-0.68,0,0.02,winGrp); box(0.06,1.1,0.06,frameM,0.68,0,0.02,winGrp); box(0.04,1.05,0.04,frameM,0,0,0.02,winGrp);
+box(1.5,0.08,0.22,frameM,0,-0.6,0.09,winGrp); // sill
+for(let i=0;i<7;i++) box(1.34,0.035,0.01,M(0xf3f0e6,{roughness:0.6}),0,0.5-i*0.05,0.08,winGrp).rotation.x=0.6;
+addPick(winGrp,'window',new THREE.Vector3(1.15,2.2,-RD/2+0.1));
+
+// calendar (back wall, left)
+let barProgress = 0, barTarget = 0;
+const calTex = canvasTex(768,560,drawCal);
+function drawCal(g,w,h){
+  g.fillStyle='#ffffff'; g.fillRect(0,0,w,h);
+  g.fillStyle='#14284b'; g.fillRect(0,0,w,92); g.fillStyle='#fff'; g.font='bold 50px system-ui,sans-serif'; g.textAlign='center'; g.fillText('THIS WEEK',w/2,64);
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], cw=w/7;
+  g.font='bold 34px system-ui,sans-serif';
+  days.forEach((d,i)=>{ g.fillStyle=i===4?'#1d7a3e':'#1b2230'; g.fillText(d,cw*i+cw/2,150); g.strokeStyle='#c7cfdb'; g.lineWidth=3; g.strokeRect(cw*i+6,172,cw-12,250); });
+  g.font='bold 64px system-ui,sans-serif'; [16,17,18,19,20,21,22].forEach((n,i)=>{ g.fillStyle=i===4?'#1d7a3e':'#4a5568'; g.fillText(n,cw*i+cw/2,250); });
+  // today
+  g.fillStyle='#1d7a3e'; g.font='bold 28px system-ui,sans-serif'; g.fillText('TODAY',cw*4+cw/2,400);
+  // monday circle
+  g.strokeStyle='#b42318'; g.lineWidth=7; g.beginPath(); g.ellipse(cw/2,228,48,48,0,0,Math.PI*2); g.stroke();
+  g.fillStyle='#b42318'; g.font='bold 24px system-ui,sans-serif'; g.fillText('pain',cw/2,372); g.fillText('started',cw/2,400);
+  // bar Monday -> today
+  if(barProgress>0.01){
+    const x0=cw/2, x1=cw*4+cw/2, x=x0+(x1-x0)*barProgress;
+    g.fillStyle='rgba(180,35,24,.85)'; g.fillRect(x0,300,x-x0,26);
+    if(barProgress>0.98){ g.beginPath(); g.moveTo(x1+22,313); g.lineTo(x1-4,292); g.lineTo(x1-4,334); g.fill(); }
+    g.fillStyle='#b42318'; g.font='bold 30px system-ui,sans-serif'; g.fillText('for four days',(x0+x1)/2,470);
+    g.fillStyle='#1b2230'; g.font='26px system-ui,sans-serif'; g.fillText('since Monday  →  now',(x0+x1)/2,515);
+  }
+}
+const calGrp = new THREE.Group(); calGrp.position.set(-1.25,1.6,-RD/2+0.04); scene.add(calGrp);
+const calMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.96,0.7), M(0xffffff,{map:calTex,roughness:0.9})); calMesh.position.z=0.012; calGrp.add(calMesh);
+box(0.98,0.72,0.012,M(0x9aa6b3),0,0,0,calGrp);
+addPick(calGrp,'calendar',new THREE.Vector3(-1.25,2.0,-RD/2+0.1));
+function redrawCal(){ const u=calTex.userData; u.draw(u.g,u.c.width,u.c.height); calTex.needsUpdate=true; }
+
+// noticeboard (left wall)
+const boardTex = canvasTex(512,360,(g,w,h)=>{ g.fillStyle='#c79a63'; g.fillRect(0,0,w,h);
+  const note=(x,y,ww,hh,c,t1,t2)=>{ g.fillStyle=c; g.fillRect(x,y,ww,hh); g.fillStyle='#1b2230'; g.font='bold 26px system-ui,sans-serif'; g.textAlign='center'; g.fillText(t1,x+ww/2,y+hh/2-6); g.font='20px system-ui,sans-serif'; g.fillText(t2,x+ww/2,y+hh/2+24); };
+  note(24,26,220,140,'#fff7c2','Wash your hands','20 seconds'); note(270,30,210,130,'#d8f0ff','Out of hours?','Call 111'); note(40,196,200,130,'#ffe0e6','Flu jabs','Ask at reception'); note(272,192,210,138,'#e3f6e3','Stay active','Walk every day'); });
+const board = new THREE.Mesh(new THREE.PlaneGeometry(1.1,0.78), M(0xffffff,{map:boardTex})); board.position.set(-RW/2+0.04,1.55,-0.6); board.rotation.y=Math.PI/2; scene.add(board);
+addPick(board,'noticeboard',new THREE.Vector3(-RW/2+0.08,2.0,-0.6));
+
+// desk
+const wood = M(0xc8a77c,{roughness:0.6}), dark = M(0x39424f,{roughness:0.5}), metal=M(0xb8bec7,{metalness:0.6,roughness:0.35});
+const desk = new THREE.Group(); desk.position.set(-0.95,0,-1.05); desk.rotation.y=0.35; scene.add(desk);
+box(1.5,0.04,0.75,wood,0,0.74,0,desk);
+[[-0.7,-0.33],[0.7,-0.33],[-0.7,0.33],[0.7,0.33]].forEach(([x,z])=>box(0.05,0.72,0.05,metal,x,0.36,z,desk));
+box(0.42,0.6,0.62,M(0xd9dde3),0.5,0.32,0,desk); // drawers
+addPick(desk,'desk',new THREE.Vector3(-0.6,0.85,-0.7));
+// computer
+const recLines = [];
+const scrTex = canvasTex(640,400,drawScreen);
+function drawScreen(g,w,h){
+  g.fillStyle='#f4f8fd'; g.fillRect(0,0,w,h); g.fillStyle='#14284b'; g.fillRect(0,0,w,58);
+  g.fillStyle='#fff'; g.font='bold 30px system-ui,sans-serif'; g.textAlign='left'; g.fillText('Patient record',20,40);
+  g.fillStyle='#4a5568'; g.font='22px system-ui,sans-serif'; g.fillText('Consultation notes · Dr Shah',20,92);
+  recLines.forEach((t,i)=>{ g.fillStyle='#1d7a3e'; g.font='bold 24px system-ui,sans-serif'; g.fillText('✓',20,140+i*42); g.fillStyle='#1b2230'; g.font='24px system-ui,sans-serif'; g.fillText(t,52,140+i*42); });
+  if(!recLines.length){ g.fillStyle='#8792a3'; g.font='italic 24px system-ui,sans-serif'; g.fillText('Waiting for the patient…',20,150); }
+}
+function redrawScreen(){ const u=scrTex.userData; u.draw(u.g,u.c.width,u.c.height); scrTex.needsUpdate=true; }
+const mon = new THREE.Group(); mon.position.set(-0.35,0.76,-0.2); mon.rotation.y=0.55; desk.add(mon);
+box(0.62,0.4,0.03,dark,0,0.33,0,mon);
+const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.58,0.36), new THREE.MeshBasicMaterial({map:scrTex})); scr.position.set(0,0.33,0.017); mon.add(scr);
+box(0.05,0.14,0.05,dark,0,0.08,-0.02,mon); box(0.22,0.015,0.16,dark,0,0.008,-0.02,mon);
+box(0.42,0.02,0.14,M(0x2d3440),0.05,0.77,0.12,desk); // keyboard
+box(0.06,0.02,0.1,M(0x2d3440),0.35,0.77,0.15,desk);  // mouse
+addPick(mon,'computer',new THREE.Vector3(-1.0,1.25,-0.9));
+// blood pressure monitor on desk
+const bp = new THREE.Group(); bp.position.set(0.45,0.76,0.1); desk.add(bp);
+box(0.16,0.07,0.12,M(0xf2f2f2),0,0.035,0,bp); box(0.09,0.002,0.06,M(0x9fd3c7,{emissive:0x335544,emissiveIntensity:0.3}),0,0.071,0,bp);
+const cuff = new THREE.Mesh(new THREE.TorusGeometry(0.06,0.025,10,20), M(0x1f4f8a)); cuff.position.set(-0.17,0.03,0); cuff.rotation.x=Math.PI/2; bp.add(cuff);
+addPick(bp,'blood pressure monitor',new THREE.Vector3(-0.42,0.98,-0.86));
+// mug + papers
+cyl(0.04,0.035,0.1,M(0xb42318),-0.6,0.81,0.2,desk); box(0.21,0.004,0.3,M(0xffffff),-0.25,0.762,0.22,desk).rotation.y=0.2;
+
+// examination couch (right wall)
+const couch = new THREE.Group(); couch.position.set(1.85,0,-0.7); couch.rotation.y=-Math.PI/2; scene.add(couch);
+box(1.85,0.1,0.65,M(0x2f5f8f,{roughness:0.5}),0,0.68,0,couch);
+box(0.6,0.1,0.65,M(0x2f5f8f,{roughness:0.5}),-0.72,0.82,0,couch).rotation.z=-0.35;
+box(1.4,0.012,0.5,M(0xf7f7f2),0.12,0.736,0,couch); // paper roll
+[[-0.8,-0.26],[0.8,-0.26],[-0.8,0.26],[0.8,0.26]].forEach(([x,z])=>box(0.05,0.63,0.05,metal,x,0.315,z,couch));
+const roll = cyl(0.06,0.06,0.55,M(0xffffff),0.98,0.72,0,couch); roll.rotation.x=Math.PI/2;
+addPick(couch,'examination couch',new THREE.Vector3(1.85,1.05,-0.7));
+// curtain rail + curtain
+box(0.03,0.03,2.4,metal,1.3,2.4,-0.7);
+const curtTex = canvasTex(128,64,(g,w,h)=>{ g.fillStyle='#9cc8c0'; g.fillRect(0,0,w,h); g.fillStyle='rgba(255,255,255,.35)'; for(let x=0;x<w;x+=16) g.fillRect(x,0,6,h); });
+const curt = new THREE.Mesh(new THREE.BoxGeometry(0.04,1.7,0.55), M(0xffffff,{map:curtTex})); curt.position.set(1.3,1.5,0.25); scene.add(curt);
+// sink
+const sink = new THREE.Group(); sink.position.set(RW/2-0.3,0,1.05); scene.add(sink);
+box(0.5,0.8,0.5,M(0xe3e6ea),0,0.4,0,sink); box(0.4,0.04,0.36,M(0xffffff,{roughness:0.2}),0,0.82,0,sink);
+const tap = cyl(0.015,0.015,0.18,metal,0.2,0.91,0,sink); tap.rotation.z=0.2;
+addPick(sink,'sink',new THREE.Vector3(RW/2-0.3,1.05,1.05));
+// plant
+const pot = cyl(0.14,0.11,0.26,M(0xb5651d),-RW/2+0.35,0.13,1.6);
+for(let i=0;i<9;i++){ const l=new THREE.Mesh(new THREE.SphereGeometry(0.12,10,8), M(0x3f8f4a)); l.scale.set(0.5,1.4,0.25); const a=i/9*Math.PI*2; l.position.set(-RW/2+0.35+Math.cos(a)*0.08,0.45+Math.random()*0.12,1.6+Math.sin(a)*0.08); l.rotation.set(Math.sin(a)*0.5,a,Math.cos(a)*0.5); scene.add(l); }
+// wall clock (left of window)
+const clockTex = canvasTex(256,256,(g,w,h)=>{ g.fillStyle='#fff'; g.beginPath(); g.arc(128,128,124,0,7); g.fill(); g.strokeStyle='#14284b'; g.lineWidth=10; g.stroke(); g.fillStyle='#14284b'; for(let i=0;i<12;i++){ const a=i/12*Math.PI*2; g.fillRect(128+Math.sin(a)*100-4,128-Math.cos(a)*100-4,8,8);} g.lineWidth=9; g.lineCap='round'; g.beginPath(); g.moveTo(128,128); g.lineTo(128+Math.sin(0.17*6.28)*55,128-Math.cos(0.17*6.28)*55); g.stroke(); g.lineWidth=6; g.beginPath(); g.moveTo(128,128); g.lineTo(128+Math.sin(0.5*6.28)*85,128-Math.cos(0.5*6.28)*85); g.stroke(); });
+const clock = new THREE.Mesh(new THREE.CircleGeometry(0.17,32), new THREE.MeshBasicMaterial({map:clockTex})); clock.position.set(0.15,2.2,-RD/2+0.04); scene.add(clock);
+// door (left wall, front)
+box(0.05,2.05,0.9,M(0xb48a5a,{roughness:0.55}),-RW/2+0.05,1.025,1.6); sph(0.03,metal,-RW/2+0.1,1.0,1.25);
+
+// patient chair (we sit here) + doctor's chair
+function chair(x,z,ry,col){ const c=new THREE.Group(); c.position.set(x,0,z); c.rotation.y=ry; scene.add(c);
+  box(0.48,0.06,0.46,M(col,{roughness:0.6}),0,0.46,0,c); box(0.48,0.5,0.05,M(col,{roughness:0.6}),0,0.74,-0.21,c);
+  [[-0.21,-0.2],[0.21,-0.2],[-0.21,0.2],[0.21,0.2]].forEach(([a,b])=>box(0.035,0.44,0.035,metal,a,0.22,b,c)); return c; }
+const pChair = chair(0.25,0.75,Math.PI+0.25,0x4c6fa8);
+addPick(pChair,'chair',new THREE.Vector3(0.25,1.05,0.75));
+const dChair = new THREE.Group(); dChair.position.set(-0.15,0,-0.9); dChair.rotation.y=0.15; scene.add(dChair);
+box(0.5,0.08,0.48,dark,0,0.48,0,dChair); box(0.48,0.6,0.07,dark,0,0.86,-0.24,dChair); cyl(0.03,0.03,0.4,metal,0,0.26,0,dChair);
+for(let i=0;i<5;i++){ const a=i/5*Math.PI*2; const leg=box(0.3,0.03,0.04,metal,Math.cos(a)*0.14,0.05,Math.sin(a)*0.14,dChair); leg.rotation.y=-a; }
+
+/* Dr Shah */
+const skin = M(0x9a6a4a,{roughness:0.6}), hairM = M(0x1d1613,{roughness:0.8}), top = M(0x2a7f8f,{roughness:0.7}), trous = M(0x2b3140,{roughness:0.8});
+const doc = new THREE.Group(); doc.position.set(-0.15,0,-0.9); doc.rotation.y=0.15; scene.add(doc);
+// legs (seated)
+for(const s of [-1,1]){
+  const th=box(0.14,0.13,0.44,trous,s*0.1,0.56,0.18,doc); const sh=box(0.12,0.46,0.12,trous,s*0.1,0.3,0.38,doc);
+  box(0.12,0.07,0.22,M(0x15181e),s*0.1,0.035,0.44,doc);
+}
+const torso = cap(0.17,0.32,top,doc); torso.position.set(0,0.88,0); torso.scale.set(1.08,1,0.78);
+// lanyard + badge
+const lan = new THREE.Mesh(new THREE.TorusGeometry(0.12,0.006,6,24,Math.PI), M(0x1f6fe0)); lan.rotation.z=Math.PI; lan.position.set(0,1.1,0.115); lan.rotation.x=0.25; doc.add(lan);
+box(0.06,0.08,0.006,M(0xffffff),0,0.95,0.14,doc);
+// neck + head
+cyl(0.05,0.055,0.1,skin,0,1.14,0,doc);
+const head = new THREE.Group(); head.position.set(0,1.18,0); doc.add(head);
+const skull = sph(0.115,skin,0,0.11,0,head); skull.scale.set(0.92,1.05,0.98);
+const hair = new THREE.Mesh(new THREE.SphereGeometry(0.122,24,16,0,Math.PI*2,0,Math.PI*0.52), hairM); hair.position.set(0,0.12,-0.008); hair.rotation.x=-0.25; hair.scale.set(0.95,1.05,1.02); head.add(hair);
+sph(0.06,hairM,0,0.15,-0.11,head); // bun
+const hairBack = new THREE.Mesh(new THREE.SphereGeometry(0.118,20,12,0,Math.PI*2,Math.PI*0.4,Math.PI*0.35), hairM); hairBack.position.set(0,0.1,-0.02); hairBack.rotation.x=0.6; head.add(hairBack);
+const eyeM = M(0x111111,{roughness:0.3}), whiteM=M(0xffffff,{roughness:0.4});
+const eyes=[];
+for(const s of [-1,1]){ const w=sph(0.019,whiteM,s*0.04,0.125,0.096,head); w.scale.set(1,0.8,0.5); const e=sph(0.011,eyeM,s*0.04,0.125,0.105,head); eyes.push(w,e);
+  const br=box(0.04,0.008,0.01,hairM,s*0.042,0.158,0.1,head); br.rotation.z=s*-0.1; }
+const nose = sph(0.016,skin,0,0.098,0.112,head); nose.scale.set(0.8,1,1);
+const mouth = sph(0.024,M(0x5a1f1f,{roughness:0.5}),0,0.058,0.1,head); mouth.scale.set(1.1,0.22,0.4);
+// arms
+function arm(s){ const g=new THREE.Group(); g.position.set(s*0.22,1.03,0); doc.add(g);
+  const up=cap(0.05,0.22,top,g); up.position.set(0,-0.14,0); const fg=new THREE.Group(); fg.position.set(0,-0.28,0); g.add(fg);
+  const fo=cap(0.042,0.2,skin,fg); fo.rotation.x=Math.PI/2; fo.position.set(0,0,0.13); const hd=sph(0.045,skin,0,0,0.27,fg); hd.scale.set(0.8,0.6,1.1);
+  g.rotation.z=s*0.1; fg.rotation.x=0.25; return {g,fg}; }
+const armL=arm(-1), armR=arm(1);
+addPick(doc,'doctor (GP)',new THREE.Vector3(-0.15,1.55,-0.9));
+doc.traverse(o=>{ if(o.isMesh) o.castShadow=true; });
+
+/* doctor animation state */
+const anim = {nod:0, tilt:0, look:0, lookT:0, blink:0, nextBlink:2, type:0};
+function nod(){ anim.nod = 1; }
+function tilt(){ anim.tilt = 1; }
+function lookAtScreen(){ anim.lookT = 1.6; anim.type = 1.6; }
+
+/* ===== camera presets ===== */
+const HEAD = new THREE.Vector3(-0.12,1.3,-0.82);
+const CAMS = [
+  {name:'Dr Shah', pos:new THREE.Vector3(0.45,1.32,1.45), tgt:new THREE.Vector3(-0.2,1.12,-0.85)},
+  {name:'The room', pos:new THREE.Vector3(1.9,1.95,2.2), tgt:new THREE.Vector3(-0.2,0.9,-0.7)},
+  {name:'Calendar', pos:new THREE.Vector3(-0.9,1.6,-0.95), tgt:new THREE.Vector3(-1.25,1.6,-RD/2)},
+  {name:'Computer', pos:new THREE.Vector3(-0.35,1.25,-0.45), tgt:new THREE.Vector3(-1.08,1.08,-1.1)},
+];
+let camAnim = null;
+function narrow(){ return innerWidth < 700 || (innerHeight < 500); }
+function goCam(i, instant){
+  const c = CAMS[i]; let pos = c.pos.clone();
+  if(i===0 && narrow()){ const d = pos.clone().sub(c.tgt); pos = c.tgt.clone().add(d.multiplyScalar(innerWidth<innerHeight?1.18:1.05)); }
+  if(instant || reduceMotion){ camera.position.copy(pos); controls.target.copy(c.tgt); controls.update(); camAnim=null; return; }
+  camAnim = {t:0, dur:1.0, p0:camera.position.clone(), t0:controls.target.clone(), p1:pos, t1:c.tgt.clone()};
+}
+controls.addEventListener('start',()=>{ camAnim=null; });
+
+/* ===== layout: keep the doctor visible beside/above the talk panel ===== */
+function layout(){
+  const w=innerWidth, h=innerHeight; renderer.setSize(w,h,false);
+  camera.aspect=w/h;
+  const r=$('talk').getBoundingClientRect(), topH=$('top').getBoundingClientRect().height;
+  let ox=0, oy=0;
+  const bottomSheet = r.left < w*0.2 && r.top > h*0.25;
+  if(bottomSheet){ oy = (h - r.top)/2 - topH/2; camera.fov = 58; }
+  else { ox = (w - r.left + 12)/2; oy = -topH/2; camera.fov = w/h>1.9 ? 46 : 50; }
+  camera.setViewOffset(w,h,ox,oy,w,h);
+  camera.updateProjectionMatrix();
+  controls.maxDistance = narrow()?5.4:4.6;
+}
+addEventListener('resize',layout);
+
+/* ===== word labels (vocabulary) ===== */
+let labelsOn=false, tapLabel=null, tapLabelT=0;
+LABELS.forEach(L=>{ const d=document.createElement('div'); d.className='lbl'; d.textContent=L.name; d.style.display='none'; $('labels').appendChild(d); L.el=d; });
+const _v=new THREE.Vector3();
+function updateLabels(){
+  const w=innerWidth,h=innerHeight;
+  LABELS.forEach(L=>{ const show = labelsOn || (tapLabel===L.name && performance.now()<tapLabelT);
+    if(!show){ L.el.style.display='none'; return; }
+    _v.copy(L.anchor).project(camera); if(_v.z>1){ L.el.style.display='none'; return; }
+    L.el.style.display='block'; L.el.style.left=((_v.x+1)/2*w)+'px'; L.el.style.top=((1-_v.y)/2*h)+'px'; });
+}
+const ray=new THREE.Raycaster(), ptr=new THREE.Vector2(); let downAt=null;
+canvas.addEventListener('pointerdown',e=>{ downAt=[e.clientX,e.clientY]; });
+canvas.addEventListener('pointerup',e=>{ if(!downAt||Math.hypot(e.clientX-downAt[0],e.clientY-downAt[1])>6) return;
+  ptr.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); ray.setFromCamera(ptr,camera);
+  const hit = ray.intersectObjects(pickables.map(p=>p.mesh),false)[0];
+  if(hit){ const p=pickables.find(p=>p.mesh===hit.object); tapLabel=p.name; tapLabelT=performance.now()+2500; }
+});
+
+/* ================= narration ================= */
+const NARR = {};
+let soundOn=true, audioUnlocked=false, speaking=false, narrEnd=0, voice=null;
+const __narr = new Audio(); __narr.preload='auto'; let __cur=null;
+function __norm(t){ return String(t).replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim(); }
+function __stopClip(){ if(__cur){ try{ __cur.pause(); }catch(e){} __cur=null; } }
+function __playClip(text){ const src=NARR[__norm(text)]; if(!src) return false;
+  __stopClip(); const a=__narr; a.muted=false;
+  if(a._src!==src){ a.src=src; a._src=src; } else { try{ a.currentTime=0; }catch(e){} }
+  a.onended=()=>{ if(__cur===a) __cur=null; };
+  __cur=a; const pr=a.play(); if(pr&&pr.catch) pr.catch(()=>{ if(__cur===a) __cur=null; }); return true; }
+function __primeClip(){ try{ const a=__narr; const vals=Object.values(NARR); if(!vals.length) return; if(!a.src){ a.src=vals[0]; a._src=vals[0]; } a.muted=true; const pr=a.play();
+  if(pr&&pr.then) pr.then(()=>{ if(__cur!==a) a.pause(); a.muted=false; },()=>{ a.muted=false; }); else a.muted=false; }catch(e){ __narr.muted=false; } }
+function clipPlaying(){ return !!(__cur && !__cur.paused && !__cur.ended); }
+function talking(){ return clipPlaying() || (speaking && performance.now() < narrEnd + 1500); }
+function pickVoice(){ try{ const vs=speechSynthesis.getVoices().filter(v=>/en[-_]GB/i.test(v.lang));
+  voice = vs.find(v=>/female|libby|sonia|serena|kate|martha|hazel|susan|google uk english female/i.test(v.name)) || vs[0] || null; }catch(e){} }
+try{ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }catch(e){}
+function stopTalk(){ try{ speechSynthesis.cancel(); }catch(e){} __stopClip(); speaking=false; }
+function say(text){
+  stopTalk();
+  if(!soundOn||!audioUnlocked||!text) return;
+  if(__playClip(text)) return;
+  narrEnd = performance.now() + __norm(text).split(/\s+/).length*400;
+  try{
+    const u=new SpeechSynthesisUtterance(__norm(text)); u.lang='en-GB'; u.rate=0.9; if(voice) u.voice=voice;
+    u.onend=u.onerror=()=>{ speaking=false; narrEnd=0; };
+    speaking=true; speechSynthesis.speak(u);
+  }catch(e){ speaking=false; }
+}
+window.__narrLines = () => {
+  const out=[]; out.push(['intro', QS[0].doc]);
+  QS.forEach((q,i)=>{ if(i>0) out.push(['q'+(i+1), q.doc]); out.push(['ack'+(i+1), q.ack]); out.push(['model'+(i+1), q.model]); if(q.alt) out.push(['alt'+(i+1), q.alt]);
+    const seen=new Set(); q.rules.forEach(r=>{ if(typeof r.say==='string' && r.say && !seen.has(r.say)){ seen.add(r.say); out.push(['recast'+(i+1)+'-'+seen.size, r.say]); } }); });
+  out.push(['close', CLOSE], ['unknown', UNKNOWN], ['nudge', NUDGE_SAY], ['again', AGAIN_SAY]);
+  PRAISE.forEach((p,i)=>out.push(['praise'+(i+1),p]));
+  return out;
+};
+$('soundBtn').onclick=()=>{ soundOn=!soundOn; $('soundBtn').setAttribute('aria-pressed',soundOn); $('soundBtn').innerHTML=(soundOn?'🔊':'🔇')+'<span class="full"> Sound</span>'; if(!soundOn) stopTalk(); else if(audioUnlocked) say(curSay); };
+function unlockAudio(){ if(audioUnlocked) return; audioUnlocked=true; $('hint').hidden=true; __primeClip(); }
+
+/* ================= conversation ================= */
+const NUDGE_SAY = 'Can you tell me in a full sentence?';
+const AGAIN_SAY = 'Can you say that again?';
+let qi=0, tries=0, errs=0, done=false, mode='speak', curSay='', results=[];
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+function resetResults(){ results = QS.map(()=>({first:'', status:'', errors:[]})); }
+resetResults();
+QS.forEach(()=>{ $('dots').appendChild(document.createElement('span')); });
+function renderDots(){ [...$('dots').children].forEach((d,i)=>{ d.className = results[i].status || (i===qi&&!done?'on':''); }); }
+
+function docSays(text, speakText){ $('docText').textContent = text; curSay = speakText||text; say(curSay); }
+function setMode(m){
+  if(m==='speak' && !SR) m='type';
+  mode=m; ['speak','type','tiles'].forEach(k=>{ const t=$('tab'+k[0].toUpperCase()+k.slice(1)); t.setAttribute('aria-pressed',k===m); t.setAttribute('aria-selected',k===m); });
+  $('mSpeak').hidden = m!=='speak'; $('mType').hidden = m!=='type'; $('mTiles').hidden = m!=='tiles';
+  if(m==='type') setTimeout(()=>$('typeIn').focus({preventScroll:true}),50);
+}
+document.querySelectorAll('#modes .btn').forEach(b=>b.onclick=()=>{ stopListening(); setMode(b.dataset.mode); });
+if(!SR){ $('tabSpeak').disabled=true; $('tabSpeak').title='Speaking is not available in this browser. Try Chrome, Edge or Safari.'; }
+
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function buildTiles(){
+  $('tileAns').innerHTML=''; $('tilePool').innerHTML='';
+  shuffle(QS[qi].tiles).forEach(w=>{ const b=document.createElement('button'); b.className='tile'; b.textContent=w;
+    b.onclick=()=>{ (b.parentNode.id==='tilePool'?$('tileAns'):$('tilePool')).appendChild(b); }; $('tilePool').appendChild(b); });
+}
+$('tileClear').onclick=()=>{ [...$('tileAns').children].forEach(b=>$('tilePool').appendChild(b)); };
+$('tileOk').onclick=()=>{ const t=[...$('tileAns').children].map(b=>b.textContent).join(' '); if(t) submit(t); };
+$('typeOk').onclick=()=>{ const t=$('typeIn').value.trim(); if(t) submit(t); };
+$('typeIn').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('typeOk').click(); } });
+
+/* speech recognition */
+let rec=null, listening=false, heardText='';
+function stopListening(){ if(rec){ try{ rec.abort(); }catch(e){} } listening=false; $('micBtn').classList.remove('listening'); $('micBtn').textContent='🎤 Tap and speak to Dr Shah'; }
+function startListening(){
+  if(!SR) return; stopTalk(); stopListening();
+  heardText=''; $('heard').textContent=''; $('heardBtns').hidden=true;
+  rec = new SR(); rec.lang='en-GB'; rec.interimResults=true; rec.maxAlternatives=1; rec.continuous=false;
+  rec.onresult = e => { let t=''; for(const r of e.results) t += r[0].transcript; heardText=t.trim(); $('heard').innerHTML='I heard: <b></b>'; $('heard').querySelector('b').textContent='"'+heardText+'"'; };
+  rec.onerror = e => { if(e.error==='not-allowed'||e.error==='service-not-allowed'){ $('heard').textContent='The microphone is blocked. Allow it in your browser, or type your answer.'; } else if(e.error==='no-speech'){ $('heard').textContent="I didn't hear anything. Tap and try again."; } };
+  rec.onend = () => { listening=false; $('micBtn').classList.remove('listening'); $('micBtn').textContent='🎤 Tap and speak again';
+    if(heardText){ $('heardBtns').hidden=false; } };
+  try{ rec.start(); listening=true; $('micBtn').classList.add('listening'); $('micBtn').textContent='● Listening… tap to stop'; }catch(e){ $('heard').textContent='Speaking is not working here. Please type your answer.'; }
+}
+$('micBtn').onclick=()=>{ if(listening){ try{ rec.stop(); }catch(e){} } else startListening(); };
+$('heardOk').onclick=()=>{ if(heardText) submit(heardText); };
+$('heardAgain').onclick=startListening;
+$('heardType').onclick=()=>{ setMode('type'); $('typeIn').value=heardText; };
+
+function showQuestion(i, opts={}){
+  qi=i; tries=0; errs=0; done=false;
+  $('qNum').textContent=`Question ${i+1} of ${QS.length}`; renderDots();
+  const q=QS[i];
+  $('notesList').innerHTML = q.notes.map(n=>`<li>${n}</li>`).join('');
+  $('gHelp').hidden=true; $('gBtn').setAttribute('aria-expanded','false');
+  $('gTitle').textContent=q.help.title; $('gText').innerHTML=q.help.text; $('gTl').innerHTML=timeline(q.help.tl);
+  $('calBtn').hidden = q.id!=='howlong';
+  $('fb').hidden=true; $('fbBtns').hidden=true; $('answerArea').hidden=false;
+  $('typeIn').value=''; $('heard').textContent=''; $('heardBtns').hidden=true; heardText='';
+  buildTiles();
+  barTarget = i>=1 ? 1 : 0;
+  if(!opts.silent) docSays(opts.prefix ? opts.prefix+' '+q.doc : q.doc);
+  else $('docText').textContent=q.doc;
+  $('talkScroll').scrollTop=0;
+}
+$('gBtn').onclick=()=>{ const h=$('gHelp'); h.hidden=!h.hidden; $('gBtn').setAttribute('aria-expanded',!h.hidden); if(!h.hidden) h.scrollIntoView({block:'nearest',behavior:reduceMotion?'auto':'smooth'}); };
+$('calBtn').onclick=()=>{ goCam(2); closeModals(); };
+$('replayBtn').onclick=()=>{ unlockAudio(); say(curSay); };
+
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function fbButtons(list){ const b=$('fbBtns'); b.innerHTML=''; list.forEach(([label,cls,fn])=>{ const x=document.createElement('button'); x.className='btn '+(cls||''); x.innerHTML=label; x.onclick=fn; b.appendChild(x); }); b.hidden=!list.length; }
+function retry(){ $('fb').hidden=true; $('fbBtns').hidden=true; $('answerArea').hidden=false; $('typeIn').value=''; $('heard').textContent=''; $('heardBtns').hidden=true; heardText=''; buildTiles(); if(mode==='type') $('typeIn').focus({preventScroll:true}); }
+
+function submit(text){
+  stopListening(); unlockAudio();
+  const q=QS[qi], r=check(qi,text), R=results[qi];
+  if(r.v==='none') return;
+  tries++;
+  if(!R.first) R.first=text;
+  const fb=$('fb'); fb.hidden=false; fb.className=r.v==='ok'?'ok':r.v==='err'?'err':'nudge';
+  const said = `<p>You said: <i>"${esc(text)}"</i></p>`;
+  if(r.v==='ok'){
+    done=true; R.status = (errs===0 && tries===1) ? 'first' : 'fixed';
+    const praise = PRAISE[(qi+tries)%PRAISE.length];
+    fb.innerHTML = `<div class="v">✓ ${praise}</div>${said}`;
+    $('answerArea').hidden=true;
+    recLines.push(q.record); redrawScreen(); nod(); lookAtScreen();
+    docSays(q.ack);
+    window.simStats && simStats.once('q'+(qi+1)+'-done');
+    fbButtons([[qi<QS.length-1?'Next question ▶':'Finish ▶','primary',next]]);
+  } else if(r.v==='err'){
+    errs++; R.errors.push({said:text, tip:r.tip}); tilt();
+    if(errs>=2){
+      R.status='shown'; done=true;
+      fb.innerHTML = `<div class="v">✗ Not quite</div>${said}<p>${esc(r.tip)}</p><p>A good answer:</p><div class="model">${esc(q.model)}</div>${q.alt?`<p class="small">Or: <b>${esc(q.alt)}</b></p>`:''}`;
+      $('answerArea').hidden=true;
+      recLines.push(q.record); redrawScreen();
+      docSays(r.say || q.model);
+      fbButtons([['🔊 Hear it','',()=>say(q.model)],[qi<QS.length-1?'Next question ▶':'Finish ▶','primary',next]]);
+    } else {
+      fb.innerHTML = `<div class="v">✗ Not quite</div>${said}<p>${esc(r.tip)}</p>`;
+      $('answerArea').hidden=true;
+      docSays(r.say ? r.say+' '+AGAIN_SAY : AGAIN_SAY);
+      fbButtons([['↺ Try again','primary',retry],['💡 Grammar help','',()=>{ $('gHelp').hidden=false; $('gBtn').setAttribute('aria-expanded','true'); $('gHelp').scrollIntoView({block:'nearest'}); }]]);
+    }
+  } else {
+    // nudge or unknown: no penalty, but after 4 tries show the answer
+    if(tries>=4){
+      R.status = R.status || 'shown'; done=true;
+      fb.className='nudge'; fb.innerHTML=`<div class="v">Here is a good answer</div>${said}<div class="model">${esc(q.model)}</div>`;
+      $('answerArea').hidden=true; recLines.push(q.record); redrawScreen(); docSays(q.model);
+      fbButtons([['🔊 Hear it','',()=>say(q.model)],[qi<QS.length-1?'Next question ▶':'Finish ▶','primary',next]]);
+      return;
+    }
+    fb.className = r.v==='nudge'?'nudge':'unknown';
+    fb.innerHTML = `<div class="v">${r.v==='nudge'?'🙂 Nearly there':'🤔 Try again'}</div>${said}<p>${esc(r.tip)}</p>`;
+    $('answerArea').hidden=true;
+    docSays(r.v==='nudge'?NUDGE_SAY:UNKNOWN);
+    fbButtons([['↺ Try again','primary',retry]]);
+  }
+  renderDots();
+  $('talkScroll').scrollTop = 0;
+}
+function next(){
+  if(qi<QS.length-1){ showQuestion(qi+1); }
+  else finish();
+}
+function finish(){
+  done=true; qi=QS.length; renderDots();
+  $('qNum').textContent='Finished'; $('notesList').innerHTML='<li>Listen to Dr Shah\'s advice.</li>';
+  $('calBtn').hidden=true; $('gHelp').hidden=true; $('answerArea').hidden=true; $('fb').hidden=true;
+  docSays(CLOSE); nod();
+  window.simStats && simStats.once('consult-complete');
+  fbButtons([['📋 See my results','primary',showSummary]]);
+}
+function showSummary(){
+  const firstOk = results.filter(r=>r.status==='first').length;
+  $('sumScore').textContent = `${firstOk} / ${QS.length}`;
+  const tag = s => s==='first'?'<span class="tag first">Right first time</span>':s==='fixed'?'<span class="tag fixed">Fixed it</span>':'<span class="tag shown">Answer shown</span>';
+  $('sumBody').innerHTML = `<table class="sum"><tr><th>Dr Shah asked</th><th>You first said</th><th>A good answer</th></tr>` +
+    QS.map((q,i)=>{ const R=results[i]; return `<tr><td>${esc(q.doc.split('. ').pop())}<br>${tag(R.status)}</td><td>${esc(R.first||'–')}${R.errors.length?`<div class="small">${esc(R.errors[0].tip)}</div>`:''}</td><td><b>${esc(q.model)}</b></td></tr>`; }).join('') + '</table>' +
+    `<p class="small">Practise the ones that were not right first time. Say each good answer out loud three times.</p>`;
+  openModal('sumModal');
+}
+$('againBtn').onclick=()=>{ closeModals(); resetResults(); recLines.length=0; redrawScreen(); barTarget=0; showQuestion(0); };
+$('printBtn').onclick=()=>print();
+
+/* timelines for grammar help */
+function timeline(kind){
+  const W=360,H=92, y=46, x0=20, xN=330;
+  const base = `<line x1="${x0}" y1="${y}" x2="${xN}" y2="${y}" stroke="#4a5568" stroke-width="2"/><polygon points="${xN+8},${y} ${xN-2},${y-6} ${xN-2},${y+6}" fill="#4a5568"/><line x1="290" y1="${y-14}" x2="290" y2="${y+14}" stroke="#1d7a3e" stroke-width="3"/><text x="290" y="${y+32}" font-size="13" text-anchor="middle" fill="#1d7a3e" font-weight="700">NOW</text><text x="${x0}" y="${y+32}" font-size="12" fill="#4a5568">past</text>`;
+  let k='';
+  if(kind==='since') k=`<rect x="90" y="${y-8}" width="200" height="16" rx="4" fill="#b42318" opacity=".85"/><circle cx="90" cy="${y}" r="7" fill="#b42318"/><text x="90" y="${y-16}" font-size="13" text-anchor="middle" fill="#b42318" font-weight="700">since Monday</text><text x="190" y="${y-16}" font-size="13" text-anchor="middle" fill="#1b2230">← for four days →</text><text x="190" y="${y+32}" font-size="13" text-anchor="middle" fill="#1b2230" font-weight="700">I've had it</text>`;
+  if(kind==='since2') k=`<rect x="70" y="${y-8}" width="220" height="16" rx="4" fill="#1f6fe0" opacity=".85"/><circle cx="70" cy="${y}" r="7" fill="#1f6fe0"/><text x="70" y="${y-16}" font-size="13" text-anchor="middle" fill="#1f6fe0" font-weight="700">since 2024</text><text x="190" y="${y-16}" font-size="13" text-anchor="middle" fill="#1b2230">← for two years →</text><text x="180" y="${y+32}" font-size="13" text-anchor="middle" fill="#1b2230" font-weight="700">I've worked there</text>`;
+  if(kind==='point') k=`<circle cx="150" cy="${y}" r="9" fill="#e08a00"/><text x="150" y="${y-16}" font-size="13" text-anchor="middle" fill="#8a5a00" font-weight="700">finished time</text><text x="150" y="${y+32}" font-size="13" text-anchor="middle" fill="#1b2230" font-weight="700">I lifted / I took</text>`;
+  if(kind==='result') k=`<circle cx="180" cy="${y}" r="8" fill="#b42318"/><path d="M188 ${y-4} Q240 ${y-30} 284 ${y-6}" stroke="#b42318" stroke-width="2.5" fill="none"/><polygon points="288,${y-4} 278,${y-14} 276,${y-2}" fill="#b42318"/><text x="180" y="${y+32}" font-size="13" text-anchor="middle" fill="#1b2230" font-weight="700">I've hurt my back</text><text x="240" y="${y-28}" font-size="12" text-anchor="middle" fill="#b42318">it still hurts</text>`;
+  if(kind==='life') k=`<rect x="40" y="${y-8}" width="250" height="16" rx="4" fill="#9aa6b3" opacity=".6"/><text x="165" y="${y-16}" font-size="13" text-anchor="middle" fill="#1b2230">all my life, up to now</text><text x="165" y="${y+5}" font-size="15" text-anchor="middle" fill="#b42318" font-weight="800">✗ never</text><text x="165" y="${y+32}" font-size="13" text-anchor="middle" fill="#1b2230" font-weight="700">I've never had it</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Timeline">${base}${k}</svg>`;
+}
+
+/* ================= modals, view, labels ================= */
+const modals=[...document.querySelectorAll('.modal')];
+function openModal(id){ modals.forEach(m=>m.classList.remove('open')); $(id).classList.add('open'); const x=$(id).querySelector('.x'); if(x) x.focus(); }
+function closeModals(){ modals.forEach(m=>m.classList.remove('open')); }
+modals.forEach(m=>{ m.addEventListener('click',e=>{ if(e.target===m) closeModals(); }); const x=m.querySelector('.x'); if(x) x.onclick=closeModals; });
+$('learnBtn').onclick=()=>openModal('learnModal');
+$('helpBtn').onclick=()=>openModal('helpModal');
+$('viewBtn').onclick=()=>openModal('viewModal');
+document.querySelectorAll('[data-cam]').forEach(b=>b.onclick=()=>{ goCam(+b.dataset.cam); closeModals(); });
+$('lblBtn').onclick=()=>{ labelsOn=!labelsOn; $('lblBtn').setAttribute('aria-pressed',labelsOn); };
+if(EDITION==='teacher' && $('teachBtn')){ $('teachBtn').hidden=false; $('teachBtn').onclick=()=>openModal('teachModal'); $('edBadge').hidden=false; }
+addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ closeModals(); return; }
+  if(document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if(['1','2','3','4'].includes(e.key)) goCam(+e.key-1);
+});
+
+/* ================= start ================= */
+$('startBtn').onclick=()=>{ unlockAudio(); $('startOv').hidden=true; showQuestion(0); };
+setMode(SR?'speak':'type');
+layout(); goCam(0,true);
+// test hooks: ?q=<n> jumps to a question, ?summary=1 fills a sample run, ?cam=<n>
+if(params.has('q')||params.has('summary')||params.has('cam')||params.has('nostart')){
+  $('startOv').hidden=true; audioUnlocked=true; soundOn=false;
+  const n=Math.max(0,Math.min(QS.length-1,(+params.get('q')||1)-1));
+  for(let i=0;i<n;i++){ recLines.push(QS[i].record); results[i].status='first'; results[i].first=QS[i].model; }
+  redrawScreen(); showQuestion(n,{silent:true});
+  if(params.get('try')) submit(params.get('try'));
+  if(params.get('help')) $('gBtn').click();
+  if(params.has('cam')) goCam(+params.get('cam'),true);
+  if(params.has('summary')){ results[1]={first:'I have it since Monday',status:'fixed',errors:[{tip:check(1,'I have it since Monday').tip}]}; results[4]={first:'No I never had back pain before',status:'shown',errors:[{tip:check(4,'No I never had back pain before').tip}]}; for(let i=0;i<QS.length;i++){ if(!results[i].status){ results[i].status='first'; results[i].first=QS[i].model; } } showSummary(); }
+} else { $('hint').hidden=false; }
+
+/* ================= loop ================= */
+const clock3=new THREE.Clock(); let tAll=0;
+function tick(){
+  const dt=Math.min(0.05,clock3.getDelta()); tAll+=dt;
+  if(camAnim){ camAnim.t+=dt/camAnim.dur; const k=Math.min(1,camAnim.t), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    camera.position.lerpVectors(camAnim.p0,camAnim.p1,e); controls.target.lerpVectors(camAnim.t0,camAnim.t1,e); if(k>=1) camAnim=null; }
+  controls.update();
+  // doctor
+  const isTalk = talking();
+  mouth.scale.y = isTalk ? 0.22+0.5*Math.abs(Math.sin(tAll*13)*Math.sin(tAll*5.3)) : 0.22;
+  anim.nod = Math.max(0,anim.nod-dt*1.3); anim.tilt=Math.max(0,anim.tilt-dt*0.7);
+  anim.lookT = Math.max(0,anim.lookT-dt); anim.type=Math.max(0,anim.type-dt);
+  anim.look += ((anim.lookT>0?1:0)-anim.look)*Math.min(1,dt*5);
+  head.rotation.x = Math.sin(anim.nod*Math.PI*3)*0.16*anim.nod + (isTalk?Math.sin(tAll*2.1)*0.025:0);
+  head.rotation.z = Math.sin(Math.min(1,anim.tilt)*Math.PI)*0.16;
+  head.rotation.y = anim.look*0.75 + Math.sin(tAll*0.4)*0.04;
+  torso.position.y = 0.88 + Math.sin(tAll*1.6)*0.004;
+  armL.fg.rotation.x = 0.25 + (anim.type>0? Math.sin(tAll*18)*0.08+0.25 : 0);
+  // blink
+  anim.nextBlink-=dt; if(anim.nextBlink<0){ anim.blink=0.14; anim.nextBlink=2+Math.random()*3; }
+  if(anim.blink>0){ anim.blink-=dt; } const s = anim.blink>0?0.12:1; eyes.forEach(e=>e.scale.y=(e.material===whiteM?0.8:1)*s);
+  // calendar bar
+  if(Math.abs(barProgress-barTarget)>0.002){ barProgress += (barTarget-barProgress)*Math.min(1,dt*1.5); if(Math.abs(barProgress-barTarget)<0.01) barProgress=barTarget; redrawCal(); }
+  renderer.render(scene,camera);
+  updateLabels();
+  requestAnimationFrame(tick);
+}
+redrawScreen(); tick();
+window.__sim = {QS, check, results, showQuestion, submit};
+</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('../../sw.js',{scope:'../../'}).catch(function(){});</script>
+</body>
+</html>

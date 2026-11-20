@@ -65,5 +65,18 @@ for (const [id, file] of [['bonds-stretcher','sims/bonds-stretcher/student.html'
     {title:'The parts', items: Object.values(PI).map(p=>({h:p.label, t:strip(p.job)}))},
     {title:'Spot the faults', items: faults}],
     quiz: grabArray(src,'QUIZ').map(q=>({q:q.q, o:q.o})) }; }
+{ const src = fs.readFileSync('sims/esol-at-the-doctors/student.html','utf8');
+  const dlg = src.slice(src.indexOf('/* ---------- Dialogue'), src.indexOf('</script>', src.indexOf('/* ---------- Dialogue')));
+  const {QS, CLOSE: close} = new Function(dlg + '\nreturn {QS, CLOSE};')();
+  out['esol-at-the-doctors'] = { sections:[
+    {title:'The conversation', items: QS.map(q=>({h:'Dr Shah: '+q.doc, t:'Your notes: '+q.notes.join(' ')+' A good answer: '+q.model+(q.alt?' Or: '+q.alt:'')}))},
+    {title:"Dr Shah's advice", items:[{h:'At the end', t:close}]}],
+    quiz: [
+      {q:'Which sentence is correct?', o:["I have it since Monday.","I've had it since Monday."]},
+      {q:'Which sentence is correct?', o:["I've had it for four days.","I've had it since four days."]},
+      {q:'Which sentence is correct?', o:["I have lifted some boxes on Monday.","I lifted some boxes on Monday."]},
+      {q:'Which sentence is correct?', o:["I took some ibuprofen last night.","I have taken some ibuprofen last night."]},
+      {q:'Which sentence is correct?', o:["No, I never had back pain before.","No, I've never had back pain before."]},
+      {q:'You still work at the warehouse. Which sentence is correct?', o:["I worked there for two years.","I've worked there for two years."]}] }; }
 fs.writeFileSync('tools/sim-text.json', JSON.stringify(out,null,1));
 for(const [k,v] of Object.entries(out)) console.log(k, v.sections.map(x=>x.title+':'+x.items.length).join(', '), 'quiz:'+v.quiz.length);

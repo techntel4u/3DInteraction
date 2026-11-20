@@ -96,7 +96,7 @@
    "id": "esol",
    "name": "ESOL",
    "icon": "🗣️",
-   "collegeUrl": null
+   "collegeUrl": "https://www.wolvcoll.ac.uk/category/esol-adult-learners/"
   },
   {
    "id": "free-courses-for-adults",
@@ -398,6 +398,13 @@
    "name": "Football Academy (in partnership with Wolves Foundation) – Sport Pearson BTEC Level 3 National Foundation Diploma",
    "mode": "Full-time (16–18)",
    "collegeUrl": "https://www.wolvcoll.ac.uk/courses/football-academy-in-partnership-with-wolves-foundation-sport-pearson-btec-level-3-national-foundation-diploma-2/"
+  },
+  {
+   "id": "esol",
+   "areaId": "esol",
+   "name": "ESOL (English for Speakers of Other Languages)",
+   "mode": "Part-time",
+   "collegeUrl": "https://www.wolvcoll.ac.uk/courses/esol-2/"
   }
  ],
  "sims": [
@@ -713,6 +720,38 @@
    "worksheet": "sims/suspended-floors/worksheet.html",
    "series": "inside-the-building",
    "part": 2
+  },
+  {
+   "id": "esol-at-the-doctors",
+   "title": "At the doctor's: present perfect and past simple",
+   "summary": "A speaking simulation for ESOL learners. You are the patient in a GP surgery and Dr Shah asks you six questions about your back pain. Answer by speaking, typing or using word tiles. Dr Shah checks your grammar (present perfect with for and since, ever and never, and past simple with finished times), corrects you and lets you try again. A calendar on the wall shows since and for.",
+   "level": "Entry 3",
+   "spec": "Adult ESOL Core Curriculum, Entry 3 Speaking: Sc/E3.4a (present perfect and past simple with time markers), Sc/E3.3b",
+   "minutes": "10–15 min",
+   "tags": [
+    "Present perfect",
+    "Past simple",
+    "for and since",
+    "ever and never",
+    "Speaking"
+   ],
+   "areas": [
+    "esol"
+   ],
+   "courses": [
+    "esol"
+   ],
+   "general": false,
+   "student": "sims/esol-at-the-doctors/student.html",
+   "teacher": "sims/esol-at-the-doctors/teacher.html",
+   "thumb": "sims/esol-at-the-doctors/thumb.jpg",
+   "narration": "Browser British English voice (pilot)",
+   "updated": "2026-11-20",
+   "added": "2026-11-20",
+   "classroomTitle": "At the doctor's – 3D speaking simulation (present perfect and past simple)",
+   "instructions": "Open the link and talk to Dr Shah, the GP, in the 3D simulation (10–15 minutes). Use headphones and keep the sound on.\n1. Read the start screen and tap Start.\n2. Answer all 6 questions in full sentences. Use Speak, Type or Tiles.\n3. If Dr Shah corrects you, read the tip and try again.\n4. Write down every answer that was not right first time, with the correct sentence.\n5. Look at the calendar on the wall. Write one sentence with since and one with for.\n6. Do it again without Grammar help and try to beat your score.\nHand in your corrected sentences and your score.",
+   "transcript": "sims/esol-at-the-doctors/transcript.html",
+   "worksheet": "sims/esol-at-the-doctors/worksheet.html"
   }
  ],
  "courseInstructions": "Open the link to see the 3D simulations on this page. Work through each one, starting with the Guided tour (use headphones and press Sound on), then try Build it, Spot the faults and Test yourself. Note your quiz score for each simulation.",
