@@ -51,7 +51,7 @@ button{font:inherit;cursor:pointer}
 .bubble{background:#eaf0fa;border:1px solid #c9d6ec;border-radius:14px 14px 14px 4px;padding:10px 12px;margin-bottom:10px}
 .who{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px}
 .who .sp{flex:1}
-.who .btn{min-height:36px;font-size:13px;padding:0 10px}
+.who .btn{min-height:44px;font-size:14px;padding:0 12px}
 #docText{margin:0;font-size:17px;line-height:1.45}
 .card{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:#fff}
 .card h3{margin:0 0 6px;font-size:14px;color:var(--navy)}
@@ -103,7 +103,16 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
 .misc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0}
 .misc div{border-radius:10px;padding:8px 10px;font-size:15px}
 .misc .w{background:var(--badbg)} .misc .r{background:var(--okbg)}
+#moreBtn{display:none}
+.menu{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.menu .btn{justify-content:flex-start;min-height:52px;font-size:16px;white-space:normal;text-align:left}
+.sticky{position:sticky;bottom:-20px;background:#fff;padding:10px 0 4px;margin-bottom:-4px}
+#notesHead{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+#notesHead h3{margin:0;flex:1}
 @media (max-width:900px) and (orientation:portrait), (max-width:600px){
+  #topBtns .opt{display:none}
+  #moreBtn{display:inline-flex}
+  #topBtns{max-width:none}
   #top{padding:6px 8px;gap:6px}
   #top h1{font-size:14.5px}
   #top .sub{display:none}
@@ -117,7 +126,19 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
   .ovc{padding:18px 16px}
   .misc{grid-template-columns:1fr}
 }
+@media (orientation:portrait) and (max-height:760px) and (max-width:600px){
+  #talk{height:62%!important}
+  #talkScroll{padding:8px 10px}
+  .bubble{padding:8px 10px;margin-bottom:8px}
+  .card{padding:8px 10px;margin-bottom:8px}
+  #docText{font-size:15.5px}
+  #notesList{font-size:15px}
+  #micBtn{min-height:56px;font-size:17px}
+  #prog{margin-bottom:6px}
+}
 @media (orientation:landscape) and (max-height:500px){
+  .bubble{padding:7px 10px;margin-bottom:8px}
+  .card{padding:7px 10px;margin-bottom:8px}
   #top{padding:4px 8px}
   #top h1{font-size:14px}
   #top .sub{display:none}
@@ -142,11 +163,12 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
   <div class="ttl"><h1>At the doctor's<span id="edBadge" class="badge" hidden>Teacher version</span></h1><div class="sub">ESOL Entry 3 · Present perfect and past simple · Speaking practice</div></div>
   <div id="topBtns">
     <button class="btn" id="soundBtn" aria-pressed="true" title="Sound on or off">🔊<span class="full"> Sound</span></button>
-    <button class="btn" id="viewBtn" title="Change the view">📷<span class="full"> View</span></button>
-    <button class="btn" id="lblBtn" aria-pressed="false" title="Show the words for things in the room">🏷<span class="full"> Words</span></button>
-    <button class="btn" id="learnBtn" title="What you'll learn">📘<span class="full"> Learn</span></button>
-    <button class="btn" id="helpBtn" title="How to use this">❓</button>
-    <button class="btn" id="teachBtn" hidden>🧑‍🏫<span class="full"> Teacher notes</span></button>
+    <button class="btn opt" id="viewBtn" title="Change the view">📷<span class="full"> View</span></button>
+    <button class="btn opt" id="lblBtn" aria-pressed="false" title="Show the words for things in the room">🏷<span class="full"> Words</span></button>
+    <button class="btn opt" id="learnBtn" title="What you'll learn">📘<span class="full"> Learn</span></button>
+    <button class="btn opt" id="helpBtn" title="How to use this">❓</button>
+    <button class="btn" id="moreBtn" aria-label="More options">☰<span class="full"> More</span></button>
+    <button class="btn opt" id="teachBtn" hidden>🧑‍🏫<span class="full"> Teacher notes</span></button>
   </div>
 </header>
 
@@ -160,9 +182,9 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
   <div id="fb" hidden></div>
   <div class="row" id="fbBtns" hidden></div>
   <div class="card" id="notesCard">
-    <h3>📝 Your notes</h3>
+    <div id="notesHead"><h3>📝 Your notes</h3><button class="btn" id="gBtn" aria-expanded="false">💡 Grammar help</button></div>
     <ul id="notesList"></ul>
-    <div class="row"><button class="btn" id="gBtn" aria-expanded="false">💡 Grammar help</button><button class="btn" id="calBtn" hidden>📅 Look at the calendar</button></div>
+    <div class="row" id="calRow" hidden><button class="btn" id="calBtn">📅 Look at the calendar</button></div>
   </div>
   <div class="card" id="gHelp" hidden><h3 id="gTitle"></h3><p id="gText"></p><div id="gTl"></div></div>
 
@@ -193,7 +215,6 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
  </div>
 </section>
 
-<div id="hint" hidden>🔊 Sound is on – tap Start to begin</div>
 
 <!-- Start -->
 <div class="ov" id="startOv">
@@ -207,7 +228,7 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
   </ul>
   <p>You can <b>🎤 speak</b>, <b>⌨️ type</b> or use <b>🧩 word tiles</b>. Dr Shah tells you if something is wrong and helps you fix it.</p>
   <p class="small">🔊 Sound is on. Use headphones if you can. This is English practice, not medical advice.</p>
-  <div class="row"><button class="btn primary" id="startBtn" style="min-height:52px;font-size:17px;padding:0 22px">▶ Start</button></div>
+  <div class="row sticky"><button class="btn primary" id="startBtn" style="min-height:52px;font-size:17px;padding:0 22px">▶ Start</button></div>
  </div>
 </div>
 
@@ -219,7 +240,22 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
   <p>Right first time:</p>
   <div class="bigscore" id="sumScore"></div>
   <div id="sumBody"></div>
-  <div class="row"><button class="btn primary" id="againBtn">↺ Start again</button><button class="btn" id="printBtn">🖨 Print</button></div>
+  <div class="row sticky"><button class="btn primary" id="againBtn">↺ Start again</button><button class="btn" id="printBtn">🖨 Print</button></div>
+ </div>
+</div>
+
+<!-- More (phones) -->
+<div class="ov modal" id="moreModal" role="dialog" aria-modal="true" aria-labelledby="moreH">
+ <div class="ovc" style="max-width:420px">
+  <button class="btn x" aria-label="Close">✕</button>
+  <h2 id="moreH">More</h2>
+  <div class="menu">
+   <button class="btn" data-go="viewBtn">📷 Change the view</button>
+   <button class="btn" data-go="lblBtn" id="moreLbl">🏷 Show words for things in the room</button>
+   <button class="btn" data-go="learnBtn">📘 What you'll learn</button>
+   <button class="btn" data-go="helpBtn">❓ How to use this</button>
+   <button class="btn" data-go="teachBtn" id="moreTeach" hidden>🧑‍🏫 Teacher notes</button>
+  </div>
  </div>
 </div>
 
@@ -668,6 +704,14 @@ function layout(){
   controls.maxDistance = narrow()?5.4:4.6;
 }
 addEventListener('resize',layout);
+function fitKeyboard(){
+  const vv=window.visualViewport, t=$('talk'); if(!vv) return;
+  const kb = innerHeight - vv.height - vv.offsetTop;
+  if(kb>80){ const topH=$('top').getBoundingClientRect().height; t.style.setProperty('top',(vv.offsetTop+topH+4)+'px','important'); t.style.setProperty('bottom',(kb+4)+'px','important'); t.style.setProperty('height','auto','important');
+    const f=document.activeElement; if(f && f.id==='typeIn') setTimeout(()=>f.scrollIntoView({block:'center'}),60); }
+  else { ['top','bottom','height'].forEach(p=>t.style.removeProperty(p)); }
+}
+if(window.visualViewport){ visualViewport.addEventListener('resize',fitKeyboard); visualViewport.addEventListener('scroll',fitKeyboard); }
 
 /* ===== word labels (vocabulary) ===== */
 let labelsOn=false, tapLabel=null, tapLabelT=0;
@@ -706,16 +750,22 @@ function talking(){ return clipPlaying() || (speaking && performance.now() < nar
 function pickVoice(){ try{ const vs=speechSynthesis.getVoices().filter(v=>/en[-_]GB/i.test(v.lang));
   voice = vs.find(v=>/female|libby|sonia|serena|kate|martha|hazel|susan|google uk english female/i.test(v.name)) || vs[0] || null; }catch(e){} }
 try{ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }catch(e){}
-function stopTalk(){ try{ speechSynthesis.cancel(); }catch(e){} __stopClip(); speaking=false; }
+function stopTalk(){ sayId++; try{ speechSynthesis.cancel(); }catch(e){} __stopClip(); speaking=false; }
+let sayId=0;
 function say(text){
   stopTalk();
   if(!soundOn||!audioUnlocked||!text) return;
   if(__playClip(text)) return;
-  narrEnd = performance.now() + __norm(text).split(/\s+/).length*400;
+  const id=++sayId, clean=__norm(text);
+  const parts = clean.match(/[^.!?]+[.!?]*/g) || [clean];
+  narrEnd = performance.now() + clean.split(/\s+/).length*420;
+  speaking=true;
   try{
-    const u=new SpeechSynthesisUtterance(__norm(text)); u.lang='en-GB'; u.rate=0.9; if(voice) u.voice=voice;
-    u.onend=u.onerror=()=>{ speaking=false; narrEnd=0; };
-    speaking=true; speechSynthesis.speak(u);
+    parts.forEach((p,i)=>{ const u=new SpeechSynthesisUtterance(p.trim()); u.lang='en-GB'; u.rate=0.9; if(voice) u.voice=voice;
+      if(i===parts.length-1) u.onend=()=>{ if(id===sayId){ speaking=false; narrEnd=0; } };
+      u.onerror=()=>{ if(id===sayId && i===parts.length-1){ speaking=false; } };
+      speechSynthesis.speak(u); });
+    try{ speechSynthesis.resume(); }catch(e){}
   }catch(e){ speaking=false; }
 }
 window.__narrLines = () => {
@@ -727,7 +777,7 @@ window.__narrLines = () => {
   return out;
 };
 $('soundBtn').onclick=()=>{ soundOn=!soundOn; $('soundBtn').setAttribute('aria-pressed',soundOn); $('soundBtn').innerHTML=(soundOn?'🔊':'🔇')+'<span class="full"> Sound</span>'; if(!soundOn) stopTalk(); else if(audioUnlocked) say(curSay); };
-function unlockAudio(){ if(audioUnlocked) return; audioUnlocked=true; $('hint').hidden=true; __primeClip(); }
+function unlockAudio(){ if(audioUnlocked) return; audioUnlocked=true; __primeClip(); }
 
 /* ================= conversation ================= */
 const NUDGE_SAY = 'Can you tell me in a full sentence?';
@@ -746,7 +796,7 @@ function setMode(m){
   $('mSpeak').hidden = m!=='speak'; $('mType').hidden = m!=='type'; $('mTiles').hidden = m!=='tiles';
   if(m==='type') setTimeout(()=>$('typeIn').focus({preventScroll:true}),50);
 }
-document.querySelectorAll('#modes .btn').forEach(b=>b.onclick=()=>{ stopListening(); setMode(b.dataset.mode); });
+document.querySelectorAll('#modes .btn').forEach(b=>b.onclick=()=>{ stopListening(); setMode(b.dataset.mode); const pane=$(b.dataset.mode==='speak'?'mSpeak':b.dataset.mode==='type'?'mType':'mTiles'); setTimeout(()=>pane.scrollIntoView({block:'nearest',behavior:reduceMotion?'auto':'smooth'}),30); });
 if(!SR){ $('tabSpeak').disabled=true; $('tabSpeak').title='Speaking is not available in this browser. Try Chrome, Edge or Safari.'; }
 
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; } return a; }
@@ -783,9 +833,9 @@ function showQuestion(i, opts={}){
   $('qNum').textContent=`Question ${i+1} of ${QS.length}`; renderDots();
   const q=QS[i];
   $('notesList').innerHTML = q.notes.map(n=>`<li>${n}</li>`).join('');
-  $('gHelp').hidden=true; $('gBtn').setAttribute('aria-expanded','false');
+  $('gHelp').hidden=true; $('gBtn').hidden=false; $('gBtn').setAttribute('aria-expanded','false');
   $('gTitle').textContent=q.help.title; $('gText').innerHTML=q.help.text; $('gTl').innerHTML=timeline(q.help.tl);
-  $('calBtn').hidden = q.id!=='howlong';
+  $('calRow').hidden = q.id!=='howlong';
   $('fb').hidden=true; $('fbBtns').hidden=true; $('answerArea').hidden=false;
   $('typeIn').value=''; $('heard').textContent=''; $('heardBtns').hidden=true; heardText='';
   buildTiles();
@@ -832,7 +882,7 @@ function submit(text){
       fb.innerHTML = `<div class="v">✗ Not quite</div>${said}<p>${esc(r.tip)}</p>`;
       $('answerArea').hidden=true;
       docSays(r.say ? r.say+' '+AGAIN_SAY : AGAIN_SAY);
-      fbButtons([['↺ Try again','primary',retry],['💡 Grammar help','',()=>{ $('gHelp').hidden=false; $('gBtn').setAttribute('aria-expanded','true'); $('gHelp').scrollIntoView({block:'nearest'}); }]]);
+      fbButtons([['↺ Try again','primary',retry]]);
     }
   } else {
     // nudge or unknown: no penalty, but after 4 tries show the answer
@@ -859,7 +909,7 @@ function next(){
 function finish(){
   done=true; qi=QS.length; renderDots();
   $('qNum').textContent='Finished'; $('notesList').innerHTML='<li>Listen to Dr Shah\'s advice.</li>';
-  $('calBtn').hidden=true; $('gHelp').hidden=true; $('answerArea').hidden=true; $('fb').hidden=true;
+  $('calRow').hidden=true; $('gHelp').hidden=true; $('gBtn').hidden=true; $('answerArea').hidden=true; $('fb').hidden=true;
   docSays(CLOSE); nod();
   window.simStats && simStats.once('consult-complete');
   fbButtons([['📋 See my results','primary',showSummary]]);
@@ -895,11 +945,13 @@ function openModal(id){ modals.forEach(m=>m.classList.remove('open')); $(id).cla
 function closeModals(){ modals.forEach(m=>m.classList.remove('open')); }
 modals.forEach(m=>{ m.addEventListener('click',e=>{ if(e.target===m) closeModals(); }); const x=m.querySelector('.x'); if(x) x.onclick=closeModals; });
 $('learnBtn').onclick=()=>openModal('learnModal');
+$('moreBtn').onclick=()=>{ $('moreLbl').textContent = labelsOn?'🏷 Hide the words':'🏷 Show words for things in the room'; openModal('moreModal'); };
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{ closeModals(); $(b.dataset.go).click(); });
 $('helpBtn').onclick=()=>openModal('helpModal');
 $('viewBtn').onclick=()=>openModal('viewModal');
 document.querySelectorAll('[data-cam]').forEach(b=>b.onclick=()=>{ goCam(+b.dataset.cam); closeModals(); });
 $('lblBtn').onclick=()=>{ labelsOn=!labelsOn; $('lblBtn').setAttribute('aria-pressed',labelsOn); };
-if(EDITION==='teacher' && $('teachBtn')){ $('teachBtn').hidden=false; $('teachBtn').onclick=()=>openModal('teachModal'); $('edBadge').hidden=false; }
+if(EDITION==='teacher' && $('teachBtn')){ $('teachBtn').hidden=false; $('moreTeach').hidden=false; $('teachBtn').onclick=()=>openModal('teachModal'); $('edBadge').hidden=false; }
 addEventListener('keydown',e=>{
   if(e.key==='Escape'){ closeModals(); return; }
   if(document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
@@ -920,7 +972,7 @@ if(params.has('q')||params.has('summary')||params.has('cam')||params.has('nostar
   if(params.get('help')) $('gBtn').click();
   if(params.has('cam')) goCam(+params.get('cam'),true);
   if(params.has('summary')){ results[1]={first:'I have it since Monday',status:'fixed',errors:[{tip:check(1,'I have it since Monday').tip}]}; results[4]={first:'No I never had back pain before',status:'shown',errors:[{tip:check(4,'No I never had back pain before').tip}]}; for(let i=0;i<QS.length;i++){ if(!results[i].status){ results[i].status='first'; results[i].first=QS[i].model; } } showSummary(); }
-} else { $('hint').hidden=false; }
+}
 
 /* ================= loop ================= */
 const clock3=new THREE.Clock(); let tAll=0;
@@ -951,6 +1003,10 @@ function tick(){
 }
 redrawScreen(); tick();
 window.__sim = {QS, check, results, showQuestion, submit};
+window.__headScreen = () => { const v=new THREE.Vector3(); head.getWorldPosition(v); v.y+=0.11; v.project(camera);
+  const x=(v.x+1)/2*innerWidth, y=(1-v.y)/2*innerHeight, t=$('talk').getBoundingClientRect(), tb=$('top').getBoundingClientRect();
+  const free = y>tb.bottom+20 && !(x>t.left && x<t.right && y>t.top && y<t.bottom) && x>20 && x<innerWidth-20;
+  return {x:Math.round(x), y:Math.round(y), free}; };
 </script>
 <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('../../sw.js',{scope:'../../'}).catch(function(){});</script>
 </body>
