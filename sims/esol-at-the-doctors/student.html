@@ -18,7 +18,7 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink)}
-#c3d{position:fixed;inset:0;display:block;touch-action:none}
+#c3d{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
 #labels{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
 .lbl{position:absolute;transform:translate(-50%,-100%);background:rgba(20,40,75,.92);color:#fff;font-size:13px;font-weight:600;padding:4px 9px;border-radius:8px;white-space:nowrap}
 button{font:inherit;cursor:pointer}
@@ -63,6 +63,9 @@ button{font:inherit;cursor:pointer}
 #modes{display:flex;gap:6px;margin:4px 0 8px}
 #modes .btn{flex:1;padding:0 8px}
 .pane{margin-bottom:8px}
+#micStatus{font-size:15px;line-height:1.5}
+#micStatus.ok{background:var(--okbg);border-color:#a9d9b9}
+#micStatus.bad{background:var(--nudgebg);border-color:#efd08f}
 #micBtn{width:100%;min-height:64px;font-size:18px;border-radius:14px}
 #micBtn.listening{background:var(--bad);border-color:var(--bad);color:#fff;animation:pulse 1.2s infinite}
 @keyframes pulse{50%{box-shadow:0 0 0 8px rgba(180,35,24,.18)}}
@@ -218,8 +221,16 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
 
 <!-- Start -->
 <div class="ov" id="startOv">
- <div class="ovc">
+ <div class="ovc" id="start1">
   <h2>At the doctor's</h2>
+  <p>Speaking practice at the GP. Dr Shah talks to you and you answer.</p>
+  <p>🔊 Turn your sound up. Use headphones if you can.</p>
+  <p>🎤 When you tap <b>Start</b>, your phone or computer may ask to use the <b>microphone</b>. Tap <b>Allow</b> so you can speak to Dr Shah.</p>
+  <div class="row sticky"><button class="btn primary" id="startBtn" style="min-height:52px;font-size:17px;padding:0 22px">▶ Start</button></div>
+ </div>
+ <div class="ovc" id="start2" hidden>
+  <h2>How it works</h2>
+  <div class="card" id="micStatus" aria-live="polite">🎤 Checking the microphone…</div>
   <p>Today <b>you are the patient</b>. Your back hurts, so you have come to see <b>Dr Shah</b>, your GP.</p>
   <p>Dr Shah asks you 6 questions. Answer each one in a full sentence. Look at <b>📝 Your notes</b> for what to say. Think about the grammar:</p>
   <ul>
@@ -227,8 +238,8 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
    <li><b>I lifted</b> some boxes <b>on Monday</b> (a finished time)</li>
   </ul>
   <p>You can <b>🎤 speak</b>, <b>⌨️ type</b> or use <b>🧩 word tiles</b>. Dr Shah tells you if something is wrong and helps you fix it.</p>
-  <p class="small">🔊 Sound is on. Use headphones if you can. This is English practice, not medical advice.</p>
-  <div class="row sticky"><button class="btn primary" id="startBtn" style="min-height:52px;font-size:17px;padding:0 22px">▶ Start</button></div>
+  <p class="small">This is English practice, not medical advice.</p>
+  <div class="row sticky"><button class="btn primary" id="beginBtn" style="min-height:52px;font-size:17px;padding:0 22px">▶ Begin the appointment</button><button class="btn" id="introAgain">🔁 Listen again</button></div>
  </div>
 </div>
 
@@ -696,7 +707,7 @@ function layout(){
   camera.aspect=w/h;
   const r=$('talk').getBoundingClientRect(), topH=$('top').getBoundingClientRect().height;
   let ox=0, oy=0;
-  const bottomSheet = r.left < w*0.2 && r.top > h*0.25;
+  const bottomSheet = matchMedia('(max-width:900px) and (orientation:portrait), (max-width:600px)').matches && !matchMedia('(orientation:landscape) and (max-height:500px)').matches;
   if(bottomSheet){ oy = (h - r.top)/2 - topH/2; camera.fov = 58; }
   else { ox = (w - r.left + 12)/2; oy = -topH/2; camera.fov = w/h>1.9 ? 46 : 50; }
   camera.setViewOffset(w,h,ox,oy,w,h);
@@ -704,6 +715,7 @@ function layout(){
   controls.maxDistance = narrow()?5.4:4.6;
 }
 addEventListener('resize',layout);
+try{ new ResizeObserver(()=>layout()).observe($('talk')); }catch(e){}
 function fitKeyboard(){
   const vv=window.visualViewport, t=$('talk'); if(!vv) return;
   const kb = innerHeight - vv.height - vv.offsetTop;
@@ -769,7 +781,7 @@ function say(text){
   }catch(e){ speaking=false; }
 }
 window.__narrLines = () => {
-  const out=[]; out.push(['intro', QS[0].doc]);
+  const out=[]; out.push(['welcome', INTRO], ['intro', QS[0].doc]);
   QS.forEach((q,i)=>{ if(i>0) out.push(['q'+(i+1), q.doc]); out.push(['ack'+(i+1), q.ack]); out.push(['model'+(i+1), q.model]); if(q.alt) out.push(['alt'+(i+1), q.alt]);
     const seen=new Set(); q.rules.forEach(r=>{ if(typeof r.say==='string' && r.say && !seen.has(r.say)){ seen.add(r.say); out.push(['recast'+(i+1)+'-'+seen.size, r.say]); } }); });
   out.push(['close', CLOSE], ['unknown', UNKNOWN], ['nudge', NUDGE_SAY], ['again', AGAIN_SAY]);
@@ -777,13 +789,17 @@ window.__narrLines = () => {
   return out;
 };
 $('soundBtn').onclick=()=>{ soundOn=!soundOn; $('soundBtn').setAttribute('aria-pressed',soundOn); $('soundBtn').innerHTML=(soundOn?'🔊':'🔇')+'<span class="full"> Sound</span>'; if(!soundOn) stopTalk(); else if(audioUnlocked) say(curSay); };
-function unlockAudio(){ if(audioUnlocked) return; audioUnlocked=true; __primeClip(); }
+function unlockAudio(){ if(audioUnlocked) return; audioUnlocked=true; __primeClip(); try{ const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); }catch(e){} }
 
 /* ================= conversation ================= */
 const NUDGE_SAY = 'Can you tell me in a full sentence?';
 const AGAIN_SAY = 'Can you say that again?';
 let qi=0, tries=0, errs=0, done=false, mode='speak', curSay='', results=[];
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const UA = navigator.userAgent;
+const IOS = /iP(hone|ad|od)/.test(UA) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+// On iPhone and iPad only Safari can use speech recognition. Chrome, Edge, Firefox and in-app browsers expose it but it never works.
+const IOS_NOT_SAFARI = IOS && /CriOS|FxiOS|EdgiOS|OPiOS|OPT\/|GSA\/|DuckDuckGo|Instagram|FBAN|FBAV|Line\/|Teams|WhatsApp/i.test(UA);
+const SR = IOS_NOT_SAFARI ? null : (window.SpeechRecognition || window.webkitSpeechRecognition);
 function resetResults(){ results = QS.map(()=>({first:'', status:'', errors:[]})); }
 resetResults();
 QS.forEach(()=>{ $('dots').appendChild(document.createElement('span')); });
@@ -791,13 +807,20 @@ function renderDots(){ [...$('dots').children].forEach((d,i)=>{ d.className = re
 
 function docSays(text, speakText){ $('docText').textContent = text; curSay = speakText||text; say(curSay); }
 function setMode(m){
-  if(m==='speak' && !SR) m='type';
+  
   mode=m; ['speak','type','tiles'].forEach(k=>{ const t=$('tab'+k[0].toUpperCase()+k.slice(1)); t.setAttribute('aria-pressed',k===m); t.setAttribute('aria-selected',k===m); });
   $('mSpeak').hidden = m!=='speak'; $('mType').hidden = m!=='type'; $('mTiles').hidden = m!=='tiles';
   if(m==='type') setTimeout(()=>$('typeIn').focus({preventScroll:true}),50);
 }
 document.querySelectorAll('#modes .btn').forEach(b=>b.onclick=()=>{ stopListening(); setMode(b.dataset.mode); const pane=$(b.dataset.mode==='speak'?'mSpeak':b.dataset.mode==='type'?'mType':'mTiles'); setTimeout(()=>pane.scrollIntoView({block:'nearest',behavior:reduceMotion?'auto':'smooth'}),30); });
-if(!SR){ $('tabSpeak').disabled=true; $('tabSpeak').title='Speaking is not available in this browser. Try Chrome, Edge or Safari.'; }
+function noSpeechMsg(){ if(SR) return;
+  $('micBtn').hidden=true; $('mSpeak').querySelector('.small').hidden=true;
+  $('heard').innerHTML = IOS
+    ? 'On iPhone and iPad, speaking only works in <b>Safari</b>. Open this page in Safari to speak to Dr Shah, or tap <b>⌨️ Type</b>.<div class="row"><button class="btn" id="copyLink">📋 Copy the link for Safari</button></div>'
+    : 'Speaking doesn\'t work in this browser. Use <b>Chrome</b>, <b>Edge</b> or <b>Safari</b> to speak, or tap <b>⌨️ Type</b>.';
+  const cl=$('copyLink'); if(cl) cl.onclick=async()=>{ try{ await navigator.clipboard.writeText(location.href); cl.textContent='✓ Link copied. Paste it into Safari.'; }catch(e){ cl.textContent=location.href; } };
+}
+noSpeechMsg();
 
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function buildTiles(){
@@ -818,8 +841,19 @@ function startListening(){
   heardText=''; $('heard').textContent=''; $('heardBtns').hidden=true;
   rec = new SR(); rec.lang='en-GB'; rec.interimResults=true; rec.maxAlternatives=1; rec.continuous=false;
   rec.onresult = e => { let t=''; for(const r of e.results) t += r[0].transcript; heardText=t.trim(); $('heard').innerHTML='I heard: <b></b>'; $('heard').querySelector('b').textContent='"'+heardText+'"'; };
-  rec.onerror = e => { if(e.error==='not-allowed'||e.error==='service-not-allowed'){ $('heard').textContent='The microphone is blocked. Allow it in your browser, or type your answer.'; } else if(e.error==='no-speech'){ $('heard').textContent="I didn't hear anything. Tap and try again."; } };
-  rec.onend = () => { listening=false; $('micBtn').classList.remove('listening'); $('micBtn').textContent='🎤 Tap and speak again';
+  rec.onerror = e => {
+    const msg = {
+      'not-allowed': 'The microphone or speech recognition is blocked. '+(IOS?FIX_IOS+' Also check <b>Settings › Safari › Microphone</b>.':FIX_OTHER)+' Then tap 🎤 again. Or tap <b>⌨️ Type</b>.',
+      'service-not-allowed': IOS ? 'Speaking needs Dictation switched on. Go to <b>Settings › General › Keyboard</b> and turn on <b>Enable Dictation</b>, then come back and tap 🎤 again. Or tap <b>⌨️ Type</b>.'
+                         : 'Speech recognition is switched off in this browser. Try Chrome or Edge, or tap <b>⌨️ Type</b>.',
+      'audio-capture': 'No microphone was found. Check your microphone or headset, or tap <b>⌨️ Type</b>.',
+      'network': 'Speaking needs an internet connection. Check your connection, or tap <b>⌨️ Type</b>.',
+      'no-speech': "I didn't hear anything. Tap 🎤 and speak a bit louder."
+    }[e.error];
+    if(msg){ heardText=''; $('heard').innerHTML=msg; $('heardBtns').hidden=true; }
+    listening=false; $('micBtn').classList.remove('listening'); $('micBtn').textContent='🎤 Tap and speak to Dr Shah';
+  };
+  rec.onend = () => { listening=false; $('micBtn').classList.remove('listening'); $('micBtn').textContent= heardText?'🎤 Tap and speak again':'🎤 Tap and speak to Dr Shah';
     if(heardText){ $('heardBtns').hidden=false; } };
   try{ rec.start(); listening=true; $('micBtn').classList.add('listening'); $('micBtn').textContent='● Listening… tap to stop'; }catch(e){ $('heard').textContent='Speaking is not working here. Please type your answer.'; }
 }
@@ -837,9 +871,10 @@ function showQuestion(i, opts={}){
   $('gTitle').textContent=q.help.title; $('gText').innerHTML=q.help.text; $('gTl').innerHTML=timeline(q.help.tl);
   $('calRow').hidden = q.id!=='howlong';
   $('fb').hidden=true; $('fbBtns').hidden=true; $('answerArea').hidden=false;
-  $('typeIn').value=''; $('heard').textContent=''; $('heardBtns').hidden=true; heardText='';
+  $('typeIn').value=''; $('heard').textContent=''; $('heardBtns').hidden=true; heardText=''; noSpeechMsg();
   buildTiles();
   barTarget = i>=1 ? 1 : 0;
+  if(i>0 && camera.position.distanceTo(CAMS[0].pos)>0.6) goCam(0);
   if(!opts.silent) docSays(opts.prefix ? opts.prefix+' '+q.doc : q.doc);
   else $('docText').textContent=q.doc;
   $('talkScroll').scrollTop=0;
@@ -850,7 +885,7 @@ $('replayBtn').onclick=()=>{ unlockAudio(); say(curSay); };
 
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function fbButtons(list){ const b=$('fbBtns'); b.innerHTML=''; list.forEach(([label,cls,fn])=>{ const x=document.createElement('button'); x.className='btn '+(cls||''); x.innerHTML=label; x.onclick=fn; b.appendChild(x); }); b.hidden=!list.length; }
-function retry(){ $('fb').hidden=true; $('fbBtns').hidden=true; $('answerArea').hidden=false; $('typeIn').value=''; $('heard').textContent=''; $('heardBtns').hidden=true; heardText=''; buildTiles(); if(mode==='type') $('typeIn').focus({preventScroll:true}); }
+function retry(){ $('fb').hidden=true; $('fbBtns').hidden=true; $('answerArea').hidden=false; $('typeIn').value=''; $('heard').textContent=''; $('heardBtns').hidden=true; heardText=''; noSpeechMsg(); buildTiles(); if(mode==='type') $('typeIn').focus({preventScroll:true}); }
 
 function submit(text){
   stopListening(); unlockAudio();
@@ -959,8 +994,39 @@ addEventListener('keydown',e=>{
 });
 
 /* ================= start ================= */
-$('startBtn').onclick=()=>{ unlockAudio(); $('startOv').hidden=true; showQuestion(0); };
+const INTRO = "Today you are the patient. Your back hurts, so you have come to see Dr Shah, your GP. Dr Shah will ask you six questions. Answer each one in a full sentence. Look at your notes to see what to say. Think about the grammar. Use I've had, with since or for, when something started in the past and is still true now. Use the past simple, like I lifted, for a finished time, like on Monday. You can speak, type or use word tiles. If something is wrong, Dr Shah will help you fix it. When you are ready, tap Begin the appointment.";
+let micOK = false;
+function micMsg(cls, html, retry){ const m=$('micStatus'); m.className='card '+cls; m.innerHTML=html + (retry?'<div class="row"><button class="btn" id="micRetry">🎤 Try the microphone again</button></div>':''); const r=$('micRetry'); if(r) r.onclick=()=>checkMic(); }
+const FIX_IOS = 'Tap <b>aA</b> in the address bar, then <b>Website Settings</b>, and set <b>Microphone</b> to <b>Allow</b>.';
+const FIX_OTHER = 'Tap the icon to the left of the web address and set <b>Microphone</b> to <b>Allow</b>.';
+async function checkMic(){
+  if(!SR){ micOK=false;
+    micMsg('bad', IOS ? '⌨️ On iPhone and iPad, speaking only works in <b>Safari</b>. You can type or use tiles here, or open this page in Safari to speak.<div class="row"><button class="btn" id="copyLink2">📋 Copy the link for Safari</button></div>'
+                      : '⌨️ Speaking doesn\'t work in this browser, so you will type or use tiles. To speak, use <b>Chrome</b>, <b>Edge</b> or <b>Safari</b>.');
+    const c=$('copyLink2'); if(c) c.onclick=async()=>{ try{ await navigator.clipboard.writeText(location.href); c.textContent='✓ Link copied. Paste it into Safari.'; }catch(e){ c.textContent=location.href; } };
+    return false; }
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ micOK=true; micMsg('ok','🎤 Speaking is ready.'); return true; }
+  micMsg('', '🎤 Asking to use the microphone… tap <b>Allow</b>.');
+  try{
+    const st = await navigator.mediaDevices.getUserMedia({audio:true}); st.getTracks().forEach(t=>t.stop());
+    micOK=true; micMsg('ok','✓ The microphone is ready. You can speak to Dr Shah.'+(IOS?' Safari may also ask to use <b>speech recognition</b> the first time you tap 🎤. Tap <b>Allow</b>.':'')); return true;
+  }catch(e){
+    micOK=false;
+    if(e && e.name==='NotFoundError') micMsg('bad','🎤 No microphone was found. Plug in a headset, or type your answers.', true);
+    else micMsg('bad','🎤 The microphone is blocked, so you can\'t speak yet. '+(IOS?FIX_IOS:FIX_OTHER)+' Then tap the button below. Or just type your answers.', true);
+    return false;
+  }
+}
+$('startBtn').onclick=async()=>{
+  unlockAudio();
+  $('start1').hidden=true; $('start2').hidden=false;
+  await checkMic();
+  say(INTRO);
+};
+$('introAgain').onclick=()=>say(INTRO);
+$('beginBtn').onclick=()=>{ $('startOv').hidden=true; setMode(micOK?'speak':'type'); showQuestion(0); };
 setMode(SR?'speak':'type');
+window.__speech = {IOS, IOS_NOT_SAFARI, SR:!!SR};
 layout(); goCam(0,true);
 // test hooks: ?q=<n> jumps to a question, ?summary=1 fills a sample run, ?cam=<n>
 if(params.has('q')||params.has('summary')||params.has('cam')||params.has('nostart')){
