@@ -100,23 +100,35 @@
     return new TextDecoder().decode(bytes).replace(/\[[^\]]*\]|\([^)]*\)/g,'').trim();
   }
 
-  /* microphone capture → 16 kHz mono Float32 */
-  let rec = null;
-  function newContext(){ const AC = window.AudioContext || window.webkitAudioContext; const c = new AC(); try{ c.resume(); }catch(e){} return c; }
+  /* microphone capture → 16 kHz mono Float32.
+     One AudioContext is kept for the whole visit: iPhones limit how many can exist, and closing one
+     can hang on iOS, which used to leave the second answer stuck. */
+  let rec = null, shared = null, lastLevel = 0;
+  const later = (p, ms) => Promise.race([p, new Promise(ok => setTimeout(ok, ms))]);
+  function newContext(){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!shared || shared.state === 'closed'){ shared = new AC(); shared._worklet = null; }
+    try{ shared.resume(); }catch(e){}
+    return shared;
+  }
+  function freshContext(){ const old = shared; shared = null; try{ old && old.close(); }catch(e){} return newContext(); }
   const WORKLET = "registerProcessor('rec-tap',class extends AudioWorkletProcessor{process(i){const c=i[0]&&i[0][0];if(c)this.port.postMessage(c.slice(0));return true;}})";
   async function startRecording(stream, ctx){
     ctx = ctx || newContext();
-    if(ctx.state === 'suspended'){ try{ await ctx.resume(); }catch(e){} }
+    if(ctx.state !== 'running'){ try{ await later(ctx.resume(), 1500); }catch(e){} }
     const src = ctx.createMediaStreamSource(stream);
     const chunks = []; let len = 0; const max = ctx.sampleRate*MAXSEC;
-    const push = d => { if(len > max) return; chunks.push(d); len += d.length; };
+    const push = d => { if(len > max) return; chunks.push(d); len += d.length;
+      let s = 0; for(let i=0;i<d.length;i++) s += d[i]*d[i]; lastLevel = Math.sqrt(s/Math.max(1,d.length)); };
     const mute = ctx.createGain(); mute.gain.value = 0;
     let node = null;
     // AudioWorklet records off the main thread, so the 3D scene can't cause gaps; ScriptProcessor is the fallback
     if(ctx.audioWorklet && window.AudioWorkletNode){
       try{
-        const url = URL.createObjectURL(new Blob([WORKLET], {type:'application/javascript'}));
-        await ctx.audioWorklet.addModule(url); URL.revokeObjectURL(url);
+        if(!ctx._worklet){
+          const url = URL.createObjectURL(new Blob([WORKLET], {type:'application/javascript'}));
+          ctx._worklet = later(ctx.audioWorklet.addModule(url).then(() => true), 3000); }
+        if(await ctx._worklet !== true){ ctx._worklet = null; throw new Error('worklet'); }
         node = new AudioWorkletNode(ctx, 'rec-tap', {numberOfInputs:1, numberOfOutputs:1, outputChannelCount:[1]});
         node.port.onmessage = e => push(e.data);
       }catch(e){ node = null; }
@@ -126,15 +138,15 @@
       node.onaudioprocess = e => push(new Float32Array(e.inputBuffer.getChannelData(0)));
     }
     src.connect(node); node.connect(mute); mute.connect(ctx.destination);
+    lastLevel = 0;
     rec = {ctx, src, proc: node, mute, chunks, stream, rate: ctx.sampleRate, get len(){ return len; }};
     return rec;
   }
   async function stopRecording(){
     if(!rec) return new Float32Array(0);
     const r = rec; rec = null;
-    try{ if(r.proc.port) r.proc.port.onmessage = null; r.src.disconnect(); r.proc.disconnect(); r.mute.disconnect(); }catch(e){}
+    try{ if(r.proc.port) r.proc.port.onmessage = null; r.proc.onaudioprocess = null; r.src.disconnect(); r.proc.disconnect(); r.mute.disconnect(); }catch(e){}
     try{ r.stream.getTracks().forEach(t => t.stop()); }catch(e){}
-    try{ await r.ctx.close(); }catch(e){}
     let n = 0; r.chunks.forEach(c => n += c.length);
     const all = new Float32Array(n); let o = 0; r.chunks.forEach(c => { all.set(c, o); o += c.length; });
     return resample(all, r.rate);
@@ -147,5 +159,5 @@
   }
   function level(audio){ let s=0; for(let i=0;i<audio.length;i++) s += audio[i]*audio[i]; return Math.sqrt(s/Math.max(1,audio.length)); }
 
-  window.LocalSTT = { newContext, load, transcribe, startRecording, stopRecording, level, get state(){ return state; }, isRecording: () => !!rec };
+  window.LocalSTT = { newContext, freshContext, load, transcribe, startRecording, stopRecording, level, get state(){ return state; }, isRecording: () => !!rec, recorded: () => rec ? rec.len : 0, liveLevel: () => lastLevel };
 })();

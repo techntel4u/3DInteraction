@@ -68,6 +68,8 @@ button{font:inherit;cursor:pointer}
 #micStatus.ok{background:var(--okbg);border-color:#a9d9b9}
 #micStatus.bad{background:var(--nudgebg);border-color:#efd08f}
 #micBtn{width:100%;min-height:64px;font-size:18px;border-radius:14px}
+#micLevel{height:8px;border-radius:4px;background:#e3e7ee;overflow:hidden;margin:8px 2px 0}
+#micLevel span{display:block;height:100%;width:0;background:#2f8f55;border-radius:4px;transition:width .1s linear}
 #micBtn.checking{background:#5b6b85;border-color:#5b6b85;color:#fff}
 .steps{margin:6px 0;padding-left:22px}
 .steps li{margin:3px 0}
@@ -197,6 +199,7 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
     </div>
     <div class="pane" id="mSpeak">
       <button class="btn primary" id="micBtn">🎤 Tap to speak</button>
+      <div id="micLevel" hidden aria-hidden="true"><span></span></div>
       <p id="heard" aria-live="polite"></p>
       <p class="small" id="speakTip">Tap 🎤 and say your answer. Tap again when you finish. Dr Shah will answer you.</p>
     </div>
@@ -358,7 +361,7 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
   <p class="small">Answers the checker doesn't recognise get a gentle "try again" with no penalty. After two grammar errors, or four tries, the learner sees a model answer and can hear it. The results screen records "right first time", "fixed it" or "answer shown" for each question.</p>
 
   <h3>Speaking: how it works</h3>
-  <p>Speaking is the default. Learners tap 🎤, say their answer, and tap again when they finish. The answer is checked straight away, and when it is right Dr Shah moves on to the next question by herself.</p>
+  <p>Speaking is the default. Learners tap 🎤, say their answer, and tap again when they finish. The answer is checked straight away, and when it is right Dr Shah moves on to the next question by herself. A green bar under the button moves while the microphone hears sound, so learners can see it is working.</p>
   <p>On Chrome or Edge (Android, Windows, Mac) and Safari (iPhone, iPad), the browser's own speech recognition is used. On browsers that don't have it, including Chrome, Edge and Firefox on iPhone, the simulation recognises speech on the device itself. That needs a one-off download of about 50 MB the first time, so start the session on Wi-Fi. No recordings are sent anywhere or stored.</p>
   <p>Speech recognition is built to produce tidy English, so it sometimes writes a grammatical sentence when the learner said an ungrammatical one, and it can mishear some accents. Learners always see what it heard. If it is wrong, they tap <b>"That's not what I said"</b> and that attempt doesn't count. For close accuracy work, <b>Type</b> and <b>Tiles</b> are still there.</p>
 
@@ -526,6 +529,15 @@ const CLOSE = "Thank you, that's really helpful. Back pain like this usually get
 const UNKNOWN = "Sorry, I didn't quite understand. Look at your notes and try again.";
 const PRAISE = ['Good.',"That's right.",'Well done.','Perfect.','Great.','Very good.'];
 
+/* Speech recognition sometimes hears a different word that sounds the same.
+   These fixes are only used for spoken answers, and never change the grammar being practised. */
+const HEARD_FIX = [
+  [/\b(heard|herd|hard|hurd|hurled|hurried)( my| me)( lower)? back\b/gi, 'hurt$2$3 back'],
+  [/\bme back\b/gi, 'my back'],
+  [/\b(heard|herd|hard|hurd) it\b(?=.*\b(lift|box|carr|pick|work|monday)\w*)/gi, 'hurt it'],
+  [/\bi (bo|bu)? ?pro(fen|phen|fin|fan)\b/gi, 'ibuprofen'],
+];
+function fixHeard(t){ let s=String(t||''); for(const [a,b] of HEARD_FIX) s=s.replace(a,b); return s; }
 function check(qi, text){
   const q = QS[qi], n = norm(text);
   if(!n) return {v:'none', n};
@@ -924,6 +936,7 @@ function setMic(p, label){
 function stopListening(){ // cancel without checking (used when switching mode or question)
   clearTimeout(stopTimer); userStopped=false;
   if(rec){ try{ rec.onend=null; rec.onresult=null; rec.abort(); }catch(e){} rec=null; }
+  clearSide();
   if(window.LocalSTT && LocalSTT.isRecording()) LocalSTT.stopRecording();
   if(phase!=='checking') setMic('idle');
 }
@@ -968,37 +981,69 @@ function startNative(){
   try{ rec.start(); setMic('listening'); stopTimer=setTimeout(()=>{ userStopped=true; try{ rec&&rec.stop(); }catch(e){} }, 25000); }
   catch(e){ engine='local'; startLocal(); }
 }
-async function startLocal(){
+let needFresh=false, micCtx=null, levelTimer=null, sideTimers=[], checkId=0;
+function getMicCtx(fresh){ // made inside the tap, so iPhones let it run
+  const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return null;
+  if(fresh && micCtx){ try{ micCtx.close(); }catch(e){} micCtx=null; }
+  if(!micCtx || micCtx.state==='closed'){ try{ micCtx=new AC(); }catch(e){ micCtx=null; } }
+  try{ micCtx && micCtx.resume(); }catch(e){}
+  return micCtx;
+}
+function clearSide(){ clearInterval(levelTimer); levelTimer=null; sideTimers.forEach(clearTimeout); sideTimers=[]; $('micLevel').hidden=true; $('micLevel').firstChild.style.width='0'; }
+async function startLocal(fresh){
   if(!window.isSecureContext || !navigator.mediaDevices){ hearMsg('Speaking needs a secure (https) page. Please type your answer.'); return; }
-  let ctx=null; try{ const AC=window.AudioContext||window.webkitAudioContext; ctx=new AC(); ctx.resume&&ctx.resume(); }catch(e){}
+  fresh = fresh || needFresh; needFresh=false;
+  const ctx=getMicCtx(fresh);
   prepLocal();
+  setMic('checking','🎤 Starting the microphone…');
   let stream;
   try{ stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true, noiseSuppression:true, autoGainControl:true}}); micOK=true; }
-  catch(e){ try{ ctx&&ctx.close(); }catch(_){} micOK=false; if(e && e.name==='NotFoundError') hearMsg('No microphone was found. Check your microphone or headset.'); else micBlockedMsg(); return; }
+  catch(e){ setMic('idle'); micOK=false; if(e && e.name==='NotFoundError') hearMsg('No microphone was found. Check your microphone or headset.'); else micBlockedMsg(); return; }
   try{ await (window.LocalSTT ? Promise.resolve() : waitFor(()=>window.LocalSTT, 15000)); await LocalSTT.startRecording(stream, ctx); }
-  catch(e){ stream.getTracks().forEach(t=>t.stop()); hearMsg('Speech recognition could not start. Check your internet and tap 🎤 again.'); return; }
+  catch(e){ stream.getTracks().forEach(t=>t.stop()); setMic('idle'); hearMsg('Speech recognition could not start. Check your internet and tap 🎤 again.'); return; }
   setMic('listening'); stopTimer=setTimeout(()=>stopLocal(), 20000);
+  // show the sound level so the learner can see the microphone is working
+  $('micLevel').hidden=false;
+  levelTimer=setInterval(()=>{ $('micLevel').firstChild.style.width=Math.min(100, Math.round(LocalSTT.liveLevel()*900))+'%'; }, 120);
+  // no sound arriving at all: wake the audio up, then start again with a new connection
+  sideTimers.push(setTimeout(()=>{ if(phase==='listening' && !LocalSTT.recorded()) try{ ctx && ctx.resume(); }catch(e){} }, 1200));
+  sideTimers.push(setTimeout(async ()=>{
+    if(phase!=='listening' || LocalSTT.recorded()) return;
+    clearTimeout(stopTimer); clearSide(); await LocalSTT.stopRecording(); setMic('idle');
+    needFresh=true;
+    if(!fresh) hearMsg("The microphone didn't start properly. Tap 🎤 and try again.");
+    else hearMsg('The microphone is not sending any sound. Close other apps that use the microphone, then tap 🎤 again. Or tap ⌨️ Type.');
+  }, 3000));
 }
 function waitFor(fn, ms){ return new Promise((ok,no)=>{ const t0=Date.now(); (function chk(){ if(fn()) return ok(); if(Date.now()-t0>ms) return no(new Error('timeout')); setTimeout(chk,100); })(); }); }
+function withTimeout(p, ms){ return Promise.race([p, new Promise((_,no)=>setTimeout(()=>no(new Error('timeout')), ms))]); }
 async function stopLocal(){
-  clearTimeout(stopTimer);
+  if(phase!=='listening') return;
+  clearTimeout(stopTimer); clearSide();
   setMic('checking');
+  const id=++checkId;
   const audio = await LocalSTT.stopRecording();
   window.__lastAudio = {secs: +(audio.length/16000).toFixed(2), level: +LocalSTT.level(audio).toFixed(4)};
   if(audio.length < 16000*0.4 || LocalSTT.level(audio) < 0.003){ setMic('idle'); hearMsg("I didn't hear anything. Tap 🎤 and speak a bit louder."); return; }
   try{
     if(sttProg<1) setMic('checking','⏳ Getting ready… '+Math.round(sttProg*100)+'%');
-    await prepLocal(); setMic('checking');
-    const text = await LocalSTT.transcribe(audio);
+    await withTimeout(prepLocal(), 120000); setMic('checking');
+    const text = await withTimeout(LocalSTT.transcribe(audio), 45000);
+    if(id!==checkId) return;
     setMic('idle');
     if(text) submitSpoken(text); else hearMsg("Sorry, I didn't catch that. Tap 🎤 and try again.");
-  }catch(e){ setMic('idle'); hearMsg('Speech recognition could not load. Check your internet and tap 🎤 again, or tap ⌨️ Type.'); }
+  }catch(e){ if(id!==checkId) return; setMic('idle'); hearMsg(e && e.message==='timeout' ? 'That took too long. Tap 🎤 and say it again, or tap ⌨️ Type.' : 'Speech recognition could not load. Check your internet and tap 🎤 again, or tap ⌨️ Type.'); }
 }
 $('micBtn').onclick=()=>{
-  if(phase==='listening'){ userStopped=true; if(engine==='native'){ try{ rec&&rec.stop(); }catch(e){} } else stopLocal(); }
+  if(phase==='listening'){ userStopped=true;
+    if(engine==='native'){ const r=rec; try{ r&&r.stop(); }catch(e){}
+      setMic('checking');
+      setTimeout(()=>{ if(rec===r && r && r.onend){ const end=r.onend; try{ r.onend=null; r.onresult=null; r.abort(); }catch(e){} end(); } }, 1500); }
+    else stopLocal(); }
   else if(phase==='idle') startListening();
 };
 function submitSpoken(text){
+  if(!norm(fixHeard(text))){ hearMsg("Sorry, I didn't catch that. Tap 🎤 and try again."); return; }
   const R=results[qi]; lastSnap={qi, tries, errs, R:JSON.parse(JSON.stringify(R))};
   hearMsg(''); submit(text, true);
 }
@@ -1036,7 +1081,7 @@ function fbButtons(list){ const b=$('fbBtns'); b.innerHTML=''; const t0=performa
 
 function submit(text, spoken){
   if(phase==='listening') stopListening(); unlockAudio(); cancelAutoNext();
-  const q=QS[qi], r=check(qi,text), R=results[qi];
+  const q=QS[qi], r=check(qi, spoken?fixHeard(text):text), R=results[qi];
   if(r.v==='none') return;
   tries++;
   if(!R.first) R.first=text;
