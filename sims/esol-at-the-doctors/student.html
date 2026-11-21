@@ -48,6 +48,7 @@ button{font:inherit;cursor:pointer}
 #dots span.on{background:var(--navy)}
 #dots span.first{background:var(--ok)}
 #dots span.fixed{background:#4c9a6a}
+#dots span.helped{background:#7fb08f}
 #dots span.shown{background:var(--amber)}
 .bubble{background:#eaf0fa;border:1px solid #c9d6ec;border-radius:14px 14px 14px 4px;padding:10px 12px;margin-bottom:10px}
 .who{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px}
@@ -93,6 +94,14 @@ button{font:inherit;cursor:pointer}
 #fb .v{font-weight:800;font-size:16.5px}
 #fb.ok .v{color:var(--ok)} #fb.err .v{color:var(--bad)} #fb.nudge .v,#fb.unknown .v{color:var(--nudge)}
 #fb p{margin:4px 0}
+.chk{list-style:none;margin:6px 0;padding:0}
+.chk li{margin:4px 0;padding:6px 8px;border-radius:8px;background:#fff;border:1px solid var(--line);font-size:15px;line-height:1.45}
+.chk li.y{border-color:#a9d9b9} .chk li.n{border-color:#efb2a9} .chk li.o{border-style:dashed}
+.chk .ic{font-weight:800;margin-right:4px} .chk li.y .ic{color:var(--ok)} .chk li.n .ic{color:var(--bad)} .chk li.o .ic{color:var(--nudge)}
+.frame{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:6px;font-weight:700;color:var(--navy);font-size:17px;line-height:1.9}
+.frame .gap{display:inline-block;min-width:3.6em;border-bottom:3px solid var(--navy);margin:0 3px;text-align:center;color:transparent}
+.recast{background:#fff;border-left:4px solid var(--navy);border-radius:6px;padding:6px 10px;margin-top:6px}
+.lvl{font-size:13px;color:#5b6577;margin-top:6px}
 .model{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:6px;font-weight:700;color:var(--navy);font-size:17px}
 /* overlays */
 .ov{position:fixed;inset:0;background:rgba(14,26,48,.55);z-index:20;display:flex;align-items:center;justify-content:center;padding:16px}
@@ -107,7 +116,7 @@ button{font:inherit;cursor:pointer}
 table.sum{width:100%;border-collapse:collapse;margin-top:8px;font-size:14.5px}
 table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
 .tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700}
-.tag.first{background:var(--okbg);color:var(--ok)} .tag.fixed{background:#e3f1e8;color:#2c6b45} .tag.shown{background:var(--nudgebg);color:var(--nudge)}
+.tag.first{background:var(--okbg);color:var(--ok)} .tag.fixed{background:#e3f1e8;color:#2c6b45} .tag.helped{background:#eef6f0;color:#3d7353} .tag.shown{background:var(--nudgebg);color:var(--nudge)}
 .kbd{display:inline-block;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:0 6px;font-size:13px;background:#f7f9fc}
 .bigscore{font-size:40px;font-weight:800;color:var(--navy);margin:4px 0}
 .misc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0}
@@ -467,6 +476,50 @@ const QS = [
     {v:'nudge', re:/^(yes )?(for|since)\b|\b(years|2024)$/, tip:"Try a full sentence: I've worked there for two years."},
    ]},
 ];
+/* Coaching: what a good answer needs, so feedback can say what is there and what is missing.
+   Each try gives more help: 1 = what is missing and why, 2 = a sentence with gaps, 3 = the full sentence to repeat. */
+const COACH = {
+ problem:{ focus:"<b>I've hurt</b> is the present perfect. It happened before, and it still hurts now.",
+   frame:"I've [hurt] my back.",
+   parts:[
+    {chunk:"I've hurt", re:/\bi (have )?(hurt|injured|strained|pulled|done something to)\b|\bmy (lower )?back (hurts|is|has|aches)\b|\bi have (got )?(a |some )?\w* ?(back ?ache|back pain|pain in my)/,
+     tip:"Say what has happened with <b>I've</b> + <b>hurt</b>. Hurt doesn't change: hurt, hurt, hurt.", say:"Tell me what has happened. Use I've, and the word hurt."},
+    {chunk:"my back", re:/\bmy (lower )?back\b|\bback ?(ache|pain)\b/, tip:"Say which part of your body: <b>my back</b>.", say:"Which part of your body? Say my back."}]},
+ howlong:{ focus:"<b>I've had it since / for</b> is the present perfect. The pain started in the past and you still have it.",
+   frame:"I've [had] it [since] Monday.",
+   parts:[
+    {chunk:"I've had it", re:/\bi have had\b|\b(it|my back|the pain) has been\b|\bi have been in pain\b|\b(it|my back) has (hurt|ached)\b/,
+     tip:"It started in the past and it still hurts, so use <b>I've had it</b>. Not <i>I have it</i> or <i>I had it</i>.", say:"It started in the past, and you still have it. Start with I've had it."},
+    {chunk:"since Monday / for four days", re:/\bsince (last )?monday\b|\bfor (four|4) days\b/,
+     tip:"Say when it started with <b>since</b> (since Monday), or how long with <b>for</b> (for four days).", say:"Now say when it started, with since. Or how long, with for."}]},
+ how:{ focus:"<b>I lifted</b> is the past simple. Monday is finished.",
+   frame:"I [lifted] some heavy boxes at work.",
+   parts:[
+    {chunk:"I lifted", re:/\bi (lifted|carried|picked|moved|was lifting|was carrying|was moving|hurt it|injured it|did it|pulled it|strained it)\b|\bwhen i (lifted|was lifting|carried|was carrying)\b/,
+     tip:"Monday is finished, so use the past simple: <b>I lifted</b>. Add <b>-ed</b> to lift. Not <i>I have lifted</i>.", say:"Monday is finished, so use the past. Start with I lifted."},
+    {chunk:"some heavy boxes", re:/\bbox(es)?\b|\bload\b|\bsomething heavy\b/, tip:"Say what you lifted: <b>some heavy boxes</b>.", say:"What did you lift? Say some heavy boxes."}]},
+ taken:{ focus:"<b>I took</b> is the past simple. Last night is finished. Take, took, taken.",
+   frame:"Yes, I [took] some ibuprofen last night.",
+   parts:[
+    {chunk:"I took", re:/\bi (took|did take|have taken)\b|\bi had (some |an |a |two |one )?(ibuprofen|tablet|tablets|painkiller|painkillers|pill|pills)\b/,
+     tip:"Last night is finished, so use the past of take: <b>I took</b>. Take, took, taken.", say:"Last night is finished. Use the past of take. Start with I took."},
+    {chunk:"some ibuprofen", re:/\b(ibuprofen|tablet|tablets|painkiller|painkillers|pill|pills|medicine)\b/, tip:"Say what you took: <b>some ibuprofen</b>.", say:"What did you take? Say some ibuprofen."},
+    {chunk:"last night", re:/\blast night\b/, tip:"You can add when: <b>last night</b>.", optional:true}]},
+ ever:{ focus:"<b>I've never had</b> is the present perfect. Ever and never mean your whole life up to now.",
+   frame:"No, I've [never] [had] back pain before.",
+   parts:[
+    {chunk:"I've never had", re:/\bi have (never|not) (had|ever had|been)\b|\b(this|it) is the first time\b|^no i have not\b/,
+     tip:"<b>Have you ever...?</b> asks about your whole life up to now. Answer with <b>I've never had</b>, or the short answer <b>No, I haven't.</b>", say:"Ever means in your whole life, up to now. Start with: No, I've never had."},
+    {chunk:"back pain before", re:/\bbefore\b|\bfirst time\b|\bback pain\b|^no i have not$/, tip:"You can add <b>back pain before</b>.", optional:true}]},
+ work:{ focus:"<b>I've worked there for / since</b> is the present perfect. You started in the past and you still work there.",
+   frame:"I've [worked] there [for] two years.",
+   parts:[
+    {chunk:"I've worked there", re:/\bi have (worked|been working|been)\b|\bi started\b/,
+     tip:"You started in the past and you still work there, so use <b>I've worked</b>. <i>I work</i> is only now. <i>I worked</i> means you stopped.", say:"You still work there. So start with I've worked there."},
+    {chunk:"for two years / since 2024", re:/\bfor two years\b|\bsince (20 ?24|twenty twenty four)\b|\btwo years ago\b|\bin (20 ?24|twenty twenty four)\b/,
+     tip:"Say how long with <b>for</b> (for two years), or when you started with <b>since</b> (since 2024).", say:"Now say how long, with for. Or when you started, with since."}]},
+};
+function diagnose(qi, n){ return COACH[QS[qi].id].parts.map(p=>({...p, has:p.re.test(n)})); }
 const CLOSE = "Thank you, that's really helpful. Back pain like this usually gets better within a few weeks. Try to stay active and keep doing your normal things. Don't stay in bed for a long time. A hot water bottle wrapped in a towel can help. Always read the instructions on painkillers. If it isn't getting better, come back and see me.";
 const UNKNOWN = "Sorry, I didn't quite understand. Look at your notes and try again.";
 const PRAISE = ['Good.',"That's right.",'Well done.','Perfect.','Great.','Very good.'];
@@ -1030,45 +1083,49 @@ function submit(text, spoken){
   const fb=$('fb'); fb.hidden=false; fb.className=r.v==='ok'?'ok':r.v==='err'?'err':'nudge';
   const said = `<p>You said: <i>"${esc(text)}"</i></p>`;
   const undo = spoken ? '<button class="undo" onclick="window.__undo()">🎤 That\'s not what I said</button>' : '';
+  const C=COACH[q.id], parts=diagnose(qi, r.n), miss=parts.find(p=>!p.has && !p.optional);
+  const checklist = () => '<ul class="chk">'+parts.map(p=> p.has ? `<li class="y"><span class="ic">✓</span><b>${esc(p.chunk)}</b> Good.</li>`
+      : `<li class="${p.optional?'o':'n'}"><span class="ic">${p.optional?'+':'✗'}</span>${p.tip}</li>`).join('')+'</ul>';
+  const frameHtml = () => '<div class="frame">'+esc(C.frame).replace(/\[([^\]]+)\]/g,(m,w)=>`<span class="gap">${w}</span>`)+'</div>';
   if(r.v==='ok'){
-    done=true; R.status = (errs===0 && tries===1) ? 'first' : 'fixed';
+    done=true; R.status = (errs===0 && tries===1) ? 'first' : R.modelShown ? 'helped' : 'fixed';
     const praise = PRAISE[(qi+tries)%PRAISE.length];
-    fb.innerHTML = `<div class="v">✓ ${praise}</div>${said}`;
+    fb.innerHTML = `<div class="v">✓ ${praise}</div>${said}<p>👍 ${C.focus}</p>`;
     $('answerArea').hidden=true;
     recLines.push(q.record); redrawScreen(); nod(); lookAtScreen();
     docSays(q.ack);
     window.simStats && simStats.once('q'+(qi+1)+'-done');
     fbButtons([[qi<QS.length-1?'Next question ▶':'Finish ▶','primary',next]]);
-    autoNext(0);
-  } else if(r.v==='err'){
-    errs++; R.errors.push({said:text, tip:r.tip}); tilt();
-    if(errs>=2){
-      R.status='shown'; done=true;
-      fb.innerHTML = `<div class="v">✗ Not quite</div>${said}<p>${esc(r.tip)}</p><p>A good answer:</p><div class="model">${esc(q.model)}</div>${q.alt?`<p class="small">Or: <b>${esc(q.alt)}</b></p>`:''}`;
-      $('answerArea').hidden=true;
-      recLines.push(q.record); redrawScreen();
-      docSays(r.say || q.model);
-      fbButtons([['🔊 Hear it','',()=>say(q.model)],[qi<QS.length-1?'Next question ▶':'Finish ▶','primary',next]]);
-      autoNext(1800);
-    } else {
-      fb.innerHTML = `<div class="v">✗ Not quite</div>${said}<p>${esc(r.tip)}</p>${undo}`;
-      $('answerArea').hidden=false; $('fbBtns').hidden=true;
-      docSays(r.say ? r.say+' '+AGAIN_SAY : AGAIN_SAY);
-    }
+    autoNext(1200);
+  } else if(tries>=6){
+    // still stuck after the full sentence was shown: show it, keep going, no more pressure
+    R.status='shown'; done=true;
+    fb.className='nudge'; fb.innerHTML=`<div class="v">Let's keep going</div>${said}<p>A good answer:</p><div class="model">${esc(q.model)}</div><p class="small">${C.focus}</p>`;
+    $('answerArea').hidden=true; recLines.push(q.record); redrawScreen(); docSays("That's OK. A good answer is: "+q.model);
+    fbButtons([['🔊 Hear it','',()=>say(q.model)],[qi<QS.length-1?'Next question ▶':'Finish ▶','primary',next]]);
   } else {
-    // nudge or unknown: no penalty, but after 4 tries show the answer
-    if(tries>=4){
-      R.status = R.status || 'shown'; done=true;
-      fb.className='nudge'; fb.innerHTML=`<div class="v">Here is a good answer</div>${said}<div class="model">${esc(q.model)}</div>`;
-      $('answerArea').hidden=true; recLines.push(q.record); redrawScreen(); docSays(q.model);
-      fbButtons([['🔊 Hear it','',()=>say(q.model)],[qi<QS.length-1?'Next question ▶':'Finish ▶','primary',next]]);
-      autoNext(1800);
-      return;
-    }
-    fb.className = r.v==='nudge'?'nudge':'unknown';
-    fb.innerHTML = `<div class="v">${r.v==='nudge'?'🙂 Nearly there':'🤔 Try again'}</div>${said}<p>${esc(r.tip)}</p>${undo}`;
-    $('answerArea').hidden=false; $('fbBtns').hidden=true;
-    docSays(r.v==='nudge'?NUDGE_SAY:UNKNOWN);
+    // try 1: what is right, what is missing and why. try 2: plus a sentence with gaps. try 3+: plus the full sentence to say.
+    const lvl = Math.min(3, tries);
+    if(r.v==='err'){ errs++; R.errors.push({said:text, tip:r.tip}); tilt(); }
+    const head = r.v==='err' ? '✗ Check the grammar' : lvl===1 ? '🙂 Good start' : '🙂 Nearly there';
+    let html = `<div class="v">${head}</div>${said}`;
+    if(r.v==='err') html += `<p>${esc(r.tip)}</p>` + (r.say?`<div class="recast">👩🏽‍⚕️ ${esc(r.say)}</div>`:'');
+    else html += checklist();
+    if(lvl===2) html += `<p>Fill the gaps and say the whole sentence:</p>${frameHtml()}`;
+    if(lvl>=3){ R.modelShown=true; html += `<p>Listen, then say it yourself:</p><div class="model">${esc(q.model)}</div>${q.alt?`<p class="small">Or: <b>${esc(q.alt)}</b></p>`:''}`; }
+    html += undo;
+    fb.innerHTML = html;
+    $('answerArea').hidden=false;
+    const btns=[];
+    if(lvl>=3) btns.push(['🔊 Hear it again','',()=>say(q.model)]);
+    if(lvl===2 && mode!=='tiles') btns.push(['🧩 Use word tiles','',()=>{ stopListening(); setMode('tiles'); $('mTiles').scrollIntoView({block:'nearest'}); }]);
+    if(lvl>=2) btns.push(['💡 Grammar help','',()=>$('gBtn').click()]);
+    if(lvl>=3) btns.push(['Skip ▶','',()=>{ if(!R.status) R.status='shown'; recLines.push(q.record); redrawScreen(); next(); }]);
+    fbButtons(btns);
+    const coachSay = miss ? miss.say : 'Nearly. Look at the screen and try again.';
+    docSays( lvl>=3 ? 'Listen. '+q.model+' Now you say it.'
+      : r.v==='err' ? (r.say ? r.say+' '+(lvl===2?'Look at the gaps and try again.':AGAIN_SAY) : AGAIN_SAY)
+      : lvl===2 ? 'Look at the sentence on the screen, fill the gaps, and say it all.' : coachSay );
   }
   renderDots();
   $('talkScroll').scrollTop = 0;
@@ -1097,7 +1154,7 @@ function finish(){
 function showSummary(){
   const firstOk = results.filter(r=>r.status==='first').length;
   $('sumScore').textContent = `${firstOk} / ${QS.length}`;
-  const tag = s => s==='first'?'<span class="tag first">Right first time</span>':s==='fixed'?'<span class="tag fixed">Fixed it</span>':'<span class="tag shown">Answer shown</span>';
+  const tag = s => s==='first'?'<span class="tag first">Right first time</span>':s==='fixed'?'<span class="tag fixed">Fixed it</span>':s==='helped'?'<span class="tag helped">Said it with help</span>':'<span class="tag shown">Answer shown</span>';
   $('sumBody').innerHTML = `<table class="sum"><tr><th>Dr Shah asked</th><th>You first said</th><th>A good answer</th></tr>` +
     QS.map((q,i)=>{ const R=results[i]; return `<tr><td>${esc(q.doc.split('. ').pop())}<br>${tag(R.status)}</td><td>${esc(R.first||'–')}${R.errors.length?`<div class="small">${esc(R.errors[0].tip)}</div>`:''}</td><td><b>${esc(q.model)}</b></td></tr>`; }).join('') + '</table>' +
     `<p class="small">Practise the ones that were not right first time. Say each good answer out loud three times.</p>`;
