@@ -44,6 +44,26 @@ button{font:inherit;cursor:pointer}
 #talkScroll{overflow-y:auto;padding:12px 14px 14px;flex:1;-webkit-overflow-scrolling:touch}
 #prog{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:600;margin-bottom:8px}
 #dots{display:flex;gap:4px;flex:1}
+#simpleBtn{min-height:34px;padding:0 10px;font-size:13px;white-space:nowrap}
+body.simple .more{display:none!important}
+.chunks{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.ch{display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:4px 10px;border-radius:10px;border:2px solid;font:inherit;font-weight:700;font-size:17px;cursor:pointer;color:#1b2230;transition:transform .15s,box-shadow .15s}
+.ch .ci{font-size:15px} .ch .cm{font-size:13px;color:var(--ok)}
+.ch.who{background:#e6f0ff;border-color:#1f6fe0} .ch.verb{background:#fff1dc;border-color:#c26a00} .ch.what{background:#e5f5ea;border-color:#1d7a3e} .ch.when{background:#f0eaff;border-color:#6b3fb3} .ch.x{background:#f1f3f6;border-color:#8a94a3}
+.ch.n{border-style:dashed;background:#fff} .ch.n .ct{color:#5b6577;min-width:1.4em;text-align:center}
+.ch.o{opacity:.75;border-style:dashed}
+.ch.lit,.ch.saying,.hear.saying,.said.saying{box-shadow:0 0 0 4px rgba(255,190,60,.7);transform:translateY(-2px)}
+.hear{border:1px solid var(--line);background:#fff;border-radius:999px;min-width:44px;min-height:44px;font-size:18px;cursor:pointer;margin-right:4px;vertical-align:middle}
+.said{cursor:pointer;border-radius:8px;padding:2px 4px;margin:4px -4px!important}
+.tip{display:flex;align-items:center;gap:4px}
+.tlbox{display:block;width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;padding:4px;margin-top:6px;cursor:pointer}
+.tlbox svg{width:100%;height:auto;display:block}
+.tlbox svg.anim rect,.tlbox svg.anim path{transform-box:fill-box;transform-origin:left center;animation:tlgrow 1.4s ease-out both}
+.tlbox svg.anim circle{animation:tlpop .5s ease-out both}
+@keyframes tlgrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes tlpop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.tlbox svg.anim *{animation:none!important}.ch{transition:none}}
+
 #dots span{flex:1;height:8px;border-radius:4px;background:#d7dde7}
 #dots span.on{background:var(--navy)}
 #dots span.first{background:var(--ok)}
@@ -94,12 +114,6 @@ button{font:inherit;cursor:pointer}
 #fb .v{font-weight:800;font-size:16.5px}
 #fb.ok .v{color:var(--ok)} #fb.err .v{color:var(--bad)} #fb.nudge .v,#fb.unknown .v{color:var(--nudge)}
 #fb p{margin:4px 0}
-.chk{list-style:none;margin:6px 0;padding:0}
-.chk li{margin:4px 0;padding:6px 8px;border-radius:8px;background:#fff;border:1px solid var(--line);font-size:15px;line-height:1.45}
-.chk li.y{border-color:#a9d9b9} .chk li.n{border-color:#efb2a9} .chk li.o{border-style:dashed}
-.chk .ic{font-weight:800;margin-right:4px} .chk li.y .ic{color:var(--ok)} .chk li.n .ic{color:var(--bad)} .chk li.o .ic{color:var(--nudge)}
-.frame{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:6px;font-weight:700;color:var(--navy);font-size:17px;line-height:1.9}
-.frame .gap{display:inline-block;min-width:3.6em;border-bottom:3px solid var(--navy);margin:0 3px;text-align:center;color:transparent}
 .recast{background:#fff;border-left:4px solid var(--navy);border-radius:6px;padding:6px 10px;margin-top:6px}
 .lvl{font-size:13px;color:#5b6577;margin-top:6px}
 .model{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:6px;font-weight:700;color:var(--navy);font-size:17px}
@@ -193,7 +207,7 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
 
 <section id="talk" aria-label="Conversation with Dr Shah">
  <div id="talkScroll">
-  <div id="prog"><span id="qNum">Question 1 of 6</span><div id="dots"></div></div>
+  <div id="prog"><span id="qNum">Question 1 of 6</span><div id="dots"></div><button class="btn" id="simpleBtn" aria-pressed="false" title="Show less text">🔤 Less text</button></div>
   <div class="bubble" aria-live="polite">
     <div class="who">👩🏽‍⚕️ Dr Shah<span class="sp"></span><button class="btn" id="replayBtn" title="Listen again">🔁 Listen</button></div>
     <p id="docText"></p>
@@ -210,7 +224,7 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
       <button class="btn primary" id="micBtn">🎤 Tap to speak</button>
       <div id="micLevel" hidden aria-hidden="true"><span></span></div>
       <p id="heard" aria-live="polite"></p>
-      <p class="small" id="speakTip">Tap 🎤 and say your answer. Tap again when you finish. Dr Shah will answer you.</p>
+      <p class="small more" id="speakTip">Tap 🎤 and say your answer. Tap again when you finish. Dr Shah will answer you.</p>
     </div>
     <div class="pane" id="mType" hidden>
       <label for="typeIn" class="small" style="display:block;margin:0 0 6px">Write your answer to Dr Shah:</label>
@@ -368,13 +382,15 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
    <tr><td>How long have you worked there?</td><td>I've worked there for two years. / I've worked there since 2024. / I started two years ago.</td><td><i>I work there for two years</i>; <i>I worked there for two years</i> (meaning: no longer); <i>I've worked there two years ago</i>; <i>since two years</i>; <i>for 2024</i></td></tr>
   </table>
   <h3>How the feedback helps</h3>
-  <p>Learners are never just asked to "try again". Each try gives a little more help:</p>
+  <p>The feedback follows research on oral corrective feedback: learners are prompted to fix the error themselves first (elicitation and a grammar clue), and only then given the correct form. It is built for learners who find reading hard: everything is spoken, and most of it is shown with colours, icons and a timeline.</p>
+  <p><b>The sentence in colours.</b> Each answer is shown as parts of the sentence: 👤 who (blue), ⚡ action, the grammar being practised (amber), 📦 what (green), 🕒 when (purple). Parts the learner got right have a ✓. Missing or wrong parts are shown as "?". Learners can tap any part, the timeline, their own sentence or 🔊 to hear it.</p>
   <ol>
-   <li><b>First try.</b> A checklist shows the parts of their answer that are right (✓) and the part that is missing or wrong (✗), with the grammar reason, for example "Monday is finished, so use the past simple: I lifted." If it is a grammar error, Dr Shah also recasts it ("Ah, you lifted some heavy boxes.").</li>
-   <li><b>Second try.</b> The sentence appears with gaps for the key verb forms, with buttons for word tiles and grammar help.</li>
-   <li><b>Third try.</b> The full sentence is shown and read aloud, and the learner says it themselves. Nothing moves on until they produce it, or choose Skip.</li>
+   <li><b>First try: a prompt.</b> Dr Shah asks for the missing part ("What hurts?") or gives a short grammar clue ("Monday is finished. Use the past. Lift, lifted."). For a grammar error she first echoes it as a question ("Hurted?").</li>
+   <li><b>Second try: timeline and recast.</b> An animated timeline appears, the action part shows a hint ("'ve h..."), and Dr Shah recasts the error ("Ah, you've hurt your back.").</li>
+   <li><b>Third try: build it up.</b> Dr Shah says the sentence from the end, back-chaining ("my back... I've hurt my back"), while the parts light up. The learner then says it themselves. <b>🔁 Listen in steps</b> repeats this, and <b>Skip</b> moves on.</li>
   </ol>
-  <p>When the answer is right, the screen names the grammar they used, for example "I've hurt is the present perfect. It happened before, and it still hurts now." The results screen records <b>Right first time</b>, <b>Fixed it</b>, <b>Said it with help</b> (after the full sentence was shown) or <b>Answer shown</b> (skipped, or six tries).</p>
+  <p><b>🔤 Less text</b> (top of the panel) hides the longer written tips and keeps the colours, timeline and sound. The setting is remembered on that device.</p>
+  <p>When the answer is right, the sentence is shown in colours with a one-line reminder of the grammar. The results screen records <b>Right first time</b>, <b>Fixed it</b>, <b>Said it with help</b> (after the full sentence was modelled) or <b>Answer shown</b> (skipped, or six tries).</p>
 
   <h3>Speaking: how it works</h3>
   <p>Speaking is the default. Learners tap 🎤, say their answer, and tap again when they finish. The answer is checked straight away, and when it is right Dr Shah moves on to the next question by herself. A green bar under the button moves while the microphone hears sound, so learners can see it is working.</p>
@@ -541,50 +557,70 @@ const QS = [
     {v:'nudge', re:/^(yes )?(for|since)\b|\b(years|2024)$/, tip:"Try a full sentence: I've worked there for two years."},
    ]},
 ];
-/* Coaching: what a good answer needs, so feedback can say what is there and what is missing.
-   Each try gives more help: 1 = what is missing and why, 2 = a sentence with gaps, 3 = the full sentence to repeat. */
+/* Coaching. Each answer is shown as coloured chunks of the sentence pattern:
+   who (blue), action / the grammar (amber), what (green), when (purple), extra words (grey).
+   Feedback goes from a prompt (Dr Shah asks or gives a clue) to a timeline and the pattern,
+   then to the full sentence built up from the end (back-chaining). Everything can be heard. */
+const ROLE = {who:{ic:'👤',name:'who'}, verb:{ic:'⚡',name:'action'}, what:{ic:'📦',name:'what'}, when:{ic:'🕒',name:'when'}, x:{ic:'➕',name:'extra'}};
 const COACH = {
- problem:{ focus:"<b>I've hurt</b> is the present perfect. It happened before, and it still hurts now.",
-   frame:"I've [hurt] my back.",
-   parts:[
-    {chunk:"I've hurt", re:/\bi (have )?(hurt|injured|strained|pulled|done something to)\b|\bmy (lower )?back (hurts|is|has|aches)\b|\bi have (got )?(a |some )?\w* ?(back ?ache|back pain|pain in my)/,
-     tip:"Say what has happened with <b>I've</b> + <b>hurt</b>. Hurt doesn't change: hurt, hurt, hurt.", say:"Tell me what has happened. Use I've, and the word hurt."},
-    {chunk:"my back", re:/\bmy (lower )?back\b|\bback ?(ache|pain)\b/, tip:"Say which part of your body: <b>my back</b>.", say:"Which part of your body? Say my back."}]},
- howlong:{ focus:"<b>I've had it since / for</b> is the present perfect. The pain started in the past and you still have it.",
-   frame:"I've [had] it [since] Monday.",
-   parts:[
-    {chunk:"I've had it", re:/\bi have had\b|\b(it|my back|the pain) has been\b|\bi have been in pain\b|\b(it|my back) has (hurt|ached)\b/,
-     tip:"It started in the past and it still hurts, so use <b>I've had it</b>. Not <i>I have it</i> or <i>I had it</i>.", say:"It started in the past, and you still have it. Start with I've had it."},
-    {chunk:"since Monday / for four days", re:/\bsince (last )?monday\b|\bfor (four|4) days\b/,
-     tip:"Say when it started with <b>since</b> (since Monday), or how long with <b>for</b> (for four days).", say:"Now say when it started, with since. Or how long, with for."}]},
- how:{ focus:"<b>I lifted</b> is the past simple. Monday is finished.",
-   frame:"I [lifted] some heavy boxes at work.",
-   parts:[
-    {chunk:"I lifted", re:/\bi (lifted|carried|picked|moved|was lifting|was carrying|was moving|hurt it|injured it|did it|pulled it|strained it)\b|\bwhen i (lifted|was lifting|carried|was carrying)\b/,
-     tip:"Monday is finished, so use the past simple: <b>I lifted</b>. Add <b>-ed</b> to lift. Not <i>I have lifted</i>.", say:"Monday is finished, so use the past. Start with I lifted."},
-    {chunk:"some heavy boxes", re:/\bbox(es)?\b|\bload\b|\bsomething heavy\b/, tip:"Say what you lifted: <b>some heavy boxes</b>.", say:"What did you lift? Say some heavy boxes."}]},
- taken:{ focus:"<b>I took</b> is the past simple. Last night is finished. Take, took, taken.",
-   frame:"Yes, I [took] some ibuprofen last night.",
-   parts:[
-    {chunk:"I took", re:/\bi (took|did take|have taken)\b|\bi had (some |an |a |two |one )?(ibuprofen|tablet|tablets|painkiller|painkillers|pill|pills)\b/,
-     tip:"Last night is finished, so use the past of take: <b>I took</b>. Take, took, taken.", say:"Last night is finished. Use the past of take. Start with I took."},
-    {chunk:"some ibuprofen", re:/\b(ibuprofen|tablet|tablets|painkiller|painkillers|pill|pills|medicine)\b/, tip:"Say what you took: <b>some ibuprofen</b>.", say:"What did you take? Say some ibuprofen."},
-    {chunk:"last night", re:/\blast night\b/, tip:"You can add when: <b>last night</b>.", optional:true}]},
- ever:{ focus:"<b>I've never had</b> is the present perfect. Ever and never mean your whole life up to now.",
-   frame:"No, I've [never] [had] back pain before.",
-   parts:[
-    {chunk:"I've never had", re:/\bi have (never|not) (had|ever had|been)\b|\b(this|it) is the first time\b|^no i have not\b/,
-     tip:"<b>Have you ever...?</b> asks about your whole life up to now. Answer with <b>I've never had</b>, or the short answer <b>No, I haven't.</b>", say:"Ever means in your whole life, up to now. Start with: No, I've never had."},
-    {chunk:"back pain before", re:/\bbefore\b|\bfirst time\b|\bback pain\b|^no i have not$/, tip:"You can add <b>back pain before</b>.", optional:true}]},
- work:{ focus:"<b>I've worked there for / since</b> is the present perfect. You started in the past and you still work there.",
-   frame:"I've [worked] there [for] two years.",
-   parts:[
-    {chunk:"I've worked there", re:/\bi have (worked|been working|been)\b|\bi started\b/,
-     tip:"You started in the past and you still work there, so use <b>I've worked</b>. <i>I work</i> is only now. <i>I worked</i> means you stopped.", say:"You still work there. So start with I've worked there."},
-    {chunk:"for two years / since 2024", re:/\bfor two years\b|\bsince (20 ?24|twenty twenty four)\b|\btwo years ago\b|\bin (20 ?24|twenty twenty four)\b/,
-     tip:"Say how long with <b>for</b> (for two years), or when you started with <b>since</b> (since 2024).", say:"Now say how long, with for. Or when you started, with since."}]},
+ problem:{ focus:"I've hurt: it happened before, and it still hurts now.",
+   clue:"Hurt doesn't change. Hurt, hurt, hurt. Start with I've.",
+   l2:"Look at the line. You hurt it before, and it still hurts now. Use I've, and hurt.",
+   chunks:[
+    {r:'who', t:'I', re:/\bi\b/, ask:'Who? Start with I.'},
+    {r:'verb', t:"'ve hurt", s:"I've hurt", hint:"'ve h...", re:/\bi (have )?(hurt|injured|strained|pulled)\b/},
+    {r:'what', t:'my back', re:/\bmy (lower )?back\b/, ask:'What hurts? Your back. Say, my back.'}]},
+ howlong:{ focus:"I've had it since Monday: it started in the past, and you still have it now.",
+   clue:"It started on Monday, and you still have it now. Start with I've had it.",
+   l2:"Look at the line. It started on Monday. It still hurts now. Use I've had it, with since, or for.",
+   chunks:[
+    {r:'who', t:'I', re:/\bi\b|\b(it|my back|the pain) has\b/, ask:'Who? Start with I.'},
+    {r:'verb', t:"'ve had", s:"I've had", hint:"'ve h...", re:/\bi have had\b|\b(it|my back|the pain) has been\b|\bi have been in pain\b|\b(it|my back) has (hurt|ached)\b/},
+    {r:'what', t:'it', re:/\b(it|pain|this)\b/, opt:true},
+    {r:'when', t:'since Monday', re:/\bsince (last )?monday\b|\bfor (four|4) days\b/, ask:'Since when? It started on Monday. Use since.'}]},
+ how:{ focus:"I lifted: Monday is finished, so use the past simple.",
+   clue:"Monday is finished. Use the past. Lift, lifted.",
+   l2:"Look at the line. Monday is finished. So use the past. Lifted.",
+   chunks:[
+    {r:'who', t:'I', re:/\bi\b/, ask:'Who? Start with I.'},
+    {r:'verb', t:'lifted', hint:'l...ed', re:/\bi (lifted|carried|picked|moved|was lifting|was carrying|was moving|hurt it|injured it|did it|pulled it|strained it)\b|\bwhen i (lifted|was lifting|carried|was carrying)\b/},
+    {r:'what', t:'some heavy boxes', re:/\bbox(es)?\b|\bload\b|\bsomething heavy\b/, ask:'What did you lift? Some heavy boxes.'},
+    {r:'x', t:'at work', re:/\bat work\b|\bwarehouse\b/, opt:true}]},
+ taken:{ focus:"I took: last night is finished, so use the past simple. Take, took, taken.",
+   clue:"Last night is finished. Take, took. Use took.",
+   l2:"Look at the line. Last night is finished. Take, took. Use took.",
+   chunks:[
+    {r:'x', t:'Yes,', re:/^yes\b/, opt:true},
+    {r:'who', t:'I', re:/\bi\b/, ask:'Who? Start with I.'},
+    {r:'verb', t:'took', hint:'t...k', re:/\bi (took|did take|have taken)\b|\bi had (some |an |a |two |one )?(ibuprofen|tablet|tablets|painkiller|painkillers|pill|pills)\b/},
+    {r:'what', t:'some ibuprofen', re:/\b(ibuprofen|tablet|tablets|painkiller|painkillers|pill|pills|medicine)\b/, ask:'What did you take? Some ibuprofen.'},
+    {r:'when', t:'last night', re:/\blast night\b/, opt:true, ask:'When? Last night.'}]},
+ ever:{ focus:"I've never had: ever and never mean your whole life, up to now.",
+   clue:"Ever means your whole life, up to now. Use I've never had.",
+   l2:"Look at the line. Your whole life, up to now. Never. Use I've never had.",
+   chunks:[
+    {r:'x', t:'No,', re:/^no\b/, opt:true},
+    {r:'who', t:'I', re:/\bi\b|\b(this|it) is\b/, ask:'Who? Start with I.'},
+    {r:'verb', t:"'ve never had", s:"I've never had", hint:"'ve n... h...", re:/\bi have (never|not) (had|ever had|been)\b|\b(this|it) is the first time\b|^no i have not\b/},
+    {r:'what', t:'back pain', re:/\bback pain\b|\bit\b|\bfirst time\b/, opt:true},
+    {r:'x', t:'before', re:/\bbefore\b|\bfirst time\b/, opt:true}]},
+ work:{ focus:"I've worked there for two years: you started in the past, and you still work there.",
+   clue:"You started in the past, and you still work there. Use I've worked.",
+   l2:"Look at the line. You started in 2024. You still work there now. Use I've worked there, with for, or since.",
+   chunks:[
+    {r:'who', t:'I', re:/\bi\b/, ask:'Who? Start with I.'},
+    {r:'verb', t:"'ve worked", s:"I've worked", hint:"'ve w...ed", re:/\bi have (worked|been working|been)\b|\bi started\b/},
+    {r:'x', t:'there', re:/\bthere\b|\bwarehouse\b/, opt:true},
+    {r:'when', t:'for two years', re:/\bfor two years\b|\bsince (20 ?24|twenty twenty four)\b|\btwo years ago\b|\bin (20 ?24|twenty twenty four)\b/, ask:'How long? Two years. Use for.'}]},
 };
-function diagnose(qi, n){ return COACH[QS[qi].id].parts.map(p=>({...p, has:p.re.test(n)})); }
+function diagnose(qi, n){ return COACH[QS[qi].id].chunks.map(c=>({...c, has:c.re.test(n)})); }
+function joinChunks(cs){ return cs.map(c=>c.t).join(' ').replace(/ '/g,"'"); }
+function backChain(qi){ // e.g. "my back." "I've hurt my back."
+  const cs=COACH[QS[qi].id].chunks, steps=[];
+  for(let i=cs.length-1;i>0;i--) if(cs[i].r==='what'||cs[i].r==='when'){ if(!cs[i].opt || i===cs.length-1) steps.push({from:i, text:joinChunks(cs.slice(i))}); }
+  steps.push({from:0, text:QS[qi].model.replace(/[.]$/,'')});
+  return steps.slice(-3);
+}
 const CLOSE = "Thank you, that's really helpful. Back pain like this usually gets better within a few weeks. Try to stay active and keep doing your normal things. Don't stay in bed for a long time. A hot water bottle wrapped in a towel can help. Always read the instructions on painkillers. If it isn't getting better, come back and see me.";
 const UNKNOWN = "Sorry, I didn't quite understand. Look at your notes and try again.";
 const PRAISE = ['Good.',"That's right.",'Well done.','Perfect.','Great.','Very good.'];
@@ -603,7 +639,7 @@ function check(qi, text){
   if(!n) return {v:'none', n};
   for(const r of q.rules){
     if(r.re.test(n) && !(r.not && r.not.test(n))){
-      return {v:r.v, tip:r.tip||'', say: typeof r.say==='function' ? r.say(n) : (r.say||''), n};
+      return {v:r.v, re:r.re, tip:r.tip||'', say: typeof r.say==='function' ? r.say(n) : (r.say||''), n};
     }
   }
   return {v:'unknown', tip:UNKNOWN, n};
@@ -1146,55 +1182,97 @@ function submit(text, spoken){
   tries++;
   if(!R.first) R.first=text;
   const fb=$('fb'); fb.hidden=false; fb.className=r.v==='ok'?'ok':r.v==='err'?'err':'nudge';
-  const said = `<p>You said: <i>"${esc(text)}"</i></p>`;
   const undo = spoken ? '<button class="undo" onclick="window.__undo()">🎤 That\'s not what I said</button>' : '';
-  const C=COACH[q.id], parts=diagnose(qi, r.n), miss=parts.find(p=>!p.has && !p.optional);
-  const checklist = () => '<ul class="chk">'+parts.map(p=> p.has ? `<li class="y"><span class="ic">✓</span><b>${esc(p.chunk)}</b> Good.</li>`
-      : `<li class="${p.optional?'o':'n'}"><span class="ic">${p.optional?'+':'✗'}</span>${p.tip}</li>`).join('')+'</ul>';
-  const frameHtml = () => '<div class="frame">'+esc(C.frame).replace(/\[([^\]]+)\]/g,(m,w)=>`<span class="gap">${w}</span>`)+'</div>';
+  const C=COACH[q.id], chunks=diagnose(qi, r.n);
+  const verbC=chunks.find(c=>c.r==='verb'), missReq=chunks.find(c=>!c.has && !c.opt && c.r!=='verb');
+  const sayAttr = t => `data-say="${esc(t)}"`;
+  // the sentence pattern as coloured chunks. lvl 1: missing parts are "?", lvl 2: shown, except the action as a hint, lvl 3 or ok: all shown
+  const chunkRow = (lvl, ok) => '<div class="chunks" aria-label="The sentence in parts">'+chunks.map((c,i)=>{
+      const show = ok || c.has || c.opt || lvl>=3 || (lvl===2 && c.r!=='verb');
+      const txt = show ? c.t : (lvl===2 && c.hint ? c.hint : '?');
+      const st = ok||c.has ? 'y' : c.opt ? 'o' : 'n';
+      const spoken = show ? (c.s||c.t) : (c.r==='verb' ? (lvl===2 ? C.l2 : C.clue) : (c.ask||C.clue));
+      return `<button class="ch ${c.r} ${st}" data-i="${i}" ${sayAttr(spoken)} aria-label="${ROLE[c.r].name}: ${esc(show?c.t:'missing')}"><span class="ci">${ROLE[c.r].ic}</span><span class="ct">${esc(txt)}</span>${st==='y'?'<span class="cm">✓</span>':''}</button>`;
+    }).join('')+'</div>';
+  const hearBtn = t => `<button class="hear" ${sayAttr(t)} aria-label="Listen">🔊</button>`;
+  const said = `<p class="said" ${sayAttr(text)}>🗣️ <span class="more">You said: </span><i>"${esc(text)}"</i></p>`;
   if(r.v==='ok'){
     done=true; R.status = (errs===0 && tries===1) ? 'first' : R.modelShown ? 'helped' : 'fixed';
     const praise = PRAISE[(qi+tries)%PRAISE.length];
-    fb.innerHTML = `<div class="v">✓ ${praise}</div>${said}<p>👍 ${C.focus}</p>`;
+    fb.innerHTML = `<div class="v">✓ ${praise}</div>${said}${chunkRow(3,true)}<p class="tip">${hearBtn(C.focus)} 👍 ${esc(C.focus)}</p>`;
     $('answerArea').hidden=true;
     recLines.push(q.record); redrawScreen(); nod(); lookAtScreen();
     docSays(q.ack);
     window.simStats && simStats.once('q'+(qi+1)+'-done');
     fbButtons([[qi<QS.length-1?'Next question ▶':'Finish ▶','primary',next]]);
-    autoNext(1200);
+    autoNext(1500);
   } else if(tries>=6){
     // still stuck after the full sentence was shown: show it, keep going, no more pressure
     R.status='shown'; done=true;
-    fb.className='nudge'; fb.innerHTML=`<div class="v">Let's keep going</div>${said}<p>A good answer:</p><div class="model">${esc(q.model)}</div><p class="small">${C.focus}</p>`;
-    $('answerArea').hidden=true; recLines.push(q.record); redrawScreen(); docSays("That's OK. A good answer is: "+q.model);
+    fb.className='nudge'; fb.innerHTML=`<div class="v">🙂 Let's keep going</div>${said}${chunkRow(3,true)}<p class="tip">${hearBtn(q.model)} ${esc(C.focus)}</p>`;
+    $('answerArea').hidden=true; recLines.push(q.record); redrawScreen(); docSays("That's OK. Listen. "+q.model);
     fbButtons([['🔊 Hear it','',()=>say(q.model)],[qi<QS.length-1?'Next question ▶':'Finish ▶','primary',next]]);
   } else {
-    // try 1: what is right, what is missing and why. try 2: plus a sentence with gaps. try 3+: plus the full sentence to say.
+    // 1: a prompt (Dr Shah asks for the missing part, or gives a clue about the grammar)
+    // 2: the timeline, the pattern with the action as a hint, and Dr Shah's recast
+    // 3: the whole sentence, built up from the end, then the learner says it
     const lvl = Math.min(3, tries);
     if(r.v==='err'){ errs++; R.errors.push({said:text, tip:r.tip}); tilt(); }
-    const head = r.v==='err' ? '✗ Check the grammar' : lvl===1 ? '🙂 Good start' : '🙂 Nearly there';
-    let html = `<div class="v">${head}</div>${said}`;
-    if(r.v==='err') html += `<p>${esc(r.tip)}</p>` + (r.say?`<div class="recast">👩🏽‍⚕️ ${esc(r.say)}</div>`:'');
-    else html += checklist();
-    if(lvl===2) html += `<p>Fill the gaps and say the whole sentence:</p>${frameHtml()}`;
-    if(lvl>=3){ R.modelShown=true; html += `<p>Listen, then say it yourself:</p><div class="model">${esc(q.model)}</div>${q.alt?`<p class="small">Or: <b>${esc(q.alt)}</b></p>`:''}`; }
+    const verbWrong = verbC && !verbC.has;
+    let tip, drSay;
+    if(lvl===1){
+      const m = r.v==='err' ? (r.n.match(r.re)||[''])[0] : '';
+      const echo = m && m.split(' ').length<=3 ? m.charAt(0).toUpperCase()+m.slice(1)+'? ' : '';
+      if(r.v==='err'){ tip = r.tip; drSay = echo + (verbWrong ? C.clue : r.tip); }
+      else if(verbWrong){ tip = C.clue; drSay = C.clue; }
+      else if(missReq){ tip = missReq.ask; drSay = missReq.ask; }
+      else { tip = C.clue; drSay = 'Nearly. '+C.clue; }
+    } else if(lvl===2){
+      const look = verbWrong ? C.l2 : missReq ? 'Look at the line. '+missReq.ask : 'Look at the line, and try again.';
+      tip = r.v==='err' ? r.tip : look;
+      drSay = (r.v==='err' && r.say ? r.say+' ' : '') + look;
+    } else {
+      R.modelShown=true;
+      tip = 'Listen, then say it: '+q.model;
+      drSay = 'Listen, and say it with me. '+backChain(qi).map(s=>s.text).join('. ')+'. Now you say it.';
+    }
+    const head = r.v==='err' ? '🔧 Let\'s fix one thing' : lvl===1 ? '🙂 Good start' : '🙂 Nearly there';
+    let html = `<div class="v">${head}</div>${said}${chunkRow(lvl,false)}${tip!==drSay ? `<p class="tip more">${hearBtn(tip)} ${esc(tip)}</p>` : ''}`;
+    if(lvl>=2) html += `<button class="tlbox" ${sayAttr(C.l2)} aria-label="Timeline. Tap to listen">${timeline(q.help.tl)}</button>`;
+    if(lvl>=3 && q.alt) html += `<p class="small more">Or: <b>${esc(q.alt)}</b></p>`;
     html += undo;
     fb.innerHTML = html;
+    fb.querySelectorAll('.tlbox svg').forEach(s=>s.classList.add('anim'));
     $('answerArea').hidden=false;
     const btns=[];
-    if(lvl>=3) btns.push(['🔊 Hear it again','',()=>say(q.model)]);
-    if(lvl===2 && mode!=='tiles') btns.push(['🧩 Use word tiles','',()=>{ stopListening(); setMode('tiles'); $('mTiles').scrollIntoView({block:'nearest'}); }]);
-    if(lvl>=2) btns.push(['💡 Grammar help','',()=>$('gBtn').click()]);
+    if(lvl>=3) btns.push(['🔁 Listen in steps','',()=>backChainShow(qi)]);
+    if(lvl===2 && mode!=='tiles') btns.push(['🧩 Word tiles','',()=>{ stopListening(); setMode('tiles'); $('mTiles').scrollIntoView({block:'nearest'}); }]);
     if(lvl>=3) btns.push(['Skip ▶','',()=>{ if(!R.status) R.status='shown'; recLines.push(q.record); redrawScreen(); next(); }]);
     fbButtons(btns);
-    const coachSay = miss ? miss.say : 'Nearly. Look at the screen and try again.';
-    docSays( lvl>=3 ? 'Listen. '+q.model+' Now you say it.'
-      : r.v==='err' ? (r.say ? r.say+' '+(lvl===2?'Look at the gaps and try again.':AGAIN_SAY) : AGAIN_SAY)
-      : lvl===2 ? 'Look at the sentence on the screen, fill the gaps, and say it all.' : coachSay );
+    docSays(drSay);
+    if(lvl>=3) backChainShow(qi, true);
   }
   renderDots();
   $('talkScroll').scrollTop = 0;
 }
+/* tap anything with data-say to hear it */
+document.addEventListener('click', e=>{ const el=e.target.closest('[data-say]'); if(!el || !el.closest('#fb')) return; e.preventDefault(); unlockAudio();
+  el.classList.add('saying'); setTimeout(()=>el.classList.remove('saying'), 900); say(el.dataset.say); });
+/* back-chaining: light up the chunks from the end while Dr Shah builds the sentence */
+let bcTimers=[];
+function backChainShow(qi, already){
+  bcTimers.forEach(clearTimeout); bcTimers=[];
+  const steps=backChain(qi), row=document.querySelector('#fb .chunks'); if(!row) return;
+  const lit = from => row.querySelectorAll('.ch').forEach(b=>b.classList.toggle('lit', +b.dataset.i>=from));
+  if(!already) say('Listen, and say it with me. '+steps.map(s=>s.text).join('. ')+'. Now you say it.');
+  let t = 2200; // "Listen, and say it with me."
+  steps.forEach(s=>{ bcTimers.push(setTimeout(()=>lit(s.from), t)); t += 700 + s.text.split(' ').length*430; });
+  bcTimers.push(setTimeout(()=>lit(99), t+600));
+}
+/* less reading: hide the longer text, keep pictures, colours and sound */
+function setSimple(on){ document.body.classList.toggle('simple', on); const b=$('simpleBtn'); if(b){ b.setAttribute('aria-pressed', on); b.textContent = on ? '🔤 More text' : '🔤 Less text'; } try{ localStorage.setItem('esolSimple', on?'1':''); }catch(e){} }
+$('simpleBtn').onclick=()=>setSimple(!document.body.classList.contains('simple'));
+try{ if(localStorage.getItem('esolSimple')) setSimple(true); }catch(e){}
 let autoTimer=null;
 function cancelAutoNext(){ clearInterval(autoTimer); autoTimer=null; }
 function autoNext(extra){ // move on once Dr Shah has finished speaking
