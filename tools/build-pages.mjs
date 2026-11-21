@@ -66,7 +66,7 @@ for(const s of cat.sims){
 for(const s of cat.sims){
   const dir = 'sims/' + s.id + '/';
   const walk = d => fs.readdirSync(dir + d, {withFileTypes:true}).flatMap(e => e.isDirectory() ? walk(d + e.name + '/') : [d + e.name]);
-  const files = walk('').filter(f => f !== 'offline.json').sort();
+  const files = walk('').filter(f => f !== 'offline.json' && !/(^|\/)stt\//.test(f) && !/(^|\/)_/.test(f)).sort(); // speech models load only when needed
   fs.writeFileSync(dir + 'offline.json', JSON.stringify({files}, null, 0));
 }
 // "added" dates (used for the New badge) – keep any existing value

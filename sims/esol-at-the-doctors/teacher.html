@@ -67,6 +67,8 @@ button{font:inherit;cursor:pointer}
 #micStatus.ok{background:var(--okbg);border-color:#a9d9b9}
 #micStatus.bad{background:var(--nudgebg);border-color:#efd08f}
 #micBtn{width:100%;min-height:64px;font-size:18px;border-radius:14px}
+#micBtn.checking{background:#5b6b85;border-color:#5b6b85;color:#fff}
+.undo{background:none;border:none;color:var(--navy);text-decoration:underline;font-size:14px;min-height:44px;padding:0;cursor:pointer}
 #micBtn.listening{background:var(--bad);border-color:var(--bad);color:#fff;animation:pulse 1.2s infinite}
 @keyframes pulse{50%{box-shadow:0 0 0 8px rgba(180,35,24,.18)}}
 #heard{font-size:16px;margin:8px 0 0;min-height:1.4em}
@@ -184,13 +186,6 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
   </div>
   <div id="fb" hidden></div>
   <div class="row" id="fbBtns" hidden></div>
-  <div class="card" id="notesCard">
-    <div id="notesHead"><h3>📝 Your notes</h3><button class="btn" id="gBtn" aria-expanded="false">💡 Grammar help</button></div>
-    <ul id="notesList"></ul>
-    <div class="row" id="calRow" hidden><button class="btn" id="calBtn">📅 Look at the calendar</button></div>
-  </div>
-  <div class="card" id="gHelp" hidden><h3 id="gTitle"></h3><p id="gText"></p><div id="gTl"></div></div>
-
   <div id="answerArea">
     <div id="modes" role="tablist" aria-label="How do you want to answer?">
       <button class="btn" role="tab" id="tabSpeak" data-mode="speak">🎤 Speak</button>
@@ -198,10 +193,9 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
       <button class="btn" role="tab" id="tabTiles" data-mode="tiles">🧩 Tiles</button>
     </div>
     <div class="pane" id="mSpeak">
-      <button class="btn primary" id="micBtn">🎤 Tap and speak to Dr Shah</button>
-      <p id="heard"></p>
-      <div class="row" id="heardBtns" hidden><button class="btn go" id="heardOk">✓ Check my answer</button><button class="btn" id="heardAgain">🎤 Say it again</button><button class="btn" id="heardType">✏️ Fix it</button></div>
-      <p class="small">The computer listens and writes what it heard. It sometimes hears words wrongly. If it is wrong, say it again or fix it.</p>
+      <button class="btn primary" id="micBtn">🎤 Tap to speak</button>
+      <p id="heard" aria-live="polite"></p>
+      <p class="small" id="speakTip">Tap 🎤 and say your answer. Tap again when you finish. Dr Shah will answer you.</p>
     </div>
     <div class="pane" id="mType" hidden>
       <label for="typeIn" class="small" style="display:block;margin:0 0 6px">Write your answer to Dr Shah:</label>
@@ -215,6 +209,13 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
       <p class="small">Some words are extra. You don't need every word.</p>
     </div>
   </div>
+  <div class="card" id="notesCard">
+    <div id="notesHead"><h3>📝 Your notes</h3><button class="btn" id="gBtn" aria-expanded="false">💡 Grammar help</button></div>
+    <ul id="notesList"></ul>
+    <div class="row" id="calRow" hidden><button class="btn" id="calBtn">📅 Look at the calendar</button></div>
+  </div>
+  <div class="card" id="gHelp" hidden><h3 id="gTitle"></h3><p id="gText"></p><div id="gTl"></div></div>
+
  </div>
 </section>
 
@@ -327,7 +328,7 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
    <li>At the end you see your results.</li>
   </ol>
   <h3>Speaking</h3>
-  <p>Your browser asks to use the microphone. Tap <b>Allow</b>. Speaking works best in Chrome, Edge or Safari. If it doesn't work, type your answer.</p>
+  <p>Tap 🎤 and say your answer. Tap again when you finish. If you are right, Dr Shah goes on to the next question. If the computer heard you wrongly, tap <b>That's not what I said</b> and say it again.</p><p>The first time you speak on some phones, it takes a moment to get ready.</p>
   <h3>Keys</h3>
   <p><span class="kbd">1</span>–<span class="kbd">4</span> change the view · <span class="kbd">Enter</span> check a typed answer · <span class="kbd">Esc</span> close a box</p>
  </div>
@@ -352,8 +353,10 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
   </table>
   <p class="small">Answers the checker doesn't recognise get a gentle "try again" with no penalty. After two grammar errors, or four tries, the learner sees a model answer and can hear it. The results screen records "right first time", "fixed it" or "answer shown" for each question.</p>
 
-  <h3>Speech recognition: what to tell learners</h3>
-  <p>Speaking uses the browser's built-in speech recognition: Chrome or Edge on Android, Windows and Mac, and <b>Safari only</b> on iPhone and iPad (Chrome, Edge and Firefox on iPhone can't use it, so the simulation switches those to typing and offers to copy the link for Safari). After learners tap Start, the simulation asks for the microphone and shows whether it is ready. On iPhone, Dictation must also be switched on in Settings › General › Keyboard. It is trained to produce tidy English, so it sometimes writes a grammatical sentence when the learner said an ungrammatical one (for example it may write <i>I've had</i> when the learner said <i>I have</i>), and it can struggle with some accents. Learners always see what it heard before they check it. For accuracy work, use <b>Type</b> or <b>Tiles</b>; use <b>Speak</b> for confidence and fluency.</p>
+  <h3>Speaking: how it works</h3>
+  <p>Speaking is the default. Learners tap 🎤, say their answer, and tap again when they finish. The answer is checked straight away, and when it is right Dr Shah moves on to the next question by herself.</p>
+  <p>On Chrome or Edge (Android, Windows, Mac) and Safari (iPhone, iPad), the browser's own speech recognition is used. On browsers that don't have it, including Chrome, Edge and Firefox on iPhone, the simulation recognises speech on the device itself. That needs a one-off download of about 50 MB the first time, so start the session on Wi-Fi. No recordings are sent anywhere or stored.</p>
+  <p>Speech recognition is built to produce tidy English, so it sometimes writes a grammatical sentence when the learner said an ungrammatical one, and it can mishear some accents. Learners always see what it heard. If it is wrong, they tap <b>"That's not what I said"</b> and that attempt doesn't count. For close accuracy work, <b>Type</b> and <b>Tiles</b> are still there.</p>
 
   <h3>Questions to ask the class</h3>
   <ul>
@@ -855,7 +858,11 @@ const UA = navigator.userAgent;
 const IOS = /iP(hone|ad|od)/.test(UA) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
 // On iPhone and iPad only Safari can use speech recognition. Chrome, Edge, Firefox and in-app browsers expose it but it never works.
 const IOS_NOT_SAFARI = IOS && /CriOS|FxiOS|EdgiOS|OPiOS|OPT\/|GSA\/|DuckDuckGo|Instagram|FBAN|FBAV|Line\/|Teams|WhatsApp/i.test(UA);
-const SR = IOS_NOT_SAFARI ? null : (window.SpeechRecognition || window.webkitSpeechRecognition);
+const ANDROID = /Android/i.test(UA);
+// Native speech recognition where it works; elsewhere (for example Chrome on iPhone) recognise speech on the device.
+const NATIVE_SR = (IOS_NOT_SAFARI || params.get('stt')==='local') ? null : (window.SpeechRecognition || window.webkitSpeechRecognition);
+let engine = NATIVE_SR ? 'native' : 'local';
+const SR = true; // speaking is always offered
 function resetResults(){ results = QS.map(()=>({first:'', status:'', errors:[]})); }
 resetResults();
 QS.forEach(()=>{ $('dots').appendChild(document.createElement('span')); });
@@ -869,14 +876,7 @@ function setMode(m){
   if(m==='type') setTimeout(()=>$('typeIn').focus({preventScroll:true}),50);
 }
 document.querySelectorAll('#modes .btn').forEach(b=>b.onclick=()=>{ stopListening(); setMode(b.dataset.mode); const pane=$(b.dataset.mode==='speak'?'mSpeak':b.dataset.mode==='type'?'mType':'mTiles'); setTimeout(()=>pane.scrollIntoView({block:'nearest',behavior:reduceMotion?'auto':'smooth'}),30); });
-function noSpeechMsg(){ if(SR) return;
-  $('micBtn').hidden=true; $('mSpeak').querySelector('.small').hidden=true;
-  $('heard').innerHTML = IOS
-    ? 'On iPhone and iPad, speaking only works in <b>Safari</b>. Open this page in Safari to speak to Dr Shah, or tap <b>⌨️ Type</b>.<div class="row"><button class="btn" id="copyLink">📋 Copy the link for Safari</button></div>'
-    : 'Speaking doesn\'t work in this browser. Use <b>Chrome</b>, <b>Edge</b> or <b>Safari</b> to speak, or tap <b>⌨️ Type</b>.';
-  const cl=$('copyLink'); if(cl) cl.onclick=async()=>{ try{ await navigator.clipboard.writeText(location.href); cl.textContent='✓ Link copied. Paste it into Safari.'; }catch(e){ cl.textContent=location.href; } };
-}
-noSpeechMsg();
+function noSpeechMsg(){}
 
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function buildTiles(){
@@ -889,36 +889,117 @@ $('tileOk').onclick=()=>{ const t=[...$('tileAns').children].map(b=>b.textConten
 $('typeOk').onclick=()=>{ const t=$('typeIn').value.trim(); if(t) submit(t); };
 $('typeIn').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('typeOk').click(); } });
 
-/* speech recognition */
-let rec=null, listening=false, heardText='';
-function stopListening(){ if(rec){ try{ rec.abort(); }catch(e){} } listening=false; $('micBtn').classList.remove('listening'); $('micBtn').textContent='🎤 Tap and speak to Dr Shah'; }
-function startListening(){
-  if(!SR) return; stopTalk(); stopListening();
-  heardText=''; $('heard').textContent=''; $('heardBtns').hidden=true;
-  rec = new SR(); rec.lang='en-GB'; rec.interimResults=true; rec.maxAlternatives=1; rec.continuous=false;
-  rec.onresult = e => { let t=''; for(const r of e.results) t += r[0].transcript; heardText=t.trim(); $('heard').innerHTML='I heard: <b></b>'; $('heard').querySelector('b').textContent='"'+heardText+'"'; };
-  rec.onerror = e => {
-    const msg = {
-      'not-allowed': 'The microphone or speech recognition is blocked. '+(IOS?FIX_IOS+' Also check <b>Settings › Safari › Microphone</b>.':FIX_OTHER)+' Then tap 🎤 again. Or tap <b>⌨️ Type</b>.',
-      'service-not-allowed': IOS ? 'Speaking needs Dictation switched on. Go to <b>Settings › General › Keyboard</b> and turn on <b>Enable Dictation</b>, then come back and tap 🎤 again. Or tap <b>⌨️ Type</b>.'
-                         : 'Speech recognition is switched off in this browser. Try Chrome or Edge, or tap <b>⌨️ Type</b>.',
-      'audio-capture': 'No microphone was found. Check your microphone or headset, or tap <b>⌨️ Type</b>.',
-      'network': 'Speaking needs an internet connection. Check your connection, or tap <b>⌨️ Type</b>.',
-      'no-speech': "I didn't hear anything. Tap 🎤 and speak a bit louder."
-    }[e.error];
-    if(msg){ heardText=''; $('heard').innerHTML=msg; $('heardBtns').hidden=true; }
-    listening=false; $('micBtn').classList.remove('listening'); $('micBtn').textContent='🎤 Tap and speak to Dr Shah';
-  };
-  rec.onend = () => { listening=false; $('micBtn').classList.remove('listening'); $('micBtn').textContent= heardText?'🎤 Tap and speak again':'🎤 Tap and speak to Dr Shah';
-    if(heardText){ $('heardBtns').hidden=false; } };
-  try{ rec.start(); listening=true; $('micBtn').classList.add('listening'); $('micBtn').textContent='● Listening… tap to stop'; }catch(e){ $('heard').textContent='Speaking is not working here. Please type your answer.'; }
+/* speech recognition: tap to speak, tap to stop, then the answer is checked */
+let rec=null, listening=false, heardText='', phase='idle', stopTimer=null, userStopped=false, sttProg=0, localReady=null, lastSnap=null;
+function loadScript(src){ return new Promise((ok,no)=>{ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=()=>no(new Error(src)); document.head.appendChild(s); }); }
+function prepLocal(){
+  if(!localReady){
+    localReady = (window.ort?Promise.resolve():loadScript('../../vendor/ort/ort.wasm.min.js'))
+      .then(()=>window.LocalSTT?null:loadScript('stt/stt.js'))
+      .then(()=>LocalSTT.load(p=>{ sttProg=p; speakStatus(); }))
+      .then(()=>{ sttProg=1; speakStatus(); });
+    localReady.catch(()=>{ localReady=null; sttProg=0; speakStatus(true); });
+  }
+  return localReady;
 }
-$('micBtn').onclick=()=>{ if(listening){ try{ rec.stop(); }catch(e){} } else startListening(); };
-$('heardOk').onclick=()=>{ if(heardText) submit(heardText); };
-$('heardAgain').onclick=startListening;
-$('heardType').onclick=()=>{ setMode('type'); $('typeIn').value=heardText; };
+function speakStatus(failed){
+  const pct = Math.round(sttProg*100);
+  const txt = failed ? 'Speech recognition could not load. Check your internet and tap 🎤 again, or tap ⌨️ Type.'
+    : (engine==='local' && sttProg<1 && localReady) ? `Getting speech recognition ready on this device… ${pct}% (first time only)` : '';
+  if(phase==='idle' && $('heard') && (txt || $('heard').dataset.status)){ $('heard').textContent = txt; $('heard').dataset.status = txt?'1':''; }
+  if(window.__micStatusUpdate) window.__micStatusUpdate();
+}
+function setMic(p, label){
+  phase=p; const m=$('micBtn'); m.classList.toggle('listening',p==='listening'); m.classList.toggle('checking',p==='checking');
+  m.disabled = p==='checking';
+  m.textContent = label || (p==='listening'?'● Listening… tap when you finish':p==='checking'?'⏳ Checking what you said…':'🎤 Tap to speak');
+  listening = p==='listening';
+  if(p!=='idle' && $('heard').dataset.status) hearMsg('');
+}
+function stopListening(){ // cancel without checking (used when switching mode or question)
+  clearTimeout(stopTimer); userStopped=false;
+  if(rec){ try{ rec.onend=null; rec.onresult=null; rec.abort(); }catch(e){} rec=null; }
+  if(window.LocalSTT && LocalSTT.isRecording()) LocalSTT.stopRecording();
+  if(phase!=='checking') setMic('idle');
+}
+function hearMsg(html){ $('heard').innerHTML=html; $('heard').dataset.status=''; }
+const FIX_IOS = 'Tap <b>aA</b> in the address bar, then <b>Website Settings</b>, and set <b>Microphone</b> to <b>Allow</b>.';
+const FIX_OTHER = 'Tap the icon to the left of the web address and set <b>Microphone</b> to <b>Allow</b>.';
+function micBlockedMsg(){ hearMsg('🎤 The microphone is blocked. '+(IOS?FIX_IOS:FIX_OTHER)+' Then tap 🎤 again.'); }
+function startListening(){
+  if(phase!=='idle') return;
+  stopTalk(); cancelAutoNext(); unlockAudio();
+  heardText=''; hearMsg('');
+  if(engine==='native') startNative(); else startLocal();
+}
+function startNative(){
+  userStopped=false;
+  try{ rec = new NATIVE_SR(); }catch(e){ engine='local'; return startLocal(); }
+  rec.lang='en-GB'; rec.interimResults=true; rec.maxAlternatives=1; rec.continuous=true;
+  rec.onresult = e => {
+    let t='';
+    if(ANDROID){ for(const r of e.results){ const x=r[0].transcript; if(x.length>t.length) t=x; } }   // Android repeats the whole phrase in each result
+    else { for(const r of e.results) t += r[0].transcript; }
+    heardText=t.trim(); if(heardText) hearMsg('I\'m hearing: <b></b>'), $('heard').querySelector('b').textContent='"'+heardText+'"';
+  };
+  rec.onerror = e => {
+    if(e.error==='aborted') return;
+    if(e.error==='no-speech'){ hearMsg("I didn't hear anything. Tap 🎤 and speak a bit louder."); return; }
+    if(e.error==='audio-capture'){ hearMsg('No microphone was found. Check your microphone or headset.'); return; }
+    if(e.error==='not-allowed' && !micOK){ micBlockedMsg(); return; }
+    // the browser's own recognition isn't available (blocked, Dictation off, offline): use on-device recognition instead
+    engine='local'; rec=null; prepLocal(); setMic('idle');
+    hearMsg('Switching to on-device listening. Tap 🎤 and say it again.');
+  };
+  rec.onend = () => { clearTimeout(stopTimer); rec=null; setMic('idle');
+    if(heardText) submitSpoken(heardText);
+    else if(userStopped) hearMsg("I didn't hear anything. Tap 🎤 and try again."); };
+  try{ rec.start(); setMic('listening'); stopTimer=setTimeout(()=>{ userStopped=true; try{ rec&&rec.stop(); }catch(e){} }, 25000); }
+  catch(e){ engine='local'; startLocal(); }
+}
+async function startLocal(){
+  if(!window.isSecureContext || !navigator.mediaDevices){ hearMsg('Speaking needs a secure (https) page. Please type your answer.'); return; }
+  let ctx=null; try{ const AC=window.AudioContext||window.webkitAudioContext; ctx=new AC(); ctx.resume&&ctx.resume(); }catch(e){}
+  prepLocal();
+  let stream;
+  try{ stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true, noiseSuppression:true, autoGainControl:true}}); micOK=true; }
+  catch(e){ try{ ctx&&ctx.close(); }catch(_){} micOK=false; if(e && e.name==='NotFoundError') hearMsg('No microphone was found. Check your microphone or headset.'); else micBlockedMsg(); return; }
+  try{ await (window.LocalSTT ? Promise.resolve() : waitFor(()=>window.LocalSTT, 15000)); await LocalSTT.startRecording(stream, ctx); }
+  catch(e){ stream.getTracks().forEach(t=>t.stop()); hearMsg('Speech recognition could not start. Check your internet and tap 🎤 again.'); return; }
+  setMic('listening'); stopTimer=setTimeout(()=>stopLocal(), 20000);
+}
+function waitFor(fn, ms){ return new Promise((ok,no)=>{ const t0=Date.now(); (function chk(){ if(fn()) return ok(); if(Date.now()-t0>ms) return no(new Error('timeout')); setTimeout(chk,100); })(); }); }
+async function stopLocal(){
+  clearTimeout(stopTimer);
+  setMic('checking');
+  const audio = await LocalSTT.stopRecording();
+  window.__lastAudio = {secs: +(audio.length/16000).toFixed(2), level: +LocalSTT.level(audio).toFixed(4)};
+  if(audio.length < 16000*0.4 || LocalSTT.level(audio) < 0.003){ setMic('idle'); hearMsg("I didn't hear anything. Tap 🎤 and speak a bit louder."); return; }
+  try{
+    if(sttProg<1) setMic('checking','⏳ Getting ready… '+Math.round(sttProg*100)+'%');
+    await prepLocal(); setMic('checking');
+    const text = await LocalSTT.transcribe(audio);
+    setMic('idle');
+    if(text) submitSpoken(text); else hearMsg("Sorry, I didn't catch that. Tap 🎤 and try again.");
+  }catch(e){ setMic('idle'); hearMsg('Speech recognition could not load. Check your internet and tap 🎤 again, or tap ⌨️ Type.'); }
+}
+$('micBtn').onclick=()=>{
+  if(phase==='listening'){ userStopped=true; if(engine==='native'){ try{ rec&&rec.stop(); }catch(e){} } else stopLocal(); }
+  else if(phase==='idle') startListening();
+};
+function submitSpoken(text){
+  const R=results[qi]; lastSnap={qi, tries, errs, R:JSON.parse(JSON.stringify(R))};
+  hearMsg(''); submit(text, true);
+}
+function undoSpoken(){ // "That's not what I said": the attempt doesn't count
+  if(!lastSnap || lastSnap.qi!==qi) return;
+  tries=lastSnap.tries; errs=lastSnap.errs; results[qi]=lastSnap.R; done=false; lastSnap=null;
+  $('fb').hidden=true; $('fbBtns').hidden=true; $('answerArea').hidden=false; renderDots();
+  docSays(AGAIN_SAY); hearMsg('No problem. Tap 🎤 and say it again.');
+}
 
 function showQuestion(i, opts={}){
+  stopListening(); cancelAutoNext(); lastSnap=null;
   qi=i; tries=0; errs=0; done=false;
   $('qNum').textContent=`Question ${i+1} of ${QS.length}`; renderDots();
   const q=QS[i];
@@ -927,7 +1008,7 @@ function showQuestion(i, opts={}){
   $('gTitle').textContent=q.help.title; $('gText').innerHTML=q.help.text; $('gTl').innerHTML=timeline(q.help.tl);
   $('calRow').hidden = q.id!=='howlong';
   $('fb').hidden=true; $('fbBtns').hidden=true; $('answerArea').hidden=false;
-  $('typeIn').value=''; $('heard').textContent=''; $('heardBtns').hidden=true; heardText=''; noSpeechMsg();
+  $('typeIn').value=''; hearMsg(''); heardText=''; speakStatus();
   buildTiles();
   barTarget = i>=1 ? 1 : 0;
   if(i>0 && camera.position.distanceTo(CAMS[0].pos)>0.6) goCam(0);
@@ -940,17 +1021,17 @@ $('calBtn').onclick=()=>{ goCam(2); closeModals(); };
 $('replayBtn').onclick=()=>{ unlockAudio(); say(curSay); };
 
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function fbButtons(list){ const b=$('fbBtns'); b.innerHTML=''; list.forEach(([label,cls,fn])=>{ const x=document.createElement('button'); x.className='btn '+(cls||''); x.innerHTML=label; x.onclick=fn; b.appendChild(x); }); b.hidden=!list.length; }
-function retry(){ $('fb').hidden=true; $('fbBtns').hidden=true; $('answerArea').hidden=false; $('typeIn').value=''; $('heard').textContent=''; $('heardBtns').hidden=true; heardText=''; noSpeechMsg(); buildTiles(); if(mode==='type') $('typeIn').focus({preventScroll:true}); }
+function fbButtons(list){ const b=$('fbBtns'); b.innerHTML=''; const t0=performance.now(); list.forEach(([label,cls,fn])=>{ const x=document.createElement('button'); x.className='btn '+(cls||''); x.innerHTML=label; x.onclick=()=>{ if(performance.now()-t0>700) fn(); }; b.appendChild(x); }); b.hidden=!list.length; } // ignore a stray tap from the mic button underneath
 
-function submit(text){
-  stopListening(); unlockAudio();
+function submit(text, spoken){
+  if(phase==='listening') stopListening(); unlockAudio(); cancelAutoNext();
   const q=QS[qi], r=check(qi,text), R=results[qi];
   if(r.v==='none') return;
   tries++;
   if(!R.first) R.first=text;
   const fb=$('fb'); fb.hidden=false; fb.className=r.v==='ok'?'ok':r.v==='err'?'err':'nudge';
   const said = `<p>You said: <i>"${esc(text)}"</i></p>`;
+  const undo = spoken ? '<button class="undo" onclick="window.__undo()">🎤 That\'s not what I said</button>' : '';
   if(r.v==='ok'){
     done=true; R.status = (errs===0 && tries===1) ? 'first' : 'fixed';
     const praise = PRAISE[(qi+tries)%PRAISE.length];
@@ -960,6 +1041,7 @@ function submit(text){
     docSays(q.ack);
     window.simStats && simStats.once('q'+(qi+1)+'-done');
     fbButtons([[qi<QS.length-1?'Next question ▶':'Finish ▶','primary',next]]);
+    autoNext(0);
   } else if(r.v==='err'){
     errs++; R.errors.push({said:text, tip:r.tip}); tilt();
     if(errs>=2){
@@ -969,11 +1051,11 @@ function submit(text){
       recLines.push(q.record); redrawScreen();
       docSays(r.say || q.model);
       fbButtons([['🔊 Hear it','',()=>say(q.model)],[qi<QS.length-1?'Next question ▶':'Finish ▶','primary',next]]);
+      autoNext(1800);
     } else {
-      fb.innerHTML = `<div class="v">✗ Not quite</div>${said}<p>${esc(r.tip)}</p>`;
-      $('answerArea').hidden=true;
+      fb.innerHTML = `<div class="v">✗ Not quite</div>${said}<p>${esc(r.tip)}</p>${undo}`;
+      $('answerArea').hidden=false; $('fbBtns').hidden=true;
       docSays(r.say ? r.say+' '+AGAIN_SAY : AGAIN_SAY);
-      fbButtons([['↺ Try again','primary',retry]]);
     }
   } else {
     // nudge or unknown: no penalty, but after 4 tries show the answer
@@ -982,23 +1064,32 @@ function submit(text){
       fb.className='nudge'; fb.innerHTML=`<div class="v">Here is a good answer</div>${said}<div class="model">${esc(q.model)}</div>`;
       $('answerArea').hidden=true; recLines.push(q.record); redrawScreen(); docSays(q.model);
       fbButtons([['🔊 Hear it','',()=>say(q.model)],[qi<QS.length-1?'Next question ▶':'Finish ▶','primary',next]]);
+      autoNext(1800);
       return;
     }
     fb.className = r.v==='nudge'?'nudge':'unknown';
-    fb.innerHTML = `<div class="v">${r.v==='nudge'?'🙂 Nearly there':'🤔 Try again'}</div>${said}<p>${esc(r.tip)}</p>`;
-    $('answerArea').hidden=true;
+    fb.innerHTML = `<div class="v">${r.v==='nudge'?'🙂 Nearly there':'🤔 Try again'}</div>${said}<p>${esc(r.tip)}</p>${undo}`;
+    $('answerArea').hidden=false; $('fbBtns').hidden=true;
     docSays(r.v==='nudge'?NUDGE_SAY:UNKNOWN);
-    fbButtons([['↺ Try again','primary',retry]]);
   }
   renderDots();
   $('talkScroll').scrollTop = 0;
 }
+let autoTimer=null;
+function cancelAutoNext(){ clearInterval(autoTimer); autoTimer=null; }
+function autoNext(extra){ // move on once Dr Shah has finished speaking
+  cancelAutoNext(); const t0=performance.now(); let quietSince=0;
+  autoTimer=setInterval(()=>{ const now=performance.now();
+    if(talking()){ quietSince=0; return; } if(!quietSince) quietSince=now;
+    if(now-t0 > 2500+extra && now-quietSince > 700+extra) next(); }, 150);
+}
 function next(){
+  cancelAutoNext();
   if(qi<QS.length-1){ showQuestion(qi+1); }
   else finish();
 }
 function finish(){
-  done=true; qi=QS.length; renderDots();
+  cancelAutoNext(); done=true; qi=QS.length; renderDots();
   $('qNum').textContent='Finished'; $('notesList').innerHTML='<li>Listen to Dr Shah\'s advice.</li>';
   $('calRow').hidden=true; $('gHelp').hidden=true; $('gBtn').hidden=true; $('answerArea').hidden=true; $('fb').hidden=true;
   docSays(CLOSE); nod();
@@ -1053,26 +1144,28 @@ addEventListener('keydown',e=>{
 const INTRO = "Today you are the patient. Your back hurts, so you have come to see Dr Shah, your GP. Dr Shah will ask you six questions. Answer each one in a full sentence. Look at your notes to see what to say. Think about the grammar. Use I've had, with since or for, when something started in the past and is still true now. Use the past simple, like I lifted, for a finished time, like on Monday. You can speak, type or use word tiles. If something is wrong, Dr Shah will help you fix it. When you are ready, tap Begin the appointment.";
 let micOK = false;
 function micMsg(cls, html, retry){ const m=$('micStatus'); m.className='card '+cls; m.innerHTML=html + (retry?'<div class="row"><button class="btn" id="micRetry">🎤 Try the microphone again</button></div>':''); const r=$('micRetry'); if(r) r.onclick=()=>checkMic(); }
-const FIX_IOS = 'Tap <b>aA</b> in the address bar, then <b>Website Settings</b>, and set <b>Microphone</b> to <b>Allow</b>.';
-const FIX_OTHER = 'Tap the icon to the left of the web address and set <b>Microphone</b> to <b>Allow</b>.';
 async function checkMic(){
-  if(!SR){ micOK=false;
-    micMsg('bad', IOS ? '⌨️ On iPhone and iPad, speaking only works in <b>Safari</b>. You can type or use tiles here, or open this page in Safari to speak.<div class="row"><button class="btn" id="copyLink2">📋 Copy the link for Safari</button></div>'
-                      : '⌨️ Speaking doesn\'t work in this browser, so you will type or use tiles. To speak, use <b>Chrome</b>, <b>Edge</b> or <b>Safari</b>.');
-    const c=$('copyLink2'); if(c) c.onclick=async()=>{ try{ await navigator.clipboard.writeText(location.href); c.textContent='✓ Link copied. Paste it into Safari.'; }catch(e){ c.textContent=location.href; } };
-    return false; }
-  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ micOK=true; micMsg('ok','🎤 Speaking is ready.'); return true; }
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ micOK=false; micMsg('bad','🎤 This browser can\'t use the microphone here. You can type or use word tiles instead.'); return false; }
   micMsg('', '🎤 Asking to use the microphone… tap <b>Allow</b>.');
   try{
     const st = await navigator.mediaDevices.getUserMedia({audio:true}); st.getTracks().forEach(t=>t.stop());
-    micOK=true; micMsg('ok','✓ The microphone is ready. You can speak to Dr Shah.'+(IOS?' Safari may also ask to use <b>speech recognition</b> the first time you tap 🎤. Tap <b>Allow</b>.':'')); return true;
+    micOK=true;
+    if(engine==='local'){ prepLocal(); window.__micStatusUpdate(); }
+    else micMsg('ok','✓ The microphone is ready. You can speak to Dr Shah.'+(IOS?' If Safari asks to use <b>speech recognition</b>, tap <b>Allow</b>.':''));
+    return true;
   }catch(e){
     micOK=false;
-    if(e && e.name==='NotFoundError') micMsg('bad','🎤 No microphone was found. Plug in a headset, or type your answers.', true);
-    else micMsg('bad','🎤 The microphone is blocked, so you can\'t speak yet. '+(IOS?FIX_IOS:FIX_OTHER)+' Then tap the button below. Or just type your answers.', true);
+    if(e && e.name==='NotFoundError') micMsg('bad','🎤 No microphone was found. Plug in a headset and tap the button below.', true);
+    else micMsg('bad','🎤 The microphone is blocked, so you can\'t speak yet. '+(IOS?FIX_IOS:FIX_OTHER)+' Then tap the button below.', true);
     return false;
   }
 }
+window.__micStatusUpdate = () => {
+  if(engine!=='local' || !micOK || !$('micStatus') || $('startOv').hidden) return;
+  if(sttProg>=1) micMsg('ok','✓ The microphone is ready. You can speak to Dr Shah.');
+  else micMsg('ok','✓ The microphone is ready. Getting speech recognition ready on this device… <b>'+Math.round(sttProg*100)+'%</b><br><span class="small">First time only. You can begin now.</span>');
+};
+window.__undo = undoSpoken;
 $('startBtn').onclick=async()=>{
   unlockAudio();
   $('start1').hidden=true; $('start2').hidden=false;
@@ -1080,9 +1173,9 @@ $('startBtn').onclick=async()=>{
   say(INTRO);
 };
 $('introAgain').onclick=()=>say(INTRO);
-$('beginBtn').onclick=()=>{ $('startOv').hidden=true; setMode(micOK?'speak':'type'); showQuestion(0); };
-setMode(SR?'speak':'type');
-window.__speech = {IOS, IOS_NOT_SAFARI, SR:!!SR};
+$('beginBtn').onclick=()=>{ $('startOv').hidden=true; setMode('speak'); showQuestion(0); if(!micOK) micBlockedMsg(); };
+setMode('speak');
+window.__speech = {IOS, IOS_NOT_SAFARI, get engine(){ return engine; }, get phase(){ return phase; }, get prog(){ return sttProg; }, get stt(){ return window.LocalSTT && LocalSTT.state; }};
 layout(); goCam(0,true);
 // test hooks: ?q=<n> jumps to a question, ?summary=1 fills a sample run, ?cam=<n>
 if(params.has('q')||params.has('summary')||params.has('cam')||params.has('nostart')){
@@ -1097,7 +1190,7 @@ if(params.has('q')||params.has('summary')||params.has('cam')||params.has('nostar
 }
 
 /* ================= loop ================= */
-const clock3=new THREE.Clock(); let tAll=0;
+const clock3=new THREE.Clock(); let tAll=0, frameN=0;
 function tick(){
   const dt=Math.min(0.05,clock3.getDelta()); tAll+=dt;
   if(camAnim){ camAnim.t+=dt/camAnim.dur; const k=Math.min(1,camAnim.t), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
@@ -1119,8 +1212,9 @@ function tick(){
   if(anim.blink>0){ anim.blink-=dt; } const s = anim.blink>0?0.12:1; eyes.forEach(e=>e.scale.y=(e.material===whiteM?0.8:1)*s);
   // calendar bar
   if(Math.abs(barProgress-barTarget)>0.002){ barProgress += (barTarget-barProgress)*Math.min(1,dt*1.5); if(Math.abs(barProgress-barTarget)<0.01) barProgress=barTarget; redrawCal(); }
-  renderer.render(scene,camera);
-  updateLabels();
+  // while listening or checking speech, draw the 3D room less often so the phone has time for the microphone
+  const busy = typeof phase!=='undefined' && phase!=='idle';
+  if(!busy || (frameN++ % 8)===0){ renderer.render(scene,camera); updateLabels(); }
   requestAnimationFrame(tick);
 }
 redrawScreen(); tick();
