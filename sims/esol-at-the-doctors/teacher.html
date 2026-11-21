@@ -17,6 +17,7 @@
 :root{--navy:#14284b;--navy2:#1f3c6e;--ink:#1b2230;--muted:#4a5568;--bg:#eef1f5;--card:#fff;--line:#d5dbe4;--amber:#e08a00;--ok:#1d7a3e;--okbg:#e7f5ec;--bad:#b42318;--badbg:#fdecea;--nudge:#8a5a00;--nudgebg:#fff5e0}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
+html{touch-action:manipulation}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink)}
 #c3d{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
 #labels{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
@@ -68,6 +69,8 @@ button{font:inherit;cursor:pointer}
 #micStatus.bad{background:var(--nudgebg);border-color:#efd08f}
 #micBtn{width:100%;min-height:64px;font-size:18px;border-radius:14px}
 #micBtn.checking{background:#5b6b85;border-color:#5b6b85;color:#fff}
+.steps{margin:6px 0;padding-left:22px}
+.steps li{margin:3px 0}
 .undo{background:none;border:none;color:var(--navy);text-decoration:underline;font-size:14px;min-height:44px;padding:0;cursor:pointer}
 #micBtn.listening{background:var(--bad);border-color:var(--bad);color:#fff;animation:pulse 1.2s infinite}
 @keyframes pulse{50%{box-shadow:0 0 0 8px rgba(180,35,24,.18)}}
@@ -226,7 +229,8 @@ table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-
   <h2>At the doctor's</h2>
   <p>Speaking practice at the GP. Dr Shah talks to you and you answer.</p>
   <p>🔊 Turn your sound up. Use headphones if you can.</p>
-  <p>🎤 When you tap <b>Start</b>, your phone or computer may ask to use the <b>microphone</b>. Tap <b>Allow</b> so you can speak to Dr Shah.</p>
+  <p>🎤 When you tap <b>Start</b>, your phone or computer will ask to use the <b>microphone</b>. Tap <b>Allow</b> so you can speak to Dr Shah.</p>
+  <div class="card" id="preMic" hidden></div>
   <div class="row sticky"><button class="btn primary" id="startBtn" style="min-height:52px;font-size:17px;padding:0 22px">▶ Start</button></div>
  </div>
  <div class="ovc" id="start2" hidden>
@@ -777,12 +781,13 @@ addEventListener('resize',layout);
 try{ new ResizeObserver(()=>layout()).observe($('talk')); }catch(e){}
 function fitKeyboard(){
   const vv=window.visualViewport, t=$('talk'); if(!vv) return;
-  const kb = innerHeight - vv.height - vv.offsetTop;
-  if(kb>80){ const topH=$('top').getBoundingClientRect().height; t.style.setProperty('top',(vv.offsetTop+topH+4)+'px','important'); t.style.setProperty('bottom',(kb+4)+'px','important'); t.style.setProperty('height','auto','important');
+  const kb = innerHeight - vv.height - vv.offsetTop, f0=document.activeElement;
+  if(kb>80 && f0 && f0.id==='typeIn' && Math.abs((vv.scale||1)-1)<0.05){ const topH=$('top').getBoundingClientRect().height; t.style.setProperty('top',(vv.offsetTop+topH+4)+'px','important'); t.style.setProperty('bottom',(kb+4)+'px','important'); t.style.setProperty('height','auto','important');
     const f=document.activeElement; if(f && f.id==='typeIn') setTimeout(()=>f.scrollIntoView({block:'center'}),60); }
   else { ['top','bottom','height'].forEach(p=>t.style.removeProperty(p)); }
 }
 if(window.visualViewport){ visualViewport.addEventListener('resize',fitKeyboard); visualViewport.addEventListener('scroll',fitKeyboard); }
+document.addEventListener('focusout',()=>setTimeout(fitKeyboard,250));
 
 /* ===== word labels (vocabulary) ===== */
 let labelsOn=false, tapLabel=null, tapLabelT=0;
@@ -923,9 +928,15 @@ function stopListening(){ // cancel without checking (used when switching mode o
   if(phase!=='checking') setMic('idle');
 }
 function hearMsg(html){ $('heard').innerHTML=html; $('heard').dataset.status=''; }
-const FIX_IOS = 'Tap <b>aA</b> in the address bar, then <b>Website Settings</b>, and set <b>Microphone</b> to <b>Allow</b>.';
-const FIX_OTHER = 'Tap the icon to the left of the web address and set <b>Microphone</b> to <b>Allow</b>.';
-function micBlockedMsg(){ hearMsg('🎤 The microphone is blocked. '+(IOS?FIX_IOS:FIX_OTHER)+' Then tap 🎤 again.'); }
+function micFixSteps(){
+  const app = /CriOS/.test(UA)?'Chrome':/EdgiOS/.test(UA)?'Edge':/FxiOS/.test(UA)?'Firefox':/OPiOS|OPT\//.test(UA)?'Opera':null;
+  if(IOS && app) return `<ol class="steps"><li>Open the iPhone <b>Settings</b> app.</li><li>Scroll down (or tap <b>Apps</b>) and tap <b>${app}</b>.</li><li>Turn <b>Microphone</b> on.</li><li>Come back here and tap <b>🔄 Ask again</b>.</li></ol><p class="small">If Microphone is already on, tap <b>🔄 Ask again</b> and choose <b>Allow</b> this time.</p>`;
+  if(IOS) return `<ol class="steps"><li>Tap <b>🔄 Ask again</b> below.</li><li>When Safari asks, tap <b>Allow</b>.</li></ol><p class="small">Still blocked? Tap <b>aA</b> (or ☰) next to the web address, then <b>Website Settings</b>, and set <b>Microphone</b> to <b>Ask</b> or <b>Allow</b>.</p>`;
+  if(ANDROID) return `<ol class="steps"><li>Tap the icon to the left of the web address.</li><li>Tap <b>Permissions</b> and switch <b>Microphone</b> on.</li><li>Tap <b>🔄 Ask again</b>.</li></ol>`;
+  return `<ol class="steps"><li>Click the icon to the left of the web address.</li><li>Set <b>Microphone</b> to <b>Allow</b>.</li><li>Click <b>🔄 Ask again</b>.</li></ol>`;
+}
+const askAgainBtn = '<div class="row"><button class="btn primary" onclick="location.reload()">🔄 Ask again</button></div>';
+function micBlockedMsg(){ hearMsg('<b>🎤 The microphone is switched off for this page.</b>'+micFixSteps()+askAgainBtn+'<p class="small">Or tap ⌨️ Type to answer for now.</p>'); }
 function startListening(){
   if(phase!=='idle') return;
   stopTalk(); cancelAutoNext(); unlockAudio();
@@ -1141,6 +1152,9 @@ addEventListener('keydown',e=>{
 });
 
 /* ================= start ================= */
+(async()=>{ try{ const p = await navigator.permissions.query({name:'microphone'});
+  const show=()=>{ const el=$('preMic'); if(p.state==='denied'){ el.hidden=false; el.className='card'; el.style.background='var(--nudgebg)'; el.innerHTML='<b>🎤 The microphone is switched off for this page.</b> Fix it first so you can speak:'+micFixSteps()+askAgainBtn; } else el.hidden=true; };
+  show(); p.onchange=show; }catch(e){} })();
 const INTRO = "Today you are the patient. Your back hurts, so you have come to see Dr Shah, your GP. Dr Shah will ask you six questions. Answer each one in a full sentence. Look at your notes to see what to say. Think about the grammar. Use I've had, with since or for, when something started in the past and is still true now. Use the past simple, like I lifted, for a finished time, like on Monday. You can speak, type or use word tiles. If something is wrong, Dr Shah will help you fix it. When you are ready, tap Begin the appointment.";
 let micOK = false;
 function micMsg(cls, html, retry){ const m=$('micStatus'); m.className='card '+cls; m.innerHTML=html + (retry?'<div class="row"><button class="btn" id="micRetry">🎤 Try the microphone again</button></div>':''); const r=$('micRetry'); if(r) r.onclick=()=>checkMic(); }
@@ -1156,7 +1170,7 @@ async function checkMic(){
   }catch(e){
     micOK=false;
     if(e && e.name==='NotFoundError') micMsg('bad','🎤 No microphone was found. Plug in a headset and tap the button below.', true);
-    else micMsg('bad','🎤 The microphone is blocked, so you can\'t speak yet. '+(IOS?FIX_IOS:FIX_OTHER)+' Then tap the button below.', true);
+    else micMsg('bad','<b>🎤 The microphone is switched off for this page.</b> To speak to Dr Shah:'+micFixSteps()+askAgainBtn);
     return false;
   }
 }
