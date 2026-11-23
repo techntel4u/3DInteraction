@@ -917,19 +917,28 @@ canvas.addEventListener('pointerup',e=>{ if(!downAt||Math.hypot(e.clientX-downAt
 });
 
 /* ================= narration ================= */
-const NARR = {};
+const NARR = {"today you are the patient":"audio/s001.mp3","your back hurts so you have come to see dr shah your gp":"audio/s002.mp3","dr shah will ask you six questions":"audio/s003.mp3","answer each one in a full sentence":"audio/s004.mp3","look at your notes to see what to say":"audio/s005.mp3","think about the grammar":"audio/s006.mp3","use i've had with since or for when something started in the past and is still true now":"audio/s007.mp3","use the past simple like i lifted for a finished time like on monday":"audio/s008.mp3","you can speak type or use word tiles":"audio/s009.mp3","if something is wrong dr shah will help you fix it":"audio/s010.mp3","when you are ready tap begin the appointment":"audio/s011.mp3","can you say that again":"audio/s012.mp3","thank you that's really helpful":"audio/s013.mp3","back pain like this usually gets better within a few weeks":"audio/s014.mp3","try to stay active and keep doing your normal things":"audio/s015.mp3","don't stay in bed for a long time":"audio/s016.mp3","a hot water bottle wrapped in a towel can help":"audio/s017.mp3","always read the instructions on painkillers":"audio/s018.mp3","if it isn't getting better come back and see me":"audio/s019.mp3","that's ok":"audio/s020.mp3","listen":"audio/s021.mp3","nearly":"audio/s022.mp3","look at the line":"audio/s023.mp3","look at the line and try again":"audio/s024.mp3","listen and say it with me":"audio/s025.mp3","now you say it":"audio/s026.mp3","listen then say it":"audio/s027.mp3","hello come in and take a seat":"audio/s028.mp3","what seems to be the problem today":"audio/s029.mp3","oh dear i'm sorry to hear that":"audio/s030.mp3","i've hurt my back":"audio/s031.mp3","ah you've hurt your back":"audio/s032.mp3","hurt is irregular hurt hurt hurt":"audio/s033.mp3","say i've hurt my back":"audio/s034.mp3","a pain in your back":"audio/s035.mp3","i see":"audio/s036.mp3","we say a pain in your back not on your back":"audio/s037.mp3","use have hurt i've hurt my back":"audio/s038.mp3","ah your back hurts":"audio/s039.mp3","add s for now my back hurts":"audio/s040.mp3","or say i've hurt my back":"audio/s041.mp3","try a full sentence for example i've hurt my back":"audio/s042.mp3","i've hurt it happened before and it still hurts now":"audio/s043.mp3","hurt doesn't change":"audio/s044.mp3","hurt hurt hurt":"audio/s045.mp3","start with i've":"audio/s046.mp3","you hurt it before and it still hurts now":"audio/s047.mp3","use i've and hurt":"audio/s048.mp3","i":"audio/s049.mp3","who":"audio/s050.mp3","start with i":"audio/s051.mp3","i've hurt":"audio/s052.mp3","my back":"audio/s053.mp3","what hurts":"audio/s054.mp3","your back":"audio/s055.mp3","say my back":"audio/s056.mp3","how long have you had the pain":"audio/s057.mp3","four days":"audio/s058.mp3","ok":"audio/s059.mp3","i've had it since monday":"audio/s060.mp3","i've had it for four days":"audio/s061.mp3","so you've had it for four days":"audio/s062.mp3","use for with a length of time for four days":"audio/s063.mp3","use since with the start since monday":"audio/s064.mp3","so you've had it since monday":"audio/s065.mp3","use since with the start i've had it since monday":"audio/s066.mp3","the pain started in the past and you still have it":"audio/s067.mp3","use have had i've had it since monday":"audio/s068.mp3","for something that started in the past and goes on now use present perfect i've had it since monday or it's been hurting since monday":"audio/s069.mp3","i had it means the pain has stopped":"audio/s070.mp3","it still hurts so say i've had it since monday":"audio/s071.mp3","it started on monday":"audio/s072.mp3","say it started on monday or i've had it since monday":"audio/s073.mp3","yes it started on monday":"audio/s074.mp3","now say how long i've had it since monday":"audio/s075.mp3","good start":"audio/s076.mp3","try a full sentence i've had it since monday":"audio/s077.mp3","i've had it since monday it started in the past and you still have it now":"audio/s078.mp3","it started on monday and you still have it now":"audio/s079.mp3","start with i've had it":"audio/s080.mp3","it still hurts now":"audio/s081.mp3","use i've had it with since or for":"audio/s082.mp3","i've had":"audio/s083.mp3","it":"audio/s084.mp3","since monday":"audio/s085.mp3","since when":"audio/s086.mp3","use since":"audio/s087.mp3","and what happened on monday":"audio/s088.mp3","how did you hurt it":"audio/s089.mp3","ah heavy lifting":"audio/s090.mp3","that often causes back pain":"audio/s091.mp3","i lifted some heavy boxes at work":"audio/s092.mp3","ah you lifted some heavy boxes on monday":"audio/s093.mp3","monday is a finished time":"audio/s094.mp3","use the past simple i lifted some heavy boxes on monday":"audio/s095.mp3","ah you lifted some heavy boxes":"audio/s096.mp3","you are talking about monday a finished time":"audio/s097.mp3","use the past simple i lifted some heavy boxes":"audio/s098.mp3","check the past form lift lifted":"audio/s099.mp3","carry carried":"audio/s100.mp3","hurt hurt":"audio/s101.mp3","use the past i lifted some heavy boxes":"audio/s102.mp3","use the past simple":"audio/s103.mp3","add ed lift lifted":"audio/s104.mp3","try a full sentence in the past i lifted some heavy boxes at work":"audio/s105.mp3","i lifted monday is finished so use the past simple":"audio/s106.mp3","monday is finished":"audio/s107.mp3","use the past":"audio/s108.mp3","lift lifted":"audio/s109.mp3","so use the past":"audio/s110.mp3","lifted":"audio/s111.mp3","some heavy boxes":"audio/s112.mp3","what did you lift":"audio/s113.mp3","at work":"audio/s114.mp3","some heavy boxes at work":"audio/s115.mp3","have you taken anything for the pain":"audio/s116.mp3","ok thank you":"audio/s117.mp3","yes i took some ibuprofen last night":"audio/s118.mp3","ah you took some ibuprofen last night":"audio/s119.mp3","good":"audio/s120.mp3","last night is a finished time":"audio/s121.mp3","use the past simple i took some ibuprofen last night":"audio/s122.mp3","ah you've taken some ibuprofen":"audio/s123.mp3","after have use taken i have taken":"audio/s124.mp3","but with last night say i took":"audio/s125.mp3","ah you took some ibuprofen":"audio/s126.mp3","take is irregular take took taken":"audio/s127.mp3","the past of take is took i took some ibuprofen last night":"audio/s128.mp3","yes you have":"audio/s129.mp3","what did you take":"audio/s130.mp3","the question starts have you":"audio/s131.mp3","so the short answer is yes i have":"audio/s132.mp3","good short answer":"audio/s133.mp3","now say what and when i took some ibuprofen last night":"audio/s134.mp3","try a full sentence i took some ibuprofen last night":"audio/s135.mp3","i took last night is finished so use the past simple":"audio/s136.mp3","take took taken":"audio/s137.mp3","last night is finished":"audio/s138.mp3","take took":"audio/s139.mp3","use took":"audio/s140.mp3","yes":"audio/s141.mp3","took":"audio/s142.mp3","some ibuprofen":"audio/s143.mp3","last night":"audio/s144.mp3","when":"audio/s145.mp3","some ibuprofen last night":"audio/s146.mp3","have you ever had back pain before":"audio/s147.mp3","that helps me":"audio/s148.mp3","no i've never had back pain before":"audio/s149.mp3","no i haven't":"audio/s150.mp3","so you've never had back pain before":"audio/s151.mp3","use have had i've never had back pain before":"audio/s152.mp3","so you've never had it before":"audio/s153.mp3","use one negative word i've never had it or i haven't had it before":"audio/s154.mp3","ever and before here mean up to now so use the present perfect i've never had back pain before":"audio/s155.mp3","use the present perfect no i've never had back pain before":"audio/s156.mp3","or no i haven't":"audio/s157.mp3","say no i've never had back pain before":"audio/s158.mp3","check your notes this is the first time":"audio/s159.mp3","try no i've never had back pain before":"audio/s160.mp3","try a full sentence no i've never had back pain before":"audio/s161.mp3","i've never had ever and never mean your whole life up to now":"audio/s162.mp3","ever means your whole life up to now":"audio/s163.mp3","use i've never had":"audio/s164.mp3","your whole life up to now":"audio/s165.mp3","never":"audio/s166.mp3","no":"audio/s167.mp3","i've never had":"audio/s168.mp3","back pain":"audio/s169.mp3","before":"audio/s170.mp3","you said you lift boxes at work":"audio/s171.mp3","do you still work there":"audio/s172.mp3","how long have you worked there":"audio/s173.mp3","two years at the warehouse":"audio/s174.mp3","thank you":"audio/s175.mp3","i've worked there for two years":"audio/s176.mp3","i've worked there since 2024":"audio/s177.mp3","so you've worked there for two years":"audio/s178.mp3","use for with a length of time for two years":"audio/s179.mp3","use since with the start since 2024":"audio/s180.mp3","so you've worked there since 2024":"audio/s181.mp3","so you started two years ago":"audio/s182.mp3","you've worked there for two years":"audio/s183.mp3","ago goes with the past simple i started two years ago":"audio/s184.mp3","or say i've worked there for two years":"audio/s185.mp3","you started in the past and still work there":"audio/s186.mp3","use the present perfect i've worked there for two years":"audio/s187.mp3","i worked there means you don't work there now":"audio/s188.mp3","you still work there so say i've worked there for two years":"audio/s189.mp3","add ed i've worked there for two years":"audio/s190.mp3","try a full sentence i've worked there for two years":"audio/s191.mp3","i've worked there for two years you started in the past and you still work there":"audio/s192.mp3","you started in the past and you still work there":"audio/s193.mp3","use i've worked":"audio/s194.mp3","you started in 2024":"audio/s195.mp3","you still work there now":"audio/s196.mp3","use i've worked there with for or since":"audio/s197.mp3","i've worked":"audio/s198.mp3","there":"audio/s199.mp3","for two years":"audio/s200.mp3","how long":"audio/s201.mp3","two years":"audio/s202.mp3","use for":"audio/s203.mp3"}; // Dr Shah, ElevenLabs "Alice", one clip per sentence
 let soundOn=true, audioUnlocked=false, speaking=false, narrEnd=0, voice=null;
 const __narr = new Audio(); __narr.preload='auto'; let __cur=null;
 function __norm(t){ return String(t).replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim(); }
-function __stopClip(){ if(__cur){ try{ __cur.pause(); }catch(e){} __cur=null; } }
-function __playClip(text){ const src=NARR[__norm(text)]; if(!src) return false;
-  __stopClip(); const a=__narr; a.muted=false;
-  if(a._src!==src){ a.src=src; a._src=src; } else { try{ a.currentTime=0; }catch(e){} }
-  a.onended=()=>{ if(__cur===a) __cur=null; };
-  __cur=a; const pr=a.play(); if(pr&&pr.catch) pr.catch(()=>{ if(__cur===a) __cur=null; }); return true; }
+function __stopClip(){ __seq=null; if(__cur){ try{ __cur.pause(); }catch(e){} __cur=null; } }
+/* Dr Shah's voice is recorded sentence by sentence, so lines built from parts still use the recording.
+   A line plays from recordings only if every sentence in it has one; otherwise the browser voice reads it all. */
+const __sentences = t => (__norm(t).match(/[^.!?]+[.!?]*/g)||[]).map(x=>x.trim()).filter(x=>/[a-z0-9]/i.test(x));
+const __key = t => String(t).toLowerCase().replace(/[’‘]/g,"'").replace(/[^a-z0-9' ]+/g,' ').replace(/\s+/g,' ').trim();
+let __seq=null;
+function __playClip(text){
+  const srcs=__sentences(text).map(x=>NARR[__key(x)]);
+  if(!srcs.length || srcs.some(x=>!x)) return false;
+  __stopClip(); const a=__narr, seq={srcs, i:0}; __seq=seq; a.muted=false;
+  const playAt=()=>{ if(__seq!==seq) return; const src=seq.srcs[seq.i];
+    if(a._src!==src){ a.src=src; a._src=src; } else { try{ a.currentTime=0; }catch(e){} }
+    __cur=a; const pr=a.play(); if(pr&&pr.catch) pr.catch(()=>{ if(__seq===seq){ __seq=null; __cur=null; } }); };
+  a.onended=()=>{ if(__seq!==seq) return; seq.i++; if(seq.i<seq.srcs.length) setTimeout(playAt, 120); else { __seq=null; __cur=null; } };
+  playAt(); return true; }
 function __primeClip(){ try{ const a=__narr; const vals=Object.values(NARR); if(!vals.length) return; if(!a.src){ a.src=vals[0]; a._src=vals[0]; } a.muted=true; const pr=a.play();
   if(pr&&pr.then) pr.then(()=>{ if(__cur!==a) a.pause(); a.muted=false; },()=>{ a.muted=false; }); else a.muted=false; }catch(e){ __narr.muted=false; } }
-function clipPlaying(){ return !!(__cur && !__cur.paused && !__cur.ended); }
+function clipPlaying(){ return !!__seq || !!(__cur && !__cur.paused && !__cur.ended); }
 function talking(){ return clipPlaying() || (speaking && performance.now() < narrEnd + 1500); }
 function pickVoice(){ try{ const vs=speechSynthesis.getVoices().filter(v=>/en[-_]GB/i.test(v.lang));
   voice = vs.find(v=>/female|libby|sonia|serena|kate|martha|hazel|susan|google uk english female/i.test(v.name)) || vs[0] || null; }catch(e){} }
@@ -1195,7 +1204,7 @@ function submit(text, spoken){
       return `<button class="ch ${c.r} ${st}" data-i="${i}" ${sayAttr(spoken)} aria-label="${ROLE[c.r].name}: ${esc(show?c.t:'missing')}"><span class="ci">${ROLE[c.r].ic}</span><span class="ct">${esc(txt)}</span>${st==='y'?'<span class="cm">✓</span>':''}</button>`;
     }).join('')+'</div>';
   const hearBtn = t => `<button class="hear" ${sayAttr(t)} aria-label="Listen">🔊</button>`;
-  const said = `<p class="said" ${sayAttr(text)}>🗣️ <span class="more">You said: </span><i>"${esc(text)}"</i></p>`;
+  const said = `<p class="said">🗣️ <span class="more">You said: </span><i>"${esc(text)}"</i></p>`;
   if(r.v==='ok'){
     done=true; R.status = (errs===0 && tries===1) ? 'first' : R.modelShown ? 'helped' : 'fixed';
     const praise = PRAISE[(qi+tries)%PRAISE.length];
@@ -1219,11 +1228,11 @@ function submit(text, spoken){
     const lvl = Math.min(3, tries);
     if(r.v==='err'){ errs++; R.errors.push({said:text, tip:r.tip}); tilt(); }
     const verbWrong = verbC && !verbC.has;
-    let tip, drSay;
+    let tip, drSay, drShow;
     if(lvl===1){
       const m = r.v==='err' ? (r.n.match(r.re)||[''])[0] : '';
       const echo = m && m.split(' ').length<=3 ? m.charAt(0).toUpperCase()+m.slice(1)+'? ' : '';
-      if(r.v==='err'){ tip = r.tip; drSay = echo + (verbWrong ? C.clue : r.tip); }
+      if(r.v==='err'){ tip = r.tip; drSay = verbWrong ? C.clue : r.tip; drShow = echo + drSay; }
       else if(verbWrong){ tip = C.clue; drSay = C.clue; }
       else if(missReq){ tip = missReq.ask; drSay = missReq.ask; }
       else { tip = C.clue; drSay = 'Nearly. '+C.clue; }
@@ -1233,7 +1242,7 @@ function submit(text, spoken){
       drSay = (r.v==='err' && r.say ? r.say+' ' : '') + look;
     } else {
       R.modelShown=true;
-      tip = 'Listen, then say it: '+q.model;
+      tip = 'Listen, then say it. '+q.model;
       drSay = 'Listen, and say it with me. '+backChain(qi).map(s=>s.text).join('. ')+'. Now you say it.';
     }
     const head = r.v==='err' ? '🔧 Let\'s fix one thing' : lvl===1 ? '🙂 Good start' : '🙂 Nearly there';
@@ -1249,7 +1258,7 @@ function submit(text, spoken){
     if(lvl===2 && mode!=='tiles') btns.push(['🧩 Word tiles','',()=>{ stopListening(); setMode('tiles'); $('mTiles').scrollIntoView({block:'nearest'}); }]);
     if(lvl>=3) btns.push(['Skip ▶','',()=>{ if(!R.status) R.status='shown'; recLines.push(q.record); redrawScreen(); next(); }]);
     fbButtons(btns);
-    docSays(drSay);
+    docSays(drShow || drSay, drSay);
     if(lvl>=3) backChainShow(qi, true);
   }
   renderDots();

@@ -14,7 +14,7 @@
 <main><p class="note">Opening the simulations for this course… <a href="index.html">Go to the hub</a></p></main>
 <script type="module">
 // Course pages now live on the area page as a course filter. Old links (e.g. posted in Classroom) still work.
-import {loadCatalog, qs} from './assets/hub.js?v=25';
+import {loadCatalog, qs} from './assets/hub.js?v=26';
 const cat = await loadCatalog();
 const c = cat.courses.find(x => x.id === qs('id'));
 location.replace(c ? `area.html?id=${c.areaId}&course=${c.id}` : 'index.html');
