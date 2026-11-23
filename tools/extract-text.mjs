@@ -78,5 +78,21 @@ for (const [id, file] of [['bonds-stretcher','sims/bonds-stretcher/student.html'
       {q:'Which sentence is correct?', o:["I took some ibuprofen last night.","I have taken some ibuprofen last night."]},
       {q:'Which sentence is correct?', o:["No, I never had back pain before.","No, I've never had back pain before."]},
       {q:'You still work at the warehouse. Which sentence is correct?', o:["I worked there for two years.","I've worked there for two years."]}] }; }
+{ const src = fs.readFileSync('sims/esol-shoe-shop-listen/student.html','utf8');
+  const dlg = src.slice(src.indexOf('/* ---------- Dialogue'), src.indexOf('</script>', src.indexOf('/* ---------- Dialogue')));
+  const {SETS, OPENING, CLOSE: close, QTARGET} = new Function(dlg + '\nreturn {SETS, OPENING, CLOSE, QTARGET};')();
+  out['esol-shoe-shop-listen'] = { sections:[
+    {title:'Before you start', items:[{h:'Jenny', t:OPENING}, {h:'Your clue', t:'"You might want to write this down." This means: write down what I say next. It is important.'}]},
+    ...Object.entries(SETS).map(([k,items])=>({title:'Information: set '+k, items: items.map(it=>({h:it.fields.map(f=>f.label).join(' and '), t:'Jenny says: '+it.show+' Write: '+it.fields.map(f=>f.ans).join(', ')}))})),
+    {title:'Ways to ask Jenny', items: Object.values(QTARGET).map(q=>({h:q.model, t:q.focus}))},
+    {title:'Listening tips', items:[{h:'"oh" in a number', t:'Write 0 (zero).'},{h:'"double five"', t:'Write 55.'},{h:'"at" and "dot" in an email', t:'Write @ and a full stop: shoes@brookesstores.co.uk'},{h:'"slash" in a website', t:'Write /'}]},
+    {title:'At the end', items:[{h:'Jenny', t:close}]}],
+    quiz: [
+      {q:'Which question is correct?', o:['You can spell that?','Can you spell that, please?']},
+      {q:'Which question is correct?', o:['How you spell it?','How do you spell that?']},
+      {q:'Which question is correct?', o:['Can you say that again slowly, please?','Can you say it slow?']},
+      {q:'Which question is correct?', o:['Can you repeat that, please?','Can you repeat me?']},
+      {q:'Which is more polite?', o:['What?','Sorry, can you say that again, please?']},
+      {q:'Jenny says "oh one six three two". What do you write?', o:['O1632','01632']}] }; }
 fs.writeFileSync('tools/sim-text.json', JSON.stringify(out,null,1));
 for(const [k,v] of Object.entries(out)) console.log(k, v.sections.map(x=>x.title+':'+x.items.length).join(', '), 'quiz:'+v.quiz.length);

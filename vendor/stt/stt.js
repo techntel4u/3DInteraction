@@ -36,7 +36,7 @@
       const prog = k => (n) => { got[k] = n; onProgress && onProgress(Math.min(0.99, (got.enc+got.dec+got.tok)/tot)); };
       const ort = window.ort;
       ort.env.wasm.numThreads = 1;
-      ort.env.wasm.wasmPaths = new URL('../../../vendor/ort/', BASE).href;
+      ort.env.wasm.wasmPaths = new URL('../ort/', BASE).href;
       const [eb, db, tb, mb] = await Promise.all([fetchCached(FILES.enc, prog('enc')), fetchCached(FILES.dec, prog('dec')), fetchCached(FILES.tok, prog('tok')), fetchCached(FILES.mel)]);
       melF = new Float32Array(mb);
       tokens = new Map();

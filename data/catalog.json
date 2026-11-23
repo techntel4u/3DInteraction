@@ -752,6 +752,40 @@
    "instructions": "Open the link and talk to Dr Shah, the GP, in the 3D simulation (10–15 minutes). Use headphones and keep the sound on.\n1. Read the start screen and tap Start.\n2. Answer all 6 questions in full sentences. Use Speak, Type or Tiles.\n3. If Dr Shah corrects you, read the tip and try again.\n4. Write down every answer that was not right first time, with the correct sentence.\n5. Look at the calendar on the wall. Write one sentence with since and one with for.\n6. Do it again without Grammar help and try to beat your score.\nHand in your corrected sentences and your score.",
    "transcript": "sims/esol-at-the-doctors/transcript.html",
    "worksheet": "sims/esol-at-the-doctors/worksheet.html"
+  },
+  {
+   "id": "esol-shoe-shop-listen",
+   "title": "At the shoe shop: listen and write it down",
+   "summary": "Listening practice for the Entry 3 speaking exam. You are returning some boots at Brookes, and Jenny the cashier gives you three pieces of information: names, numbers, email addresses and websites. Listen and write them down on screen or on paper. Jenny says each one once, so ask her to repeat, say it slowly or spell it, by speaking, typing or using word tiles. She checks your questions and your notes, and a checklist tracks the exam must-dos.",
+   "level": "Entry 3",
+   "spec": "Ascentis Entry 3 Speaking and Listening, Task 2: 3.3 and 4.4. Adult ESOL Core Curriculum Lr/E3.4a, Sc/E3.3b",
+   "minutes": "10–15 min",
+   "tags": [
+    "Listening",
+    "Asking questions",
+    "Spelling",
+    "Numbers",
+    "Speaking"
+   ],
+   "areas": [
+    "esol"
+   ],
+   "courses": [
+    "esol"
+   ],
+   "general": false,
+   "series": "returning-boots",
+   "part": 1,
+   "student": "sims/esol-shoe-shop-listen/student.html",
+   "teacher": "sims/esol-shoe-shop-listen/teacher.html",
+   "thumb": "sims/esol-shoe-shop-listen/thumb.jpg",
+   "narration": "Browser British English voice (pilot)",
+   "updated": "2026-11-23",
+   "added": "2026-11-23",
+   "classroomTitle": "At the shoe shop, part 1 – listen and write it down (3D simulation)",
+   "instructions": "Open the link and practise the information part of your speaking exam (10–15 minutes). Use headphones and keep the sound on.\n1. Read the task and choose where you will write: on the screen or on paper.\n2. Listen to Jenny. She says each piece of information once.\n3. Ask Jenny to repeat, say it slowly or spell it. Use full questions, for example: Can you spell that, please?\n4. Write down all three pieces of information.\n5. Finish with all three exam checklist items ticked.\n6. Print or screenshot your results and check them with a partner. Then try a new set.",
+   "transcript": "sims/esol-shoe-shop-listen/transcript.html",
+   "worksheet": "sims/esol-shoe-shop-listen/worksheet.html"
   }
  ],
  "courseInstructions": "Open the link to see the 3D simulations on this page. Work through each one, starting with the Guided tour (use headphones and press Sound on), then try Build it, Spot the faults and Test yourself. Note your quiz score for each simulation.",
@@ -867,6 +901,37 @@
     {
      "n": 4,
      "title": "Flat roofs",
+     "sim": null
+    }
+   ]
+  },
+  {
+   "id": "returning-boots",
+   "title": "Returning a pair of boots",
+   "summary": "A four-part series to prepare for the Entry 3 speaking and listening exam role-play. You are returning some boots at Brookes, and Jenny is the cashier. Each part practises one exam skill. Work through the parts in order.",
+   "spec": "Ascentis Entry 3 ESOL Speaking and Listening, Task 2 (role-play)",
+   "areas": [
+    "esol"
+   ],
+   "parts": [
+    {
+     "n": 1,
+     "title": "Listen and write it down",
+     "sim": "esol-shoe-shop-listen"
+    },
+    {
+     "n": 2,
+     "title": "Answer Jenny's questions",
+     "sim": null
+    },
+    {
+     "n": 3,
+     "title": "Ask Jenny questions",
+     "sim": null
+    },
+    {
+     "n": 4,
+     "title": "The full role-play",
      "sim": null
     }
    ]

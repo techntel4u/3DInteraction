@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>At the shoe shop, part 1: listen and write it down</title>
+<meta name="theme-color" content="#14284b">
+<link rel="icon" href="../../icons/icon-192.png">
+<script src="../../assets/stats.js?v=2"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "../../vendor/three/three.module.js",
+  "three/addons/": "../../vendor/three/addons/"
+} }
+</script>
+<style>
+:root{--navy:#14284b;--navy2:#1f3c6e;--ink:#1b2230;--muted:#4a5568;--bg:#eef1f5;--card:#fff;--line:#d5dbe4;--amber:#e08a00;--ok:#1d7a3e;--okbg:#e7f5ec;--bad:#b42318;--badbg:#fdecea;--nudge:#8a5a00;--nudgebg:#fff5e0}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{touch-action:manipulation}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink)}
+#c3d{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#labels{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.lbl{position:absolute;transform:translate(-50%,-100%);background:rgba(20,40,75,.92);color:#fff;font-size:13px;font-weight:600;padding:4px 9px;border-radius:8px;white-space:nowrap}
+button{font:inherit;cursor:pointer}
+.btn{min-height:44px;min-width:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--navy);font-weight:600;font-size:14px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{background:#f3f6fb}
+.btn[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.primary:hover{background:var(--navy2)}
+.btn.go{background:var(--ok);color:#fff;border-color:var(--ok)}
+.btn:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.btn:disabled{opacity:.45;cursor:default}
+#top{position:fixed;left:0;right:0;top:0;display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,.95);border-bottom:1px solid var(--line);z-index:5}
+#top h1{font-size:17px;margin:0;color:var(--navy);line-height:1.15}
+#top .sub{font-size:12px;color:var(--muted);margin-top:2px}
+#top .ttl{min-width:0;flex:1}
+#hubLink{flex:none;min-height:44px;display:inline-flex!important;align-items:center;padding:0 10px;border-radius:10px;border:1px solid var(--line);font-weight:700;font-size:14px;color:var(--navy);text-decoration:none;background:#fff}
+#topBtns{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:none;max-width:62%}
+#topBtns::-webkit-scrollbar{display:none}
+.badge{display:inline-block;background:var(--amber);color:#1b1200;font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:middle}
+/* talk panel */
+#talk{position:fixed;right:12px;top:72px;bottom:12px;width:420px;max-width:calc(100% - 24px);background:rgba(255,255,255,.97);border:1px solid var(--line);border-radius:16px;z-index:4;box-shadow:0 8px 28px rgba(20,40,75,.14);display:flex;flex-direction:column;overflow:hidden}
+#talkScroll{overflow-y:auto;padding:12px 14px 14px;flex:1;-webkit-overflow-scrolling:touch}
+#prog{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:600;margin-bottom:8px}
+#dots{display:flex;gap:4px;flex:1}
+#simpleBtn{min-height:34px;padding:0 10px;font-size:13px;white-space:nowrap}
+body.simple .more{display:none!important}
+.chunks{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.ch{display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:4px 10px;border-radius:10px;border:2px solid;font:inherit;font-weight:700;font-size:17px;cursor:pointer;color:#1b2230;transition:transform .15s,box-shadow .15s}
+.ch .ci{font-size:15px} .ch .cm{font-size:13px;color:var(--ok)}
+.ch.who{background:#e6f0ff;border-color:#1f6fe0} .ch.verb{background:#fff1dc;border-color:#c26a00} .ch.what{background:#e5f5ea;border-color:#1d7a3e} .ch.when{background:#f0eaff;border-color:#6b3fb3} .ch.x{background:#f1f3f6;border-color:#8a94a3}
+.ch.n{border-style:dashed;background:#fff} .ch.n .ct{color:#5b6577;min-width:1.4em;text-align:center}
+.ch.o{opacity:.75;border-style:dashed}
+.ch.lit,.ch.saying,.hear.saying,.said.saying{box-shadow:0 0 0 4px rgba(255,190,60,.7);transform:translateY(-2px)}
+.hear{border:1px solid var(--line);background:#fff;border-radius:999px;min-width:44px;min-height:44px;font-size:18px;cursor:pointer;margin-right:4px;vertical-align:middle}
+.said{cursor:pointer;border-radius:8px;padding:2px 4px;margin:4px -4px!important}
+.tip{display:flex;align-items:center;gap:4px}
+.tlbox{display:block;width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;padding:4px;margin-top:6px;cursor:pointer}
+.tlbox svg{width:100%;height:auto;display:block}
+.tlbox svg.anim rect,.tlbox svg.anim path{transform-box:fill-box;transform-origin:left center;animation:tlgrow 1.4s ease-out both}
+.tlbox svg.anim circle{animation:tlpop .5s ease-out both}
+@keyframes tlgrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes tlpop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.tlbox svg.anim *{animation:none!important}.ch{transition:none}}
+
+#dots span{flex:1;height:8px;border-radius:4px;background:#d7dde7}
+#dots span.on{background:var(--navy)}
+#dots span.first{background:var(--ok)}
+#dots span.fixed{background:#4c9a6a}
+#dots span.helped{background:#7fb08f}
+#dots span.shown{background:var(--amber)}
+.bubble{background:#eaf0fa;border:1px solid #c9d6ec;border-radius:14px 14px 14px 4px;padding:10px 12px;margin-bottom:10px}
+.who{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.who .sp{flex:1}
+.who .btn{min-height:44px;font-size:14px;padding:0 12px}
+#docText{margin:0;font-size:17px;line-height:1.45}
+.card{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:#fff}
+.card h3{margin:0 0 6px;font-size:14px;color:var(--navy)}
+#notesList{margin:0;padding-left:20px;font-size:15.5px;line-height:1.5}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+#gHelp{background:#fffbea;border-color:#f1d78a}
+#gHelp p{margin:0 0 6px;font-size:15px;line-height:1.5}
+#gHelp svg{width:100%;height:auto;display:block;margin-top:4px}
+#modes{display:flex;gap:6px;margin:4px 0 8px}
+#modes .btn{flex:1;padding:0 8px}
+.pane{margin-bottom:8px}
+#micStatus{font-size:15px;line-height:1.5}
+#micStatus.ok{background:var(--okbg);border-color:#a9d9b9}
+#micStatus.bad{background:var(--nudgebg);border-color:#efd08f}
+#micBtn{width:100%;min-height:64px;font-size:18px;border-radius:14px}
+#micLevel{height:8px;border-radius:4px;background:#e3e7ee;overflow:hidden;margin:8px 2px 0}
+#micLevel span{display:block;height:100%;width:0;background:#2f8f55;border-radius:4px;transition:width .1s linear}
+#micBtn.checking{background:#5b6b85;border-color:#5b6b85;color:#fff}
+.steps{margin:6px 0;padding-left:22px}
+.steps li{margin:3px 0}
+.undo{background:none;border:none;color:var(--navy);text-decoration:underline;font-size:14px;min-height:44px;padding:0;cursor:pointer}
+#micBtn.listening{background:var(--bad);border-color:var(--bad);color:#fff;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 8px rgba(180,35,24,.18)}}
+#heard{font-size:16px;margin:8px 0 0;min-height:1.4em}
+#heard b{color:var(--navy)}
+.small{font-size:13px;color:var(--muted);margin:6px 0 0;line-height:1.4}
+#typeIn{width:100%;min-height:48px;font-size:17px;padding:8px 12px;border:1.5px solid #9aa7bb;border-radius:10px;font-family:inherit}
+#tileAns{min-height:52px;border:1.5px dashed #9aa7bb;border-radius:10px;padding:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#tileAns:empty::before{content:"Tap the words in order";color:var(--muted);font-size:14px;padding-left:6px}
+#tilePool{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tile{min-height:44px;padding:0 12px;border-radius:10px;border:1px solid #b9c4d6;background:#f4f7fc;color:var(--ink);font-size:16px;font-weight:600}
+#tileAns .tile{background:var(--navy);color:#fff;border-color:var(--navy)}
+#fbBtns{margin:0 0 10px}
+#fb{border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:15.5px;line-height:1.5}
+#fb.ok{background:var(--okbg);border:1px solid #a9d9b9}
+#fb.err{background:var(--badbg);border:1px solid #f1b5ae}
+#fb.nudge,#fb.unknown{background:var(--nudgebg);border:1px solid #efd08f}
+#fb .v{font-weight:800;font-size:16.5px}
+#fb.ok .v{color:var(--ok)} #fb.err .v{color:var(--bad)} #fb.nudge .v,#fb.unknown .v{color:var(--nudge)}
+#fb p{margin:4px 0}
+.recast{background:#fff;border-left:4px solid var(--navy);border-radius:6px;padding:6px 10px;margin-top:6px}
+.lvl{font-size:13px;color:#5b6577;margin-top:6px}
+.model{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:6px;font-weight:700;color:var(--navy);font-size:17px}
+/* overlays */
+.ov{position:fixed;inset:0;background:rgba(14,26,48,.55);z-index:20;display:flex;align-items:center;justify-content:center;padding:16px}
+.ovc{background:#fff;border-radius:18px;max-width:640px;width:100%;max-height:calc(100% - 8px);overflow:auto;padding:20px 22px;position:relative;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.ovc h2{margin:0 0 8px;color:var(--navy);font-size:22px}
+.ovc h3{color:var(--navy);margin:16px 0 6px;font-size:16.5px}
+.ovc p,.ovc li{font-size:15.5px;line-height:1.55}
+.ovc .x{position:absolute;right:10px;top:10px}
+.modal{display:none}
+.modal.open{display:flex}
+#hint{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:9px 14px;border-radius:999px;font-size:14px;z-index:6;white-space:nowrap}
+table.sum{width:100%;border-collapse:collapse;margin-top:8px;font-size:14.5px}
+table.sum td,table.sum th{border-top:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700}
+.tag.first{background:var(--okbg);color:var(--ok)} .tag.fixed{background:#e3f1e8;color:#2c6b45} .tag.helped{background:#eef6f0;color:#3d7353} .tag.shown{background:var(--nudgebg);color:var(--nudge)}
+.kbd{display:inline-block;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:0 6px;font-size:13px;background:#f7f9fc}
+.bigscore{font-size:40px;font-weight:800;color:var(--navy);margin:4px 0}
+.misc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0}
+.misc div{border-radius:10px;padding:8px 10px;font-size:15px}
+.misc .w{background:var(--badbg)} .misc .r{background:var(--okbg)}
+#moreBtn{display:none}
+.menu{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.menu .btn{justify-content:flex-start;min-height:52px;font-size:16px;white-space:normal;text-align:left}
+.sticky{position:sticky;bottom:-20px;background:#fff;padding:10px 0 4px;margin-bottom:-4px}
+#notesHead{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+#notesHead h3{margin:0;flex:1}
+@media (max-width:900px) and (orientation:portrait), (max-width:600px){
+  #topBtns .opt{display:none}
+  #moreBtn{display:inline-flex}
+  #topBtns{max-width:none}
+  #top{padding:6px 8px;gap:6px}
+  #top h1{font-size:14.5px}
+  #top .sub{display:none}
+  #topBtns{max-width:55%}
+  #topBtns .btn{padding:0 9px}
+  .full{display:none}
+  #hubLink{padding:0 8px!important;font-size:13px!important;min-height:40px!important}
+  #talk{left:6px!important;right:6px!important;width:auto!important;max-width:none!important;top:auto!important;bottom:6px!important;height:56%;border-radius:16px}
+  #talkScroll{padding:10px 12px}
+  #docText{font-size:16px}
+  .ovc{padding:18px 16px}
+  .misc{grid-template-columns:1fr}
+}
+@media (orientation:portrait) and (max-height:760px) and (max-width:600px){
+  #talk{height:62%!important}
+  #talkScroll{padding:8px 10px}
+  .bubble{padding:8px 10px;margin-bottom:8px}
+  .card{padding:8px 10px;margin-bottom:8px}
+  #docText{font-size:15.5px}
+  #notesList{font-size:15px}
+  #micBtn{min-height:56px;font-size:17px}
+  #prog{margin-bottom:6px}
+}
+@media (orientation:landscape) and (max-height:500px){
+  .bubble{padding:7px 10px;margin-bottom:8px}
+  .card{padding:7px 10px;margin-bottom:8px}
+  #top{padding:4px 8px}
+  #top h1{font-size:14px}
+  #top .sub{display:none}
+  .full{display:none}
+  #topBtns .btn{min-height:40px;padding:0 9px}
+  #hubLink{min-height:40px!important;padding:0 8px!important;font-size:13px!important}
+  #talk{top:54px!important;bottom:6px!important;right:6px!important;width:48%!important;height:auto!important;left:auto!important}
+  #talkScroll{padding:8px 10px}
+  #docText{font-size:15px}
+  #micBtn{min-height:52px}
+  .ovc{max-height:calc(100% - 4px);padding:14px 16px}
+}
+@media (prefers-reduced-motion:reduce){#micBtn.listening{animation:none}}
+
+/* shoe shop */
+.btn.big{min-height:52px;font-size:17px;padding:0 22px}
+#top h1 .pt{font-weight:600;color:var(--muted);font-size:.85em}
+.ch.q{background:#fff1dc;border-color:#c26a00} .ch.act{background:#e9f6f7;border-color:#13808a}
+#checklist{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+.chk .sh{display:none}
+.chk{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;padding:4px 9px;border-radius:999px;background:#f1f3f6;color:#4a5568;border:1px solid var(--line)}
+.chk.ok{background:var(--okbg);color:var(--ok);border-color:#a9d9b9}
+.who .role{font-weight:500;color:var(--muted)}
+#docText i{color:#33415a}
+#cueArea{display:flex;flex-direction:column;gap:8px;margin:0 0 10px}
+#cueArea .cueq{margin:0;font-weight:700;color:var(--navy);font-size:15.5px;display:flex;align-items:center;gap:6px}
+#cueArea .btn{justify-content:flex-start;white-space:normal;text-align:left;min-height:50px;font-size:15.5px}
+#cueArea .btn.right{background:var(--okbg);border-color:var(--ok);color:var(--ok);opacity:1}
+#cueArea .btn.wrong{background:var(--badbg);border-color:#f1b5ae;color:var(--bad);opacity:1}
+#noteCard{border-color:#c9b48a;background:#fffdf6}
+.nf{margin:4px 0 10px}
+.nl{display:block;font-weight:700;font-size:14.5px;color:var(--navy);margin-bottom:5px}
+.nrow{display:flex;gap:6px}
+.nrow input{flex:1;min-width:0;min-height:48px;font-size:18px;padding:8px 12px;border:1.5px solid #9aa7bb;border-radius:10px;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.04em;background:#fff}
+.nf.done input{border-color:var(--ok);background:var(--okbg)}
+.nfb{font-size:15px;line-height:1.5;margin-top:6px}
+.nfb:empty{display:none}
+.okmsg{color:var(--ok);font-weight:700}
+.np{font-size:15px;color:var(--muted);border:1.5px dashed #c9b48a;border-radius:10px;padding:10px 12px;background:#fff}
+.mask{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:18px;font-weight:700}
+.mask span{min-width:24px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px}
+.mask .mh{background:var(--okbg);color:var(--ok)} .mask .mq{background:var(--nudgebg);color:var(--nudge);border:1.5px dashed #d9a441}
+.model{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.03em;word-break:break-all}
+#askCard{border-color:#b9c9e4}
+#askHead{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+#askHead h3{margin:0;flex:1}
+#phrases{background:#f4f7fc;border-radius:10px;padding:8px 10px;margin-bottom:8px}
+#phrases ul{list-style:none;margin:0;padding:0}
+#phrases li{display:flex;align-items:center;gap:6px;font-size:15.5px;margin:3px 0}
+#heardBubble:empty{display:none}
+.task{background:#f4f7fc}
+.task p{margin:4px 0}
+ul.must{list-style:none;padding:0;margin:4px 0}
+ul.must li{margin:4px 0}
+ul.cklist,ul.qlist{list-style:none;padding:0;margin:6px 0}
+ul.cklist li,ul.qlist li{margin:5px 0;font-size:15px;line-height:1.45}
+.ckok{color:var(--ok);font-weight:600} .ckno{color:var(--bad);font-weight:600}
+.ckno .small,.ckok .small{font-weight:400}
+[role=group] .btn[aria-pressed="true"]{background:var(--navy);color:#fff}
+@media (max-width:900px) and (orientation:portrait), (max-width:600px){
+  #top h1 .pt{display:none}
+  .chk{font-size:12px;padding:3px 8px}
+}
+@media (max-width:430px){
+  .chk .lg{display:none} .chk .sh{display:inline}
+  .nrow input{font-size:17px}
+}
+@media (orientation:landscape) and (max-height:500px){
+  #checklist{margin-bottom:6px}
+  .chk{font-size:12px;padding:2px 7px}
+}
+@media print{
+  body{overflow:visible;height:auto} #c3d,#labels,#top,#talk,.ov:not(#sumModal){display:none!important}
+  #sumModal{position:static;background:none;padding:0;display:block!important} #sumModal .ovc{box-shadow:none;max-height:none;overflow:visible} #sumModal .x,#sumModal .sticky{display:none}
+}
+</style>
+</head>
+<body>
+<canvas id="c3d" aria-label="3D shoe department in a store. Jenny the cashier stands behind the counter."></canvas>
+<div id="labels"></div>
+
+<header id="top">
+  <a id="hubLink" href="../../index.html">← Hub</a>
+  <div class="ttl"><h1>At the shoe shop<span class="pt"> · Part 1</span><span id="edBadge" class="badge" hidden>Teacher version</span></h1><div class="sub">ESOL Entry 3 · Listen and write it down · Ask to repeat or spell</div></div>
+  <div id="topBtns">
+    <button class="btn" id="soundBtn" aria-pressed="true" title="Sound on or off">🔊<span class="full"> Sound</span></button>
+    <button class="btn opt" id="viewBtn" title="Change the view">📷<span class="full"> View</span></button>
+    <button class="btn opt" id="lblBtn" aria-pressed="false" title="Show the words for things in the shop">🏷<span class="full"> Words</span></button>
+    <button class="btn opt" id="learnBtn" title="What you'll learn">📘<span class="full"> Learn</span></button>
+    <button class="btn opt" id="helpBtn" title="How to use this">❓</button>
+    <button class="btn" id="moreBtn" aria-label="More options">☰<span class="full"> More</span></button>
+    <button class="btn opt" id="teachBtn" hidden>🧑‍🏫<span class="full"> Teacher notes</span></button>
+  </div>
+</header>
+
+<section id="talk" aria-label="Conversation with Jenny">
+ <div id="talkScroll">
+  <div id="prog"><span id="qNum">Before you start</span><div id="dots"></div><button class="btn" id="simpleBtn" aria-pressed="false" title="Show less text">🔤 Less text</button></div>
+  <div id="checklist" aria-label="Exam checklist"></div>
+  <div class="bubble" aria-live="polite">
+    <div class="who">🛍️ Jenny<span class="role"> · cashier</span><span class="sp"></span><button class="btn" id="replayBtn" title="Listen again">🔁 Listen</button></div>
+    <p id="docText"></p>
+    <div id="heardBubble"></div>
+  </div>
+  <div id="cueArea" hidden></div>
+  <div id="fb" hidden></div>
+  <div class="row" id="fbBtns" hidden></div>
+  <div class="card" id="noteCard" hidden>
+    <h3>📝 Your notepad</h3>
+    <div id="noteFields"></div>
+  </div>
+  <div class="card" id="askCard" hidden>
+    <div id="askHead"><h3>🙋 Ask Jenny</h3><button class="btn" id="phrBtn" aria-expanded="false">💡 Ways to ask</button></div>
+    <div id="phrases" hidden>
+      <p class="small more">Ask Jenny in a question. Tap 🔊 to hear it.</p>
+      <ul>
+        <li><button class="hear" data-say="Can you spell that, please?" aria-label="Listen">🔊</button> Can you <b>spell</b> that, please?</li>
+        <li><button class="hear" data-say="How do you spell that?" aria-label="Listen">🔊</button> How <b>do</b> you spell that?</li>
+        <li><button class="hear" data-say="Can you repeat that, please?" aria-label="Listen">🔊</button> Can you <b>repeat</b> that, please?</li>
+        <li><button class="hear" data-say="Can you say that again slowly, please?" aria-label="Listen">🔊</button> Can you say that again <b>slowly</b>, please?</li>
+        <li><button class="hear" data-say="Can I check I have the correct information, please?" aria-label="Listen">🔊</button> Can I <b>check</b> I have the correct information, please?</li>
+      </ul>
+    </div>
+    <div id="answerArea">
+      <div id="modes" role="tablist" aria-label="How do you want to ask?">
+        <button class="btn" role="tab" id="tabSpeak" data-mode="speak">🎤 Speak</button>
+        <button class="btn" role="tab" id="tabType" data-mode="type">⌨️ Type</button>
+        <button class="btn" role="tab" id="tabTiles" data-mode="tiles">🧩 Tiles</button>
+      </div>
+      <div class="pane" id="mSpeak">
+        <button class="btn primary" id="micBtn">🎤 Tap to speak</button>
+        <div id="micLevel" hidden aria-hidden="true"><span></span></div>
+        <p id="heard" aria-live="polite"></p>
+        <p class="small more" id="speakTip">Tap 🎤 and ask Jenny. Tap again when you finish.</p>
+      </div>
+      <div class="pane" id="mType" hidden>
+        <label for="typeIn" class="small" style="display:block;margin:0 0 6px">Write your question to Jenny:</label>
+        <input id="typeIn" type="text" autocomplete="off" autocapitalize="sentences" spellcheck="false" enterkeyhint="send">
+        <div class="row"><button class="btn go" id="typeOk">➤ Ask Jenny</button></div>
+      </div>
+      <div class="pane" id="mTiles" hidden>
+        <div id="tileAns" aria-label="Your question"></div>
+        <div id="tilePool" aria-label="Words"></div>
+        <div class="row"><button class="btn go" id="tileOk">➤ Ask Jenny</button><button class="btn" id="tileClear">↺ Clear</button></div>
+        <p class="small">Some words are extra. You don't need every word.</p>
+      </div>
+    </div>
+  </div>
+ </div>
+</section>
+
+<!-- Start -->
+<div class="ov" id="startOv">
+ <div class="ovc" id="start1">
+  <h2>At the shoe shop: Part 1</h2>
+  <p>Listening practice for your speaking exam. Jenny, the cashier, gives you information. You listen and write it down.</p>
+  <p>🔊 Turn your sound up. Use headphones if you can.</p>
+  <p>🎤 When you tap <b>Start</b>, your phone or computer will ask to use the <b>microphone</b>. Tap <b>Allow</b> so you can speak to Jenny.</p>
+  <div class="card" id="preMic" hidden></div>
+  <div class="row sticky"><button class="btn primary big" id="startBtn">▶ Start</button></div>
+ </div>
+ <div class="ovc" id="start2" hidden>
+  <h2>Your task</h2>
+  <div class="card" id="micStatus" aria-live="polite">🎤 Checking the microphone…</div>
+  <div class="card task">
+   <p>You bought some <b>boots</b> at <b>Brookes</b>. They are too small (size 5). You want a <b>size 6</b>.</p>
+   <p><b>Jenny</b> is the cashier. She will give you <b>3 pieces of information</b>. Write them down.</p>
+  </div>
+  <h3>In the exam you must</h3>
+  <ul class="must">
+   <li>🙋 ask the assessor to <b>repeat</b> or <b>spell</b> something</li>
+   <li>❓ ask questions (at least <b>2</b> correct questions)</li>
+   <li>📝 write down the information you hear</li>
+  </ul>
+  <p class="more">🔑 Listen for: <i>"You might want to write this down."</i> That is your clue.</p>
+  <h3>Where will you write?</h3>
+  <div class="row" role="group" aria-label="Where will you write?">
+   <button class="btn" data-notes="type" aria-pressed="true">⌨️ On the screen</button>
+   <button class="btn" data-notes="paper" aria-pressed="false">📄 On paper</button>
+  </div>
+  <p class="small more">On paper is like the exam. On the screen, Jenny checks your notes for you.</p>
+  <div class="row sticky"><button class="btn primary big" id="beginBtn">▶ Begin</button><button class="btn" id="introAgain">🔁 Listen again</button></div>
+ </div>
+</div>
+
+<!-- Summary -->
+<div class="ov modal" id="sumModal" role="dialog" aria-modal="true" aria-labelledby="sumH">
+ <div class="ovc">
+  <button class="btn x" aria-label="Close">✕</button>
+  <h2 id="sumH">Your notes</h2>
+  <p>Information written correctly:</p>
+  <div class="bigscore" id="sumScore"></div>
+  <div id="sumBody"></div>
+  <div class="row sticky"><button class="btn primary" id="againBtn">↺ Try a new set</button><button class="btn" id="printBtn">🖨 Print</button><button class="btn" id="nextPart" disabled title="Part 2 is not published yet">Part 2: coming soon</button></div>
+ </div>
+</div>
+
+<!-- More (phones) -->
+<div class="ov modal" id="moreModal" role="dialog" aria-modal="true" aria-labelledby="moreH">
+ <div class="ovc" style="max-width:420px">
+  <button class="btn x" aria-label="Close">✕</button>
+  <h2 id="moreH">More</h2>
+  <div class="menu">
+   <button class="btn" data-go="viewBtn">📷 Change the view</button>
+   <button class="btn" data-go="lblBtn" id="moreLbl">🏷 Show words for things in the shop</button>
+   <button class="btn" data-go="learnBtn">📘 What you'll learn</button>
+   <button class="btn" data-go="helpBtn">❓ How to use this</button>
+   <button class="btn" data-go="teachBtn" id="moreTeach" hidden>🧑‍🏫 Teacher notes</button>
+  </div>
+ </div>
+</div>
+
+<!-- View -->
+<div class="ov modal" id="viewModal" role="dialog" aria-modal="true" aria-labelledby="viewH">
+ <div class="ovc" style="max-width:420px">
+  <button class="btn x" aria-label="Close">✕</button>
+  <h2 id="viewH">Change the view</h2>
+  <p class="small">Drag to look around. Pinch or scroll to zoom.</p>
+  <div class="row">
+   <button class="btn" data-cam="0">🛍️ Jenny <span class="kbd">1</span></button>
+   <button class="btn" data-cam="1">🏬 The shop <span class="kbd">2</span></button>
+   <button class="btn" data-cam="2">🧾 The counter <span class="kbd">3</span></button>
+   <button class="btn" data-cam="3">👢 The shelves <span class="kbd">4</span></button>
+  </div>
+ </div>
+</div>
+
+<!-- Learn -->
+<div class="ov modal" id="learnModal" role="dialog" aria-modal="true" aria-labelledby="learnH">
+ <div class="ovc">
+  <button class="btn x" aria-label="Close">✕</button>
+  <h2 id="learnH">What you'll learn</h2>
+  <h3>By the end, you can</h3>
+  <ul>
+   <li>listen for the clue <i>"You might want to write this down"</i></li>
+   <li>write down names, numbers, email addresses and websites you hear</li>
+   <li>ask someone to repeat, to say it slowly or to spell it, in a correct question</li>
+   <li>check your information: <b>Can I check I have the correct information, please?</b></li>
+  </ul>
+  <h3>Listening tips</h3>
+  <div class="misc">
+   <div class="r">"oh" in a number = <b>0</b></div><div class="r">"double five" = <b>55</b></div>
+   <div class="r">"at" in an email = <b>@</b></div><div class="r">"dot" = <b>.</b> &nbsp; "slash" = <b>/</b></div>
+  </div>
+  <h3>Common mistakes</h3>
+  <div class="misc">
+   <div class="w">✗ You can spell that?</div><div class="r">✓ Can you spell that, please?</div>
+   <div class="w">✗ How you spell it?</div><div class="r">✓ How do you spell that?</div>
+   <div class="w">✗ Can you say it slow?</div><div class="r">✓ Can you say it again slowly, please?</div>
+   <div class="w">✗ Can you repeat me?</div><div class="r">✓ Can you repeat that, please?</div>
+   <div class="w">✗ What?</div><div class="r">✓ Sorry? Can you say that again, please?</div>
+  </div>
+  <h3>Curriculum link</h3>
+  <p>Adult ESOL Core Curriculum, Entry 3 (Speaking and Listening).</p>
+  <p><b>Lr/E3.4a</b> Clarify and confirm understanding through verbal and non-verbal means.</p>
+  <p><b>Sc/E3.3b</b> Ask questions to obtain personal or factual information.</p>
+  <p><b>Sc/E3.3c</b> Ask for directions, instructions or explanation.</p>
+  <p>Ascentis Entry 3 Speaking and Listening, Task 2: criterion 4.4 (obtain relevant information from others; two correct question forms are needed) and 3.3 (confirm understanding where appropriate).</p>
+ </div>
+</div>
+
+<!-- Help -->
+<div class="ov modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpH">
+ <div class="ovc">
+  <button class="btn x" aria-label="Close">✕</button>
+  <h2 id="helpH">How to use this</h2>
+  <ol>
+   <li>Listen to Jenny. She says each piece of information <b>once</b>.</li>
+   <li>Write it in <b>📝 Your notepad</b> (or on your paper).</li>
+   <li>Not sure? <b>🙋 Ask Jenny</b> to repeat it, say it slowly or spell it. Use <b>🎤 Speak</b>, <b>⌨️ Type</b> or <b>🧩 Tiles</b>. Tap <b>💡 Ways to ask</b> for help.</li>
+   <li>Tap <b>✓ Check</b>. If something is wrong, ask Jenny again.</li>
+   <li>The <b>exam checklist</b> at the top shows what you have done.</li>
+  </ol>
+  <h3>Speaking</h3>
+  <p>Tap 🎤 and ask your question. Tap again when you finish. If the computer heard you wrongly, tap <b>That's not what I said</b> and say it again.</p><p>The first time you speak on some phones, it takes a moment to get ready.</p>
+  <h3>Keys</h3>
+  <p><span class="kbd">1</span>–<span class="kbd">4</span> change the view · <span class="kbd">Enter</span> check or ask · <span class="kbd">Esc</span> close a box</p>
+ </div>
+</div>
+
+
+<script>
+/* ---------- Dialogue, question checker and note checker (shoe shop, ESOL Entry 3, Part 1) ---------- */
+/* Jenny's three information sets (from her role-play prep sheet). Each item is said once.
+   say = normal speed, slow = said again slowly in chunks, spell = letters and numbers one by one.
+   show = what Jenny said, shown only after the item is finished. */
+const SETS = {
+ A: [
+  { id:'A1', fields:[{label:'Exchange reference', icon:'🔢', kind:'ref', ans:'BT61804'}],
+    say:'Your exchange reference is B T, six, one, eight, oh, four.',
+    slow:'Your exchange reference is. B, T. Six, one, eight. Oh, four.',
+    spell:'B, T. Then the numbers. Six, one, eight, oh, four.',
+    show:'Your exchange reference is BT 6 1 8 0 4.' },
+  { id:'A2', fields:[{label:'Manager', icon:'👤', kind:'name', ans:'Mr Okafor'}],
+    say:'The shoe department manager is Mr Okafor.',
+    slow:'The shoe department manager is. Mr. Okafor.',
+    spell:'Okafor. O, K, A, F, O, R.',
+    show:'The shoe department manager is Mr Okafor.' },
+  { id:'A3', fields:[{label:'Phone number', icon:'📞', kind:'phone', ans:'01632 960731'}],
+    say:"If the new boots aren't here by Friday, ring us on oh one six three two, nine six oh, seven three one.",
+    slow:'Ring us on. Oh, one, six, three, two. Nine, six, oh. Seven, three, one.',
+    spell:"It's all numbers. Oh, one, six, three, two. Nine, six, oh. Seven, three, one.",
+    show:"If the new boots aren't here by Friday, ring us on 01632 960 731." },
+ ],
+ B: [
+  { id:'B1', fields:[{label:'Who to ask for', icon:'👤', kind:'name', ans:'Ms Begum'}],
+    say:'When you come back, please ask for Ms Begum.',
+    slow:'Please ask for. Ms. Begum.',
+    spell:'Begum. B, E, G, U, M.',
+    show:'When you come back, please ask for Ms Begum.' },
+  { id:'B2', fields:[{label:'Email address', icon:'📧', kind:'email', ans:'shoes@brookesstores.co.uk'}],
+    say:'Send any questions to shoes at brookes stores dot co dot uk.',
+    slow:'Send any questions to. Shoes. At. Brookes stores. Dot co dot uk.',
+    spell:'Shoes, S, H, O, E, S. Then at. Then brookes stores, all one word. B, R, O, O, K, E, S. S, T, O, R, E, S. Then dot co dot uk.',
+    show:'Send any questions to shoes@brookesstores.co.uk.' },
+  { id:'B3', fields:[{label:'Return number', icon:'🔢', kind:'ref', ans:'SH29573'}],
+    say:'Your return number is S H, two, nine, five, seven, three.',
+    slow:'Your return number is. S, H. Two, nine, five. Seven, three.',
+    spell:'S, H. Then the numbers. Two, nine, five, seven, three.',
+    show:'Your return number is SH 2 9 5 7 3.' },
+ ],
+ C: [
+  { id:'C1', fields:[{label:'Website', icon:'🌐', kind:'web', ans:'www.brookesstores.co.uk/exchanges'}],
+    say:'You can check your exchange at w w w dot brookes stores dot co dot uk, slash exchanges.',
+    slow:'You can check your exchange at. W w w. Dot. Brookes stores. Dot co dot uk. Slash. Exchanges.',
+    spell:'W, W, W, dot. Then brookes stores, all one word. B, R, O, O, K, E, S. S, T, O, R, E, S. Then dot co dot uk. Then a slash, and exchanges. E, X, C, H, A, N, G, E, S.',
+    show:'You can check your exchange at www.brookesstores.co.uk/exchanges.' },
+  { id:'C2', fields:[{label:'Phone number', icon:'📞', kind:'phone', ans:'01632 960552'}],
+    say:'The shoe department number is oh one six three two, nine six oh, double five two.',
+    slow:'The shoe department number is. Oh, one, six, three, two. Nine, six, oh. Double five, two.',
+    spell:"It's all numbers. Oh, one, six, three, two. Nine, six, oh. Five, five, two.",
+    show:'The shoe department number is 01632 960 552.' },
+  { id:'C3', fields:[{label:'Name', icon:'👤', kind:'person', ans:'Daniel Hughes'},{label:'Reference', icon:'🔢', kind:'ref', ans:'EX40628'}],
+    say:'Please speak to Daniel Hughes, and give him this reference. E X, four, oh, six, two, eight.',
+    slow:'Please speak to. Daniel Hughes. And give him this reference. E, X. Four, oh, six. Two, eight.',
+    spell:'Daniel. D, A, N, I, E, L. Hughes. H, U, G, H, E, S. And the reference. E, X. Four, oh, six, two, eight.',
+    show:'Please speak to Daniel Hughes, and give him this reference: EX 4 0 6 2 8.' },
+ ],
+};
+const OPENING = "Hello. So, you'd like to change these boots for a size 6. I'm sorry, we haven't got a size 6 in the shop today. I can order them for you. So, here is some information for you. You might want to write this down.";
+const CUE_Q = {
+  ask:'Jenny says: "You might want to write this down." What does she mean?',
+  say:'Quick question. When I say, you might want to write this down, what do I mean?',
+  opts:[
+    {t:'📝 Write down what I say next. It is important.', ok:true},
+    {t:'🏠 You can go home now.'},
+    {t:'✋ Please ask me a question.'}],
+  right:"Yes. In the exam, this is your clue. Get your pen ready.",
+  wrong:"Not quite. It means, write down what I say next. It is important. In the exam, this is your clue."
+};
+const CLOSE = "That's everything. Is there anything else I can help you with today? No? OK. Thank you for coming in. Goodbye.";
+
+/* ---------- learner questions ---------- */
+const NUM = {1:'one',2:'two',3:'three',4:'four',5:'five',6:'six',7:'seven',8:'eight',9:'nine'};
+function norm(s){
+  s = String(s||'').toLowerCase().replace(/[’‘`´]/g,"'").replace(/[^a-z0-9' ]+/g,' ');
+  const C = [[/\bi ?'?ve\b/g,'i have'],[/\bhaven'?t\b/g,'have not'],[/\bdidn'?t\b/g,'did not'],[/\bdon'?t\b/g,'do not'],
+    [/\bi'?m\b/g,'i am'],[/\bit'?s\b/g,'it is'],[/\bwhat'?s\b/g,'what is'],[/\bthat'?s\b/g,'that is'],[/\bcan'?t\b/g,'can not'],
+    [/\bhow'?s\b/g,'how is'],[/\bwould'?nt\b/g,'would not']];
+  for(const [a,b] of C) s = s.replace(a,b);
+  return s.replace(/'/g,'').replace(/\s+/g,' ').trim();
+}
+// what the learner wants Jenny to do
+const INTENTS = [
+  ['spell',  /\b(spell|spelt|spelled|spelling|spells)\b|\bhow (do|did) you write\b|\bhow (is|was) (it|that|this|the \w+|his \w+|her \w+) written\b/],
+  ['slow',   /\bslow(ly|er)?\b|\bmore slowly\b|\bnot so fast\b|\btoo fast\b/],
+  ['check',  /\bcheck\b|\bdid you say\b|\b(is|was) (it|that|this) (right|correct)\b|\bcorrect information\b|\bdid i (get|write) (it|that)\b/],
+  ['repeat', /\brepeat|repeating|again\b|\bonce more\b|\bone more time\b|\bpardon\b|\bsorry\b|\bsay (it|that)\b|\bdid not (hear|catch|understand)\b|\bwhat (is|was|did you say)\b|\bwhat (number|name|email|address|website|reference)\b/],
+];
+function intentOf(n){ for(const [k,re] of INTENTS) if(re.test(n)) return k; return ''; }
+const LEAD = '((sorry|excuse me|pardon|hello|hi|ok|okay|jenny|yes) )*';
+/* v: ok = a good question, err = a grammar error (counts), nudge = try again, no penalty.
+   formal:false = it works, but it is not a full question (Sorry? Pardon?). */
+const QRULES = [
+  {v:'err', re:/^((sorry|excuse me|pardon|please) )*(you|u) (can|could|will|would) (please )?(spell|repeat|say|tell|speak|check|write)\b/, echo:true,
+    tip:'A question starts with Can: Can you spell that, please?', clue:'A question starts with Can. Can you...?', recast:{spell:'Can I spell it? Yes, of course.', repeat:'Can I repeat it? Yes, of course.', slow:'Can I say it slowly? Yes, of course.', check:'Can you check it? Yes, of course.', '':'Can I help? Yes, of course.'}},
+  {v:'err', re:/\bhow (you|to|i|it|we) (spell|write)\b|\bhow (spell|write)\b|\bhow (do|does) (spell|it spell)\b|\bhow you (are|is) spell/, echo:true,
+    tip:'Use do: How do you spell that?', clue:'Use do. How do you spell that?', recast:{spell:'How do I spell it? Of course.'}, target:'how'},
+  {v:'err', re:/\bhow (is )?(it|that) spell\b|\bhow is spell\b|\bhow is (it|that) spelling\b/, echo:true,
+    tip:'Say: How do you spell that?', clue:'Use do. How do you spell that?', recast:{spell:'How do I spell it? Of course.'}, target:'how'},
+  {v:'err', re:/\b(spell|repeat) me\b(?! (the|your|his|her|that|it))|\b(spell|repeat) (it|that) me\b/, echo:true,
+    tip:'Say: Can you spell that for me? Not spell me.', clue:'Not spell me. Say, spell that, for me.', recast:{spell:'Spell it for you? Of course.', repeat:'Repeat it for you? Of course.'}},
+  {v:'err', re:/\b(say|speak|talk|repeat|read)( it| that| this)?( again)? (more )?slow\b(?!ly|er)/, echo:true,
+    tip:'Use slowly: Can you say that again slowly, please?', clue:'Slow, slowly. Say it slowly.', recast:{slow:'More slowly? Of course.'}},
+  {v:'err', re:/^((sorry|excuse me|pardon|please) )*(can|could) you (please )?to (spell|repeat|say|speak|check)\b/,
+    tip:'No to after can: Can you spell that, please?', clue:'No to after can. Can you spell that?', recast:{spell:'Can I spell it? Yes.', repeat:'Can I repeat it? Yes.', slow:'Can I say it slowly? Yes.'}},
+  {v:'err', re:/^((sorry|excuse me|pardon|please) )*(can|could) you (please )?(spelling|repeating|saying|speaking|checking)\b/,
+    tip:'After can, use spell, not spelling: Can you spell that, please?', clue:'After can, say spell, not spelling.', recast:{spell:'Can I spell it? Yes.', repeat:'Can I repeat it? Yes.', slow:'Can I say it slowly? Yes.'}},
+  {v:'err', re:/^((sorry|excuse me|pardon|please) )*(do|are) you (can|could)\b|^((sorry|excuse me|pardon|please) )*(can|could) you can\b/,
+    tip:'Use one verb: Can you spell that, please?', clue:'Just one, can. Can you spell that?', recast:{spell:'Can I spell it? Yes.', repeat:'Can I repeat it? Yes.', slow:'Can I say it slowly? Yes.'}},
+  {v:'err', re:/^((sorry|excuse me|pardon|please) )*(can|could) you (please )?(again|slowly|slow)\b/,
+    tip:'Add a verb: Can you say that again, please?', clue:'Add a verb. Can you say that again?', recast:{repeat:'Say it again? Yes.', slow:'Say it slowly? Yes.'}},
+  {v:'err', re:/^((sorry|excuse me|pardon) )*(i can|can i) (spell|repeat)\b/,
+    tip:'You want Jenny to do it. Ask: Can you spell that, please?', clue:'You want me to do it. Can you...?', recast:{spell:'Can I spell it? Yes, of course.', repeat:'Can I repeat it? Yes, of course.'}},
+  // good questions
+  {v:'ok', re:new RegExp('^'+LEAD+'(please )?(can|could|would|will) you (please )?(spell|repeat|say|tell|give|read|check|write|speak|go)\\b')},
+  {v:'ok', re:new RegExp('^'+LEAD+'(can|could|may) i (check|ask|have|just check|read)\\b')},
+  {v:'ok', re:new RegExp('^'+LEAD+'how do you (spell|say|write)\\b')},
+  {v:'ok', re:new RegExp('^'+LEAD+'how (is|was) (it|that|this|the \\w+|his \\w+|her \\w+|your \\w+) (spelt|spelled|written)\\b')},
+  {v:'ok', re:new RegExp('^'+LEAD+'(would|do) you mind (repeating|spelling|saying|checking)\\b')},
+  {v:'ok', re:new RegExp('^'+LEAD+'what (is|was) (the|that|his|her|your|this) ?(\\w+ )?(number|name|reference|email|address|website|again)\\b')},
+  {v:'ok', re:new RegExp('^'+LEAD+'what did you say\\b')},
+  {v:'ok', re:new RegExp('^'+LEAD+'did you say\\b')},
+  {v:'ok', re:new RegExp('^'+LEAD+'(is|was) (it|that|this)\\b')},
+  {v:'ok', re:/^(sorry|pardon|pardon me|excuse me|sorry what|sorry pardon|i am sorry|sorry say again|say again please|sorry i did not (hear|catch) (it|that)|sorry i did not understand)( please)?$/, formal:false},
+  {v:'ok', re:/^(sorry )?(again|once more|one more time) please$/, formal:false},
+  // close, but not a question yet
+  {v:'nudge', re:/^what$|^what what$|^what again$/, tip:'"What?" can sound rude. Say: Sorry? Or: Can you repeat that, please?', clue:'Hmm. That sounds a bit rude. Try, sorry? Or, can you repeat that, please?'},
+  {v:'nudge', re:/^(please )?(spell|repeat|say|again|slowly|slow|slower|check)\b/, echo:true, tip:'Make it a polite question: Can you spell that, please?', clue:'Can you ask me in a question? Start with, can you.'},
+];
+const QUNKNOWN = "Sorry, I didn't understand. You can ask me to repeat it, or to spell it.";
+function checkQ(text){
+  const n = norm(text);
+  if(!n) return {v:'none', n};
+  const intent = intentOf(n);
+  for(const r of QRULES){
+    if(r.re.test(n)){
+      let v = r.v, tip = r.tip||'';
+      if(v==='ok' && !intent && r.formal!==false && !/^(is|was|did|what)/.test(n.replace(new RegExp('^'+LEAD),''))) { return {v:'nudge', n, intent:'', tip:'Good question. Now say what you need: Can you repeat that, please? Or: Can you spell that, please?', clue:'Of course. What can I do? I can say it again, or spell it.', rule:r}; }
+      const it = intent || (r.v==='ok' ? (/^(is|was|did you say)/.test(n.replace(new RegExp('^'+LEAD),''))?'check':'repeat') : intent);
+      const m = (n.match(r.re)||[''])[0];
+      return {v, n, intent:it, formal:r.formal!==false, tip, clue:r.clue||'', echo:r.echo?m:'', recast:(r.recast&&(r.recast[it]||r.recast[''])||''), target:r.target||'', rule:r};
+    }
+  }
+  return {v:'unknown', n, intent, tip:QUNKNOWN, clue:QUNKNOWN};
+}
+/* The question to aim for, by what the learner wants. Shown as coloured parts. */
+const QTARGET = {
+  spell:  {model:'Can you spell that, please?', focus:'Can you...? A question starts with Can.'},
+  repeat: {model:'Can you repeat that, please?', focus:'Can you...? A question starts with Can.'},
+  slow:   {model:'Can you say that again slowly, please?', focus:'Say it slowly: slow, slowly.'},
+  check:  {model:'Can I check I have the correct information, please?', focus:'Can I check...? A polite way to check.'},
+  how:    {model:'How do you spell that?', focus:'How do you spell...? Use do.'},
+};
+function qChunks(target){
+  const Q = /^((sorry|excuse me|pardon|hello|hi|ok|okay|jenny|yes|please) )*(can|could|would|may|will)\b/;
+  if(target==='how') return [
+    {r:'q', t:'How', re:/^((sorry|excuse me|pardon) )*how\b/, ask:'Start with How.'},
+    {r:'q', t:'do', re:/\bhow do\b/, hint:'d...', ask:'Use do. How do you...?'},
+    {r:'who', t:'you', re:/\bhow do you\b/, ask:'Who? You.'},
+    {r:'act', t:'spell', re:/\bspell\b/, ask:'What do you want? Spell.'},
+    {r:'what', t:'that?', re:/\b(that|it|this|his name|her name|the name|the \w+)\b/, opt:true}];
+  const act = {spell:['spell',/\bspell\b/], repeat:['repeat',/\b(repeat|say)\b/], slow:['say',/\b(say|repeat|speak|read)\b/], check:['check',/\bcheck\b/]}[target]||['repeat',/\b(repeat|say)\b/];
+  const cs = [
+    {r:'q', t:'Can', re:Q, hint:'C...', ask:'Start with Can.'},
+    {r:'who', t: target==='check'?'I':'you', re: target==='check'? /\b(can|could|may) i\b/ : /\b(can|could|would|will) you\b/, ask: target==='check'?'Who checks? I.':'Who? You. Can you...?'},
+    {r:'act', t:act[0], re:act[1], ask:'What do you want me to do? '+act[0]+'.'}];
+  if(target==='check') cs.push({r:'what', t:'I have the correct information,', re:/\b(information|it|that|this)\b/, opt:true});
+  else cs.push({r:'what', t: target==='slow'?'that again slowly,':'that,', re: target==='slow'? /\bslow(ly)?\b/ : /\b(that|it|this|the \w+)\b/, opt: target!=='slow', ask: target==='slow'?'How? Slowly.':''});
+  cs.push({r:'x', t:'please?', re:/\bplease\b/, opt:true});
+  return cs;
+}
+/* ---------- learner notes ---------- */
+function noteNorm(kind, s){
+  s = String(s||'').trim();
+  if(kind==='ref') return s.toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(kind==='phone') return s.toUpperCase().replace(/[^0-9O]/g,'');
+  if(kind==='email') return s.toLowerCase().replace(/\s+at\s+/g,'@').replace(/\s+dot\s+/g,'.').replace(/\s+/g,'').replace(/\.$/,'');
+  if(kind==='web') return s.toLowerCase().replace(/\s+dot\s+/g,'.').replace(/\s+slash\s+/g,'/').replace(/\s+/g,'').replace(/^https?:\/\//,'').replace(/\/$/,'').replace(/\.$/,'');
+  if(kind==='name') return s.toLowerCase().replace(/[.,]/g,' ').replace(/\b(mr|mrs|ms|miss|mister|mx|dr)\b/g,' ').replace(/\s+/g,' ').trim();
+  if(kind==='person') return s.toLowerCase().replace(/[.,]/g,' ').replace(/\b(mr|mister)\b/g,' ').replace(/\s+/g,' ').trim();
+  return s.toLowerCase();
+}
+function noteTarget(f){
+  if(f.kind==='name') return noteNorm('name', f.ans);
+  if(f.kind==='web') return noteNorm('web', f.ans);
+  return noteNorm(f.kind, f.ans);
+}
+// line up the learner's note with the right answer: which characters of the answer they have
+function alignMask(got, want){
+  const a=got, b=want, n=a.length, m=b.length, D=[];
+  for(let i=0;i<=n;i++){ D.push(new Array(m+1).fill(0)); D[i][0]=i; }
+  for(let j=0;j<=m;j++) D[0][j]=j;
+  for(let i=1;i<=n;i++) for(let j=1;j<=m;j++) D[i][j]=Math.min(D[i-1][j]+1, D[i][j-1]+1, D[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  const have=new Array(m).fill(false); let i=n, j=m;
+  while(i>0 && j>0){
+    if(a[i-1]===b[j-1] && D[i][j]===D[i-1][j-1]){ have[j-1]=true; i--; j--; }
+    else if(D[i][j]===D[i-1][j-1]+1){ i--; j--; }
+    else if(D[i][j]===D[i-1][j]+1){ i--; }
+    else { j--; }
+  }
+  return {have, dist:D[n][m]};
+}
+function checkNote(f, text){
+  const raw = String(text||'').trim();
+  if(!raw) return {v:'none'};
+  const got = noteNorm(f.kind, raw), want = noteTarget(f);
+  const out = {v:'', got, want, tip:'', extra:''};
+  if(f.kind==='name'){
+    const titled = /\b(mr|mrs|ms|miss|mister|mx|dr)\b/i.test(raw);
+    if(got===want){ out.v='ok'; if(!titled) out.extra='Good. You can write the title too: '+f.ans+'.'; return out; }
+  } else if(got===want){ out.v='ok'; return out; }
+  // near misses with a clear rule
+  if((f.kind==='ref'||f.kind==='phone') && got.replace(/O/g,'0')===want.replace(/O/g,'0') && /O/.test(got) && !/O/.test(want.slice(f.kind==='ref'?2:0))){
+    out.v='close'; out.tip='When people say "oh" in a number, write 0 (zero).'; out.rule='oh'; }
+  else if(f.kind==='phone' && got.length===want.length-1 && want.includes('55') && got.replace('5','55')===want){
+    out.v='close'; out.tip='"Double five" means 5 5.'; out.rule='double'; }
+  else if(f.kind==='email' && !got.includes('@') && got.replace(/^shoes(at)?/,'shoes@')===want){
+    out.v='close'; out.tip='"At" in an email address is written @.'; out.rule='at'; }
+  else if((f.kind==='email'||f.kind==='web') && got.replace(/dot/g,'.')===want){
+    out.v='close'; out.tip='"Dot" is written as a full stop: .'; out.rule='dot'; }
+  else if(f.kind==='web' && got.replace(/^www\./,'')===want.replace(/^www\./,'')){
+    out.v='ok'; out.extra = got.startsWith('www.')?'':'Good. Most people write www. at the start too.'; return out; }
+  else out.v='wrong';
+  const al = alignMask(got.replace(/O/g, f.kind==='phone'?'0':'O'), want);
+  out.have = al.have; out.dist = al.dist;
+  out.missing = got.length < want.length; out.extraChars = got.length > want.length;
+  return out;
+}
+const NOTE_KIND = {ref:'letters and numbers', phone:'numbers', name:'letters', person:'letters', email:'letters', web:'letters'};
+function displayAns(f){ return f.kind==='phone' ? f.ans : f.ans; }
+
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+const EDITION = 'student';
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function cancelAutoNext(){}
+/* ================= 3D scene: Brookes shoe department ================= */
+const canvas = $('c3d');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0xf1ede6);
+const camera = new THREE.PerspectiveCamera(50, 1, 0.05, 50);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.enablePan = false; controls.minDistance = 0.6; controls.maxDistance = 5;
+controls.maxPolarAngle = Math.PI*0.62; controls.minPolarAngle = Math.PI*0.2;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0xb7a58c, 1.25));
+const sun = new THREE.DirectionalLight(0xfff4e2, 1.5); sun.position.set(2.0, 3.6, 2.2); sun.castShadow = true;
+sun.shadow.mapSize.set(1024,1024); sun.shadow.camera.left=-3.5; sun.shadow.camera.right=3.5; sun.shadow.camera.top=3.5; sun.shadow.camera.bottom=-3.5; sun.shadow.bias=-0.0006; sun.shadow.radius=4;
+scene.add(sun);
+
+const M = (c, o={}) => new THREE.MeshStandardMaterial(Object.assign({color:c, roughness:0.75, metalness:0}, o));
+function box(w,h,d,mat,x,y,z,parent=scene){ const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat); m.position.set(x,y,z); m.castShadow=m.receiveShadow=true; parent.add(m); return m; }
+function cyl(rt,rb,h,mat,x,y,z,parent=scene,seg=20){ const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),mat); m.position.set(x,y,z); m.castShadow=m.receiveShadow=true; parent.add(m); return m; }
+function sph(r,mat,x,y,z,parent=scene){ const m=new THREE.Mesh(new THREE.SphereGeometry(r,24,16),mat); m.position.set(x,y,z); m.castShadow=true; parent.add(m); return m; }
+function cap(r,l,mat,parent){ const m=new THREE.Mesh(new THREE.CapsuleGeometry(r,l,6,14),mat); m.castShadow=true; parent.add(m); return m; }
+function canvasTex(w,h,draw){ const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d'); draw(g,w,h); const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=4; t.userData={c,g,draw}; return t; }
+const pickables = [];
+const LABELS = [];
+function addPick(obj,name,anchor){ obj.traverse(o=>{ if(o.isMesh) pickables.push({mesh:o,name,anchor}); }); LABELS.push({name, anchor, el:null}); }
+
+/* room */
+const RW=7, RD=6, RH=3;
+const floorTex = canvasTex(512,512,(g,w,h)=>{ g.fillStyle='#b98b5e'; g.fillRect(0,0,w,h);
+  for(let r=0;r<8;r++){ const y=r*h/8; g.fillStyle=`hsl(${28+Math.random()*6},${38+Math.random()*10}%,${50+Math.random()*8}%)`; g.fillRect(0,y,w,h/8-2);
+    for(let i=0;i<40;i++){ g.fillStyle='rgba(80,45,20,.08)'; g.fillRect(Math.random()*w,y+Math.random()*h/8,40+Math.random()*80,1); }
+    g.fillStyle='rgba(60,35,15,.35)'; g.fillRect((r%2)*w/2+w/4,y,2,h/8); } });
+floorTex.wrapS=floorTex.wrapT=THREE.RepeatWrapping; floorTex.repeat.set(3,3);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(RW,RD), M(0xffffff,{map:floorTex,roughness:0.55})); floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
+const wallMat = M(0xf3efe7,{roughness:0.95}), wallMat2 = M(0xe8e2d6,{roughness:0.95}), accent = M(0x1f3c6e,{roughness:0.8});
+box(RW,RH,0.06,wallMat,0,RH/2,-RD/2);
+box(0.06,RH,RD,wallMat2,-RW/2,RH/2,0);
+box(0.06,RH,RD,wallMat2,RW/2,RH/2,0);
+box(RW,0.12,0.02,M(0x6b5a48),0,0.06,-RD/2+0.04);
+const ceil = new THREE.Mesh(new THREE.PlaneGeometry(RW,RD), M(0xfbfaf6)); ceil.rotation.x=Math.PI/2; ceil.position.y=RH; scene.add(ceil);
+for(const x of [-2,0,2]) for(const z of [-1.5,1]) cyl(0.18,0.18,0.03,M(0xffffff,{emissive:0xfff6e0,emissiveIntensity:0.8}),x,RH-0.02,z);
+
+/* back wall: the Brookes sign and shelves of boxes and shoes */
+const signTex = canvasTex(1024,200,(g,w,h)=>{ g.fillStyle='#1f3c6e'; g.fillRect(0,0,w,h); g.fillStyle='#fff'; g.font='bold 110px Georgia, serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText('BROOKES',w/2,h/2-12); g.font='34px system-ui, sans-serif'; g.fillStyle='#f1c86a'; g.fillText('SHOE DEPARTMENT',w/2,h/2+62); });
+const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.4,0.47), new THREE.MeshBasicMaterial({map:signTex})); sign.position.set(0,2.55,-RD/2+0.04); scene.add(sign);
+addPick(sign,'sign',new THREE.Vector3(0,2.85,-RD/2+0.1));
+const shelfWood = M(0xe9e1d3,{roughness:0.6});
+const BOXCOLS = [0xc9b28f,0x2b2b2b,0xe7e2da,0x8a5a3c,0xd36c5c,0x5a7fa8,0xf0d9a7];
+function shelfUnit(x){ const g=new THREE.Group(); g.position.set(x,0,-RD/2+0.25); scene.add(g);
+  box(1.5,2.1,0.04,shelfWood,0,1.05,-0.2,g); box(0.04,2.1,0.42,shelfWood,-0.75,1.05,0,g); box(0.04,2.1,0.42,shelfWood,0.75,1.05,0,g);
+  for(let s=0;s<5;s++){ const y=0.12+s*0.45; box(1.5,0.03,0.42,shelfWood,0,y,0,g);
+    let cx=-0.66; while(cx<0.6){ const bw=0.28+Math.random()*0.06; const col=BOXCOLS[(Math.random()*BOXCOLS.length)|0];
+      const b=box(bw,0.16,0.34,M(col,{roughness:0.7}),cx+bw/2,y+0.095,0,g); box(bw*0.6,0.05,0.002,M(0xffffff),cx+bw/2,y+0.1,0.172,g); cx+=bw+0.015;
+      if(s%2===1 && Math.random()<0.5) box(bw,0.13,0.34,M(col,{roughness:0.7}),cx-bw/2-0.0075,y+0.25,0,g); } }
+  return g; }
+const shelfL = shelfUnit(-2.3), shelfR = shelfUnit(2.3);
+addPick(shelfL,'shelves',new THREE.Vector3(-2.3,2.25,-RD/2+0.3));
+addPick(shelfR,'shoeboxes',new THREE.Vector3(2.3,1.3,-RD/2+0.5));
+
+/* a boot */
+const leatherBrown = M(0x6b3e22,{roughness:0.55}), leatherBlack = M(0x1d1d1f,{roughness:0.5}), sole = M(0x2a211b,{roughness:0.9});
+function boot(mat, parent, x, y, z, ry, scale=1){ const b=new THREE.Group(); b.position.set(x,y,z); b.rotation.y=ry; b.scale.setScalar(scale); parent.add(b);
+  const foot=new THREE.Mesh(new THREE.CapsuleGeometry(0.045,0.15,6,12),mat); foot.rotation.z=Math.PI/2; foot.scale.set(1,1,0.85); foot.position.set(0.03,0.045,0); foot.castShadow=true; b.add(foot);
+  box(0.25,0.018,0.085,sole,0.03,0.009,0,b);
+  const shaft=cyl(0.048,0.052,0.2,mat,-0.04,0.15,0,b); shaft.scale.z=0.85;
+  box(0.03,0.04,0.075,sole,-0.075,0.02,0,b); // heel
+  return b; }
+function trainer(col, parent, x, y, z, ry){ const t=new THREE.Group(); t.position.set(x,y,z); t.rotation.y=ry; parent.add(t);
+  const up=new THREE.Mesh(new THREE.CapsuleGeometry(0.042,0.14,6,12),M(col,{roughness:0.6})); up.rotation.z=Math.PI/2; up.scale.set(0.8,1,0.85); up.position.set(0,0.04,0); up.castShadow=true; t.add(up);
+  box(0.24,0.025,0.085,M(0xffffff,{roughness:0.8}),0,0.012,0,t); return t; }
+
+/* display tables with boots and trainers */
+function table(x,z){ const g=new THREE.Group(); g.position.set(x,0,z); scene.add(g);
+  box(1.1,0.06,0.6,M(0xf6f3ee,{roughness:0.4}),0,0.72,0,g); box(1.0,0.66,0.5,M(0xd8cfc1,{roughness:0.7}),0,0.36,0,g); return g; }
+const tL = table(-2.3,0.4), tR = table(2.4,0.6);
+boot(leatherBrown,tL,-0.25,0.75,0.05,0.4); boot(leatherBrown,tL,-0.12,0.75,-0.08,0.3); boot(leatherBlack,tL,0.22,0.75,0.05,-0.3); boot(leatherBlack,tL,0.34,0.75,-0.1,-0.2);
+trainer(0xffffff,tR,-0.3,0.75,0,0.3); trainer(0x2f6fd0,tR,0.0,0.75,-0.05,0.1); trainer(0xd9473b,tR,0.3,0.75,0.05,-0.2);
+addPick(tL,'boots',new THREE.Vector3(-2.3,1.1,0.4));
+addPick(tR,'trainers',new THREE.Vector3(2.4,1.05,0.6));
+// price cards
+const priceTex = canvasTex(200,120,(g,w,h)=>{ g.fillStyle='#fff'; g.fillRect(0,0,w,h); g.strokeStyle='#1f3c6e'; g.lineWidth=6; g.strokeRect(3,3,w-6,h-6); g.fillStyle='#1f3c6e'; g.font='bold 50px system-ui'; g.textAlign='center'; g.fillText('£59.99',w/2,78); });
+const pc=new THREE.Mesh(new THREE.PlaneGeometry(0.18,0.11),new THREE.MeshBasicMaterial({map:priceTex})); pc.position.set(0,0.82,0.3); pc.rotation.x=-0.5; tL.add(pc);
+
+/* mirror and fitting stool (right wall) */
+const mirror = new THREE.Group(); mirror.position.set(RW/2-0.04,0,-1.0); mirror.rotation.y=-Math.PI/2; scene.add(mirror);
+box(0.62,1.62,0.04,M(0x8a7556),0,0.95,0,mirror);
+const glass=new THREE.Mesh(new THREE.PlaneGeometry(0.54,1.52),M(0xcfdbe4,{metalness:0.9,roughness:0.08})); glass.position.set(0,0.95,0.025); mirror.add(glass);
+addPick(mirror,'mirror',new THREE.Vector3(RW/2-0.1,1.85,-1.0));
+const stool = new THREE.Group(); stool.position.set(2.6,0,-1.2); scene.add(stool);
+box(0.5,0.12,0.36,M(0x1f3c6e,{roughness:0.6}),0,0.42,0,stool); box(0.46,0.36,0.32,M(0x8a7556),0,0.18,0,stool);
+box(0.12,0.04,0.32,M(0xdcd2c0),0.22,0.5,0,stool); // foot rest slope
+addPick(stool,'fitting stool',new THREE.Vector3(2.6,0.75,-1.2));
+// plant
+const pot = cyl(0.17,0.13,0.32,M(0x2b2b2b),-RW/2+0.45,0.16,-2.2);
+for(let i=0;i<9;i++){ const lf=new THREE.Mesh(new THREE.SphereGeometry(0.13,10,8),M(0x2f7a43,{roughness:0.8})); lf.scale.set(0.45,1.4,0.25); lf.position.set(-RW/2+0.45+Math.cos(i*0.7)*0.07,0.55+i*0.03,-2.2+Math.sin(i*0.7)*0.07); lf.rotation.set(Math.sin(i)*0.6,i*0.7,Math.cos(i)*0.5); scene.add(lf); }
+
+/* the counter */
+const counter = new THREE.Group(); counter.position.set(0,0,-0.7); scene.add(counter);
+box(3.0,0.98,0.62,M(0xf2ede4,{roughness:0.5}),0,0.49,0,counter);
+box(3.06,0.05,0.7,M(0xc9a77a,{roughness:0.45}),0,1.005,0,counter);
+box(3.0,0.14,0.01,accent,0,0.8,0.315,counter);
+addPick(counter,'counter',new THREE.Vector3(-1.2,1.1,-0.4));
+// hanging sign above the counter
+const hangTex = canvasTex(720,160,(g,w,h)=>{ g.fillStyle='#fff'; g.fillRect(0,0,w,h); g.fillStyle='#1f3c6e'; g.fillRect(0,0,w,14); g.fillRect(0,h-14,w,14); g.fillStyle='#1f3c6e'; g.font='bold 58px system-ui, sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText('Pay here · Returns',w/2,h/2); });
+const hang = new THREE.Mesh(new THREE.BoxGeometry(1.5,0.33,0.03),[M(0xffffff),M(0xffffff),M(0xffffff),M(0xffffff),M(0xffffff,{map:hangTex}),M(0xffffff,{map:hangTex})]); hang.position.set(-1.55,2.25,-0.75); hang.rotation.y=0.35; scene.add(hang);
+for(const s of [-1,1]) cyl(0.004,0.004,0.55,M(0x777777),-1.55+s*0.56,2.66,-0.75+s*0.2);
+addPick(hang,'returns sign',new THREE.Vector3(-1.55,2.5,-0.75));
+// till (screen faces Jenny) and customer display (faces you)
+const till = new THREE.Group(); till.position.set(-0.75,1.03,-0.8); scene.add(till);
+box(0.34,0.06,0.28,M(0x2c2c30),0,0.03,0,till); cyl(0.02,0.02,0.22,M(0x444448),0,0.16,-0.04,till);
+const tillScreen = box(0.42,0.28,0.03,M(0x1a1a1d),0,0.34,-0.05,till); tillScreen.rotation.x=0.15; till.rotation.y=Math.PI-0.25;
+box(0.34,0.02,0.14,M(0x3a3a3e),0.0,0.07,0.22,till); // keyboard
+addPick(till,'till',new THREE.Vector3(-0.75,1.55,-0.8));
+const custDisplayLines = [];
+const custTex = canvasTex(640,400,drawCust);
+function drawCust(g,w,h){ g.fillStyle='#f7f9fc'; g.fillRect(0,0,w,h); g.fillStyle='#1f3c6e'; g.fillRect(0,0,w,64); g.fillStyle='#fff'; g.font='bold 34px system-ui'; g.fillText('BROOKES · Exchange',22,44);
+  g.fillStyle='#1b2230'; g.font='28px system-ui'; g.fillText('Boots: size 5 → size 6',22,110);
+  g.font='bold 27px system-ui'; custDisplayLines.slice(-6).forEach((l,i)=>{ g.fillStyle='#1d7a3e'; g.fillText('✓ '+l,22,160+i*42); });
+  if(!custDisplayLines.length){ g.fillStyle='#4a5568'; g.font='26px system-ui'; g.fillText('Ordering…',22,160); } }
+function redrawCust(){ const u=custTex.userData; u.draw(u.g,u.c.width,u.c.height); custTex.needsUpdate=true; }
+const cust = new THREE.Group(); cust.position.set(-0.3,1.03,-0.48); cust.rotation.y=0.25; scene.add(cust);
+cyl(0.015,0.02,0.1,M(0x444448),0,0.05,0,cust);
+box(0.36,0.24,0.02,M(0x1a1a1d),0,0.2,0,cust).rotation.x=-0.25;
+const custScr = new THREE.Mesh(new THREE.PlaneGeometry(0.33,0.21), new THREE.MeshBasicMaterial({map:custTex})); custScr.position.set(0,0.2+0.003,0.012); custScr.rotation.x=-0.25; cust.add(custScr);
+addPick(cust,'screen',new THREE.Vector3(-0.3,1.38,-0.48));
+// card machine
+const cm = new THREE.Group(); cm.position.set(0.25,1.03,-0.5); cm.rotation.set(-0.35,-0.2,0); scene.add(cm);
+box(0.09,0.03,0.17,M(0x2c2c30),0,0.015,0,cm); const cmScr=box(0.065,0.004,0.05,M(0x8fd0ff,{emissive:0x2a6fa8,emissiveIntensity:0.4}),0,0.032,-0.045,cm);
+for(let r=0;r<3;r++) for(let c=0;c<3;c++) box(0.016,0.004,0.012,M(0xdddddd),-0.022+c*0.022,0.032,0.01+r*0.022,cm);
+addPick(cm,'card machine',new THREE.Vector3(0.25,1.2,-0.5));
+// your boots in their box, the receipt and a bag
+const sb = new THREE.Group(); sb.position.set(0.85,1.03,-0.55); sb.rotation.y=-0.25; scene.add(sb);
+const boxMat = M(0xc79a63,{roughness:0.8});
+box(0.36,0.012,0.24,boxMat,0,0.006,0,sb); box(0.36,0.12,0.01,boxMat,0,0.06,0.115,sb); box(0.36,0.12,0.01,boxMat,0,0.06,-0.115,sb); box(0.01,0.12,0.24,boxMat,0.175,0.06,0,sb); box(0.01,0.12,0.24,boxMat,-0.175,0.06,0,sb);
+const lid=box(0.37,0.02,0.25,boxMat,0,0.02,-0.25,sb); lid.rotation.x=-0.15;
+const lidTex = canvasTex(256,128,(g,w,h)=>{ g.fillStyle='#c79a63'; g.fillRect(0,0,w,h); g.fillStyle='#1f3c6e'; g.font='bold 40px Georgia'; g.textAlign='center'; g.fillText('BROOKES',w/2,62); g.font='bold 30px system-ui'; g.fillText('UK 5',w/2,106); });
+const lidTop=new THREE.Mesh(new THREE.PlaneGeometry(0.34,0.17),new THREE.MeshBasicMaterial({map:lidTex})); lidTop.rotation.x=-Math.PI/2; lidTop.position.set(0,0.011,0); lid.add(lidTop);
+boot(leatherBrown,sb,-0.33,0.0,-0.04,-0.5,0.85); boot(leatherBrown,sb,-0.3,0.0,0.07,-0.35,0.85);
+const tissue=box(0.33,0.01,0.21,M(0xf4efe6,{roughness:0.95}),0,0.1,0,sb);
+addPick(sb,'shoebox',new THREE.Vector3(0.85,1.3,-0.55));
+const recTex = canvasTex(128,256,(g,w,h)=>{ g.fillStyle='#fffefa'; g.fillRect(0,0,w,h); g.fillStyle='#333'; g.font='bold 15px monospace'; g.fillText('BROOKES',30,24); g.font='11px monospace'; ['Boots UK 5','  £59.99','CARD  £59.99','Sat 14:32','','Thank you'].forEach((l,i)=>g.fillText(l,10,52+i*18)); });
+const receipt=new THREE.Mesh(new THREE.PlaneGeometry(0.07,0.14),M(0xffffff,{map:recTex})); receipt.rotation.set(-Math.PI/2,0,0.4); receipt.position.set(0.32,1.034,-0.4); scene.add(receipt);
+addPick(receipt,'receipt',new THREE.Vector3(0.32,1.12,-0.4));
+const bag = new THREE.Group(); bag.position.set(-1.25,1.03,-0.6); bag.rotation.y=0.3; scene.add(bag);
+const bagTex = canvasTex(256,256,(g,w,h)=>{ g.fillStyle='#1f3c6e'; g.fillRect(0,0,w,h); g.fillStyle='#fff'; g.font='bold 44px Georgia'; g.textAlign='center'; g.fillText('BROOKES',w/2,140); });
+box(0.3,0.34,0.12,M(0x1f3c6e),0,0.17,0,bag);
+const bagFace = new THREE.Mesh(new THREE.PlaneGeometry(0.3,0.34),M(0xffffff,{map:bagTex})); bagFace.position.set(0,0.17,0.061); bag.add(bagFace);
+const handle=new THREE.Mesh(new THREE.TorusGeometry(0.06,0.006,6,16,Math.PI),M(0xf1c86a)); handle.position.set(0,0.34,0); bag.add(handle);
+addPick(bag,'bag',new THREE.Vector3(-1.25,1.5,-0.6));
+
+/* Jenny, the cashier (standing behind the counter) */
+const skin = M(0xe0b08a,{roughness:0.6}), hairM = M(0x6b4423,{roughness:0.8}), top = M(0x1f3c6e,{roughness:0.7}), trous = M(0x23272f,{roughness:0.8});
+const doc = new THREE.Group(); doc.position.set(0.05,0,-1.25); scene.add(doc);
+for(const s of [-1,1]){ box(0.13,0.86,0.15,trous,s*0.09,0.45,0,doc); box(0.12,0.07,0.22,M(0x15181e),s*0.09,0.035,0.04,doc); }
+box(0.36,0.2,0.22,trous,0,0.92,0,doc);
+const torso = cap(0.17,0.34,top,doc); torso.position.set(0,1.3,0); torso.scale.set(1.08,1,0.74);
+// collar, lanyard and name badge
+box(0.16,0.03,0.08,M(0xffffff),0,1.53,0.07,doc);
+const lan = new THREE.Mesh(new THREE.TorusGeometry(0.11,0.006,6,24,Math.PI), M(0xd3402b)); lan.rotation.z=Math.PI; lan.position.set(0,1.5,0.11); lan.rotation.x=0.25; doc.add(lan);
+const badgeTex = canvasTex(256,128,(g,w,h)=>{ g.fillStyle='#fff'; g.fillRect(0,0,w,h); g.fillStyle='#1f3c6e'; g.fillRect(0,0,w,34); g.fillStyle='#fff'; g.font='bold 24px Georgia'; g.textAlign='center'; g.fillText('BROOKES',w/2,26); g.fillStyle='#1b2230'; g.font='bold 52px system-ui'; g.fillText('Jenny',w/2,96); });
+const badge=new THREE.Mesh(new THREE.PlaneGeometry(0.1,0.05),new THREE.MeshBasicMaterial({map:badgeTex})); badge.position.set(0.07,1.4,0.128); badge.rotation.x=-0.1; doc.add(badge);
+cyl(0.05,0.055,0.1,skin,0,1.56,0,doc);
+const head = new THREE.Group(); head.position.set(0,1.6,0); doc.add(head);
+const skull = sph(0.115,skin,0,0.11,0,head); skull.scale.set(0.92,1.05,0.98);
+const hair = new THREE.Mesh(new THREE.SphereGeometry(0.123,24,16,0,Math.PI*2,0,Math.PI*0.5), hairM); hair.position.set(0,0.12,-0.01); hair.rotation.x=-0.2; hair.scale.set(0.96,1.05,1.03); head.add(hair);
+const tail = new THREE.Mesh(new THREE.CapsuleGeometry(0.035,0.16,6,10),hairM); tail.position.set(0,0.05,-0.13); tail.rotation.x=0.35; head.add(tail);
+sph(0.03,hairM,0,0.14,-0.11,head);
+const hairBack = new THREE.Mesh(new THREE.SphereGeometry(0.119,20,12,0,Math.PI*2,Math.PI*0.4,Math.PI*0.3), hairM); hairBack.position.set(0,0.1,-0.02); hairBack.rotation.x=0.6; head.add(hairBack);
+const eyeM = M(0x2a1c12,{roughness:0.3}), whiteM=M(0xffffff,{roughness:0.4});
+const eyes=[];
+for(const s of [-1,1]){ const w=sph(0.019,whiteM,s*0.04,0.125,0.096,head); w.scale.set(1,0.8,0.5); const e=sph(0.011,eyeM,s*0.04,0.125,0.105,head); eyes.push(w,e);
+  const br=box(0.04,0.008,0.01,hairM,s*0.042,0.158,0.1,head); br.rotation.z=s*-0.1; }
+const nose = sph(0.016,skin,0,0.098,0.112,head); nose.scale.set(0.8,1,1);
+const mouth = sph(0.024,M(0x8a3b3b,{roughness:0.5}),0,0.058,0.1,head); mouth.scale.set(1.1,0.22,0.4);
+function arm(s){ const g=new THREE.Group(); g.position.set(s*0.22,1.45,0); doc.add(g);
+  const up=cap(0.05,0.22,top,g); up.position.set(0,-0.14,0); const fg=new THREE.Group(); fg.position.set(0,-0.28,0); g.add(fg);
+  const fo=cap(0.042,0.2,skin,fg); fo.rotation.x=Math.PI/2; fo.position.set(0,0,0.13); const hd=sph(0.045,skin,0,0,0.27,fg); hd.scale.set(0.8,0.6,1.1);
+  g.rotation.z=s*0.1; fg.rotation.x=0.55; return {g,fg}; }
+const armL=arm(-1), armR=arm(1);
+addPick(doc,'cashier',new THREE.Vector3(0.05,1.98,-1.25));
+doc.traverse(o=>{ if(o.isMesh) o.castShadow=true; });
+const anim = {nod:0, tilt:0, look:0, lookT:0, blink:0, nextBlink:2, type:0, write:0};
+function nod(){ anim.nod = 1; }
+function tilt(){ anim.tilt = 1; }
+function lookAtTill(){ anim.lookT = 1.6; anim.type = 1.6; }
+
+/* ===== camera presets ===== */
+const HEAD = new THREE.Vector3(0.05,1.72,-1.2);
+const CAMS = [
+  {name:'Jenny', pos:new THREE.Vector3(0.35,1.62,1.25), tgt:new THREE.Vector3(0.1,1.42,-1.0)},
+  {name:'The shop', pos:new THREE.Vector3(2.7,2.4,3.0), tgt:new THREE.Vector3(0,1.0,-1.0)},
+  {name:'The counter', pos:new THREE.Vector3(0.45,1.75,0.55), tgt:new THREE.Vector3(0.3,1.05,-0.6)},
+  {name:'The shelves', pos:new THREE.Vector3(-1.1,1.6,0.9), tgt:new THREE.Vector3(-2.3,1.2,-2.6)},
+];
+
+let camAnim = null;
+function narrow(){ return innerWidth < 700 || (innerHeight < 500); }
+function goCam(i, instant){
+  const c = CAMS[i]; let pos = c.pos.clone();
+  if(i===0 && narrow()){ const d = pos.clone().sub(c.tgt); pos = c.tgt.clone().add(d.multiplyScalar(innerWidth<innerHeight?1.15:1.05)); }
+  if(instant || reduceMotion){ camera.position.copy(pos); controls.target.copy(c.tgt); controls.update(); camAnim=null; return; }
+  camAnim = {t:0, dur:1.0, p0:camera.position.clone(), t0:controls.target.clone(), p1:pos, t1:c.tgt.clone()};
+}
+controls.addEventListener('start',()=>{ camAnim=null; });
+
+/* ===== layout: keep Jenny visible beside or above the talk panel ===== */
+function layout(){
+  const w=innerWidth, h=innerHeight; renderer.setSize(w,h,false);
+  camera.aspect=w/h;
+  const r=$('talk').getBoundingClientRect(), topH=$('top').getBoundingClientRect().height;
+  let ox=0, oy=0;
+  const bottomSheet = matchMedia('(max-width:900px) and (orientation:portrait), (max-width:600px)').matches && !matchMedia('(orientation:landscape) and (max-height:500px)').matches;
+  if(bottomSheet){ oy = (h - r.top)/2 - topH/2; camera.fov = 58; }
+  else { ox = (w - r.left + 12)/2; oy = -topH/2; camera.fov = w/h>1.9 ? 46 : 50; }
+  camera.setViewOffset(w,h,ox,oy,w,h);
+  camera.updateProjectionMatrix();
+  controls.maxDistance = narrow()?5.6:5;
+}
+addEventListener('resize',layout);
+try{ new ResizeObserver(()=>layout()).observe($('talk')); }catch(e){}
+function fitKeyboard(){
+  const vv=window.visualViewport, t=$('talk'); if(!vv) return;
+  const kb = innerHeight - vv.height - vv.offsetTop, f0=document.activeElement;
+  if(kb>80 && f0 && f0.tagName==='INPUT' && Math.abs((vv.scale||1)-1)<0.05){ const topH=$('top').getBoundingClientRect().height; t.style.setProperty('top',(vv.offsetTop+topH+4)+'px','important'); t.style.setProperty('bottom',(kb+4)+'px','important'); t.style.setProperty('height','auto','important');
+    const f=document.activeElement; if(f && f.tagName==='INPUT') setTimeout(()=>f.scrollIntoView({block:'center'}),60); }
+  else { ['top','bottom','height'].forEach(p=>t.style.removeProperty(p)); }
+}
+if(window.visualViewport){ visualViewport.addEventListener('resize',fitKeyboard); visualViewport.addEventListener('scroll',fitKeyboard); }
+document.addEventListener('focusout',()=>setTimeout(fitKeyboard,250));
+
+/* ===== word labels (vocabulary) ===== */
+let labelsOn=false, tapLabel=null, tapLabelT=0;
+LABELS.forEach(L=>{ const d=document.createElement('div'); d.className='lbl'; d.textContent=L.name; d.style.display='none'; $('labels').appendChild(d); L.el=d; });
+const _v=new THREE.Vector3();
+function updateLabels(){
+  const w=innerWidth,h=innerHeight;
+  LABELS.forEach(L=>{ const show = labelsOn || (tapLabel===L.name && performance.now()<tapLabelT);
+    if(!show){ L.el.style.display='none'; return; }
+    _v.copy(L.anchor).project(camera); if(_v.z>1){ L.el.style.display='none'; return; }
+    L.el.style.display='block'; L.el.style.left=((_v.x+1)/2*w)+'px'; L.el.style.top=((1-_v.y)/2*h)+'px'; });
+}
+const ray=new THREE.Raycaster(), ptr=new THREE.Vector2(); let downAt=null;
+canvas.addEventListener('pointerdown',e=>{ downAt=[e.clientX,e.clientY]; });
+canvas.addEventListener('pointerup',e=>{ if(!downAt||Math.hypot(e.clientX-downAt[0],e.clientY-downAt[1])>6) return;
+  ptr.set(e.clientX/innerWidth*2-1, -(e.clientY/innerHeight)*2+1); ray.setFromCamera(ptr,camera);
+  const hit = ray.intersectObjects(pickables.map(p=>p.mesh),false)[0];
+  if(hit){ const p=pickables.find(p=>p.mesh===hit.object); tapLabel=p.name; tapLabelT=performance.now()+2500; }
+});
+
+/* ================= narration ================= */
+const NARR = {}; // Jenny, recorded sentence by sentence (filled in when the recordings are added)
+let soundOn=true, audioUnlocked=false, speaking=false, narrEnd=0, voice=null;
+const __narr = new Audio(); __narr.preload='auto'; let __cur=null;
+function __norm(t){ return String(t).replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim(); }
+function __stopClip(){ __seq=null; if(__cur){ try{ __cur.pause(); }catch(e){} __cur=null; } }
+/* A line plays from recordings only if every sentence in it has one; otherwise the browser voice reads it all. */
+const __sentences = t => (__norm(t).match(/[^.!?]+[.!?]*/g)||[]).map(x=>x.trim()).filter(x=>/[a-z0-9]/i.test(x));
+const __key = t => String(t).toLowerCase().replace(/[’‘]/g,"'").replace(/[^a-z0-9' ]+/g,' ').replace(/\s+/g,' ').trim();
+let __seq=null;
+function __playClip(text, slow){
+  const srcs=__sentences(text).map(x=>NARR[(slow?'slow:':'')+__key(x)] || NARR[__key(x)]);
+  if(!srcs.length || srcs.some(x=>!x)) return false;
+  __stopClip(); const a=__narr, seq={srcs, i:0}; __seq=seq; a.muted=false;
+  const playAt=()=>{ if(__seq!==seq) return; const src=seq.srcs[seq.i];
+    if(a._src!==src){ a.src=src; a._src=src; } else { try{ a.currentTime=0; }catch(e){} }
+    __cur=a; const pr=a.play(); if(pr&&pr.catch) pr.catch(()=>{ if(__seq===seq){ __seq=null; __cur=null; } }); };
+  a.onended=()=>{ if(__seq!==seq) return; seq.i++; if(seq.i<seq.srcs.length) setTimeout(playAt, slow?450:120); else { __seq=null; __cur=null; } };
+  playAt(); return true; }
+function __primeClip(){ try{ const a=__narr; const vals=Object.values(NARR); if(!vals.length) return; if(!a.src){ a.src=vals[0]; a._src=vals[0]; } a.muted=true; const pr=a.play();
+  if(pr&&pr.then) pr.then(()=>{ if(__cur!==a) a.pause(); a.muted=false; },()=>{ a.muted=false; }); else a.muted=false; }catch(e){ __narr.muted=false; } }
+function clipPlaying(){ return !!__seq || !!(__cur && !__cur.paused && !__cur.ended); }
+function talking(){ return clipPlaying() || (speaking && performance.now() < narrEnd + 1500); }
+function pickVoice(){ try{ const vs=speechSynthesis.getVoices().filter(v=>/en[-_]GB/i.test(v.lang));
+  voice = vs.find(v=>/female|libby|sonia|serena|kate|martha|hazel|susan|google uk english female/i.test(v.name)) || vs[0] || null; }catch(e){} }
+try{ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }catch(e){}
+let partsTok=0;
+function __halt(){ sayId++; try{ speechSynthesis.cancel(); }catch(e){} __stopClip(); speaking=false; }
+function stopTalk(){ partsTok++; __halt(); }
+let sayId=0;
+/* opts.slow: the "say it slowly" lines are recorded slowly; the browser voice reads them at a lower rate */
+function say(text, opts={}, keep){
+  if(!keep) partsTok++;
+  if(text) (window.__said||(window.__said=[])).push((opts.slow?'[slow] ':'')+text);
+  __halt();
+  if(!soundOn||!audioUnlocked||!text) return;
+  if(__playClip(text, opts.slow)) return;
+  const id=++sayId, clean=__norm(text);
+  const parts = clean.match(/[^.!?]+[.!?]*/g) || [clean];
+  narrEnd = performance.now() + clean.split(/\s+/).length*(opts.slow?650:420);
+  speaking=true;
+  try{
+    parts.forEach((p,i)=>{ const u=new SpeechSynthesisUtterance(p.trim()); u.lang='en-GB'; u.rate=opts.slow?0.7:0.92; if(voice) u.voice=voice;
+      if(i===parts.length-1) u.onend=()=>{ if(id===sayId){ speaking=false; narrEnd=0; } };
+      u.onerror=()=>{ if(id===sayId && i===parts.length-1){ speaking=false; } };
+      speechSynthesis.speak(u); });
+    try{ speechSynthesis.resume(); }catch(e){}
+  }catch(e){ speaking=false; }
+}
+/* say several lines one after the other, some of them slowly: [[text, slow], ...] */
+function sayParts(list){
+  const tok=++partsTok; let i=0;
+  const step=()=>{ if(tok!==partsTok || i>=list.length) return; const [t,sl]=list[i++]; say(t,{slow:sl},true);
+    const w=setInterval(()=>{ if(tok!==partsTok){ clearInterval(w); return; } if(!talking()){ clearInterval(w); setTimeout(step, 300); } }, 150); };
+  step();
+}
+function unlockAudio(){ if(audioUnlocked) return; audioUnlocked=true; __primeClip(); try{ const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); }catch(e){} }
+$('soundBtn').onclick=()=>{ soundOn=!soundOn; $('soundBtn').setAttribute('aria-pressed',soundOn); $('soundBtn').innerHTML=(soundOn?'🔊':'🔇')+'<span class="full"> Sound</span>'; if(!soundOn) stopTalk(); else if(audioUnlocked && curSay) say(curSay, {slow:curSlow}); };
+
+/* ================= state ================= */
+const AGAIN_SAY = 'Can you say that again?';
+let mode='speak', curSay='', curSlow=false, stage='start', setKey='A', items=[], ii=0, qi=0;
+let fieldState=[], qTries=0, qErrs=0, qLog=[], asked=0, goodQs=0, notesMode='type', cueRight=null;
+const UA = navigator.userAgent;
+const IOS = /iP(hone|ad|od)/.test(UA) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+// On iPhone and iPad only Safari can use speech recognition. Chrome, Edge, Firefox and in-app browsers expose it but it never works.
+const IOS_NOT_SAFARI = IOS && /CriOS|FxiOS|EdgiOS|OPiOS|OPT\/|GSA\/|DuckDuckGo|Instagram|FBAN|FBAV|Line\/|Teams|WhatsApp/i.test(UA);
+const ANDROID = /Android/i.test(UA);
+const NATIVE_SR = (IOS_NOT_SAFARI || params.get('stt')==='local') ? null : (window.SpeechRecognition || window.webkitSpeechRecognition);
+let engine = NATIVE_SR ? 'native' : 'local';
+const SR = true;
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function jenny(html, speak, opts={}){ $('docText').innerHTML = html; const sp = speak===undefined ? __norm(String(html).replace(/<[^>]+>/g,'')) : speak; curSay=sp; curSlow=!!opts.slow; $('replayBtn').hidden=!!opts.noReplay; if(Array.isArray(sp)) sayParts(sp); else if(sp) say(sp, opts); }
+function setMode(m){
+  mode=m; ['speak','type','tiles'].forEach(k=>{ const t=$('tab'+k[0].toUpperCase()+k.slice(1)); t.setAttribute('aria-pressed',k===m); t.setAttribute('aria-selected',k===m); });
+  $('mSpeak').hidden = m!=='speak'; $('mType').hidden = m!=='type'; $('mTiles').hidden = m!=='tiles';
+  if(m==='type') setTimeout(()=>$('typeIn').focus({preventScroll:true}),50);
+}
+document.querySelectorAll('#modes .btn').forEach(b=>b.onclick=()=>{ stopListening(); setMode(b.dataset.mode); const pane=$(b.dataset.mode==='speak'?'mSpeak':b.dataset.mode==='type'?'mType':'mTiles'); setTimeout(()=>pane.scrollIntoView({block:'nearest',behavior:reduceMotion?'auto':'smooth'}),30); });
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; } return a; }
+const TILES = ['Can','you','spell','repeat','say','that','again','slowly,','please?','How','do','I','check','it','slow'];
+function buildTiles(){
+  $('tileAns').innerHTML=''; $('tilePool').innerHTML='';
+  shuffle(TILES).forEach(w=>{ const b=document.createElement('button'); b.className='tile'; b.textContent=w;
+    b.onclick=()=>{ (b.parentNode.id==='tilePool'?$('tileAns'):$('tilePool')).appendChild(b); }; $('tilePool').appendChild(b); });
+}
+$('tileClear').onclick=()=>{ [...$('tileAns').children].forEach(b=>$('tilePool').appendChild(b)); };
+$('tileOk').onclick=()=>{ const t=[...$('tileAns').children].map(b=>b.textContent).join(' ').replace(/ ,/g,','); if(t) ask(t); };
+$('typeOk').onclick=()=>{ const t=$('typeIn').value.trim(); if(t) ask(t); };
+$('typeIn').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('typeOk').click(); } });
+
+/* speech recognition (shared with At the doctor's) */
+/* speech recognition: tap to speak, tap to stop, then the answer is checked */
+let rec=null, listening=false, heardText='', phase='idle', stopTimer=null, userStopped=false, sttProg=0, localReady=null, lastSnap=null;
+function loadScript(src){ return new Promise((ok,no)=>{ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=()=>no(new Error(src)); document.head.appendChild(s); }); }
+function prepLocal(){
+  if(!localReady){
+    localReady = (window.ort?Promise.resolve():loadScript('../../vendor/ort/ort.wasm.min.js'))
+      .then(()=>window.LocalSTT?null:loadScript('../../vendor/stt/stt.js'))
+      .then(()=>LocalSTT.load(p=>{ sttProg=p; speakStatus(); }))
+      .then(()=>{ sttProg=1; speakStatus(); });
+    localReady.catch(()=>{ localReady=null; sttProg=0; speakStatus(true); });
+  }
+  return localReady;
+}
+function speakStatus(failed){
+  const pct = Math.round(sttProg*100);
+  const txt = failed ? 'Speech recognition could not load. Check your internet and tap 🎤 again, or tap ⌨️ Type.'
+    : (engine==='local' && sttProg<1 && localReady) ? `Getting speech recognition ready on this device… ${pct}% (first time only)` : '';
+  if(phase==='idle' && $('heard') && (txt || $('heard').dataset.status)){ $('heard').textContent = txt; $('heard').dataset.status = txt?'1':''; }
+  if(window.__micStatusUpdate) window.__micStatusUpdate();
+}
+function setMic(p, label){
+  phase=p; const m=$('micBtn'); m.classList.toggle('listening',p==='listening'); m.classList.toggle('checking',p==='checking');
+  m.disabled = p==='checking';
+  m.textContent = label || (p==='listening'?'● Listening… tap when you finish':p==='checking'?'⏳ Checking what you said…':'🎤 Tap to speak');
+  listening = p==='listening';
+  if(p!=='idle' && $('heard').dataset.status) hearMsg('');
+}
+function stopListening(){ // cancel without checking (used when switching mode or question)
+  clearTimeout(stopTimer); userStopped=false;
+  if(rec){ try{ rec.onend=null; rec.onresult=null; rec.abort(); }catch(e){} rec=null; }
+  clearSide();
+  if(window.LocalSTT && LocalSTT.isRecording()) LocalSTT.stopRecording();
+  if(phase!=='checking') setMic('idle');
+}
+function hearMsg(html){ $('heard').innerHTML=html; $('heard').dataset.status=''; }
+function micFixSteps(){
+  const app = /CriOS/.test(UA)?'Chrome':/EdgiOS/.test(UA)?'Edge':/FxiOS/.test(UA)?'Firefox':/OPiOS|OPT\//.test(UA)?'Opera':null;
+  if(IOS && app) return `<ol class="steps"><li>Open the iPhone <b>Settings</b> app.</li><li>Scroll down (or tap <b>Apps</b>) and tap <b>${app}</b>.</li><li>Turn <b>Microphone</b> on.</li><li>Come back here and tap <b>🔄 Ask again</b>.</li></ol><p class="small">If Microphone is already on, tap <b>🔄 Ask again</b> and choose <b>Allow</b> this time.</p>`;
+  if(IOS) return `<ol class="steps"><li>Tap <b>🔄 Ask again</b> below.</li><li>When Safari asks, tap <b>Allow</b>.</li></ol><p class="small">Still blocked? Tap <b>aA</b> (or ☰) next to the web address, then <b>Website Settings</b>, and set <b>Microphone</b> to <b>Ask</b> or <b>Allow</b>.</p>`;
+  if(ANDROID) return `<ol class="steps"><li>Tap the icon to the left of the web address.</li><li>Tap <b>Permissions</b> and switch <b>Microphone</b> on.</li><li>Tap <b>🔄 Ask again</b>.</li></ol>`;
+  return `<ol class="steps"><li>Click the icon to the left of the web address.</li><li>Set <b>Microphone</b> to <b>Allow</b>.</li><li>Click <b>🔄 Ask again</b>.</li></ol>`;
+}
+const askAgainBtn = '<div class="row"><button class="btn primary" onclick="location.reload()">🔄 Ask again</button></div>';
+function micBlockedMsg(){ hearMsg('<b>🎤 The microphone is switched off for this page.</b>'+micFixSteps()+askAgainBtn+'<p class="small">Or tap ⌨️ Type to answer for now.</p>'); }
+function startListening(){
+  if(phase!=='idle') return;
+  stopTalk(); cancelAutoNext(); unlockAudio();
+  heardText=''; hearMsg('');
+  if(engine==='native') startNative(); else startLocal();
+}
+function startNative(){
+  userStopped=false;
+  try{ rec = new NATIVE_SR(); }catch(e){ engine='local'; return startLocal(); }
+  rec.lang='en-GB'; rec.interimResults=true; rec.maxAlternatives=1; rec.continuous=true;
+  rec.onresult = e => {
+    let t='';
+    if(ANDROID){ for(const r of e.results){ const x=r[0].transcript; if(x.length>t.length) t=x; } }   // Android repeats the whole phrase in each result
+    else { for(const r of e.results) t += r[0].transcript; }
+    heardText=t.trim(); if(heardText) hearMsg('I\'m hearing: <b></b>'), $('heard').querySelector('b').textContent='"'+heardText+'"';
+  };
+  rec.onerror = e => {
+    if(e.error==='aborted') return;
+    if(e.error==='no-speech'){ hearMsg("I didn't hear anything. Tap 🎤 and speak a bit louder."); return; }
+    if(e.error==='audio-capture'){ hearMsg('No microphone was found. Check your microphone or headset.'); return; }
+    if(e.error==='not-allowed' && !micOK){ micBlockedMsg(); return; }
+    // the browser's own recognition isn't available (blocked, Dictation off, offline): use on-device recognition instead
+    engine='local'; rec=null; prepLocal(); setMic('idle');
+    hearMsg('Switching to on-device listening. Tap 🎤 and say it again.');
+  };
+  rec.onend = () => { clearTimeout(stopTimer); rec=null; setMic('idle');
+    if(heardText) submitSpoken(heardText);
+    else if(userStopped) hearMsg("I didn't hear anything. Tap 🎤 and try again."); };
+  try{ rec.start(); setMic('listening'); stopTimer=setTimeout(()=>{ userStopped=true; try{ rec&&rec.stop(); }catch(e){} }, 25000); }
+  catch(e){ engine='local'; startLocal(); }
+}
+let needFresh=false, micCtx=null, levelTimer=null, sideTimers=[], checkId=0;
+function getMicCtx(fresh){ // made inside the tap, so iPhones let it run
+  const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return null;
+  if(fresh && micCtx){ try{ micCtx.close(); }catch(e){} micCtx=null; }
+  if(!micCtx || micCtx.state==='closed'){ try{ micCtx=new AC(); }catch(e){ micCtx=null; } }
+  try{ micCtx && micCtx.resume(); }catch(e){}
+  return micCtx;
+}
+function clearSide(){ clearInterval(levelTimer); levelTimer=null; sideTimers.forEach(clearTimeout); sideTimers=[]; $('micLevel').hidden=true; $('micLevel').firstChild.style.width='0'; }
+async function startLocal(fresh){
+  if(!window.isSecureContext || !navigator.mediaDevices){ hearMsg('Speaking needs a secure (https) page. Please type your answer.'); return; }
+  fresh = fresh || needFresh; needFresh=false;
+  const ctx=getMicCtx(fresh);
+  prepLocal();
+  setMic('checking','🎤 Starting the microphone…');
+  let stream;
+  try{ stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true, noiseSuppression:true, autoGainControl:true}}); micOK=true; }
+  catch(e){ setMic('idle'); micOK=false; if(e && e.name==='NotFoundError') hearMsg('No microphone was found. Check your microphone or headset.'); else micBlockedMsg(); return; }
+  try{ await (window.LocalSTT ? Promise.resolve() : waitFor(()=>window.LocalSTT, 15000)); await LocalSTT.startRecording(stream, ctx); }
+  catch(e){ stream.getTracks().forEach(t=>t.stop()); setMic('idle'); hearMsg('Speech recognition could not start. Check your internet and tap 🎤 again.'); return; }
+  setMic('listening'); stopTimer=setTimeout(()=>stopLocal(), 20000);
+  // show the sound level so the learner can see the microphone is working
+  $('micLevel').hidden=false;
+  levelTimer=setInterval(()=>{ $('micLevel').firstChild.style.width=Math.min(100, Math.round(LocalSTT.liveLevel()*900))+'%'; }, 120);
+  // no sound arriving at all: wake the audio up, then start again with a new connection
+  sideTimers.push(setTimeout(()=>{ if(phase==='listening' && !LocalSTT.recorded()) try{ ctx && ctx.resume(); }catch(e){} }, 1200));
+  sideTimers.push(setTimeout(async ()=>{
+    if(phase!=='listening' || LocalSTT.recorded()) return;
+    clearTimeout(stopTimer); clearSide(); await LocalSTT.stopRecording(); setMic('idle');
+    needFresh=true;
+    if(!fresh) hearMsg("The microphone didn't start properly. Tap 🎤 and try again.");
+    else hearMsg('The microphone is not sending any sound. Close other apps that use the microphone, then tap 🎤 again. Or tap ⌨️ Type.');
+  }, 3000));
+}
+function waitFor(fn, ms){ return new Promise((ok,no)=>{ const t0=Date.now(); (function chk(){ if(fn()) return ok(); if(Date.now()-t0>ms) return no(new Error('timeout')); setTimeout(chk,100); })(); }); }
+function withTimeout(p, ms){ return Promise.race([p, new Promise((_,no)=>setTimeout(()=>no(new Error('timeout')), ms))]); }
+async function stopLocal(){
+  if(phase!=='listening') return;
+  clearTimeout(stopTimer); clearSide();
+  setMic('checking');
+  const id=++checkId;
+  const audio = await LocalSTT.stopRecording();
+  window.__lastAudio = {secs: +(audio.length/16000).toFixed(2), level: +LocalSTT.level(audio).toFixed(4)};
+  if(audio.length < 16000*0.4 || LocalSTT.level(audio) < 0.003){ setMic('idle'); hearMsg("I didn't hear anything. Tap 🎤 and speak a bit louder."); return; }
+  try{
+    if(sttProg<1) setMic('checking','⏳ Getting ready… '+Math.round(sttProg*100)+'%');
+    await withTimeout(prepLocal(), 120000); setMic('checking');
+    const text = await withTimeout(LocalSTT.transcribe(audio), 45000);
+    if(id!==checkId) return;
+    setMic('idle');
+    if(text) submitSpoken(text); else hearMsg("Sorry, I didn't catch that. Tap 🎤 and try again.");
+  }catch(e){ if(id!==checkId) return; setMic('idle'); hearMsg(e && e.message==='timeout' ? 'That took too long. Tap 🎤 and say it again, or tap ⌨️ Type.' : 'Speech recognition could not load. Check your internet and tap 🎤 again, or tap ⌨️ Type.'); }
+}
+$('micBtn').onclick=()=>{
+  if(phase==='listening'){ userStopped=true;
+    if(engine==='native'){ const r=rec; try{ r&&r.stop(); }catch(e){}
+      setMic('checking');
+      setTimeout(()=>{ if(rec===r && r && r.onend){ const end=r.onend; try{ r.onend=null; r.onresult=null; r.abort(); }catch(e){} end(); } }, 1500); }
+    else stopLocal(); }
+  else if(phase==='idle') startListening();
+};
+
+function submitSpoken(text){
+  if(!norm(text)){ hearMsg("Sorry, I didn't catch that. Tap 🎤 and try again."); return; }
+  lastSnap={ii, qTries, qErrs, asked, goodQs, logLen:qLog.length};
+  hearMsg(''); ask(text, true);
+}
+function undoSpoken(){ // "That's not what I said": the attempt doesn't count
+  if(!lastSnap || lastSnap.ii!==ii) return;
+  ({qTries, qErrs, asked, goodQs} = lastSnap); qLog.length = lastSnap.logLen; lastSnap=null;
+  $('fb').hidden=true; $('fbBtns').hidden=true; renderChecklist();
+  jenny(AGAIN_SAY); hearMsg('No problem. Tap 🎤 and say it again.');
+}
+
+/* ================= the exam checklist ================= */
+function renderChecklist(){
+  const notesDone = items.length ? items.filter((_,i)=>fieldState[i] && fieldState[i].every(f=>f.status)).length : 0;
+  const c = (ok, ic, txt) => `<span class="chk ${ok?'ok':''}">${ok?'✓':ic} ${txt}</span>`;
+  $('checklist').innerHTML = c(asked>0,'🙋',`Repeat<span class="lg"> or </span><span class="sh">/</span>spell`) + c(goodQs>=2,'❓',`<span class="lg">Questions </span><b>${Math.min(goodQs,2)}/2</b>`) + c(notesDone>=items.length && items.length,'📝',`<span class="lg">Notes </span><b>${notesDone}/${items.length||3}</b>`);
+}
+function renderDots(){ const d=$('dots'); d.innerHTML=''; items.forEach((_,i)=>{ const s=document.createElement('span'); const st=fieldState[i]||[];
+  s.className = st.length && st.every(f=>f.status) ? (st.every(f=>f.status==='first')?'first':st.some(f=>f.status==='shown'||f.status==='self-wrong')?'shown':'fixed') : (i===ii && stage==='item' ? 'on' : ''); d.appendChild(s); }); }
+
+/* ================= asking Jenny ================= */
+const ROLE = {q:{ic:'❓',name:'question word'}, who:{ic:'👤',name:'who'}, act:{ic:'⚡',name:'action'}, what:{ic:'📦',name:'what'}, x:{ic:'➕',name:'extra'}};
+function chunkRow(cs, n, lvl, ok){
+  return '<div class="chunks" aria-label="The question in parts">'+cs.map((c,i)=>{
+    const has = c.re.test(n);
+    const show = ok || has || c.opt || lvl>=3 || (lvl===2 && c.r!=='q');
+    const txt = show ? c.t : (lvl===2 && c.hint ? c.hint : '?');
+    const st = ok||has ? 'y' : c.opt ? 'o' : 'n';
+    const sp = show ? c.t.replace(/[,?]/g,'') : (c.ask||'');
+    return `<button class="ch ${c.r} ${st}" data-i="${i}" data-say="${esc(sp)}" aria-label="${ROLE[c.r].name}: ${esc(show?c.t:'missing')}"><span class="ci">${ROLE[c.r].ic}</span><span class="ct">${esc(txt)}</span>${st==='y'?'<span class="cm">✓</span>':''}</button>`;
+  }).join('')+'</div>';
+}
+function backChain(cs, model){ // "please? that, please? spell that, please? Can you spell that, please?"
+  const steps=[]; for(let i=cs.length-1;i>=2;i--) steps.push({from:i, text:cs.slice(i).map(c=>c.t).join(' ').replace(/[,?]$/,'')});
+  steps.push({from:0, text:model.replace(/[?]$/,'')});
+  return steps.slice(-3);
+}
+let bcTimers=[];
+function backChainShow(cs, model, already){
+  bcTimers.forEach(clearTimeout); bcTimers=[];
+  const steps=backChain(cs, model), row=document.querySelector('#fb .chunks'); if(!row) return;
+  const lit = from => row.querySelectorAll('.ch').forEach(b=>b.classList.toggle('lit', +b.dataset.i>=from));
+  if(!already) say('Listen, and say it with me. '+steps.map(s=>s.text).join('. ')+'. Now you ask me.');
+  let t = 2200;
+  steps.forEach(s=>{ bcTimers.push(setTimeout(()=>lit(s.from), t)); t += 700 + s.text.split(' ').length*430; });
+  bcTimers.push(setTimeout(()=>lit(99), t+600));
+}
+function fbButtons(list){ const b=$('fbBtns'); b.innerHTML=''; const t0=performance.now(); list.forEach(([label,cls,fn])=>{ const x=document.createElement('button'); x.className='btn '+(cls||''); x.innerHTML=label; x.onclick=()=>{ if(performance.now()-t0>700) fn(); }; b.appendChild(x); }); b.hidden=!list.length; }
+const hearBtn = t => `<button class="hear" data-say="${esc(t)}" aria-label="Listen">🔊</button>`;
+function ask(text, spoken){
+  if(stage!=='item') return;
+  if(phase==='listening') stopListening(); unlockAudio();
+  const r = checkQ(text);
+  if(r.v==='none') return;
+  const it = items[ii], fb=$('fb');
+  const said = `<p class="said">🗣️ <span class="more">You asked: </span><i>"${esc(text)}"</i></p>`;
+  const undo = spoken ? '<button class="undo" onclick="window.__undo()">🎤 That\'s not what I said</button>' : '';
+  $('typeIn').value=''; buildTiles();
+  fb.hidden=false;
+  if(r.v==='ok'){
+    const status = qErrs===0 && qTries===0 ? 'first' : 'fixed';
+    qLog.push({text, ok:true, formal:r.formal, status, intent:r.intent});
+    asked++; if(r.formal) goodQs++;
+    qTries=0; qErrs=0;
+    window.simStats && simStats.once('asked-jenny');
+    if(r.formal){
+      const target = /^((sorry|excuse me|pardon) )*how\b/.test(r.n) ? 'how' : r.intent;
+      const cs = qChunks(target);
+      fb.className='ok'; fb.innerHTML = `<div class="v">✓ Good question</div>${said}${chunkRow(cs, r.n, 3, true)}`;
+    } else {
+      fb.className='ok'; fb.innerHTML = `<div class="v">✓ That works</div>${said}<p class="tip">${hearBtn('In the exam, also ask a full question. Can you repeat that, please?')} In the exam, also ask a full question: <b>Can you repeat that, please?</b></p>`;
+    }
+    fbButtons([]);
+    perform(r.intent);
+  } else {
+    qTries++;
+    if(r.v==='err'){ qErrs++; }
+    const target = r.target || (r.intent || 'repeat');
+    const T = QTARGET[target], cs = qChunks(target);
+    if(qTries>=4){
+      qLog.push({text, ok:false, status:'helped', tip: r.tip || ('Try: '+T.model), intent:r.intent||'repeat'});
+      asked++; qTries=0; qErrs=0;
+      fb.className='nudge'; fb.innerHTML = `<div class="v">🙂 Let's keep going</div>${said}${chunkRow(cs, '', 3, true)}<p class="tip">${hearBtn(T.model)} Practise this question: <b>${esc(T.model)}</b></p>`;
+      fbButtons([]);
+      perform(r.intent||'repeat', "That's OK. You can ask, "+T.model+" Listen.");
+      renderChecklist(); return;
+    }
+    const lvl = Math.min(3, qTries);
+    let tip, drSay, drShow;
+    if(lvl===1){
+      const words = r.n.split(' '); const echo = r.echo && words.length<=6 ? r.n.charAt(0).toUpperCase()+r.n.slice(1)+'? ' : '';
+      drSay = r.clue || r.tip || QUNKNOWN; tip = r.tip || drSay; drShow = (r.v==='err' ? echo : '') + drSay;
+    } else if(lvl===2){
+      tip = r.tip || ('Try: '+T.model);
+      drSay = r.v==='unknown' ? QUNKNOWN+' Look at the parts.' : (r.v==='err' && r.recast ? r.recast+' ' : '') + 'Look at the parts. ' + (r.clue || 'Start with Can.');
+    } else {
+      tip = 'Listen, then ask: '+T.model;
+      drSay = 'Listen, and say it with me. '+backChain(cs, T.model).map(s=>s.text).join('. ')+'. Now you ask me.';
+    }
+    qLog.push({text, ok:false, status:'', tip: r.tip || ('Try: '+T.model), err:r.v==='err', intent:r.intent});
+    const head = r.v==='err' ? "🔧 Let's fix one thing" : r.v==='unknown' ? '🤔 Jenny didn\'t understand' : '🙂 Nearly there';
+    let html = `<div class="v">${head}</div>${said}${chunkRow(cs, r.n, lvl, false)}${tip!==drSay ? `<p class="tip more">${hearBtn(tip)} ${esc(tip)}</p>` : ''}${undo}`;
+    fb.className = r.v==='err' ? 'err' : 'nudge'; fb.innerHTML = html;
+    const btns=[];
+    if(lvl>=3) btns.push(['🔁 Listen in steps','',()=>backChainShow(cs, T.model)]);
+    if(lvl===2 && mode!=='tiles') btns.push(['🧩 Word tiles','',()=>{ stopListening(); setMode('tiles'); $('mTiles').scrollIntoView({block:'nearest'}); }]);
+    fbButtons(btns);
+    tilt();
+    jenny(esc(drShow || drSay), drSay);
+    if(lvl>=3) backChainShow(cs, T.model, true);
+  }
+  renderChecklist();
+  fb.scrollIntoView({block:'nearest', behavior: reduceMotion?'auto':'smooth'});
+}
+/* Jenny does what the learner asked */
+function perform(intent, lead){
+  const it = items[ii];
+  const L = lead ? [[lead,false]] : [];
+  const ack = t => lead ? [] : [[t,false]];
+  if(intent==='spell'){
+    jenny('🔤 <i>Jenny is spelling it. Listen and write.</i>', [...L, ...ack('Of course.'), [it.spell,true]], {noReplay:true}); }
+  else if(intent==='slow'){
+    jenny('🐢 <i>Jenny is saying it slowly. Listen and write.</i>', [...L, ...ack('Of course.'), [it.slow,true]], {noReplay:true}); }
+  else if(intent==='check'){
+    if(notesMode==='paper'){ jenny('✔️ <i>Listen and check your paper.</i>', [...L, ['Of course. Listen and check.',false], [it.slow,true]], {noReplay:true}); return; }
+    const res = it.fields.map((f,k)=>{ const st=fieldState[ii][k]; if(st.status) return 'ok'; const v=$('note'+k).value.trim(); if(!v) return 'empty'; return checkNote(f, v).v; });
+    if(res.every(x=>x==='empty')){ jenny("<i>Write it in your notepad first. Then ask me to check it.</i>", [...L, ['Write it in your notepad first. Then ask me to check it.',false]]); return; }
+    if(res.every(x=>x==='ok')){ it.fields.forEach((f,k)=>{ if(!fieldState[ii][k].status) noteCheck(k, true); }); jenny("<i>Yes, that's right.</i>", [...L, ["Yes, that's right.",false]]); return; }
+    jenny('🐢 <i>Not quite. Listen again, slowly.</i>', [...L, ['Not quite. Listen again.',false], [it.slow,true]], {noReplay:true});
+  }
+  else { jenny('🎧 <i>Listen and write.</i>', [...L, ...ack('Sure.'), [it.say,false]], {noReplay:true}); }
+}
+
+/* ================= the notepad ================= */
+function renderNotes(){
+  const it = items[ii], box=$('noteFields');
+  if(notesMode==='paper'){
+    box.innerHTML = it.fields.map((f,k)=>`<div class="nf paper" id="nf${k}"><div class="nl">${f.icon} ${esc(f.label)}</div><div class="np">📄 Write it on your paper.</div><div class="nfb" id="nfb${k}"></div></div>`).join('')
+      + `<div class="row" id="paperRow"><button class="btn go" id="paperDone">✓ I've written it</button></div>`;
+    $('paperDone').onclick=paperReveal; return;
+  }
+  box.innerHTML = it.fields.map((f,k)=>`<div class="nf" id="nf${k}"><label class="nl" for="note${k}">${f.icon} ${esc(f.label)}</label>
+     <div class="nrow"><input id="note${k}" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" inputmode="${f.kind==='phone'?'tel':f.kind==='email'?'email':f.kind==='web'?'url':'text'}"><button class="btn go" data-k="${k}">✓ Check</button></div>
+     <div class="nfb" id="nfb${k}" aria-live="polite"></div></div>`).join('');
+  box.querySelectorAll('button[data-k]').forEach(b=>b.onclick=()=>noteCheck(+b.dataset.k));
+  box.querySelectorAll('input').forEach((inp,k)=>inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); noteCheck(k); } }));
+}
+function maskHtml(want, have){ return '<span class="mask">'+[...want].map((ch,i)=>`<span class="${have[i]?'mh':'mq'}">${have[i]?esc(ch):'?'}</span>`).join('')+'</span>'; }
+function noteCheck(k, viaJenny){
+  const it=items[ii], f=it.fields[k], st=fieldState[ii][k], inp=$('note'+k), out=$('nfb'+k);
+  if(st.status) return;
+  const r = checkNote(f, inp.value);
+  if(r.v==='none'){ out.innerHTML='<span class="small">Write what Jenny said first.</span>'; inp.focus(); return; }
+  st.text = inp.value.trim();
+  if(r.v==='ok'){
+    st.status = st.tries===0 ? 'first' : st.shown ? 'shown' : 'fixed';
+    inp.readOnly=true; $('nf'+k).classList.add('done'); $('nf'+k).querySelector('button').hidden=true;
+    out.innerHTML = `<span class="okmsg">✓ Right${r.extra?'. '+esc(r.extra):''}</span>`;
+    if(!viaJenny) say("That's right.");
+    itemMaybeDone(); return;
+  }
+  st.tries++;
+  const kindWord = NOTE_KIND[f.kind];
+  const askFor = (f.kind==='phone') ? 'say it again slowly' : 'spell it';
+  const lvl = Math.min(3, st.tries);
+  let html='', sp='';
+  if(r.v==='close'){ html = `🔧 ${esc(r.tip)}`; sp = r.tip; }
+  else if(lvl===1){ html = `🙂 Not quite. Some ${kindWord} are ${r.missing?'missing':r.extraChars?'extra':'wrong'}. <b>Ask Jenny to ${askFor}.</b>`; sp = `Not quite. Ask me to ${askFor}.`; }
+  else if(lvl===2){ const disp = f.kind==='name' ? f.ans.replace(/^(mr|mrs|ms|miss|mister|mx|dr)\.? /i,'') : f.kind==='person' ? f.ans : r.want; html = `🙂 Nearly. You have the parts with a tick. Fix the <b>?</b> parts. Ask Jenny again.${maskHtml(disp.length===r.want.length?disp:r.want, r.have)}`; sp = 'Nearly. Look at the question marks, and ask me again.'; }
+  else { st.shown=true; html = `🙂 That's OK. Here it is. Copy it into your notepad:<div class="model">${esc(f.ans)}</div>`; sp = "That's OK. Here it is. Copy it into your notepad."; }
+  out.innerHTML = html;
+  jenny(esc(sp), sp);
+  setTimeout(()=>{ try{ inp.focus({preventScroll:true}); }catch(e){} }, 30);
+}
+function paperReveal(){
+  const it=items[ii];
+  it.fields.forEach((f,k)=>{ $('nfb'+k).innerHTML = `Check your paper:<div class="model">${esc(f.ans)}</div>`; });
+  $('paperRow').innerHTML = `<button class="btn go" id="pRight">✓ Mine is right</button><button class="btn" id="pWrong">✗ Mine was wrong</button>`;
+  jenny('<i>Check your paper. Is it the same?</i>', 'Check your paper. Is it the same?');
+  $('pRight').onclick=()=>{ it.fields.forEach((f,k)=>{ fieldState[ii][k].status='first'; fieldState[ii][k].text='(on paper)'; }); $('paperRow').innerHTML=''; say("Great."); itemMaybeDone(); };
+  $('pWrong').onclick=()=>{ it.fields.forEach((f,k)=>{ fieldState[ii][k].status='self-wrong'; fieldState[ii][k].text='(on paper)'; }); $('paperRow').innerHTML='';
+    jenny('<i>No problem. Fix it on your paper. Next time, ask me to spell it.</i>', 'No problem. Fix it on your paper. Next time, ask me to spell it, or say it again slowly.'); itemMaybeDone(true); };
+}
+function itemMaybeDone(quiet){
+  const st=fieldState[ii]; if(!st.every(f=>f.status)) return;
+  const it=items[ii];
+  custDisplayLines.push(it.fields.map(f=>f.label+': '+f.ans).join('  ·  ')); redrawCust(); nod(); lookAtTill();
+  $('askCard').hidden=true; $('fb').hidden=true; bcTimers.forEach(clearTimeout); stopListening();
+  $('heardBubble').innerHTML = `<p class="small" style="margin:6px 0 0">Jenny said: <b>${esc(it.show)}</b> ${hearBtn(it.say)}</p>`;
+  window.simStats && simStats.once('item'+(ii+1)+'-done');
+  renderDots(); renderChecklist();
+  const last = ii>=items.length-1;
+  fbButtons([[last?'Finish ▶':'Next information ▶','primary',()=>{ last?finish():showItem(ii+1); }]]);
+  $('fbBtns').scrollIntoView({block:'nearest'});
+}
+
+/* ================= the flow ================= */
+function startTask(key){
+  setKey = key; items = SETS[key]; ii=0; qTries=0; qErrs=0; qLog=[]; asked=0; goodQs=0; cueRight=null;
+  fieldState = items.map(it=>it.fields.map(()=>({status:'', tries:0, text:'', shown:false})));
+  custDisplayLines.length=0; redrawCust();
+  try{ localStorage.setItem('shoeSet', key); }catch(e){}
+  stage='cue'; renderDots(); renderChecklist();
+  $('qNum').textContent='Before you start'; $('askCard').hidden=true; $('noteCard').hidden=true; $('fb').hidden=true; $('fbBtns').hidden=true; $('heardBubble').innerHTML='';
+  goCam(0);
+  jenny(esc(OPENING), OPENING);
+  const c=$('cueArea'); c.hidden=false;
+  c.innerHTML = `<p class="cueq">${hearBtn(CUE_Q.say)} ${esc(CUE_Q.ask)}</p>` + CUE_Q.opts.map((o,i)=>`<button class="btn opt" data-o="${i}">${esc(o.t)}</button>`).join('');
+  c.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>cueAnswer(+b.dataset.o));
+  // Jenny asks the cue question once she has finished the opening
+  waitQuiet(()=>{ if(stage==='cue' && cueRight===null){ say(CUE_Q.say); $('cueArea').scrollIntoView({block:'nearest',behavior:reduceMotion?'auto':'smooth'}); } }, 600);
+}
+function waitQuiet(fn, extra=300){ const t0=performance.now(); const w=setInterval(()=>{ if(performance.now()-t0>800 && !talking()){ clearInterval(w); setTimeout(fn, extra); } }, 150); }
+function cueAnswer(i){
+  unlockAudio();
+  const o = CUE_Q.opts[i]; cueRight = !!o.ok;
+  $('cueArea').querySelectorAll('[data-o]').forEach((b,k)=>{ b.disabled=true; if(CUE_Q.opts[k].ok) b.classList.add('right'); else if(k===i) b.classList.add('wrong'); });
+  window.simStats && simStats.once('cue-'+(o.ok?'right':'wrong'));
+  jenny(esc(o.ok?CUE_Q.right:CUE_Q.wrong));
+  fbButtons([['📝 Start listening ▶','primary',()=>showItem(0)]]);
+}
+function showItem(i){
+  stopListening(); bcTimers.forEach(clearTimeout); lastSnap=null;
+  stage='item'; ii=i; qTries=0; qErrs=0;
+  $('cueArea').hidden=true; $('fb').hidden=true; $('fbBtns').hidden=true; $('heardBubble').innerHTML='';
+  $('qNum').textContent=`Information ${i+1} of ${items.length}`;
+  $('noteCard').hidden=false; $('askCard').hidden=false; $('phrases').hidden=true; $('phrBtn').setAttribute('aria-expanded','false');
+  renderNotes(); renderDots(); renderChecklist(); buildTiles(); hearMsg(''); $('typeIn').value='';
+  if(camera.position.distanceTo(CAMS[0].pos)>0.8) goCam(0);
+  jenny('🎧 <i>Listen to Jenny. Write what she says.</i>', items[i].say, {noReplay:true});
+  $('talkScroll').scrollTop=0;
+}
+function finish(){
+  stopListening(); stage='close'; renderDots();
+  $('qNum').textContent='Finished'; $('askCard').hidden=true; $('noteCard').hidden=true; $('fb').hidden=true; $('heardBubble').innerHTML='';
+  jenny(esc(CLOSE), CLOSE); nod();
+  window.simStats && simStats.once('task-complete');
+  fbButtons([['📋 See my results','primary',showSummary]]);
+}
+const TAGS = {first:'<span class="tag first">Right first time</span>', fixed:'<span class="tag fixed">Fixed it</span>', shown:'<span class="tag shown">Answer shown</span>', 'self-wrong':'<span class="tag shown">Fix it on paper</span>', helped:'<span class="tag helped">Asked with help</span>'};
+function showSummary(){
+  const all = fieldState.flat(), right = all.filter(f=>f.status==='first'||f.status==='fixed').length;
+  $('sumScore').textContent = `${right} / ${all.length}`;
+  const rows = items.map((it,i)=>it.fields.map((f,k)=>{ const st=fieldState[i][k]; return `<tr><td>${f.icon} ${esc(f.label)}</td><td>${esc(st.text||'–')}</td><td><b>${esc(f.ans)}</b></td><td>${TAGS[st.status]||''}</td></tr>`; }).join('')).join('');
+  const qs = qLog.filter(q=>q.ok||q.status==='helped');
+  const qRows = qLog.map(q=>`<li>${q.ok?(q.formal?'✓':'👍'):q.status==='helped'?'🙂':'✗'} <i>"${esc(q.text)}"</i>${!q.ok && q.tip?` <span class="small">${esc(q.tip)}</span>`:''}${q.ok && !q.formal?' <span class="small">Works, but practise a full question too.</span>':''}</li>`).join('');
+  const ck = (ok, txt, need) => `<li class="${ok?'ckok':'ckno'}">${ok?'✓':'✗'} ${txt}${ok?'':` <span class="small">${need}</span>`}</li>`;
+  $('sumBody').innerHTML =
+    `<table class="sum"><tr><th>Information</th><th>You wrote</th><th>Correct</th><th></th></tr>${rows}</table>` +
+    `<h3>Exam checklist</h3><ul class="cklist">${ck(asked>0,'You asked Jenny to repeat or spell','In the exam you must do this.')}${ck(goodQs>=2,`You asked ${goodQs} correct question${goodQs===1?'':'s'}`,'The exam needs at least 2 correct questions.')}${ck(right===all.length,'You wrote all the information correctly','Ask Jenny to spell it or say it slowly.')}</ul>` +
+    `<h3>Your questions</h3>${qRows?`<ul class="qlist">${qRows}</ul>`:'<p class="small">You didn\'t ask Jenny anything this time. Next time, ask her to spell or repeat.</p>'}` +
+    `<p class="small">Check your notes with a partner. Then try a new set.</p>`;
+  const next = {A:'B',B:'C',C:'A'}[setKey];
+  $('againBtn').textContent = `↺ Try a new set (${next})`;
+  $('againBtn').onclick=()=>{ closeModals(); startTask(next); };
+  openModal('sumModal');
+}
+$('printBtn').onclick=()=>print();
+$('replayBtn').onclick=()=>{ unlockAudio(); if(Array.isArray(curSay)) sayParts(curSay); else say(curSay,{slow:curSlow}); };
+$('phrBtn').onclick=()=>{ const p=$('phrases'); p.hidden=!p.hidden; $('phrBtn').setAttribute('aria-expanded',!p.hidden); if(!p.hidden) p.scrollIntoView({block:'nearest',behavior:reduceMotion?'auto':'smooth'}); };
+/* tap anything with data-say to hear it */
+document.addEventListener('click', e=>{ const el=e.target.closest('[data-say]'); if(!el) return; e.preventDefault(); unlockAudio();
+  el.classList.add('saying'); setTimeout(()=>el.classList.remove('saying'), 900); say(el.dataset.say); });
+function setSimple(on){ document.body.classList.toggle('simple', on); const b=$('simpleBtn'); if(b){ b.setAttribute('aria-pressed', on); b.textContent = on ? '🔤 More text' : '🔤 Less text'; } try{ localStorage.setItem('esolSimple', on?'1':''); }catch(e){} }
+$('simpleBtn').onclick=()=>setSimple(!document.body.classList.contains('simple'));
+try{ if(localStorage.getItem('esolSimple')) setSimple(true); }catch(e){}
+
+/* ================= modals, view, labels ================= */
+const modals=[...document.querySelectorAll('.modal')];
+function openModal(id){ modals.forEach(m=>m.classList.remove('open')); $(id).classList.add('open'); const x=$(id).querySelector('.x'); if(x) x.focus(); }
+function closeModals(){ modals.forEach(m=>m.classList.remove('open')); }
+modals.forEach(m=>{ m.addEventListener('click',e=>{ if(e.target===m) closeModals(); }); const x=m.querySelector('.x'); if(x) x.onclick=closeModals; });
+$('learnBtn').onclick=()=>openModal('learnModal');
+$('moreBtn').onclick=()=>{ $('moreLbl').textContent = labelsOn?'🏷 Hide the words':'🏷 Show words for things in the shop'; openModal('moreModal'); };
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{ closeModals(); $(b.dataset.go).click(); });
+$('helpBtn').onclick=()=>openModal('helpModal');
+$('viewBtn').onclick=()=>openModal('viewModal');
+document.querySelectorAll('[data-cam]').forEach(b=>b.onclick=()=>{ goCam(+b.dataset.cam); closeModals(); });
+$('lblBtn').onclick=()=>{ labelsOn=!labelsOn; $('lblBtn').setAttribute('aria-pressed',labelsOn); };
+if(EDITION==='teacher' && $('teachBtn')){ $('teachBtn').hidden=false; $('moreTeach').hidden=false; $('teachBtn').onclick=()=>openModal('teachModal'); $('edBadge').hidden=false; }
+addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ closeModals(); return; }
+  if(document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if(['1','2','3','4'].includes(e.key)) goCam(+e.key-1);
+});
+
+/* ================= start ================= */
+(async()=>{ try{ const p = await navigator.permissions.query({name:'microphone'});
+  const show=()=>{ const el=$('preMic'); if(p.state==='denied'){ el.hidden=false; el.className='card'; el.style.background='var(--nudgebg)'; el.innerHTML='<b>🎤 The microphone is switched off for this page.</b> Fix it first so you can speak:'+micFixSteps()+askAgainBtn; } else el.hidden=true; };
+  show(); p.onchange=show; }catch(e){} })();
+const INTRO = "Today you are a customer at Brookes, a department store. You bought some boots, but they are too small. You want a size 6. Jenny, the cashier, will give you three pieces of information. Listen, and write them down. You can ask Jenny to repeat, to say it slowly, or to spell it. In the exam, you must ask the assessor to repeat or spell something, and you must ask questions. You can speak, type, or use word tiles. When you are ready, tap Begin.";
+let micOK = false;
+function micMsg(cls, html, retry){ const m=$('micStatus'); m.className='card '+cls; m.innerHTML=html + (retry?'<div class="row"><button class="btn" id="micRetry">🎤 Try the microphone again</button></div>':''); const r=$('micRetry'); if(r) r.onclick=()=>checkMic(); }
+async function checkMic(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ micOK=false; micMsg('bad','🎤 This browser can\'t use the microphone here. You can type or use word tiles instead.'); return false; }
+  micMsg('', '🎤 Asking to use the microphone… tap <b>Allow</b>.');
+  try{
+    const st = await navigator.mediaDevices.getUserMedia({audio:true}); st.getTracks().forEach(t=>t.stop());
+    micOK=true;
+    if(engine==='local'){ prepLocal(); window.__micStatusUpdate(); }
+    else micMsg('ok','✓ The microphone is ready. You can speak to Jenny.'+(IOS?' If Safari asks to use <b>speech recognition</b>, tap <b>Allow</b>.':''));
+    return true;
+  }catch(e){
+    micOK=false;
+    if(e && e.name==='NotFoundError') micMsg('bad','🎤 No microphone was found. Plug in a headset and tap the button below.', true);
+    else micMsg('bad','<b>🎤 The microphone is switched off for this page.</b> To speak to Jenny:'+micFixSteps()+askAgainBtn);
+    return false;
+  }
+}
+window.__micStatusUpdate = () => {
+  if(engine!=='local' || !micOK || !$('micStatus') || $('startOv').hidden) return;
+  if(sttProg>=1) micMsg('ok','✓ The microphone is ready. You can speak to Jenny.');
+  else micMsg('ok','✓ The microphone is ready. Getting speech recognition ready on this device… <b>'+Math.round(sttProg*100)+'%</b><br><span class="small">First time only. You can begin now.</span>');
+};
+window.__undo = undoSpoken;
+function setNotesMode(m){ notesMode=m; document.querySelectorAll('[data-notes]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.notes===m)); try{ localStorage.setItem('shoeNotes', m); }catch(e){} }
+document.querySelectorAll('[data-notes]').forEach(b=>b.onclick=()=>setNotesMode(b.dataset.notes));
+try{ const m=localStorage.getItem('shoeNotes'); setNotesMode(m==='paper'?'paper':'type'); }catch(e){ setNotesMode('type'); }
+$('startBtn').onclick=async()=>{
+  unlockAudio();
+  $('start1').hidden=true; $('start2').hidden=false;
+  await checkMic();
+  say(INTRO);
+};
+$('introAgain').onclick=()=>say(INTRO);
+function firstSet(){ let last=''; try{ last=localStorage.getItem('shoeSet')||''; }catch(e){} const order=['A','B','C']; return last ? order[(order.indexOf(last)+1)%3] : order[Math.random()*3|0]; }
+$('beginBtn').onclick=()=>{ $('startOv').hidden=true; setMode('speak'); startTask(params.get('set')||firstSet()); if(!micOK) micBlockedMsg(); };
+setMode('speak');
+window.__speech = {IOS, IOS_NOT_SAFARI, get engine(){ return engine; }, get phase(){ return phase; }, get prog(){ return sttProg; }, get stt(){ return window.LocalSTT && LocalSTT.state; }};
+layout(); goCam(0,true);
+// test hooks: ?set=A|B|C, ?item=<n> jumps to an item, ?ask=<text>, ?note=<text>, ?summary=1, ?paper=1, ?cam=<n>, ?nostart=1
+if(params.has('item')||params.has('summary')||params.has('cam')||params.has('nostart')||params.has('cue')){
+  $('startOv').hidden=true; audioUnlocked=true; soundOn=false;
+  if(params.has('paper')) setNotesMode('paper'); else if(params.has('item')) setNotesMode('type');
+  startTask(params.get('set')||'A');
+  if(!params.has('cue')){
+    const n=Math.max(0,Math.min(items.length-1,(+params.get('item')||1)-1));
+    for(let i=0;i<n;i++){ fieldState[i].forEach((f,k)=>{ f.status='first'; f.text=items[i].fields[k].ans; }); custDisplayLines.push(items[i].fields.map(f=>f.label+': '+f.ans).join('  ·  ')); }
+    redrawCust(); showItem(n);
+    if(params.get('ask')) ask(params.get('ask'));
+    if(params.get('note')){ $('note0').value=params.get('note'); noteCheck(0); if(params.get('note2')){ $('note0').value=params.get('note2'); noteCheck(0); } }
+    if(params.has('summary')){ items.forEach((it,i)=>it.fields.forEach((f,k)=>{ fieldState[i][k].status = i===1?'fixed':'first'; fieldState[i][k].text = i===1?f.ans.slice(0,-1):f.ans; })); qLog=[{text:'You can spell that?',ok:false,tip:'A question starts with Can: Can you spell that, please?'},{text:'Can you spell that, please?',ok:true,formal:true,status:'fixed'},{text:'Sorry?',ok:true,formal:false},{text:'Can you say that again slowly, please?',ok:true,formal:true,status:'first'}]; asked=3; goodQs=2; showSummary(); }
+  }
+  if(params.has('cam')) goCam(+params.get('cam'),true);
+}
+
+/* ================= loop ================= */
+const clock3=new THREE.Clock(); let tAll=0, frameN=0;
+function tick(){
+  const dt=Math.min(0.05,clock3.getDelta()); tAll+=dt;
+  if(camAnim){ camAnim.t+=dt/camAnim.dur; const k=Math.min(1,camAnim.t), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    camera.position.lerpVectors(camAnim.p0,camAnim.p1,e); controls.target.lerpVectors(camAnim.t0,camAnim.t1,e); if(k>=1) camAnim=null; }
+  controls.update();
+  const isTalk = talking();
+  mouth.scale.y = isTalk ? 0.22+0.5*Math.abs(Math.sin(tAll*13)*Math.sin(tAll*5.3)) : 0.22;
+  anim.nod = Math.max(0,anim.nod-dt*1.3); anim.tilt=Math.max(0,anim.tilt-dt*0.7);
+  anim.lookT = Math.max(0,anim.lookT-dt); anim.type=Math.max(0,anim.type-dt);
+  anim.look += ((anim.lookT>0?1:0)-anim.look)*Math.min(1,dt*5);
+  head.rotation.x = Math.sin(anim.nod*Math.PI*3)*0.16*anim.nod + (isTalk?Math.sin(tAll*2.1)*0.025:0) + anim.look*0.25;
+  head.rotation.z = Math.sin(Math.min(1,anim.tilt)*Math.PI)*0.16;
+  head.rotation.y = -anim.look*0.55 + Math.sin(tAll*0.4)*0.04;
+  torso.position.y = 1.3 + Math.sin(tAll*1.6)*0.004;
+  armL.fg.rotation.x = 0.55 + (anim.type>0? Math.sin(tAll*18)*0.08+0.2 : 0);
+  armR.g.rotation.x = isTalk ? Math.sin(tAll*1.7)*0.08 : 0;
+  anim.nextBlink-=dt; if(anim.nextBlink<0){ anim.blink=0.14; anim.nextBlink=2+Math.random()*3; }
+  if(anim.blink>0){ anim.blink-=dt; } const s = anim.blink>0?0.12:1; eyes.forEach(e=>e.scale.y=(e.material===whiteM?0.8:1)*s);
+  const busy = typeof phase!=='undefined' && phase!=='idle';
+  if(!busy || (frameN++ % 8)===0){ renderer.render(scene,camera); updateLabels(); }
+  requestAnimationFrame(tick);
+}
+redrawCust(); tick();
+window.__sim = {SETS, checkQ, checkNote, ask, noteCheck, startTask, showItem, get state(){ return {stage, setKey, ii, asked, goodQs, qLog, fieldState}; }};
+window.__headScreen = () => { const v=new THREE.Vector3(); head.getWorldPosition(v); v.y+=0.11; v.project(camera);
+  const x=(v.x+1)/2*innerWidth, y=(1-v.y)/2*innerHeight, t=$('talk').getBoundingClientRect(), tb=$('top').getBoundingClientRect();
+  const free = y>tb.bottom+20 && !(x>t.left && x<t.right && y>t.top && y<t.bottom) && x>20 && x<innerWidth-20;
+  return {x:Math.round(x), y:Math.round(y), free}; };
+
+</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('../../sw.js',{scope:'../../'}).catch(function(){});</script>
+</body>
+</html>

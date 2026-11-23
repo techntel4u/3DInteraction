@@ -1444,5 +1444,172 @@
     ]
    }
   ]
+ },
+ "esol-shoe-shop-listen": {
+  "sections": [
+   {
+    "title": "Before you start",
+    "items": [
+     {
+      "h": "Jenny",
+      "t": "Hello. So, you'd like to change these boots for a size 6. I'm sorry, we haven't got a size 6 in the shop today. I can order them for you. So, here is some information for you. You might want to write this down."
+     },
+     {
+      "h": "Your clue",
+      "t": "\"You might want to write this down.\" This means: write down what I say next. It is important."
+     }
+    ]
+   },
+   {
+    "title": "Information: set A",
+    "items": [
+     {
+      "h": "Exchange reference",
+      "t": "Jenny says: Your exchange reference is BT 6 1 8 0 4. Write: BT61804"
+     },
+     {
+      "h": "Manager",
+      "t": "Jenny says: The shoe department manager is Mr Okafor. Write: Mr Okafor"
+     },
+     {
+      "h": "Phone number",
+      "t": "Jenny says: If the new boots aren't here by Friday, ring us on 01632 960 731. Write: 01632 960731"
+     }
+    ]
+   },
+   {
+    "title": "Information: set B",
+    "items": [
+     {
+      "h": "Who to ask for",
+      "t": "Jenny says: When you come back, please ask for Ms Begum. Write: Ms Begum"
+     },
+     {
+      "h": "Email address",
+      "t": "Jenny says: Send any questions to shoes@brookesstores.co.uk. Write: shoes@brookesstores.co.uk"
+     },
+     {
+      "h": "Return number",
+      "t": "Jenny says: Your return number is SH 2 9 5 7 3. Write: SH29573"
+     }
+    ]
+   },
+   {
+    "title": "Information: set C",
+    "items": [
+     {
+      "h": "Website",
+      "t": "Jenny says: You can check your exchange at www.brookesstores.co.uk/exchanges. Write: www.brookesstores.co.uk/exchanges"
+     },
+     {
+      "h": "Phone number",
+      "t": "Jenny says: The shoe department number is 01632 960 552. Write: 01632 960552"
+     },
+     {
+      "h": "Name and Reference",
+      "t": "Jenny says: Please speak to Daniel Hughes, and give him this reference: EX 4 0 6 2 8. Write: Daniel Hughes, EX40628"
+     }
+    ]
+   },
+   {
+    "title": "Ways to ask Jenny",
+    "items": [
+     {
+      "h": "Can you spell that, please?",
+      "t": "Can you...? A question starts with Can."
+     },
+     {
+      "h": "Can you repeat that, please?",
+      "t": "Can you...? A question starts with Can."
+     },
+     {
+      "h": "Can you say that again slowly, please?",
+      "t": "Say it slowly: slow, slowly."
+     },
+     {
+      "h": "Can I check I have the correct information, please?",
+      "t": "Can I check...? A polite way to check."
+     },
+     {
+      "h": "How do you spell that?",
+      "t": "How do you spell...? Use do."
+     }
+    ]
+   },
+   {
+    "title": "Listening tips",
+    "items": [
+     {
+      "h": "\"oh\" in a number",
+      "t": "Write 0 (zero)."
+     },
+     {
+      "h": "\"double five\"",
+      "t": "Write 55."
+     },
+     {
+      "h": "\"at\" and \"dot\" in an email",
+      "t": "Write @ and a full stop: shoes@brookesstores.co.uk"
+     },
+     {
+      "h": "\"slash\" in a website",
+      "t": "Write /"
+     }
+    ]
+   },
+   {
+    "title": "At the end",
+    "items": [
+     {
+      "h": "Jenny",
+      "t": "That's everything. Is there anything else I can help you with today? No? OK. Thank you for coming in. Goodbye."
+     }
+    ]
+   }
+  ],
+  "quiz": [
+   {
+    "q": "Which question is correct?",
+    "o": [
+     "You can spell that?",
+     "Can you spell that, please?"
+    ]
+   },
+   {
+    "q": "Which question is correct?",
+    "o": [
+     "How you spell it?",
+     "How do you spell that?"
+    ]
+   },
+   {
+    "q": "Which question is correct?",
+    "o": [
+     "Can you say that again slowly, please?",
+     "Can you say it slow?"
+    ]
+   },
+   {
+    "q": "Which question is correct?",
+    "o": [
+     "Can you repeat that, please?",
+     "Can you repeat me?"
+    ]
+   },
+   {
+    "q": "Which is more polite?",
+    "o": [
+     "What?",
+     "Sorry, can you say that again, please?"
+    ]
+   },
+   {
+    "q": "Jenny says \"oh one six three two\". What do you write?",
+    "o": [
+     "O1632",
+     "01632"
+    ]
+   }
+  ]
  }
 }

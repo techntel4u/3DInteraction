@@ -1,4 +1,4 @@
-On-device speech recognition for "At the doctor's", used only on browsers without
+On-device speech recognition for the ESOL speaking simulations (At the doctor's, At the shoe shop), used only on browsers without
 built-in speech recognition (for example Chrome, Edge and Firefox on iPhone and iPad).
 
 - Model: OpenAI Whisper tiny.en (MIT licence), ONNX export by k2-fsa/sherpa-onnx (Apache 2.0),

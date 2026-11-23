@@ -950,7 +950,7 @@ function loadScript(src){ return new Promise((ok,no)=>{ const s=document.createE
 function prepLocal(){
   if(!localReady){
     localReady = (window.ort?Promise.resolve():loadScript('../../vendor/ort/ort.wasm.min.js'))
-      .then(()=>window.LocalSTT?null:loadScript('stt/stt.js'))
+      .then(()=>window.LocalSTT?null:loadScript('../../vendor/stt/stt.js'))
       .then(()=>LocalSTT.load(p=>{ sttProg=p; speakStatus(); }))
       .then(()=>{ sttProg=1; speakStatus(); });
     localReady.catch(()=>{ localReady=null; sttProg=0; speakStatus(true); });
