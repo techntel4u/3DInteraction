@@ -654,7 +654,7 @@ const QRULES = [
   {v:'ok', re:/^(sorry|pardon|pardon me|excuse me|sorry what|sorry pardon|i am sorry|sorry say again|say again please|sorry i did not (hear|catch) (it|that)|sorry i did not understand)( please)?$/, formal:false},
   {v:'ok', re:/^(sorry )?(again|once more|one more time) please$/, formal:false},
   // close, but not a question yet
-  {v:'nudge', re:/^what$|^what what$|^what again$/, tip:'"What?" can sound rude. Say: Sorry? Or: Can you repeat that, please?', clue:'Hmm. That sounds a bit rude. Try, sorry? Or, can you repeat that, please?'},
+  {v:'nudge', re:/^what$|^what what$|^what again$/, tip:'Just saying What can sound rude. Say: Sorry? Or: Can you repeat that, please?', clue:'Hmm. That sounds a bit rude. Try, sorry? Or, can you repeat that, please?'},
   {v:'nudge', re:/^(please )?(spell|repeat|say|again|slowly|slow|slower|check)\b/, echo:true, tip:'Make it a polite question: Can you spell that, please?', clue:'Can you ask me in a question? Start with, can you.'},
 ];
 const QUNKNOWN = "Sorry, I didn't understand. You can ask me to repeat it, or to spell it.";
