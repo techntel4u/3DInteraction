@@ -613,6 +613,41 @@
    "worksheet": "sims/heart/worksheet.html"
   },
   {
+   "id": "blood-vessels",
+   "title": "Blood vessels and blood",
+   "summary": "Follow blood round a closed loop of vessels: an artery cut open to show its thick wall, arterioles that widen and narrow, capillaries where oxygen and nutrients swap for carbon dioxide and lactate, and a vein with valves and the skeletal muscle pump. Spin a blood sample, watch white cells and platelets at work, and switch between rest, exercise and a cold day to see the vascular shunt.",
+   "level": "Level 3",
+   "spec": "Pearson BTEC L3 National Foundation Diploma in Sport (601/7220/4), Unit 1 Anatomy and Physiology, Topic D1 Structure and D2 Function of the cardiovascular system",
+   "minutes": "25–35 min",
+   "tags": [
+    "Arteries and veins",
+    "Capillaries",
+    "Vein valves",
+    "Blood components",
+    "Vascular shunt"
+   ],
+   "areas": [
+    "sport-and-fitness"
+   ],
+   "courses": [
+    "sport-l3-foundation-diploma",
+    "football-academy-l3-foundation-diploma"
+   ],
+   "general": false,
+   "student": "sims/blood-vessels/student.html",
+   "teacher": "sims/blood-vessels/teacher.html",
+   "thumb": "sims/blood-vessels/thumb.jpg",
+   "narration": "ElevenLabs (Alice, British)",
+   "updated": "2026-11-24",
+   "added": "2026-11-24",
+   "classroomTitle": "Blood vessels and blood – 3D simulation (Cardiovascular system, Part 2)",
+   "instructions": "Open the link and work through the 3D blood vessels simulation (25–35 minutes). Use headphones and keep the sound on.\n1. Guided tour: follow all 12 stages.\n2. Stage 2: explain why an artery wall is thick and elastic.\n3. Stage 4: give two features of a capillary that make exchange fast.\n4. Stage 6: say which vein valve opens when the muscles squeeze.\n5. Switch Body between At rest and Exercise and describe the vascular shunt.\n6. Stage 11: explain how skin arterioles help on a cold day.\n7. Test yourself: answer the 5 questions.\nHand in your notes and your quiz score.",
+   "series": "cardiovascular-system",
+   "part": 2,
+   "transcript": "sims/blood-vessels/transcript.html",
+   "worksheet": "sims/blood-vessels/worksheet.html"
+  },
+  {
    "id": "bonds-stretcher",
    "title": "Stretcher bond",
    "summary": "Meet the brick and see why walls are bonded. Build a half-brick stretcher bond wall course by course, turn a corner by swapping the quoin brick, finish a stopped end with a half bat and keep to 75 mm gauge. Switch on the straight joints check, then spot the fault in a badly bonded wall.",
@@ -839,7 +874,7 @@
     {
      "n": 2,
      "title": "Blood vessels and blood",
-     "sim": null
+     "sim": "blood-vessels"
     },
     {
      "n": 3,

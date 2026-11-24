@@ -923,6 +923,248 @@
    }
   ]
  },
+ "blood-vessels": {
+  "sections": [
+   {
+    "title": "Guided tour",
+    "items": [
+     {
+      "h": "A closed loop",
+      "t": "Blood travels in a closed loop of vessels. Arteries carry blood away from the heart. They branch into arterioles, then into capillaries inside the tissues. Capillaries join into venules, and venules join into veins, which carry blood back to the heart. The heart is a simple shape here. You explored its inside in Part 1."
+     },
+     {
+      "h": "Arteries",
+      "t": "Arteries carry blood away from the heart at high pressure. Their walls are thick, with a strong middle layer of smooth muscle and elastic fibres. The wall stretches with each heartbeat and springs back, which you can feel as a pulse. The lumen, the space inside, is narrow compared with the wall. Most arteries carry oxygenated blood, but the pulmonary artery carries deoxygenated blood to the lungs."
+     },
+     {
+      "h": "Arterioles",
+      "t": "Arteries branch into smaller arterioles. Their walls are mostly smooth muscle. When this muscle contracts, the arteriole narrows. This is vasoconstriction, and less blood flows into the capillaries beyond it. When the muscle relaxes, the arteriole widens. This is vasodilation, and more blood flows through. Blood pressure drops as blood passes through the arterioles."
+     },
+     {
+      "h": "Capillaries",
+      "t": "Capillaries are the smallest vessels. Their wall is only one cell thick, and red blood cells pass through in single file, slowly. This gives a short distance and plenty of time for exchange. Oxygen and nutrients such as glucose pass out to the muscle cells. Carbon dioxide and lactate pass in, to be carried away. The red blood cells stay inside the capillary."
+     },
+     {
+      "h": "Venules",
+      "t": "Capillaries join together to form venules. Venules collect deoxygenated blood, which now carries carbon dioxide and lactate, and join together to form veins. Blood pressure here is low, and the blood flows smoothly with no pulse."
+     },
+     {
+      "h": "Veins and valves",
+      "t": "Veins carry blood back towards the heart at low pressure. Their walls are thinner, with less muscle, and the lumen is wide. Veins have valves that only open towards the heart and shut to stop blood flowing backwards. When the skeletal muscles around a vein contract, they squeeze it and push blood towards the heart. This is the skeletal muscle pump. Watch which valve opens with each squeeze."
+     },
+     {
+      "h": "What blood is made of",
+      "t": "An adult has about 5 litres of blood. When a sample is spun in a tube, it separates. Plasma, the straw-coloured liquid at the top, is about 55%. Red blood cells, at the bottom, are about 45%. White blood cells and platelets make a thin pale layer in between, less than 1%."
+     },
+     {
+      "h": "Red blood cells and plasma",
+      "t": "Red blood cells carry oxygen. Each one is a disc that is thinner in the middle, which gives a large surface area, and it has no nucleus, which leaves more room for haemoglobin. Oxygen joins with haemoglobin in the lungs and is released in the tissues. Red cells also carry some carbon dioxide. Plasma is mostly water. It carries dissolved nutrients such as glucose, carbon dioxide, hormones and heat around the body."
+     },
+     {
+      "h": "White blood cells and platelets",
+      "t": "White blood cells fight infection. Some engulf and digest germs such as bacteria, and others make antibodies. They are larger than red cells and have a nucleus. Platelets are tiny fragments of cells. When a blood vessel is cut, platelets stick to the damaged wall and to each other to form a plug, and they help the blood to clot. This stops the bleeding."
+     },
+     {
+      "h": "The vascular shunt",
+      "t": "During exercise the working muscles need far more oxygen. Arterioles supplying the muscles vasodilate, and arterioles supplying organs such as the stomach and gut vasoconstrict. Blood is redirected to where it is needed. This is the vascular shunt. At rest the muscles get about 20% of the blood pumped out by the heart. In hard exercise this can rise to about 80%, and the heart pumps out much more blood each minute too."
+     },
+     {
+      "h": "Controlling body temperature",
+      "t": "Blood vessels also help control body temperature. When you get hot, for example during exercise, arterioles supplying the skin vasodilate. More warm blood flows near the surface and heat is lost to the air. In the cold, skin arterioles vasoconstrict, so less blood flows near the surface and heat is kept in the core. The model now shows a cold day. Switch Body to Exercise to compare."
+     },
+     {
+      "h": "Follow a red blood cell",
+      "t": "Now follow one red blood cell round the loop. Say each stop out loud before the cell reaches it: heart, artery, arteriole, capillary in the working muscle, venule, vein, and back to the heart. Watch its colour change in the capillary as it gives up oxygen."
+     }
+    ]
+   },
+   {
+    "title": "The parts",
+    "items": [
+     {
+      "h": "Heart",
+      "t": "Pumps blood into the arteries. You explored the inside in Part 1."
+     },
+     {
+      "h": "Artery",
+      "t": "Carries blood away from the heart at high pressure. Thick, muscular, elastic wall and a narrow lumen."
+     },
+     {
+      "h": "Outer layer",
+      "t": "Tough fibres that hold the vessel in shape."
+     },
+     {
+      "h": "Middle layer",
+      "t": "Smooth muscle and elastic fibres. Very thick in arteries, thin in veins."
+     },
+     {
+      "h": "Inner lining",
+      "t": "A smooth layer one cell thick, so blood flows easily."
+     },
+     {
+      "h": "Arterioles",
+      "t": "Muscular walls narrow (vasoconstrict) or widen (vasodilate) to control blood flow into the capillaries."
+     },
+     {
+      "h": "Capillaries",
+      "t": "Tiny vessels with walls one cell thick. Exchange happens here."
+     },
+     {
+      "h": "Venules",
+      "t": "Collect deoxygenated blood from the capillaries and join to form veins."
+     },
+     {
+      "h": "Vein",
+      "t": "Carries blood back to the heart at low pressure. Thin wall, wide lumen, valves."
+     },
+     {
+      "h": "Valve in the vein",
+      "t": "Opens towards the heart and shuts to stop blood flowing backwards."
+     },
+     {
+      "h": "Skeletal muscle pump",
+      "t": "Muscles contract, squeeze the vein and push blood towards the heart."
+     },
+     {
+      "h": "Skin",
+      "t": "Blood near the surface loses heat to the air."
+     },
+     {
+      "h": "Working muscle",
+      "t": "Needs lots of oxygen and nutrients during exercise."
+     },
+     {
+      "h": "Stomach and gut",
+      "t": "Gets less blood during exercise."
+     },
+     {
+      "h": "Capillary wall",
+      "t": "Thin, so oxygen, nutrients, carbon dioxide and lactate cross it quickly."
+     },
+     {
+      "h": "Oxygen + nutrients out",
+      "t": "Pass from the blood into the muscle cells."
+     },
+     {
+      "h": "Carbon dioxide + lactate in",
+      "t": "Pass from the muscle cells into the blood to be carried away."
+     },
+     {
+      "h": "Muscle cells",
+      "t": "Use oxygen and glucose to release energy for movement."
+     },
+     {
+      "h": "Blood sample (spun)",
+      "t": "A spun sample separates into its parts."
+     },
+     {
+      "h": "Plasma, about 55%",
+      "t": "Straw-coloured liquid, mostly water. Carries nutrients, carbon dioxide, hormones and heat."
+     },
+     {
+      "h": "White cells + platelets, under 1%",
+      "t": "A thin pale layer between the plasma and the red cells."
+     },
+     {
+      "h": "Red blood cells, about 45%",
+      "t": "Carry oxygen using haemoglobin."
+     },
+     {
+      "h": "Red blood cell",
+      "t": "Disc, thinner in the middle, no nucleus. Haemoglobin carries oxygen."
+     },
+     {
+      "h": "White blood cell",
+      "t": "Fights infection. Larger than a red cell and has a nucleus."
+     },
+     {
+      "h": "Bacteria",
+      "t": "Germs that the white cell engulfs and digests."
+     },
+     {
+      "h": "Platelets",
+      "t": "Tiny cell fragments that help blood clot."
+     },
+     {
+      "h": "Platelets plug a cut",
+      "t": "Platelets stick to the damaged wall and each other, then the blood clots."
+     }
+    ]
+   },
+   {
+    "title": "Common mix-ups",
+    "items": [
+     {
+      "h": "Mix-up: Blood in veins is blue.",
+      "t": "Right idea: Deoxygenated blood is dark red. Blue is only a colour code in diagrams. Veins can look blue through the skin."
+     },
+     {
+      "h": "Mix-up: Arteries always carry oxygenated blood.",
+      "t": "Right idea: Arteries are named by direction: they carry blood away from the heart. The pulmonary artery carries deoxygenated blood to the lungs."
+     },
+     {
+      "h": "Mix-up: Red blood cells leave the capillaries to reach the muscles.",
+      "t": "Right idea: Red cells stay inside. Oxygen and nutrients cross the thin wall into the muscle cells, and carbon dioxide and lactate cross back in."
+     },
+     {
+      "h": "Mix-up: Vasoconstriction happens in the heart.",
+      "t": "Right idea: It happens in blood vessels, mainly arterioles, when the smooth muscle in their walls contracts and narrows them."
+     },
+     {
+      "h": "Mix-up: Red blood cells fight infection.",
+      "t": "Right idea: White blood cells fight infection. Red blood cells carry oxygen."
+     }
+    ]
+   }
+  ],
+  "quiz": [
+   {
+    "q": "Which vessel has a thick, muscular, elastic wall and carries blood at high pressure?",
+    "o": [
+     "Vein",
+     "Capillary",
+     "Artery",
+     "Venule"
+    ]
+   },
+   {
+    "q": "Why do veins have valves?",
+    "o": [
+     "To speed blood up",
+     "To stop blood flowing backwards",
+     "To add oxygen to the blood",
+     "To make the pulse"
+    ]
+   },
+   {
+    "q": "Why are capillaries the place where gases are exchanged?",
+    "o": [
+     "Their wall is one cell thick",
+     "They have valves",
+     "They carry blood at the highest pressure",
+     "They are the widest vessels"
+    ]
+   },
+   {
+    "q": "Which part of the blood carries most of the oxygen?",
+    "o": [
+     "Plasma",
+     "White blood cells",
+     "Platelets",
+     "Red blood cells"
+    ]
+   },
+   {
+    "q": "During exercise, what happens to the arterioles supplying the working muscles?",
+    "o": [
+     "They vasoconstrict, so less blood flows",
+     "They vasodilate, so more blood flows",
+     "They close completely",
+     "Nothing changes"
+    ]
+   }
+  ]
+ },
  "bonds-stretcher": {
   "sections": [
    {

@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blood vessels and blood – Teacher version</title>
+<meta name="theme-color" content="#1b2a4a">
+<link rel="icon" href="../../icons/icon-192.png">
+<script src="../../assets/stats.js?v=2"></script>
+<script type="importmap">
+{"imports":{"three":"../../vendor/three/three.module.js","three/addons/":"../../vendor/three/addons/"}}
+</script>
+<style>
+:root{
+  --navy:#1b2a4a; --navy2:#2c3f66; --ink:#1d2433; --muted:#4a5568; --bg:#eef1f5;
+  --panel:#ffffff; --line:#d5dbe5; --deox:#2f5fc4; --ox:#c81e2c; --hi:#ffd23f;
+  --r:14px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink);-webkit-tap-highlight-color:transparent}
+#app{position:fixed;inset:0}
+#c3d{position:absolute;inset:0;display:block;touch-action:none;width:100%!important;height:100%!important}
+#labels{position:absolute;inset:0;pointer-events:none;z-index:0}
+button{font:inherit;cursor:pointer}
+.btn{min-height:44px;min-width:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--navy);font-weight:700;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;text-decoration:none}
+.btn:hover{background:#f4f6fa}
+.btn:focus-visible,.dot:focus-visible,input:focus-visible,.opt:focus-visible,select:focus-visible{outline:3px solid #4f7cff;outline-offset:2px}
+.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.primary:hover{background:var(--navy2)}
+.btn[aria-pressed="true"]{background:#e3e9f6;border-color:#9fb0d4}
+.btn.icon{padding:0;width:44px}
+.btn:disabled{opacity:.55;cursor:default}
+#top{position:absolute;left:12px;right:12px;top:10px;display:flex;align-items:flex-start;gap:10px;pointer-events:none}
+#titlebox{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:var(--r);padding:8px 14px;pointer-events:auto;box-shadow:0 4px 18px rgba(27,42,74,.08);min-width:0}
+#titlebox h1{margin:0;font-size:19px;line-height:1.2;color:var(--navy);font-weight:800}
+#titlebox .sub{font-size:13px;color:var(--muted);font-weight:600}
+#titlebox .sub a{color:var(--navy)}
+#hubLink{display:inline-block;font-size:13px;font-weight:800;color:var(--navy);text-decoration:none;margin-bottom:2px}
+#hubLink:hover{text-decoration:underline}
+#badge{display:inline-block;margin-left:6px;background:#7a3e00;color:#fff;border-radius:6px;padding:1px 7px;font-size:12px;font-weight:800;vertical-align:middle}
+#topbtns{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;pointer-events:auto}
+#stage{position:absolute;left:12px;bottom:84px;width:min(450px,calc(100% - 24px));background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;box-shadow:0 6px 24px rgba(27,42,74,.10)}
+#stage .row1{display:flex;align-items:center;gap:8px}
+#stageNum{font-size:12px;font-weight:800;color:#fff;background:var(--navy);border-radius:999px;padding:3px 9px;white-space:nowrap}
+#stageName{margin:0;font-size:18px;font-weight:800;color:var(--navy);line-height:1.2}
+#dots{display:flex;gap:4px;margin:9px 0 8px}
+.dot{flex:1;height:10px;min-width:10px;border-radius:5px;border:none;background:#d7deea;padding:0;position:relative}
+.dot::after{content:"";position:absolute;left:0;right:0;top:-17px;bottom:-17px}
+.dot.done{background:#8ea3cc}.dot.on{background:var(--navy)}
+#caption{font-size:15.5px;line-height:1.45;margin:0;color:var(--ink);max-height:30vh;overflow:auto}
+#stageNav{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap}
+#nextPart{margin-left:auto}
+#bMin{margin-left:auto;width:36px;min-width:36px;min-height:36px;font-size:16px}
+#stage.min #dots,#stage.min #caption,#stage.min #flowSmall{display:none!important}
+#flowbox{position:absolute;right:12px;bottom:84px;width:min(360px,calc(100% - 24px));background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;box-shadow:0 6px 24px rgba(27,42,74,.10);font-size:13px}
+#flowbox h3{margin:0 0 6px;font-size:14px;color:var(--navy);display:flex;justify-content:space-between;gap:6px}
+#flowbox h3 .x{font-weight:600;color:var(--muted)}
+.vrow{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-top:1px dashed #e1e6ef}
+.state{font-weight:800;text-align:right}
+.state.open,.state.dil{color:#0f6b2f}.state.shut,.state.con{color:#9b1c1c}.state.mid{color:#5b4a00}
+#shareBar{position:relative;height:20px;border-radius:6px;background:#e5e9f1;border:1px solid #b9c3d6;overflow:hidden;margin:4px 0 2px}
+#shareFill{position:absolute;left:0;top:0;bottom:0;background:#c84a52;transition:width .8s}
+#shareTxt{position:absolute;inset:0;display:flex;align-items:center;padding-left:8px;font-weight:800;font-size:12px;color:#1d2433}
+#flowSmall{display:none}
+#ctrl{position:absolute;left:12px;right:12px;bottom:12px;display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:var(--r);padding:8px;box-shadow:0 6px 24px rgba(27,42,74,.10);overflow-x:auto;scrollbar-width:thin}
+#ctrl > *{flex:none}
+#ctrl .sep{width:1px;align-self:stretch;background:var(--line)}
+.rate{display:flex;align-items:center;gap:8px}
+.rate label{font-weight:800;font-size:14px;color:var(--navy)}
+#spd{width:140px;height:44px;accent-color:var(--navy)}
+#spdOut{font-size:13px;line-height:1.15;min-width:160px;color:var(--muted)}
+#spdOut b{color:var(--ink);font-size:14px}
+select.btn{appearance:auto;padding-right:8px}
+#legend{position:absolute;right:12px;top:78px;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:13px;line-height:1.55;box-shadow:0 4px 18px rgba(27,42,74,.08);max-width:250px}
+#legend .sw{display:inline-block;width:14px;height:9px;border-radius:5px;margin-right:6px;vertical-align:middle}
+#legend .sw.round{width:10px;height:10px;border-radius:50%;border:1px solid #8a8fa0}
+#follow{position:absolute;left:12px;top:86px;width:240px;max-height:calc(100% - 330px);overflow:auto;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;font-size:13.5px;display:none;box-shadow:0 6px 24px rgba(27,42,74,.10)}
+#follow h3{margin:0 0 4px;font-size:15px;color:var(--navy);display:flex;justify-content:space-between;align-items:center}
+#follow ol{margin:4px 0 0;padding-left:22px}
+#follow li{padding:1px 2px;border-radius:5px}
+#follow li.now{background:var(--hi);font-weight:800}
+#follow li.past{color:#5b6475}
+#nowIn{font-weight:800;margin:2px 0 4px}
+#nextStop{display:none;font-size:12.5px}
+.lbl{background:rgba(255,255,255,.94);color:var(--ink);border:1px solid #b7c2d6;border-radius:8px;padding:2px 7px;font-size:12.5px;font-weight:800;white-space:nowrap;transform:translateY(-12px);box-shadow:0 2px 6px rgba(0,0,0,.08);display:none}
+.lbl.show{display:block}
+.lbl.hl{border:2px solid #b8860b;background:#fff7d6}
+.lbl small{display:block;font-weight:600;color:var(--muted);font-size:11px}
+.lbl.ox{border-left:5px solid var(--ox)} .lbl.deox{border-left:5px solid var(--deox)}
+.tag{font-size:12px;font-weight:800;color:#5a4300;background:#fff3c4;border:1px solid #e6c65a;border-radius:8px;padding:2px 8px;white-space:nowrap}
+#tip{position:absolute;pointer-events:none;background:#1b2a4a;color:#fff;border-radius:10px;padding:8px 10px;font-size:13.5px;max-width:280px;display:none;z-index:30;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+#tip b{display:block;font-size:14.5px}
+.backdrop{position:absolute;inset:0;background:rgba(20,28,45,.28);display:none;z-index:40}
+.panel{position:absolute;z-index:41;right:12px;top:12px;bottom:12px;width:min(480px,calc(100% - 24px));background:#fff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.25);display:none;flex-direction:column;overflow:hidden}
+.panel.open,.backdrop.open{display:flex}
+.panel header{display:flex;align-items:center;gap:8px;padding:12px 12px 10px 16px;border-bottom:1px solid var(--line)}
+.panel header h2{margin:0;font-size:19px;color:var(--navy);flex:1}
+.panel .body{padding:12px 16px 18px;overflow:auto;font-size:15px;line-height:1.5}
+.panel h3{font-size:16px;color:var(--navy);margin:16px 0 6px}
+.panel ul,.panel ol{padding-left:20px;margin:4px 0}
+.panel li{margin:4px 0}
+.mc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0}
+.mc div{border-radius:10px;padding:8px 10px;font-size:14px}
+.mc .wrong{background:#fde8e8;border:1px solid #f2b8b8}
+.mc .right{background:#e6f6ea;border:1px solid #a9dcb6}
+.spec{background:#f3f6fb;border-left:4px solid var(--navy);padding:8px 12px;border-radius:6px;font-size:14.5px}
+.qcard{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}
+.qcard p{margin:0 0 8px;font-weight:700}
+.opt{display:block;width:100%;text-align:left;min-height:44px;margin:6px 0;padding:8px 12px;border:1px solid #c5cedd;border-radius:10px;background:#fff;font-size:14.5px;color:var(--ink)}
+.opt.correct{background:#e6f6ea;border-color:#3c9a5a}
+.opt.incorrect{background:#fde8e8;border-color:#c24141}
+.fb{font-size:14px;margin:4px 0 6px;display:none}
+.fb.show{display:block}
+#score{font-weight:800;color:var(--navy)}
+kbd{display:inline-block;border:1px solid #b9c3d6;border-bottom-width:2px;border-radius:5px;padding:0 6px;font-size:13px;background:#f7f9fc;min-width:24px;text-align:center}
+#helpPop{position:absolute;z-index:41;right:12px;top:70px;width:min(340px,calc(100% - 24px));background:#fff;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.25);display:none;padding:10px 14px 14px;font-size:14px}
+#helpPop.open{display:block}
+#helpPop table{border-collapse:collapse;width:100%}
+#helpPop td{padding:4px 2px;vertical-align:top}
+#helpPop header{display:flex;align-items:center;justify-content:space-between}
+#helpPop h2{font-size:17px;margin:0;color:var(--navy)}
+#hint{position:absolute;left:50%;top:84px;transform:translateX(-50%);background:var(--navy);color:#fff;border-radius:999px;padding:10px 18px;font-weight:800;font-size:15px;z-index:20;box-shadow:0 6px 18px rgba(0,0,0,.2);text-align:center;max-width:calc(100% - 24px)}
+#loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--navy);font-size:18px;background:var(--bg);z-index:60;text-align:center;padding:20px}
+.note{font-size:12.5px;color:var(--muted)}
+.tn h3{border-top:1px solid var(--line);padding-top:12px}
+.tn .q{font-weight:700;margin-bottom:2px}
+.tn .a{margin:0 0 10px 0;color:#24442c}
+.tn table{border-collapse:collapse;width:100%;font-size:14px}
+.tn td,.tn th{border:1px solid var(--line);padding:4px 6px;text-align:left;vertical-align:top}
+/* compact (phones and short screens) */
+@media (max-width:760px), (max-height:500px){
+  #titlebox h1{font-size:16px}
+  #titlebox .sub{font-size:11.5px}
+  #topbtns{gap:6px}
+  #topbtns .btn{padding:0 10px;font-size:14px}
+  #topbtns .txt{display:none}
+  #flowbox{display:none}
+  #flowSmall{display:block;margin-top:6px;font-size:12.5px;line-height:1.35}
+  #legend{font-size:12px;padding:4px 8px;line-height:1.4}
+  #legend .note,#legend .extra{display:none}
+  #nextPart{display:none}
+  #ctrl{bottom:8px;left:8px;right:8px;padding:6px;gap:6px}
+  #spd{width:100px}
+  #spdOut{min-width:60px;font-size:11.5px}
+  #spdOut .d{display:none}
+  #stageName{font-size:16px}
+}
+@media (min-width:761px) and (max-width:1100px) and (orientation:portrait){
+  #flowbox{display:none}
+  #flowSmall{display:block;margin-top:6px;font-size:13px;line-height:1.35}
+  #topbtns .txt{display:none}
+}
+@media (max-width:760px) and (orientation:portrait){
+  #top{top:6px;left:6px;right:6px;gap:6px}
+  #titlebox{padding:5px 10px}
+  #titlebox .sub{display:none}
+  #titlebox h1{font-size:14px;max-width:44vw}
+  #hubLink{font-size:12px}
+  #topbtns{flex-wrap:nowrap;gap:4px}
+  #topbtns .btn{width:40px;min-width:40px;min-height:40px;padding:0}
+  #legend{top:auto;bottom:auto;top:76px;left:6px;right:auto;display:flex;gap:8px;font-size:10.5px;white-space:nowrap;padding:2px 8px;line-height:1.5;max-width:none}
+  #stage{left:6px;width:calc(100% - 12px);bottom:62px;padding:8px 10px}
+  #stageName{font-size:15px}
+  #dots{margin:6px 0 5px}
+  #caption{font-size:13.5px;max-height:5.6em;line-height:1.4}
+  #flowSmall{font-size:11.5px;margin-top:4px}
+  #stageNav{gap:6px;margin-top:6px}
+  #stageNav .btn{min-height:38px;font-size:14px;padding:0 10px}
+  #ctrl{bottom:6px;left:6px;right:6px;padding:4px;gap:6px}
+  #ctrl .btn{min-height:40px;font-size:14px}
+  #spd{width:90px}
+  .rate label{font-size:13px}
+  .panel{left:8px;right:8px;width:auto;top:auto;bottom:8px;max-height:84%}
+  #hint{top:92px;font-size:12.5px;padding:6px 12px}
+  #follow{top:auto;left:6px;right:6px;bottom:calc(62px + var(--stageH,200px) + 6px);width:auto;max-height:none;font-size:12.5px;padding:6px 10px}
+  #follow ol,#follow .note{display:none}
+  #nextStop{display:block}
+  #follow h3{font-size:13.5px}
+}
+@media (max-height:500px) and (orientation:landscape){
+  #top{top:6px;left:8px;right:8px}
+  #titlebox{padding:4px 10px}
+  #titlebox .sub{display:none}
+  #hubLink{margin:0 8px 0 0;vertical-align:middle}
+  #titlebox h1{display:inline-block;vertical-align:middle}
+  #stage{left:8px;top:52px;bottom:66px;width:280px;overflow:auto;padding:8px 10px}
+  #caption{max-height:calc(100vh - 300px);font-size:13px}
+  #flowSmall{font-size:11px;max-height:3em;overflow:auto}
+  #stageNav .btn{min-height:38px}
+  #legend{top:58px;right:8px}
+  #follow{top:112px;right:8px;left:auto;width:190px;max-height:calc(100% - 184px);font-size:12.5px}
+  #ctrl{bottom:6px}
+  .panel{left:auto;right:8px;top:8px;bottom:8px;max-height:none;width:min(440px,calc(100% - 16px))}
+  #hint{top:auto;bottom:72px;left:auto;right:12px;transform:none;font-size:12.5px;padding:6px 12px;max-width:min(320px,calc(100% - 300px))}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="c3d" aria-label="3D model of the blood vessels in a closed loop: heart, artery, arterioles, capillaries, venules and veins, with a zoomed-in capillary and a bench of blood components."></canvas>
+  <div id="labels"></div>
+
+  <div id="top">
+    <div id="titlebox">
+      <a id="hubLink" href="../../index.html">← Hub</a>
+      <h1>Blood vessels and blood <span id="badge" hidden>Teacher version</span></h1>
+      <div class="sub">Cardiovascular system · Part 2 of 4 · BTEC L3 Sport Unit 1, Topic D · <a id="part1Link" href="../heart/teacher.html">Part 1</a></div>
+    </div>
+    <div id="topbtns">
+      <button class="btn" id="bLearn" aria-haspopup="dialog">🎯 <span class="txt">What you'll learn</span></button>
+      <button class="btn" id="bQuiz" aria-haspopup="dialog">✅ <span class="txt">Test yourself</span></button>
+      <button class="btn" id="bTeacher" aria-haspopup="dialog" hidden>📋 <span class="txt">Teacher notes</span></button>
+      <button class="btn icon" id="bSound" aria-pressed="true" title="Sound on/off">🔊</button>
+      <button class="btn icon" id="bHelp" aria-haspopup="dialog" title="Controls and help">?</button>
+    </div>
+  </div>
+
+  <div id="legend" aria-label="Colour key">
+    <div><span class="sw" style="background:var(--ox)"></span><b>Oxygenated</b><span class="extra"> (high oxygen)</span></div>
+    <div><span class="sw" style="background:var(--deox)"></span><b>Deoxygenated</b><span class="extra"> (low oxygen)</span></div>
+    <div class="extra"><span class="sw round" style="background:#f4f1fb"></span>White cell &nbsp; <span class="sw round" style="background:#c9a6e0;width:7px;height:7px"></span>Platelet</div>
+    <div class="note">Red and blue are a colour code. Real deoxygenated blood is dark red.</div>
+  </div>
+
+  <div id="follow" aria-live="polite">
+    <h3>Follow one red cell <button class="btn icon" id="followX" title="Stop following" aria-label="Stop following">✕</button></h3>
+    <div class="note">Say the next stop before the cell gets there.</div>
+    <div id="nowIn">Now in: –</div><div id="nextStop"></div>
+    <ol id="route"></ol>
+  </div>
+
+  <section id="stage" aria-live="polite">
+    <div class="row1"><span id="stageNum">1 / 12</span><h2 id="stageName">–</h2><button class="btn icon" id="bMin" aria-expanded="true" title="Hide or show the text" aria-label="Hide the text">▾</button></div>
+    <div id="dots" role="tablist" aria-label="Stages"></div>
+    <p id="caption"></p>
+    <div id="flowSmall"></div>
+    <div id="stageNav">
+      <button class="btn" id="bPrev" title="Previous stage (←)">◀ Back</button>
+      <button class="btn primary" id="bNext" title="Next stage (→)">Next ▶</button>
+      <button class="btn" id="bAuto" aria-pressed="false" title="Play the guided tour automatically">Auto tour</button>
+      <button class="btn" id="nextPart" disabled title="Part 3 is not published yet">Part 3: coming soon</button>
+    </div>
+  </section>
+
+  <section id="flowbox" aria-label="Blood flow readout">
+    <h3>Blood flow <span class="x" id="fbMode"></span></h3>
+    <div class="vrow"><span>Heart rate / cardiac output</span><span class="state" id="fbHR">–</span></div>
+    <div class="vrow"><span>Arterioles to working muscle</span><span class="state" id="fbMus">–</span></div>
+    <div class="vrow"><span>Arterioles to stomach and gut</span><span class="state" id="fbGut">–</span></div>
+    <div class="vrow"><span>Arterioles to skin</span><span class="state" id="fbSkin">–</span></div>
+    <div style="margin-top:6px;font-weight:800;color:var(--navy)">Share of blood flow going to the muscles</div>
+    <div id="shareBar"><div id="shareFill"></div><div id="shareTxt"></div></div>
+    <div class="vrow"><span>Vein valve on the heart side of the pump</span><span class="state" id="fbV1">–</span></div>
+    <div class="vrow"><span>Vein valve on the far side of the pump</span><span class="state" id="fbV2">–</span></div>
+    <div class="note">Typical values for a healthy adult. They vary from person to person.</div>
+  </section>
+
+  <div id="ctrl" role="toolbar" aria-label="Simulation controls">
+    <button class="btn icon" id="bPlay" title="Pause / play (Space)" aria-label="Pause">⏸</button>
+    <div class="rate">
+      <label for="spd">Speed</label>
+      <input type="range" id="spd" min="5" max="100" step="5" value="35" aria-describedby="spdOut">
+      <div id="spdOut"></div>
+    </div>
+    <span class="sep"></span>
+    <select class="btn" id="mode" aria-label="Body state">
+      <option value="rest">Body: At rest</option>
+      <option value="exercise">Body: Exercise</option>
+      <option value="cold">Body: Cold day</option>
+    </select>
+    <select class="btn" id="cam" aria-label="Camera view">
+      <option value="overview">View: Overview</option>
+      <option value="artery">View: Artery</option>
+      <option value="arterioles">View: Arterioles</option>
+      <option value="capzoom">View: Capillary close-up</option>
+      <option value="venule">View: Venules</option>
+      <option value="vein">View: Vein and valves</option>
+      <option value="blood">View: Blood sample</option>
+      <option value="blood2">View: Blood cells at work</option>
+      <option value="shunt">View: Capillary beds</option>
+    </select>
+    <select class="btn" id="wall" aria-label="Front of the vessel walls">
+      <option value="cut">Walls: cut open</option>
+      <option value="ghost">Walls: see-through</option>
+      <option value="whole">Walls: solid</option>
+    </select>
+    <button class="btn" id="bLabels" aria-pressed="false">Labels</button>
+    <button class="btn" id="bFollow" aria-pressed="false">Follow a cell</button>
+  </div>
+
+  <div id="tip" role="tooltip"></div>
+  <div id="hint">🔊 Sound is on – tap anywhere to start the narration</div>
+
+  <div class="backdrop" id="backdrop"></div>
+  <aside class="panel" id="pLearn" role="dialog" aria-modal="true" aria-labelledby="hLearn">
+    <header><h2 id="hLearn">What you'll learn</h2><button class="btn icon" data-close aria-label="Close">✕</button></header>
+    <div class="body" id="learnBody"></div>
+  </aside>
+  <aside class="panel" id="pQuiz" role="dialog" aria-modal="true" aria-labelledby="hQuiz">
+    <header><h2 id="hQuiz">Test yourself</h2><span id="score"></span><button class="btn icon" data-close aria-label="Close">✕</button></header>
+    <div class="body" id="quizBody"></div>
+  </aside>
+  <aside class="panel" id="pTeacher" role="dialog" aria-modal="true" aria-labelledby="hTeacher">
+    <header><h2 id="hTeacher">Teacher notes</h2><button class="btn icon" data-close aria-label="Close">✕</button></header>
+    <div class="body tn" id="teacherBody"></div>
+  </aside>
+  <div id="helpPop" role="dialog" aria-labelledby="hHelp">
+    <header><h2 id="hHelp">Controls</h2><button class="btn icon" data-close aria-label="Close">✕</button></header>
+    <table>
+      <tr><td><kbd>Space</kbd></td><td>Pause or play</td></tr>
+      <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Previous or next stage</td></tr>
+      <tr><td><kbd>1</kbd>–<kbd>4</kbd></td><td>Overview, Artery, Capillary close-up, Vein and valves</td></tr>
+      <tr><td><kbd>R</kbd> <kbd>E</kbd> <kbd>C</kbd></td><td>Body at rest, exercise, cold day</td></tr>
+      <tr><td><kbd>L</kbd></td><td>Show all labels</td></tr>
+      <tr><td><kbd>F</kbd></td><td>Follow a red cell</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Close a panel</td></tr>
+    </table>
+    <p class="note">Drag to turn the model. Pinch or scroll to zoom. Right-drag or two fingers to move. Tap a part to see what it does. Sizes are not to scale.</p>
+  </div>
+  <div id="loading">Building the blood vessels…</div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+const EDITION = 'teacher'; // 'student' or 'teacher'
+const TEACHER = EDITION === 'teacher';
+
+/* ================================================================ content */
+const Y0 = -12.5;   // capillary close-up sits below the loop
+const Y1 = 12.5;    // blood bench sits above the loop
+const PARTS = {
+  heart:    {name:'Heart', job:'Pumps blood into the arteries. You explored the inside in Part 1.', at:[-7.75,1.95,0.6]},
+  artery:   {name:'Artery', kind:'Away from the heart', blood:'ox', job:'Carries blood away from the heart at high pressure. Thick, muscular, elastic wall and a narrow lumen.', at:[-4.6,4.15,0]},
+  wallOut:  {name:'Outer layer', job:'Tough fibres that hold the vessel in shape.', at:[-1.2,4.05,0.1]},
+  wallMid:  {name:'Middle layer', job:'Smooth muscle and elastic fibres. Very thick in arteries, thin in veins.', at:[-2.5,3.62,0.1]},
+  wallIn:   {name:'Inner lining', job:'A smooth layer one cell thick, so blood flows easily.', at:[-3.7,3.25,0.1]},
+  arteriole:{name:'Arterioles', kind:'Small arteries', blood:'ox', job:'Muscular walls narrow (vasoconstrict) or widen (vasodilate) to control blood flow into the capillaries.', at:[1.85,2.75,0.3]},
+  capbed:   {name:'Capillaries', job:'Tiny vessels with walls one cell thick. Exchange happens here.', at:[4.5,2.8,0.4]},
+  venule:   {name:'Venules', kind:'Small veins', blood:'deox', job:'Collect deoxygenated blood from the capillaries and join to form veins.', at:[6.75,1.25,0.2]},
+  vein:     {name:'Vein', kind:'Towards the heart', blood:'deox', job:'Carries blood back to the heart at low pressure. Thin wall, wide lumen, valves.', at:[3.0,-3.35,0]},
+  valve:    {name:'Valve in the vein', job:'Opens towards the heart and shuts to stop blood flowing backwards.', at:[-4.7,-3.35,0.2]},
+  pump:     {name:'Skeletal muscle pump', job:'Muscles contract, squeeze the vein and push blood towards the heart.', at:[-2.75,-2.45,0.3]},
+  skin:     {name:'Skin', job:'Blood near the surface loses heat to the air.', at:[4.5,6.15,0]},
+  muscle:   {name:'Working muscle', job:'Needs lots of oxygen and nutrients during exercise.', at:[5.75,0.95,0.2]},
+  gut:      {name:'Stomach and gut', job:'Gets less blood during exercise.', at:[4.5,-2.15,0.2]},
+  capZoom:  {name:'Capillary wall', kind:'One cell thick', job:'Thin, so oxygen, nutrients, carbon dioxide and lactate cross it quickly.', at:[-1.8,Y0+1.25,0]},
+  exOut:    {name:'Oxygen + nutrients out', kind:'Red and green dots', job:'Pass from the blood into the muscle cells.', at:[1.0,Y0-1.2,0.9]},
+  exIn:     {name:'Carbon dioxide + lactate in', kind:'Grey and purple dots', job:'Pass from the muscle cells into the blood to be carried away.', at:[3.2,Y0+1.6,0.9]},
+  muscleZ:  {name:'Muscle cells', job:'Use oxygen and glucose to release energy for movement.', at:[0.2,Y0-2.75,0.6]},
+  tube:     {name:'Blood sample (spun)', job:'A spun sample separates into its parts.', at:[-6,Y1+2.75,0]},
+  plasma:   {name:'Plasma, about 55%', job:'Straw-coloured liquid, mostly water. Carries nutrients, carbon dioxide, hormones and heat.', at:[-6,Y1+1.0,0.75]},
+  buffy:    {name:'White cells + platelets, under 1%', job:'A thin pale layer between the plasma and the red cells.', at:[-6,Y1-0.2,0.75]},
+  rbcLayer: {name:'Red blood cells, about 45%', job:'Carry oxygen using haemoglobin.', at:[-6,Y1-1.3,0.75]},
+  rbc:      {name:'Red blood cell', job:'Disc, thinner in the middle, no nucleus. Haemoglobin carries oxygen.', at:[-2.4,Y1+1.45,0]},
+  wbc:      {name:'White blood cell', job:'Fights infection. Larger than a red cell and has a nucleus.', at:[0.6,Y1+1.5,0]},
+  bact:     {name:'Bacteria', job:'Germs that the white cell engulfs and digests.', at:[0.6,Y1-1.85,0.3]},
+  plt:      {name:'Platelets', job:'Tiny cell fragments that help blood clot.', at:[2.9,Y1+0.9,0]},
+  clot:     {name:'Platelets plug a cut', job:'Platelets stick to the damaged wall and each other, then the blood clots.', at:[5.7,Y1+1.45,0]}
+};
+
+const STAGES = [
+  {name:'A closed loop', cam:'overview', mode:'rest', hl:['artery','arteriole','capbed','venule','vein','heart'],
+   text:'Blood travels in a closed loop of vessels. Arteries carry blood away from the heart. They branch into arterioles, then into capillaries inside the tissues. Capillaries join into venules, and venules join into veins, which carry blood back to the heart. The heart is a simple shape here. You explored its inside in Part 1.'},
+  {name:'Arteries', cam:'artery', mode:'rest', hl:['artery','wallOut','wallMid','wallIn'],
+   text:'Arteries carry blood away from the heart at high pressure. Their walls are thick, with a strong middle layer of smooth muscle and elastic fibres. The wall stretches with each heartbeat and springs back, which you can feel as a pulse. The lumen, the space inside, is narrow compared with the wall. Most arteries carry oxygenated blood, but the pulmonary artery carries deoxygenated blood to the lungs.'},
+  {name:'Arterioles', cam:'arterioles', mode:'rest', hl:['arteriole'],
+   text:'Arteries branch into smaller arterioles. Their walls are mostly smooth muscle. When this muscle contracts, the arteriole narrows. This is vasoconstriction, and less blood flows into the capillaries beyond it. When the muscle relaxes, the arteriole widens. This is vasodilation, and more blood flows through. Blood pressure drops as blood passes through the arterioles.'},
+  {name:'Capillaries', cam:'capzoom', mode:'rest', hl:['capZoom','exOut','exIn','muscleZ'],
+   text:'Capillaries are the smallest vessels. Their wall is only one cell thick, and red blood cells pass through in single file, slowly. This gives a short distance and plenty of time for exchange. Oxygen and nutrients such as glucose pass out to the muscle cells. Carbon dioxide and lactate pass in, to be carried away. The red blood cells stay inside the capillary.'},
+  {name:'Venules', cam:'venule', mode:'rest', hl:['venule','capbed'],
+   text:'Capillaries join together to form venules. Venules collect deoxygenated blood, which now carries carbon dioxide and lactate, and join together to form veins. Blood pressure here is low, and the blood flows smoothly with no pulse.'},
+  {name:'Veins and valves', cam:'vein', mode:'rest', hl:['vein','valve','pump'],
+   text:'Veins carry blood back towards the heart at low pressure. Their walls are thinner, with less muscle, and the lumen is wide. Veins have valves that only open towards the heart and shut to stop blood flowing backwards. When the skeletal muscles around a vein contract, they squeeze it and push blood towards the heart. This is the skeletal muscle pump. Watch which valve opens with each squeeze.'},
+  {name:'What blood is made of', cam:'blood', mode:'rest', hl:['tube','plasma','buffy','rbcLayer'],
+   text:'An adult has about 5 litres of blood. When a sample is spun in a tube, it separates. Plasma, the straw-coloured liquid at the top, is about 55%. Red blood cells, at the bottom, are about 45%. White blood cells and platelets make a thin pale layer in between, less than 1%.'},
+  {name:'Red blood cells and plasma', cam:'blood', mode:'rest', hl:['rbc','plasma'],
+   text:'Red blood cells carry oxygen. Each one is a disc that is thinner in the middle, which gives a large surface area, and it has no nucleus, which leaves more room for haemoglobin. Oxygen joins with haemoglobin in the lungs and is released in the tissues. Red cells also carry some carbon dioxide. Plasma is mostly water. It carries dissolved nutrients such as glucose, carbon dioxide, hormones and heat around the body.'},
+  {name:'White blood cells and platelets', cam:'blood2', mode:'rest', hl:['wbc','bact','plt','clot'],
+   text:'White blood cells fight infection. Some engulf and digest germs such as bacteria, and others make antibodies. They are larger than red cells and have a nucleus. Platelets are tiny fragments of cells. When a blood vessel is cut, platelets stick to the damaged wall and to each other to form a plug, and they help the blood to clot. This stops the bleeding.'},
+  {name:'The vascular shunt', cam:'shunt', mode:'exercise', hl:['arteriole','muscle','gut'],
+   text:'During exercise the working muscles need far more oxygen. Arterioles supplying the muscles vasodilate, and arterioles supplying organs such as the stomach and gut vasoconstrict. Blood is redirected to where it is needed. This is the vascular shunt. At rest the muscles get about 20% of the blood pumped out by the heart. In hard exercise this can rise to about 80%, and the heart pumps out much more blood each minute too.'},
+  {name:'Controlling body temperature', cam:'shunt', mode:'cold', hl:['skin','arteriole'],
+   text:'Blood vessels also help control body temperature. When you get hot, for example during exercise, arterioles supplying the skin vasodilate. More warm blood flows near the surface and heat is lost to the air. In the cold, skin arterioles vasoconstrict, so less blood flows near the surface and heat is kept in the core. The model now shows a cold day. Switch Body to Exercise to compare.'},
+  {name:'Follow a red blood cell', cam:'overview', mode:'rest', hl:[], follow:true,
+   text:'Now follow one red blood cell round the loop. Say each stop out loud before the cell reaches it: heart, artery, arteriole, capillary in the working muscle, venule, vein, and back to the heart. Watch its colour change in the capillary as it gives up oxygen.'}
+];
+
+const OUTCOMES = [
+  'Describe the structure of arteries, arterioles, capillaries, venules and veins, and link each one to its job.',
+  'Explain why oxygen, nutrients, carbon dioxide and lactate are exchanged in the capillaries.',
+  'Explain how valves and the skeletal muscle pump help return blood to the heart in the veins.',
+  'Name the four parts of blood (red blood cells, white blood cells, platelets and plasma) and say what each one does.',
+  'Explain how vasodilation and vasoconstriction redirect blood during exercise (the vascular shunt) and help control body temperature.'
+];
+const MISCON = [
+  ['Blood in veins is blue.', 'Deoxygenated blood is dark red. Blue is only a colour code in diagrams. Veins can look blue through the skin.'],
+  ['Arteries always carry oxygenated blood.', 'Arteries are named by direction: they carry blood away from the heart. The pulmonary artery carries deoxygenated blood to the lungs.'],
+  ['Red blood cells leave the capillaries to reach the muscles.', 'Red cells stay inside. Oxygen and nutrients cross the thin wall into the muscle cells, and carbon dioxide and lactate cross back in.'],
+  ['Vasoconstriction happens in the heart.', 'It happens in blood vessels, mainly arterioles, when the smooth muscle in their walls contracts and narrows them.'],
+  ['Red blood cells fight infection.', 'White blood cells fight infection. Red blood cells carry oxygen.']
+];
+const SPEC_QUOTES = [
+  'Structure of blood vessels – arteries, arterioles, veins, venules, capillaries.',
+  'Composition of blood – red blood cells, plasma, white blood cells, platelets.',
+  'Delivery of oxygen and nutrients, Removal of waste products – carbon dioxide and lactate, Thermoregulation – vasoconstriction, vasodilation of blood vessels, Fight infection, Clot blood.'
+];
+
+const QUIZ = [
+  {q:'Which vessel has a thick, muscular, elastic wall and carries blood at high pressure?', o:['Vein','Capillary','Artery','Venule'], a:2, stage:1,
+   why:'Arteries carry blood away from the heart at high pressure, so they need a thick, elastic, muscular wall.'},
+  {q:'Why do veins have valves?', o:['To speed blood up','To stop blood flowing backwards','To add oxygen to the blood','To make the pulse'], a:1, stage:5,
+   why:'Pressure in veins is low, so valves shut to stop blood flowing backwards and keep it moving towards the heart.'},
+  {q:'Why are capillaries the place where gases are exchanged?', o:['Their wall is one cell thick','They have valves','They carry blood at the highest pressure','They are the widest vessels'], a:0, stage:3,
+   why:'A wall only one cell thick gives a very short distance, and slow single-file flow gives time for exchange.'},
+  {q:'Which part of the blood carries most of the oxygen?', o:['Plasma','White blood cells','Platelets','Red blood cells'], a:3, stage:7,
+   why:'Red blood cells contain haemoglobin, which joins with oxygen in the lungs and releases it in the tissues.'},
+  {q:'During exercise, what happens to the arterioles supplying the working muscles?', o:['They vasoconstrict, so less blood flows','They vasodilate, so more blood flows','They close completely','Nothing changes'], a:1, stage:9,
+   why:'The arterioles to the working muscles vasodilate, so more blood and oxygen reach them. This is part of the vascular shunt.'}
+];
+
+/* mode data. Muscle share figures: about 20% at rest, up to about 80% in hard exercise.
+   Bed weights are only for the animation (relative to the three beds shown). */
+const MODES = {
+  rest:    {name:'At rest', hr:70, co:'about 5 L/min', share:20, w:[0.16,0.40,0.44], dil:{skin:0.0, muscle:-0.35, gut:0.45}, pump:0.35,
+            txt:{muscle:['Partly narrowed','mid'], gut:['Open','dil'], skin:['Normal','mid']}},
+  exercise:{name:'Exercise', hr:150, co:'up to about 20 L/min', share:80, w:[0.12,0.82,0.06], dil:{skin:0.75, muscle:1.0, gut:-0.85}, pump:0.85,
+            txt:{muscle:['Vasodilated','dil'], gut:['Vasoconstricted','con'], skin:['Vasodilated (losing heat)','dil']}},
+  cold:    {name:'Cold day, at rest', hr:70, co:'about 5 L/min', share:20, w:[0.04,0.42,0.54], dil:{skin:-0.9, muscle:-0.35, gut:0.45}, pump:0.35,
+            txt:{muscle:['Partly narrowed','mid'], gut:['Open','dil'], skin:['Vasoconstricted (saving heat)','con']}}
+};
+
+/* ================================================================ helpers */
+const $ = s => document.querySelector(s);
+const qs = new URLSearchParams(location.search);
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let seed = 98765;
+const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+const smooth = (a,b,x)=>{ const t=Math.min(1,Math.max(0,(x-a)/(b-a))); return t*t*(3-2*t); };
+const lerp = (a,b,t)=>a+(b-a)*t;
+const P3 = (x,y,z=0)=>new THREE.Vector3(x,y,z);
+const V = a=>new THREE.Vector3(a[0],a[1],a[2]);
+const Z = new THREE.Vector3(0,0,1), YAX = new THREE.Vector3(0,1,0);
+
+/* ================================================================ renderer */
+const canvas = $('#c3d');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xeef1f5);
+const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 300);
+const labelRenderer = new CSS2DRenderer({element: $('#labels')});
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.minDistance = 2.5; controls.maxDistance = 45;
+controls.screenSpacePanning = true;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0xc9d1de, 1.15));
+const sun = new THREE.DirectionalLight(0xffffff, 1.7);
+sun.position.set(6, 10, 14); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, {left:-22, right:22, top:22, bottom:-22, near:1, far:60});
+sun.shadow.radius = 4; sun.shadow.bias = -0.0005;
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xfff1e6, 0.5); fill.position.set(-8,-2,8); scene.add(fill);
+const board = new THREE.Mesh(new THREE.PlaneGeometry(80,80), new THREE.ShadowMaterial({opacity:0.10}));
+board.position.z = -2.4; board.receiveShadow = true; scene.add(board);
+
+/* ================================================================ textures */
+function canvasTex(w, h, draw, rep=[1,1]){
+  const c = document.createElement('canvas'); c.width=w; c.height=h; draw(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...rep); t.anisotropy = 4; return t;
+}
+const fibreTex = canvasTex(256, 64, (x,w,h)=>{ x.fillStyle='#b8454d'; x.fillRect(0,0,w,h); for(let i=0;i<w;i+=8){ x.fillStyle = (i/8)%2 ? '#a3363f' : '#c35a60'; x.fillRect(i,0,4,h); } x.fillStyle='rgba(255,255,255,.08)'; x.fillRect(0,0,w,h*0.3); });
+const endoTex = canvasTex(512, 256, (x,w,h)=>{
+  x.fillStyle='#f5d3cf'; x.fillRect(0,0,w,h); x.strokeStyle='#c98a8a'; x.lineWidth=3;
+  for(let r=0;r<4;r++){ const y0=r*h/4; for(let c=0;c<5;c++){ const off=(r%2)*w/10; const xx=c*w/5+off;
+    x.beginPath(); x.moveTo(xx,y0+h/8); x.lineTo(xx+w/10,y0); x.lineTo(xx+w/5,y0+h/8); x.lineTo(xx+w/10,y0+h/4); x.closePath(); x.stroke();
+    x.fillStyle='#b27a98'; x.beginPath(); x.ellipse(xx+w/10,y0+h/8,16,8,0,0,Math.PI*2); x.fill(); } } }, [2,1]);
+const skinTex = canvasTex(256, 128, (x,w,h)=>{ const g=x.createLinearGradient(0,0,0,h); g.addColorStop(0,'#b98466'); g.addColorStop(0.16,'#d8a98c'); g.addColorStop(0.2,'#ecc9b2'); g.addColorStop(1,'#f3d8c6'); x.fillStyle=g; x.fillRect(0,0,w,h); });
+const heatTex = canvasTex(128, 128, (x,w,h)=>{ x.strokeStyle='#e0661c'; x.lineWidth=9; x.lineCap='round';
+  for(const cx of [34,64,94]){ x.beginPath(); for(let y=118;y>10;y-=4){ const xx=cx+Math.sin(y/14)*9; y===118?x.moveTo(xx,y):x.lineTo(xx,y); } x.stroke(); } });
+
+/* ================================================================ vessel shells */
+/* A vessel is drawn as wall layers. Each layer is a thick half-shell (back half and front half),
+   so the front can be cut away to show the lumen and the layers on the cut edge. */
+const U_BEAT = {value:0};
+function shellGeo(pts, rIn, rOut, th0, th1, nTh, wFn, uvScale=0.25){
+  const n = pts.length, pos=[], nor=[], rad=[], sA=[], wA=[], uv=[], idx=[];
+  const T=[], N=[], S=[0];
+  for(let i=0;i<n;i++){
+    const a=pts[Math.max(0,i-1)], b=pts[Math.min(n-1,i+1)], t=b.clone().sub(a).normalize();
+    T.push(t); N.push(new THREE.Vector3(-t.y, t.x, 0).normalize());
+    if(i>0) S.push(S[i-1] + pts[i].distanceTo(pts[i-1]));
+  }
+  const dir=(i,th)=>N[i].clone().multiplyScalar(Math.cos(th)).addScaledVector(Z, Math.sin(th));
+  let v=0;
+  const push=(p,nr,d,s,w,u,vv)=>{ pos.push(p.x,p.y,p.z); nor.push(nr.x,nr.y,nr.z); rad.push(d.x,d.y,d.z); sA.push(s); wA.push(w); uv.push(u,vv); return v++; };
+  const surface=(r, outward)=>{
+    const base=v, w=wFn(r);
+    for(let i=0;i<n;i++) for(let k=0;k<=nTh;k++){ const th=th0+(th1-th0)*k/nTh, d=dir(i,th);
+      push(pts[i].clone().addScaledVector(d,r), outward?d:d.clone().negate(), d, S[i], w, S[i]*uvScale, k/nTh); }
+    for(let i=0;i<n-1;i++) for(let k=0;k<nTh;k++){ const a=base+i*(nTh+1)+k, b=a+(nTh+1), c=a+1, d=b+1;
+      if(outward) idx.push(a,c,b, b,c,d); else idx.push(a,b,c, b,d,c); }
+  };
+  const rim=(th, sign)=>{
+    const base=v, wi=wFn(rIn), wo=wFn(rOut);
+    for(let i=0;i<n;i++){ const d=dir(i,th); const dd=N[i].clone().multiplyScalar(-Math.sin(th)).addScaledVector(Z,Math.cos(th)).multiplyScalar(sign);
+      push(pts[i].clone().addScaledVector(d,rIn), dd, d, S[i], wi, 0, 0); push(pts[i].clone().addScaledVector(d,rOut), dd, d, S[i], wo, 0, 1); }
+    for(let i=0;i<n-1;i++){ const a=base+2*i, c=a+1, b=a+2, d=a+3; if(sign>0) idx.push(a,b,c, b,d,c); else idx.push(a,c,b, b,c,d); }
+  };
+  surface(rOut, true); surface(rIn, false); rim(th0, -1); rim(th1, 1);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos,3));
+  g.setAttribute('normal', new THREE.Float32BufferAttribute(nor,3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv,2));
+  g.setAttribute('aRad', new THREE.Float32BufferAttribute(rad,3));
+  g.setAttribute('aS', new THREE.Float32BufferAttribute(sA,1));
+  g.setAttribute('aW', new THREE.Float32BufferAttribute(wA,1));
+  g.setIndex(idx); g.computeBoundingSphere();
+  return g;
+}
+function patchVessel(mat, U){
+  mat.onBeforeCompile = sh=>{
+    sh.uniforms.uBeat = U_BEAT; sh.uniforms.uAmp = U.uAmp; sh.uniforms.uDil = U.uDil;
+    sh.vertexShader = 'attribute vec3 aRad;\nattribute float aS;\nattribute float aW;\nuniform float uBeat;\nuniform float uAmp;\nuniform float uDil;\n' +
+      sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+      float pw_ = fract(uBeat - aS*0.06);
+      float pb_ = pw_ < 0.32 ? sin(pw_/0.32*3.14159) : 0.0;
+      transformed += aRad * (pb_*uAmp*(0.55+0.45*aW) + uDil*aW);`);
+  };
+  mat.customProgramCacheKey = ()=>'vesselShell';
+  return mat;
+}
+const vessels = {};        // id -> list of {back, front, mats}
+const partMats = {};       // id -> materials to glow when highlighted
+const pick = [];           // meshes that can be tapped
+function addPartMat(id, m){ (partMats[id] ||= []).push(m); }
+function makeVessel(id, pts, layers, amp=0){
+  const U = {uAmp:{value:amp}, uDil:{value:0}};
+  const rIn0 = layers[0].rIn, rOut0 = layers[layers.length-1].rOut;
+  const wFn = r => 1 - 0.6*(r - rIn0)/Math.max(1e-6, rOut0 - rIn0);
+  const group = new THREE.Group(); group.userData.U = U; group.userData.fronts = [];
+  for(const L of layers){
+    const back = patchVessel(new THREE.MeshStandardMaterial({color:L.color, roughness:0.62, side:THREE.DoubleSide}), U);
+    const solid = patchVessel(new THREE.MeshStandardMaterial({color:L.color, roughness:0.62, side:THREE.DoubleSide}), U);
+    const ghost = patchVessel(new THREE.MeshStandardMaterial({color:L.color, roughness:0.5, transparent:true, opacity:0.15, depthWrite:false, side:THREE.DoubleSide}), U);
+    const mb = new THREE.Mesh(shellGeo(pts, L.rIn, L.rOut, Math.PI, 2*Math.PI, 14, wFn), back);
+    const mf = new THREE.Mesh(shellGeo(pts, L.rIn, L.rOut, 0, Math.PI, 14, wFn), ghost);
+    mb.castShadow = true; mb.receiveShadow = true;
+    mb.userData.part = L.part || id; mf.userData.part = L.part || id;
+    mf.userData.solid = solid; mf.userData.ghost = ghost; mf.visible = false; mf.renderOrder = 2;
+    group.add(mb, mf); group.userData.fronts.push(mf); pick.push(mb, mf);
+    addPartMat(id, back); addPartMat(id, solid); addPartMat(id, ghost);
+    if(L.part) { addPartMat(L.part, back); addPartMat(L.part, solid); }
+  }
+  scene.add(group); (vessels[id] ||= []).push(group);
+  return group;
+}
+
+/* ================================================================ layout */
+function spaced(ctrl, n){ return new THREE.CatmullRomCurve3(ctrl, false, 'centripetal').getSpacedPoints(n); }
+const BEDS = [ {id:'skin', y:5.0}, {id:'muscle', y:1.9}, {id:'gut', y:-1.2} ];
+const LANES = 4;
+const HEART_C = P3(-7.75, 0.25, 0);
+const arteryPts = spaced([P3(-7.35,1.2),P3(-7.15,2.4),P3(-6.5,3.1),P3(-5.3,3.15),P3(-2,3.15),P3(0.9,3.15)], 150);
+const heartPts  = spaced([P3(-7.7,-1.0),P3(-7.95,-0.1),P3(-7.75,0.7),P3(-7.35,1.2)], 30);
+const veinPts   = spaced([P3(7.8,5.3),P3(7.8,2),P3(7.8,-3.4),P3(7.5,-4.15),P3(6.6,-4.35),P3(0,-4.35),P3(-6.2,-4.35),P3(-7.25,-3.85),P3(-7.65,-2.5),P3(-7.7,-1.0)], 320);
+const arteriolePts = BEDS.map(b=>spaced([P3(0.5,3.15),P3(1.3,3.15+(b.y-3.15)*0.22),P3(2.3,b.y-(b.y-3.15)*0.04),P3(3.15,b.y)], 70));
+const LANE_Z = [-0.28, 0.24, -0.2, 0.3];
+const lanePts = BEDS.map(b=>[...Array(LANES)].map((_,j)=>{ const off=(j-1.5)*0.36, z=LANE_Z[j];
+  return spaced([P3(3.1,b.y),P3(3.5,b.y+off*0.5,z*0.4),P3(4.1,b.y+off+0.12,z),P3(4.9,b.y+off-0.12,z),P3(5.5,b.y+off*0.5,z*0.4),P3(5.95,b.y)], 60); }));
+const venulePts = BEDS.map(b=>spaced([P3(5.85,b.y),P3(6.6,b.y),P3(7.25,b.y)], 30));
+
+/* ================================================================ build the loop */
+const C = {
+  arteryIn:0xf3e3d3, arteryMid:0xbf4a55, arteryOut:0xd99a80,
+  veinIn:0xf1e4dc, veinMid:0xa77486, veinOut:0x93a6cc
+};
+let arteriole = [], venules = [], veinGroup, arteryGroup, capTubes = [];
+const heartMat = new THREE.MeshStandardMaterial({color:0xa8323a, roughness:0.5});
+let heartMesh;
+function buildLoop(){
+  arteryGroup = makeVessel('artery', arteryPts, [
+    {rIn:0.34, rOut:0.39, color:C.arteryIn, part:'wallIn'},
+    {rIn:0.39, rOut:0.66, color:C.arteryMid, part:'wallMid'},
+    {rIn:0.66, rOut:0.76, color:C.arteryOut, part:'wallOut'}], 0.07);
+  BEDS.forEach((b,i)=>{
+    arteriole[i] = makeVessel('arteriole', arteriolePts[i], [
+      {rIn:0.13, rOut:0.15, color:C.arteryIn}, {rIn:0.15, rOut:0.27, color:C.arteryMid}, {rIn:0.27, rOut:0.30, color:C.arteryOut}], 0.02);
+    venules[i] = makeVessel('venule', venulePts[i], [
+      {rIn:0.19, rOut:0.205, color:C.veinIn}, {rIn:0.205, rOut:0.235, color:C.veinMid}, {rIn:0.235, rOut:0.26, color:C.veinOut}], 0);
+  });
+  veinGroup = makeVessel('vein', veinPts, [
+    {rIn:0.6, rOut:0.625, color:C.veinIn}, {rIn:0.625, rOut:0.68, color:C.veinMid}, {rIn:0.68, rOut:0.76, color:C.veinOut}], 0);
+  // capillaries: see-through tubes
+  const capMat = new THREE.MeshStandardMaterial({color:0xf2b9b9, roughness:0.4, transparent:true, opacity:0.42, depthWrite:false});
+  addPartMat('capbed', capMat);
+  lanePts.forEach(lanes=>lanes.forEach(p=>{ const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(p), 60, 0.11, 10), capMat); m.userData.part='capbed'; m.renderOrder = 3; scene.add(m); pick.push(m); capTubes.push(m); }));
+  // heart
+  heartMesh = new THREE.Mesh(new THREE.SphereGeometry(1, 40, 28), heartMat);
+  heartMesh.scale.set(1.15, 1.35, 0.95); heartMesh.position.copy(HEART_C); heartMesh.rotation.z = 0.35;
+  heartMesh.castShadow = true; heartMesh.userData.part = 'heart'; scene.add(heartMesh); pick.push(heartMesh); addPartMat('heart', heartMat);
+}
+
+/* tissues around the capillary beds */
+let heatSprites = [];
+function buildTissues(){
+  // skin
+  const skinMat = new THREE.MeshStandardMaterial({map:skinTex, roughness:0.85});
+  const skin = new THREE.Mesh(new THREE.BoxGeometry(3.3, 1.5, 0.5), skinMat);
+  skin.position.set(4.5, 5.15, -0.75); skin.receiveShadow = true; skin.userData.part='skin'; scene.add(skin); pick.push(skin); addPartMat('skin', skinMat);
+  const surfMat = new THREE.MeshStandardMaterial({color:0xc89272, roughness:0.8});
+  const surf = new THREE.Mesh(new THREE.BoxGeometry(3.3, 0.16, 1.5), surfMat);
+  surf.position.set(4.5, 5.95, -0.25); surf.userData.part='skin'; scene.add(surf); pick.push(surf); addPartMat('skin', surfMat);
+  for(let i=0;i<3;i++){ const s = new THREE.Sprite(new THREE.SpriteMaterial({map:heatTex, transparent:true, depthWrite:false, opacity:0}));
+    s.scale.set(0.7,0.7,1); s.position.set(3.6+i*0.9, 6.5, 0); scene.add(s); heatSprites.push(s); }
+  // muscle fibres
+  const fMat = new THREE.MeshStandardMaterial({map:fibreTex, roughness:0.7});
+  addPartMat('muscle', fMat);
+  for(let k=0;k<4;k++){ const m = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 3.2, 20), fMat);
+    m.rotation.z = Math.PI/2; m.position.set(4.5, 1.9 + (k-1.5)*0.52, -0.8); m.castShadow = true; m.userData.part='muscle'; scene.add(m); pick.push(m); }
+  // gut
+  const gMat = new THREE.MeshStandardMaterial({color:0xe7a3a0, roughness:0.6});
+  addPartMat('gut', gMat);
+  const gp=[]; for(let i=0;i<=40;i++){ const t=i/40; gp.push(P3(3.0+3.0*t, -1.2+0.55*Math.sin(t*Math.PI*3), -0.85)); }
+  const gut = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(gp), 80, 0.38, 14), gMat);
+  gut.castShadow = true; gut.userData.part='gut'; scene.add(gut); pick.push(gut);
+}
+
+/* valves and the skeletal muscle pump */
+const valveMat = new THREE.MeshStandardMaterial({color:0xe0a92e, roughness:0.45, side:THREE.DoubleSide, emissive:0x000000});
+addPartMat('valve', valveMat);
+const VALVES = [];
+function buildValve(pos, rotZ, rIn){
+  const g = new THREE.Group(); g.position.copy(pos); g.rotation.z = rotZ;
+  const L = 0.72, Wd = rIn*1.8;
+  const leaf = ()=>{ const geo = new THREE.PlaneGeometry(L, Wd, 6, 1); geo.rotateX(-Math.PI/2); geo.translate(-L/2, 0, 0);
+    // curve the leaflet a little like a cusp
+    const p = geo.attributes.position; for(let i=0;i<p.count;i++){ const z=p.getZ(i); p.setY(i, p.getY(i) - 0.12*(1-(z/(Wd/2))**2)*(-p.getX(i)/L)); } geo.computeVertexNormals();
+    const m = new THREE.Mesh(geo, valveMat); m.userData.part='valve'; pick.push(m); return m; };
+  const pivTop = new THREE.Group(); pivTop.position.y = rIn*0.98; const lt = leaf(); pivTop.add(lt);
+  const pivBot = new THREE.Group(); pivBot.position.y = -rIn*0.98; const lb = leaf(); lb.scale.y = -1; pivBot.add(lb);
+  g.add(pivTop, pivBot); scene.add(g);
+  const v = {g, pivTop, pivBot, open:1, maxShut:Math.asin(Math.min(0.98, rIn*0.98/L))};
+  VALVES.push(v); return v;
+}
+function setValve(v, open){ v.open = open; const a = lerp(v.maxShut, 0.12, open); v.pivTop.rotation.z = a; v.pivBot.rotation.z = -a; }
+let pumpMuscles = [];
+function buildPump(){
+  const m = new THREE.MeshStandardMaterial({map:fibreTex, color:0xff9a9a, roughness:0.7});
+  addPartMat('pump', m);
+  for(const s of [1,-1]){ const mesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 1.5, 8, 20), m);
+    mesh.rotation.z = Math.PI/2; mesh.position.set(-2.75, -4.35 + s*1.2, 0); mesh.castShadow = true; mesh.userData.part='pump'; mesh.userData.s = s;
+    scene.add(mesh); pick.push(mesh); pumpMuscles.push(mesh); }
+}
+
+/* ================================================================ blood paths */
+const SEG_NAME = ['Heart','Artery','Arteriole','Capillary (in the working muscle)','Venule','Vein'];
+const SEG_SPEED = [1.3, 2.3, 1.25, 0.45, 0.85, 1.2];
+const SEG_R = [0.0, 0.27, 0.09, 0.0, 0.13, 0.46];
+const STEP = 0.025;
+const paths = []; // index b*LANES + j
+function buildPaths(){
+  BEDS.forEach((b,bi)=>{
+    let kStart = 0; for(let k=0;k<veinPts.length;k++){ if(veinPts[k].y <= b.y){ kStart = k; break; } }
+    for(let j=0;j<LANES;j++){
+      const raw = [];
+      const add = (pts, seg, oxyFn)=>pts.forEach((p,i)=>raw.push({p, seg, oxy:oxyFn(i/(pts.length-1))}));
+      add(heartPts, 0, t=>smooth(0.3,0.8,t));
+      add(arteryPts.slice(1), 1, ()=>1);
+      add(arteriolePts[bi].slice(1), 2, ()=>1);
+      add(lanePts[bi][j].slice(1), 3, t=>1-smooth(0.12,0.9,t));
+      add([...venulePts[bi].slice(1), P3(7.8,b.y)], 4, ()=>0);
+      add(veinPts.slice(kStart+1), 5, ()=>0);
+      // resample to even spacing
+      const cum=[0]; for(let i=1;i<raw.length;i++) cum.push(cum[i-1]+raw[i].p.distanceTo(raw[i-1].p));
+      const len = cum[cum.length-1], n = Math.floor(len/STEP)+1;
+      const pos = new Float32Array(n*3), nrm = new Float32Array(n*3), tan = new Float32Array(n*3), seg = new Uint8Array(n), oxy = new Float32Array(n);
+      let k=0;
+      for(let i=0;i<n;i++){
+        const s = i*STEP; while(k<raw.length-2 && cum[k+1] < s) k++;
+        const f = Math.min(1, (s-cum[k])/Math.max(1e-6, cum[k+1]-cum[k]));
+        const a = raw[k], c = raw[k+1]; const p = a.p.clone().lerp(c.p, f);
+        const t = c.p.clone().sub(a.p).normalize(); const nn = new THREE.Vector3(-t.y, t.x, 0).normalize();
+        pos.set([p.x,p.y,p.z], i*3); tan.set([t.x,t.y,t.z], i*3); nrm.set([nn.x,nn.y,nn.z], i*3);
+        seg[i] = f<0.5 ? a.seg : c.seg; oxy[i] = lerp(a.oxy, c.oxy, f);
+      }
+      paths.push({bed:bi, lane:j, len, n, pos, nrm, tan, seg, oxy});
+    }
+  });
+}
+
+/* ================================================================ state */
+let stageIdx = 0, playing = !reduceMotion, simTime = 0, speed = 0.35, autoTour = false, autoTimer = null;
+let followOn = false, soundOn = true, audioReady = false, wallMode = 'cut', modeId = 'rest';
+let beat = 0, pumpPhase = 0;
+const dilNow = {skin:0, muscle:-0.35, gut:0.45};
+
+/* ================================================================ particles */
+const rbcGeo = (()=>{ const pts=[]; const prof=r=>0.5*Math.sqrt(Math.max(0,1-r*r))*(0.207+2.003*r*r-1.123*r**4);
+  for(let i=0;i<=16;i++){ const r=i/16; pts.push(new THREE.Vector2(r, Math.max(prof(r), i===16?0:0.02))); }
+  for(let i=15;i>=0;i--){ const r=i/16; pts.push(new THREE.Vector2(r, -Math.max(prof(r),0.02))); }
+  const g = new THREE.LatheGeometry(pts, 28); g.computeVertexNormals(); return g; })();
+const N_RBC = 300, N_WBC = 8, N_PLT = 40;
+const cells = [];
+function newCell(kind){ const ax = new THREE.Vector3(rnd()-0.5, rnd()-0.5, 0.9+rnd()).normalize(); return {kind, path:0, s:0, a:0, b:0, q:new THREE.Quaternion().setFromUnitVectors(YAX, ax)}; }
+function pickPath(c){
+  const w = MODES[modeId].w; let r = rnd()*(w[0]+w[1]+w[2]), bi = 0; while(bi<2 && r > w[bi]){ r -= w[bi]; bi++; }
+  c.path = bi*LANES + Math.floor(rnd()*LANES);
+  const ang = rnd()*Math.PI*2, rr = Math.sqrt(rnd())*0.82; c.a = Math.cos(ang)*rr; c.b = Math.sin(ang)*rr;
+}
+const rbcMat = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.45});
+const rbcIM = new THREE.InstancedMesh(rbcGeo, rbcMat, N_RBC); rbcIM.castShadow = false;
+rbcIM.instanceMatrix.setUsage(THREE.DynamicDrawUsage); scene.add(rbcIM);
+const wbcIM = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 16, 12), new THREE.MeshStandardMaterial({color:0xf4f1fb, roughness:0.6}), N_WBC);
+const pltIM = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 8, 6), new THREE.MeshStandardMaterial({color:0xc9a6e0, roughness:0.6}), N_PLT);
+scene.add(wbcIM, pltIM);
+const cOx = new THREE.Color(0xd21f2d), cDeox = new THREE.Color(0x2f5fc4), tmpC = new THREE.Color();
+const follower = {kind:'rbc', path:LANES+1, s:0, a:0, b:0, q:new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0), new THREE.Vector3(0.3,0.2,1).normalize())};
+const folMesh = new THREE.Mesh(rbcGeo, new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.4}));
+const ringTex = canvasTex(128,128,(x)=>{ x.strokeStyle='#ffcc00'; x.lineWidth=12; x.beginPath(); x.arc(64,64,46,0,Math.PI*2); x.stroke(); x.strokeStyle='#1b2a4a'; x.lineWidth=4; x.beginPath(); x.arc(64,64,57,0,Math.PI*2); x.stroke(); });
+const ring = new THREE.Sprite(new THREE.SpriteMaterial({map:ringTex, depthTest:false, transparent:true}));
+ring.scale.set(0.75,0.75,1); ring.renderOrder = 10; folMesh.visible = ring.visible = false; scene.add(folMesh, ring);
+
+function bump(x){ const w = x - Math.floor(x); return w < 0.32 ? Math.sin(w/0.32*Math.PI) : 0; }
+function bedOf(path){ return BEDS[paths[path].bed].id; }
+function cellSpeed(c, P, i){
+  const sg = P.seg[i]; let v = SEG_SPEED[sg];
+  if(sg===1) v *= 0.45 + 1.25*bump(beat - P.pos[i*3]*0.06);  // surges with each beat
+  if(sg===2 || sg===3) v *= 1 + 0.3*dilNow[bedOf(c.path)];
+  if(sg===5){ const x=P.pos[i*3], y=P.pos[i*3+1]; if(y<-3.9 && x>-4.8 && x<-0.7){ const sq = squeeze(); v *= 0.35 + 1.5*sq; } }
+  return v * MODES[modeId].hr/70;
+}
+function stepCell(c, dt){
+  let P = paths[c.path]; const i = Math.min(P.n-1, Math.floor(c.s/STEP));
+  c.s += cellSpeed(c, P, i)*dt;
+  if(c.s >= P.len - STEP){ c.s -= (P.len - STEP); if(c===follower){ c.path = LANES+1; } else pickPath(c); }
+}
+const tmpP = new THREE.Vector3(), tmpT = new THREE.Vector3(), tmpQ = new THREE.Quaternion(), tmpM = new THREE.Matrix4(), tmpS = new THREE.Vector3();
+function cellPos(c, out){
+  const P = paths[c.path], i = Math.min(P.n-1, Math.floor(c.s/STEP));
+  const sg = P.seg[i]; let r = SEG_R[sg];
+  if(sg===2) r *= Math.max(0.25, 1 + 0.8*dilNow[bedOf(c.path)]);
+  out.set(P.pos[i*3] + P.nrm[i*3]*c.a*r, P.pos[i*3+1] + P.nrm[i*3+1]*c.a*r, P.pos[i*3+2] + c.b*r);
+  tmpT.set(P.tan[i*3], P.tan[i*3+1], P.tan[i*3+2]);
+  return {i, P, sg};
+}
+function updateCellMeshes(){
+  let ri=0, wi=0, pi=0;
+  for(const c of cells){
+    const {i, P, sg} = cellPos(c, tmpP);
+    tmpQ.copy(c.q);
+    if(c.kind==='rbc'){
+      const sc = sg===3 ? 0.085 : 0.1; tmpS.set(sc,sc,sc);
+      tmpM.compose(tmpP, tmpQ, tmpS); rbcIM.setMatrixAt(ri, tmpM);
+      tmpC.copy(cDeox).lerp(cOx, P.oxy[i]); rbcIM.setColorAt(ri, tmpC); ri++;
+    } else if(c.kind==='wbc'){ const sc = sg===3?0.1:0.14; tmpS.set(sc,sc,sc); tmpM.compose(tmpP, tmpQ, tmpS); wbcIM.setMatrixAt(wi++, tmpM); }
+    else { tmpS.set(0.05,0.022,0.04); tmpM.compose(tmpP, tmpQ, tmpS); pltIM.setMatrixAt(pi++, tmpM); }
+  }
+  rbcIM.instanceMatrix.needsUpdate = true; if(rbcIM.instanceColor) rbcIM.instanceColor.needsUpdate = true;
+  wbcIM.instanceMatrix.needsUpdate = true; pltIM.instanceMatrix.needsUpdate = true;
+  if(followOn){ const {i,P} = cellPos(follower, tmpP); tmpQ.copy(follower.q);
+    folMesh.position.copy(tmpP); folMesh.quaternion.copy(tmpQ); folMesh.scale.setScalar(0.17);
+    folMesh.material.color.copy(cDeox).lerp(cOx, P.oxy[i]); ring.position.copy(tmpP); }
+}
+function initCells(){
+  for(let k=0;k<N_RBC;k++) cells.push(newCell('rbc'));
+  for(let k=0;k<N_WBC;k++) cells.push(newCell('wbc'));
+  for(let k=0;k<N_PLT;k++) cells.push(newCell('plt'));
+  for(const c of cells){ pickPath(c); c.s = rnd()*paths[c.path].len; }
+  follower.s = 0.2;
+}
+
+/* ================================================================ capillary close-up */
+const zoom = {};
+function buildZoom(){
+  const pts = spaced([P3(-5.2,Y0),P3(5.2,Y0)], 60);
+  const back = new THREE.MeshStandardMaterial({map:endoTex, roughness:0.6, side:THREE.DoubleSide});
+  const ghost = new THREE.MeshStandardMaterial({map:endoTex, roughness:0.5, transparent:true, opacity:0.16, depthWrite:false, side:THREE.DoubleSide});
+  const solid = new THREE.MeshStandardMaterial({map:endoTex, roughness:0.6, side:THREE.DoubleSide});
+  const w = ()=>1;
+  const mb = new THREE.Mesh(shellGeo(pts, 0.95, 1.03, Math.PI, 2*Math.PI, 24, w, 0.12), back);
+  const mf = new THREE.Mesh(shellGeo(pts, 0.95, 1.03, 0, Math.PI, 24, w, 0.12), ghost);
+  mf.userData.ghost = ghost; mf.userData.solid = solid; mf.renderOrder = 2;
+  mb.userData.part = mf.userData.part = 'capZoom'; scene.add(mb, mf); pick.push(mb, mf);
+  addPartMat('capZoom', back); addPartMat('capZoom', solid);
+  zoom.front = mf;
+  // muscle fibres above and below
+  const fMat = new THREE.MeshStandardMaterial({map:fibreTex, roughness:0.7}); addPartMat('muscleZ', fMat);
+  for(const y of [-2.05, 2.05]) for(const z of [-0.55, 0.55]){
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,10.4,24), fMat); m.rotation.z = Math.PI/2; m.position.set(0, Y0+y, z-0.2);
+    m.castShadow = true; m.userData.part='muscleZ'; scene.add(m); pick.push(m); }
+  // red cells in single file
+  zoom.rbc = new THREE.InstancedMesh(rbcGeo, new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.45}), 8);
+  zoom.rbc.userData.part = 'capZoom'; scene.add(zoom.rbc);
+  // exchange dots
+  zoom.dots = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 10, 8), new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.4}), 90);
+  scene.add(zoom.dots);
+  zoom.list = [...Array(90)].map(()=>({t:rnd(), dur:1, type:0, x:0, z:0, side:1}));
+  zoom.list.forEach(d=>spawnDot(d, true));
+  // tags
+  tag('From arteriole ▶', [-6.6, Y0, 0]); tag('▶ To venule', [6.5, Y0, 0]);
+  tag('Hugely zoomed in. Not to scale.', [0, Y0+3.1, 0]);
+}
+const DOT_COL = [new THREE.Color(0xff5a36), new THREE.Color(0x2fa84f), new THREE.Color(0x6b7280), new THREE.Color(0x8a4fd1)];
+function spawnDot(d, initial=false){
+  const r = rnd();
+  d.type = r<0.35 ? 0 : r<0.5 ? 1 : r<0.85 ? 2 : 3;   // 0 O2, 1 glucose, 2 CO2, 3 lactate
+  d.x = d.type===0 ? -4.6 + 9.2*Math.pow(rnd(),1.7) : -4.6 + 9.2*rnd();  // more oxygen leaves near the arteriole end
+  d.z = (rnd()-0.5)*0.9; d.side = rnd()<0.5 ? 1 : -1;
+  d.dur = 2.2 + rnd()*1.2; d.t = initial ? rnd() : 0;
+}
+function updateZoom(dt, tAbs){
+  // red cells
+  for(let k=0;k<8;k++){
+    let x = ((tAbs*0.55*MODES[modeId].hr/70 + k*1.35) % 10.8) - 5.4;
+    const f = (x+5.2)/10.4; tmpC.copy(cOx).lerp(cDeox, smooth(0.1,0.9,f));
+    const sc = 0.78 * smooth(-5.4,-4.9,x) * (1-smooth(4.9,5.4,x));
+    tmpQ.setFromUnitVectors(YAX, new THREE.Vector3(1,0,0));
+    tmpM.compose(tmpP.set(x, Y0, 0), tmpQ, tmpS.set(sc,sc,sc)); zoom.rbc.setMatrixAt(k, tmpM); zoom.rbc.setColorAt(k, tmpC);
+  }
+  zoom.rbc.instanceMatrix.needsUpdate = true; if(zoom.rbc.instanceColor) zoom.rbc.instanceColor.needsUpdate = true;
+  // dots: out-movers go from inside the capillary to the muscle; in-movers the other way
+  zoom.list.forEach((d,k)=>{
+    d.t += dt/d.dur; if(d.t>=1) spawnDot(d);
+    const out = d.type<2; const f = out ? d.t : 1-d.t;
+    const y = d.side*lerp(0.45, 1.6, f);
+    const x = d.x + (out ? 0 : (1-d.t)*0) + (out ? 0.3*d.t : 0.6*d.t);
+    const sc = 0.075 * Math.min(smooth(0,0.15,d.t), 1-smooth(0.85,1,d.t));
+    tmpM.compose(tmpP.set(x, Y0+y, d.z), tmpQ.identity(), tmpS.set(sc,sc,sc)); zoom.dots.setMatrixAt(k, tmpM); zoom.dots.setColorAt(k, DOT_COL[d.type]);
+  });
+  zoom.dots.instanceMatrix.needsUpdate = true; if(zoom.dots.instanceColor) zoom.dots.instanceColor.needsUpdate = true;
+}
+
+/* ================================================================ blood bench */
+const bench = {};
+function buildBench(){
+  const X = -6;
+  // spun sample in a tube
+  const glass = new THREE.MeshStandardMaterial({color:0xdfe8f3, roughness:0.1, transparent:true, opacity:0.28, depthWrite:false, side:THREE.DoubleSide});
+  const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.62,0.62,4.3,32,1,true), glass); tube.position.set(X, Y1+0.25, 0);
+  const bottom = new THREE.Mesh(new THREE.SphereGeometry(0.62,32,16,0,Math.PI*2,Math.PI/2,Math.PI/2), glass); bottom.position.set(X, Y1-1.9, 0);
+  tube.userData.part = bottom.userData.part = 'tube'; scene.add(tube, bottom); pick.push(tube);
+  const lay = (h, y, color, part, op=1)=>{ const m = new THREE.MeshStandardMaterial({color, roughness:0.35, transparent:op<1, opacity:op});
+    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.56,0.56,h,32), m); mesh.position.set(X, y, 0); mesh.userData.part = part; scene.add(mesh); pick.push(mesh); addPartMat(part, m); addPartMat('tube', m); return mesh; };
+  // red cells 45% (bottom, with round end), buffy coat under 1%, plasma 55%
+  const redM = new THREE.MeshStandardMaterial({color:0x8c1421, roughness:0.35}); addPartMat('rbcLayer', redM); addPartMat('tube', redM);
+  const cap = new THREE.Mesh(new THREE.SphereGeometry(0.56,32,16,0,Math.PI*2,Math.PI/2,Math.PI/2), redM); cap.position.set(X, Y1-1.9, 0); cap.userData.part='rbcLayer'; scene.add(cap); pick.push(cap);
+  lay(1.56, Y1-1.12, 0x8c1421, 'rbcLayer');
+  lay(0.07, Y1-0.305, 0xf7f5ef, 'buffy');
+  lay(2.1, Y1+0.78, 0xf0cc6a, 'plasma', 0.88);
+  // big red cell
+  const rm = new THREE.MeshStandardMaterial({color:0xc8202c, roughness:0.45}); addPartMat('rbc', rm);
+  bench.rbc = new THREE.Mesh(rbcGeo, rm); bench.rbc.scale.setScalar(1.15); bench.rbc.position.set(-2.4, Y1, 0); bench.rbc.castShadow = true; bench.rbc.userData.part='rbc'; scene.add(bench.rbc); pick.push(bench.rbc);
+  // white cell with a lobed nucleus
+  const wm = new THREE.MeshStandardMaterial({color:0xece6f7, roughness:0.5, transparent:true, opacity:0.5, depthWrite:false}); addPartMat('wbc', wm);
+  bench.wbc = new THREE.Mesh(new THREE.SphereGeometry(0.95, 32, 24), wm); bench.wbc.position.set(0.6, Y1, 0); bench.wbc.userData.part='wbc'; bench.wbc.renderOrder = 3; scene.add(bench.wbc); pick.push(bench.wbc);
+  const nm = new THREE.MeshStandardMaterial({color:0x6d4fa3, roughness:0.5}); addPartMat('wbc', nm);
+  for(const o of [[-0.28,0.1,0],[0.05,0.25,0.05],[0.3,0.0,-0.05]]){ const n = new THREE.Mesh(new THREE.SphereGeometry(0.3,20,14), nm); n.position.set(0.6+o[0], Y1+o[1], o[2]); n.userData.part='wbc'; scene.add(n); }
+  // bacteria
+  const bm = new THREE.MeshStandardMaterial({color:0x3f9f45, roughness:0.5}); addPartMat('bact', bm);
+  bench.bact = [...Array(4)].map(()=>{ const b = new THREE.Mesh(new THREE.CapsuleGeometry(0.09, 0.28, 4, 10), bm); b.userData.part='bact'; scene.add(b); pick.push(b); return b; });
+  // platelets
+  const pm = new THREE.MeshStandardMaterial({color:0xc9a6e0, roughness:0.55}); addPartMat('plt', pm);
+  for(let k=0;k<8;k++){ const p = new THREE.Mesh(new THREE.SphereGeometry(1,12,8), pm); p.scale.set(0.2+rnd()*0.08, 0.07, 0.15+rnd()*0.06);
+    p.position.set(2.9 + (rnd()-0.5)*1.0, Y1 + (rnd()-0.5)*1.0, (rnd()-0.5)*0.6); p.rotation.set(rnd()*3, rnd()*3, rnd()*3); p.userData.part='plt'; p.castShadow = true; scene.add(p); pick.push(p); }
+  // small vessel with a cut, platelets plug it
+  const vp = spaced([P3(4.4,Y1),P3(7.0,Y1)], 30);
+  const cm = new THREE.MeshStandardMaterial({color:0xbf6a6e, roughness:0.6, side:THREE.DoubleSide}); addPartMat('clot', cm);
+  const cmb = new THREE.Mesh(shellGeo(vp, 0.5, 0.62, Math.PI, 2*Math.PI, 14, ()=>1), cm); cmb.userData.part='clot'; scene.add(cmb); pick.push(cmb);
+  const cut = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.2, 0.8), new THREE.MeshStandardMaterial({color:0x5a0d14, roughness:0.8}));
+  cut.position.set(5.7, Y1+0.56, -0.25); cut.userData.part='clot'; scene.add(cut);
+  bench.clotP = new THREE.InstancedMesh(new THREE.SphereGeometry(1,10,8), pm, 16); bench.clotP.userData.part='clot'; scene.add(bench.clotP);
+  bench.clotSpots = [...Array(16)].map((_,k)=>P3(5.7 + (rnd()-0.5)*0.42, Y1 + 0.42 + rnd()*0.28, -0.25 + (rnd()-0.5)*0.6));
+}
+function updateBench(t){
+  bench.rbc.rotation.set(0.55 + 0.25*Math.sin(t*0.4), t*0.35, 0.2);
+  bench.bact.forEach((b,k)=>{
+    const ph = ((t/7) + k/4) % 1, ang = k*1.57 + t*0.25;
+    let r = ph < 0.6 ? lerp(1.9, 1.05, ph/0.6) : lerp(1.05, 0.25, smooth(0.6,0.85,ph));
+    const sc = ph < 0.62 ? 1 : 1 - smooth(0.62, 0.88, ph);
+    b.position.set(0.6 + Math.cos(ang)*r, Y1 + Math.sin(ang)*r, 0.15); b.rotation.z = ang; b.scale.setScalar(Math.max(0.001, sc)); b.visible = sc > 0.01;
+  });
+  const u = (t % 8) / 8;
+  for(let k=0;k<16;k++){
+    const arrive = 0.05 + k/16*0.65; const spot = bench.clotSpots[k];
+    let p, sc = 0.07;
+    if(u < arrive){ const f = (u - arrive + 0.25)/0.25; if(f<0){ sc=0; p = spot; } else p = P3(lerp(4.5, spot.x, f), lerp(Y1 + (k%3-1)*0.2, spot.y, f*f), lerp(0, spot.z, f)); }
+    else p = spot;
+    if(u > 0.93) sc *= 1 - smooth(0.93, 1, u);
+    tmpM.compose(p, tmpQ.identity(), tmpS.set(sc*1.6, sc*0.7, sc*1.3)); bench.clotP.setMatrixAt(k, tmpM);
+  }
+  bench.clotP.instanceMatrix.needsUpdate = true;
+}
+
+/* ================================================================ labels */
+const labelObjs = {};
+function tag(txt, pos){ const d=document.createElement('div'); d.className='tag'; d.textContent=txt; const o=new CSS2DObject(d); o.position.set(...pos); scene.add(o); return o; }
+function buildLabels(){
+  for(const id in PARTS){
+    const P = PARTS[id], d = document.createElement('div');
+    d.className = 'lbl' + (P.blood ? ' '+P.blood : '');
+    d.innerHTML = P.name + (P.kind ? `<small>${P.kind}${P.blood ? ', '+(P.blood==='ox'?'mostly oxygenated':'mostly deoxygenated')+' blood':''}</small>` : '');
+    const o = new CSS2DObject(d); o.position.set(...P.at); scene.add(o); labelObjs[id] = {o, d};
+  }
+}
+let showAll = false, hlSet = new Set(), hoverId = null;
+function refreshLabels(){
+  for(const id in labelObjs){ const {d} = labelObjs[id];
+    d.classList.toggle('show', showAll || hlSet.has(id) || hoverId===id);
+    d.classList.toggle('hl', hlSet.has(id)); }
+}
+function setHighlight(t){
+  const k = 0.16 + 0.12*Math.sin(t*4);
+  const on = new Set(); hlSet.forEach(id=>(partMats[id]||[]).forEach(m=>on.add(m)));
+  for(const id in partMats) for(const m of partMats[id]){ const h = on.has(m); m.emissive.setHex(h ? 0xffb300 : 0x000000); m.emissiveIntensity = h ? k : 0; }
+}
+
+/* ================================================================ camera */
+const CAMS = {
+  overview:  {p:[0,-1.6,26], t:[0.1,-1.8,0]},
+  artery:    {p:[-2.6,4.6,8.6], t:[-3.0,3.1,0]},
+  arterioles:{p:[2.0,2.4,10.5], t:[2.0,2.0,0]},
+  capbed:    {p:[4.4,2.4,7.5], t:[4.5,1.9,0]},
+  capzoom:   {p:[0,Y0+1.2,14.5], t:[0,Y0,0]},
+  venule:    {p:[6.2,2.6,8.8], t:[6.6,1.9,0]},
+  vein:      {p:[-2.4,-2.9,10.2], t:[-2.4,-4.0,0]},
+  blood:     {p:[-4.0,Y1+0.8,11.2], t:[-4.2,Y1+0.1,0]},
+  blood2:    {p:[3.6,Y1+0.8,12.0], t:[3.6,Y1,0]},
+  shunt:     {p:[3.0,1.8,16.5], t:[3.8,1.6,0]}
+};
+let camAnim = null;
+function narrowFactor(name){ const a = innerWidth/innerHeight; const wide = name==='overview' || name==='shunt';
+  return a < 0.8 ? (wide ? 2.3 : 1.55) : a < 1.2 ? (wide ? 1.45 : 1.2) : 1; }
+function goCam(name, instant=false){
+  const c = CAMS[name]; if(!c) return;
+  const f = narrowFactor(name);
+  const t = V(c.t); const p = V(c.p).sub(t).multiplyScalar(f).add(t);
+  const W=innerWidth, H=innerHeight, dist=p.distanceTo(t), halfH=Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*dist, unit=halfH/(H/2);
+  const st = $('#stage').getBoundingClientRect();
+  if(W<=760 && H>W){ const top = Math.max($('#top').getBoundingClientRect().bottom, $('#legend').getBoundingClientRect().bottom)+4, bottom = st.top-6; const dy=(H/2-(top+bottom)/2)*unit; t.y-=dy; p.y-=dy; }
+  else if(H<=500 && W>H){ const left = st.right+6; const dx=((left+W)/2-W/2)*unit; t.x-=dx; p.x-=dx; }
+  else { const left = st.right, right = (W > 900 && !$('#flowbox').hidden) ? $('#flowbox').getBoundingClientRect().left : W;
+    if(name!=='overview'){ const dx = ((left+right)/2 - W/2)*unit*0.5; t.x -= dx; p.x -= dx; } }
+  $('#cam').value = name;
+  if(instant || reduceMotion){ camera.position.copy(p); controls.target.copy(t); camAnim=null; return; }
+  camAnim = {p0:camera.position.clone(), t0:controls.target.clone(), p1:p, t1:t, k:0};
+}
+
+/* ================================================================ UI */
+const spdEl = $('#spd');
+function spdText(){ const M = MODES[modeId]; return `<b>${speed.toFixed(2).replace(/0$/,'')}×</b> <span class="d">real speed<br>Heart rate about ${M.hr} bpm</span>`; }
+function setSpeed(v){ speed = v; spdEl.value = Math.round(v*100); $('#spdOut').innerHTML = spdText(); }
+function setMode(m){
+  modeId = m; $('#mode').value = m; const M = MODES[m];
+  $('#fbMode').textContent = M.name;
+  $('#fbHR').textContent = `${M.hr} bpm · ${M.co}`;
+  const put=(el,[t,c])=>{ el.textContent=t; el.className='state '+c; };
+  put($('#fbMus'), M.txt.muscle); put($('#fbGut'), M.txt.gut); put($('#fbSkin'), M.txt.skin);
+  $('#shareFill').style.width = M.share + '%';
+  $('#shareTxt').textContent = `About ${M.share}%` + (m==='exercise' ? ' in hard exercise' : ' at rest');
+  $('#spdOut').innerHTML = spdText();
+  updateFlowSmall();
+}
+function updateFlowSmall(){
+  const M = MODES[modeId], i = stageIdx; let h = '';
+  if(i===5) h = `<b>Pump:</b> ${squeeze()>0.5 ? 'muscles squeeze, heart-side valve OPEN, far valve SHUT' : 'muscles relax, heart-side valve SHUT, far valve OPEN'}`;
+  else if(i===9 || i===10 || i===2) h = `<b>${M.name}:</b> muscle arterioles ${M.txt.muscle[0].toLowerCase()}, gut ${M.txt.gut[0].toLowerCase()}, skin ${M.txt.skin[0].toLowerCase()}. Muscles get about ${M.share}% of blood flow.`;
+  else h = `<b>${M.name}</b> · ${M.hr} bpm · cardiac output ${M.co}`;
+  if($('#flowSmall').innerHTML !== h) $('#flowSmall').innerHTML = h;
+}
+function setWall(m){
+  wallMode = m; $('#wall').value = m;
+  const fr = [...Object.values(vessels).flat().flatMap(g=>g.userData.fronts), zoom.front];
+  for(const f of fr){ f.visible = m!=='cut'; f.material = m==='whole' ? f.userData.solid : f.userData.ghost; }
+}
+function setFollow(on){
+  followOn = on; $('#bFollow').setAttribute('aria-pressed', on);
+  $('#follow').style.display = on ? 'block' : 'none';
+  folMesh.visible = ring.visible = on;
+  if(on){ follower.path = LANES+1; follower.s = 0.2; lastWhere=''; }
+}
+const ROUTE = ['Heart','Artery','Arteriole','Capillary (in the working muscle)','Venule','Vein'];
+$('#route').innerHTML = ROUTE.map(r=>`<li>${r}</li>`).join('');
+let lastWhere = '';
+function updateFollowPanel(){
+  const P = paths[follower.path], i = Math.min(P.n-1, Math.floor(follower.s/STEP)); const w = SEG_NAME[P.seg[i]];
+  if(w===lastWhere) return; lastWhere = w;
+  $('#nowIn').textContent = 'Now in: ' + w;
+  const k = ROUTE.indexOf(w);
+  $('#nextStop').textContent = 'Next stop: ' + ROUTE[(k+1)%ROUTE.length];
+  [...$('#route').children].forEach((li,j)=>{ li.className = j===k ? 'now' : (j<k ? 'past' : ''); });
+}
+
+$('#dots').innerHTML = STAGES.map((s,i)=>`<button class="dot" role="tab" aria-label="Stage ${i+1}: ${s.name}" data-i="${i}"></button>`).join('');
+$('#dots').addEventListener('click', e=>{ const b=e.target.closest('.dot'); if(b) goStage(+b.dataset.i); });
+function goStage(i, speak=true){
+  stageIdx = Math.max(0, Math.min(STAGES.length-1, i));
+  const S = STAGES[stageIdx];
+  $('#stageNum').textContent = `${stageIdx+1} / ${STAGES.length}`;
+  $('#stageName').textContent = S.name;
+  $('#caption').textContent = S.text;
+  [...$('#dots').children].forEach((d,k)=>{ d.className = 'dot' + (k<stageIdx?' done':'') + (k===stageIdx?' on':''); d.setAttribute('aria-selected', k===stageIdx); });
+  hlSet = new Set(S.hl);
+  if(S.mode) setMode(S.mode);
+  setWall(S.wall || 'cut');
+  setFollow(!!S.follow);
+  goCam(S.cam);
+  refreshLabels(); updateFlowSmall();
+  $('#flowbox').hidden = ![2,5,9,10].includes(stageIdx);
+  $('#bPrev').disabled = stageIdx===0;
+  $('#bNext').disabled = stageIdx===STAGES.length-1;
+  if(stageIdx===STAGES.length-1) window.simStats && simStats.once('tour-complete');
+  if(speak) narrate(S);
+  syncStageH();
+}
+function syncStageH(){ document.documentElement.style.setProperty('--stageH', $('#stage').offsetHeight+'px'); }
+try{ new ResizeObserver(syncStageH).observe($('#stage')); }catch(e){}
+
+/* narration: Web Speech here; the hub version swaps in recorded clips */
+let voice = null, speaking = false;
+function pickVoice(){ try{ const vs = speechSynthesis.getVoices(); voice = vs.find(v=>/en-GB/i.test(v.lang) && /female|libby|sonia|serena|kate|google uk english female/i.test(v.name)) || vs.find(v=>/en-GB/i.test(v.lang)) || vs.find(v=>/^en/i.test(v.lang)) || null; }catch(e){} }
+try{ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }catch(e){}
+/* Recorded narration (ElevenLabs, Alice). ONE shared Audio element: iPhones only let a player the student
+   started keep playing, so reusing it keeps narration working as the tour moves on by itself. */
+const NARR = {"Blood travels in a closed loop of vessels. Arteries carry blood away from the heart. They branch into arterioles, then into capillaries inside the tissues. Capillaries join into venules, and venules join into veins, which carry blood back to the heart. The heart is a simple shape here. You explored its inside in Part 1.": "audio/bv-tour1.mp3", "Arteries carry blood away from the heart at high pressure. Their walls are thick, with a strong middle layer of smooth muscle and elastic fibres. The wall stretches with each heartbeat and springs back, which you can feel as a pulse. The lumen, the space inside, is narrow compared with the wall. Most arteries carry oxygenated blood, but the pulmonary artery carries deoxygenated blood to the lungs.": "audio/bv-tour2.mp3", "Arteries branch into smaller arterioles. Their walls are mostly smooth muscle. When this muscle contracts, the arteriole narrows. This is vasoconstriction, and less blood flows into the capillaries beyond it. When the muscle relaxes, the arteriole widens. This is vasodilation, and more blood flows through. Blood pressure drops as blood passes through the arterioles.": "audio/bv-tour3.mp3", "Capillaries are the smallest vessels. Their wall is only one cell thick, and red blood cells pass through in single file, slowly. This gives a short distance and plenty of time for exchange. Oxygen and nutrients such as glucose pass out to the muscle cells. Carbon dioxide and lactate pass in, to be carried away. The red blood cells stay inside the capillary.": "audio/bv-tour4.mp3", "Capillaries join together to form venules. Venules collect deoxygenated blood, which now carries carbon dioxide and lactate, and join together to form veins. Blood pressure here is low, and the blood flows smoothly with no pulse.": "audio/bv-tour5.mp3", "Veins carry blood back towards the heart at low pressure. Their walls are thinner, with less muscle, and the lumen is wide. Veins have valves that only open towards the heart and shut to stop blood flowing backwards. When the skeletal muscles around a vein contract, they squeeze it and push blood towards the heart. This is the skeletal muscle pump. Watch which valve opens with each squeeze.": "audio/bv-tour6.mp3", "An adult has about 5 litres of blood. When a sample is spun in a tube, it separates. Plasma, the straw-coloured liquid at the top, is about 55%. Red blood cells, at the bottom, are about 45%. White blood cells and platelets make a thin pale layer in between, less than 1%.": "audio/bv-tour7.mp3", "Red blood cells carry oxygen. Each one is a disc that is thinner in the middle, which gives a large surface area, and it has no nucleus, which leaves more room for haemoglobin. Oxygen joins with haemoglobin in the lungs and is released in the tissues. Red cells also carry some carbon dioxide. Plasma is mostly water. It carries dissolved nutrients such as glucose, carbon dioxide, hormones and heat around the body.": "audio/bv-tour8.mp3", "White blood cells fight infection. Some engulf and digest germs such as bacteria, and others make antibodies. They are larger than red cells and have a nucleus. Platelets are tiny fragments of cells. When a blood vessel is cut, platelets stick to the damaged wall and to each other to form a plug, and they help the blood to clot. This stops the bleeding.": "audio/bv-tour9.mp3", "During exercise the working muscles need far more oxygen. Arterioles supplying the muscles vasodilate, and arterioles supplying organs such as the stomach and gut vasoconstrict. Blood is redirected to where it is needed. This is the vascular shunt. At rest the muscles get about 20% of the blood pumped out by the heart. In hard exercise this can rise to about 80%, and the heart pumps out much more blood each minute too.": "audio/bv-tour10.mp3", "Blood vessels also help control body temperature. When you get hot, for example during exercise, arterioles supplying the skin vasodilate. More warm blood flows near the surface and heat is lost to the air. In the cold, skin arterioles vasoconstrict, so less blood flows near the surface and heat is kept in the core. The model now shows a cold day. Switch Body to Exercise to compare.": "audio/bv-tour11.mp3", "Now follow one red blood cell round the loop. Say each stop out loud before the cell reaches it: heart, artery, arteriole, capillary in the working muscle, venule, vein, and back to the heart. Watch its colour change in the capillary as it gives up oxygen.": "audio/bv-tour12.mp3", "Heart. Pumps blood into the arteries. You explored the inside in Part 1.": "audio/bv-part-heart.mp3", "Artery. Carries blood away from the heart at high pressure. Thick, muscular, elastic wall and a narrow lumen.": "audio/bv-part-artery.mp3", "Outer layer. Tough fibres that hold the vessel in shape.": "audio/bv-part-wallOut.mp3", "Middle layer. Smooth muscle and elastic fibres. Very thick in arteries, thin in veins.": "audio/bv-part-wallMid.mp3", "Inner lining. A smooth layer one cell thick, so blood flows easily.": "audio/bv-part-wallIn.mp3", "Arterioles. Muscular walls narrow (vasoconstrict) or widen (vasodilate) to control blood flow into the capillaries.": "audio/bv-part-arteriole.mp3", "Capillaries. Tiny vessels with walls one cell thick. Exchange happens here.": "audio/bv-part-capbed.mp3", "Venules. Collect deoxygenated blood from the capillaries and join to form veins.": "audio/bv-part-venule.mp3", "Vein. Carries blood back to the heart at low pressure. Thin wall, wide lumen, valves.": "audio/bv-part-vein.mp3", "Valve in the vein. Opens towards the heart and shuts to stop blood flowing backwards.": "audio/bv-part-valve.mp3", "Skeletal muscle pump. Muscles contract, squeeze the vein and push blood towards the heart.": "audio/bv-part-pump.mp3", "Skin. Blood near the surface loses heat to the air.": "audio/bv-part-skin.mp3", "Working muscle. Needs lots of oxygen and nutrients during exercise.": "audio/bv-part-muscle.mp3", "Stomach and gut. Gets less blood during exercise.": "audio/bv-part-gut.mp3", "Capillary wall. Thin, so oxygen, nutrients, carbon dioxide and lactate cross it quickly.": "audio/bv-part-capZoom.mp3", "Oxygen + nutrients out. Pass from the blood into the muscle cells.": "audio/bv-part-exOut.mp3", "Carbon dioxide + lactate in. Pass from the muscle cells into the blood to be carried away.": "audio/bv-part-exIn.mp3", "Muscle cells. Use oxygen and glucose to release energy for movement.": "audio/bv-part-muscleZ.mp3", "Blood sample (spun). A spun sample separates into its parts.": "audio/bv-part-tube.mp3", "Plasma, about 55%. Straw-coloured liquid, mostly water. Carries nutrients, carbon dioxide, hormones and heat.": "audio/bv-part-plasma.mp3", "White cells + platelets, under 1%. A thin pale layer between the plasma and the red cells.": "audio/bv-part-buffy.mp3", "Red blood cells, about 45%. Carry oxygen using haemoglobin.": "audio/bv-part-rbcLayer.mp3", "Red blood cell. Disc, thinner in the middle, no nucleus. Haemoglobin carries oxygen.": "audio/bv-part-rbc.mp3", "White blood cell. Fights infection. Larger than a red cell and has a nucleus.": "audio/bv-part-wbc.mp3", "Bacteria. Germs that the white cell engulfs and digests.": "audio/bv-part-bact.mp3", "Platelets. Tiny cell fragments that help blood clot.": "audio/bv-part-plt.mp3", "Platelets plug a cut. Platelets stick to the damaged wall and each other, then the blood clots.": "audio/bv-part-clot.mp3", "Correct. Arteries carry blood away from the heart at high pressure, so they need a thick, elastic, muscular wall.": "audio/bv-quiz1-right.mp3", "Correct. Pressure in veins is low, so valves shut to stop blood flowing backwards and keep it moving towards the heart.": "audio/bv-quiz2-right.mp3", "Correct. A wall only one cell thick gives a very short distance, and slow single-file flow gives time for exchange.": "audio/bv-quiz3-right.mp3", "Correct. Red blood cells contain haemoglobin, which joins with oxygen in the lungs and releases it in the tissues.": "audio/bv-quiz4-right.mp3", "Correct. The arterioles to the working muscles vasodilate, so more blood and oxygen reach them. This is part of the vascular shunt.": "audio/bv-quiz5-right.mp3", "Not quite. Try again, or tap Show me.": "audio/bv-quiz-wrong.mp3", "Tour complete. Now try Test yourself.": "audio/bv-tour-done.mp3"};
+const __narr = new Audio(); __narr.preload = 'auto'; let __cur = null;
+function __norm(t){ return String(t).replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim(); }
+function __stopClip(){ if(__cur){ try{ __cur.pause(); }catch(e){} __cur = null; } }
+function __playClip(text, onEnd){ const src = NARR[__norm(text)]; if(!src) return false;
+  __stopClip(); const a = __narr; a.muted = false;
+  if(a._src !== src){ a.src = src; a._src = src; } else { try{ a.currentTime = 0; }catch(e){} }
+  a.onended = ()=>{ if(__cur===a) __cur = null; onEnd && onEnd(); };
+  __cur = a; const p = a.play(); if(p && p.catch) p.catch(()=>{ onEnd && onEnd(); }); return true; }
+function __primeClip(){ try{ const a = __narr; if(!a.src){ const f = Object.values(NARR)[0]; a.src = f; a._src = f; } a.muted = true; const p = a.play();
+  if(p && p.then) p.then(()=>{ if(__cur!==a) a.pause(); a.muted = false; }, ()=>{ a.muted = false; }); else a.muted = false; }catch(e){ __narr.muted = false; } }
+function clipPlaying(){ return !!(__cur && !__cur.paused && !__cur.ended); }
+function narrating(){ return speaking || clipPlaying(); }
+function say(text, onEnd){
+  try{ speechSynthesis.cancel(); }catch(e){} __stopClip(); speaking = false;
+  if(!(soundOn && audioReady)) return false;
+  if(__playClip(text, onEnd)) return true;
+  try{ const u = new SpeechSynthesisUtterance(String(text).replace(/<[^>]+>/g,'')); if(voice) u.voice = voice; u.lang = 'en-GB'; u.rate = 0.95;
+    u.onend = u.onerror = ()=>{ speaking = false; onEnd && onEnd(); }; speaking = true; speechSynthesis.speak(u); return true; }catch(e){ speaking = false; return false; }
+}
+function narrate(S){
+  clearTimeout(autoTimer);
+  const readMs = Math.max(6000, S.text.split(/\s+/).length/2.6*1000 + 1500);
+  const next = ()=>{ if(autoTour && stageIdx < STAGES.length-1) autoTimer = setTimeout(()=>goStage(stageIdx+1), 1500);
+    else if(autoTour){ setAuto(false); setTimeout(()=>{ if(!narrating()) say('Tour complete. Now try Test yourself.'); }, 600); } };
+  let done = false; const fin = ()=>{ if(done) return; done = true; next(); };
+  if(!say(S.text, fin)){ if(autoTour) autoTimer = setTimeout(fin, readMs); return; }
+  if(autoTour) autoTimer = setTimeout(()=>{ if(!narrating()) fin(); else { const w = setInterval(()=>{ if(!narrating()){ clearInterval(w); fin(); } }, 400); } }, readMs*2.2);
+}
+function setAuto(on){ autoTour = on; $('#bAuto').setAttribute('aria-pressed', on); if(on) narrate(STAGES[stageIdx]); else clearTimeout(autoTimer); }
+function startAudio(e){
+  if(audioReady) return; audioReady = true; $('#hint').style.display='none';
+  if(e && e.target && e.target.closest && e.target.closest('#bSound')){ __primeClip(); return; }
+  if(soundOn) narrate(STAGES[stageIdx]); else __primeClip();
+}
+['pointerup','click','keydown'].forEach(ev=>window.addEventListener(ev, startAudio, {capture:true}));
+
+$('#bSound').onclick = ()=>{ soundOn = !soundOn; $('#bSound').textContent = soundOn?'🔊':'🔇'; $('#bSound').setAttribute('aria-pressed', soundOn); if(!soundOn){ try{speechSynthesis.cancel();}catch(e){} __stopClip(); } else if(audioReady) narrate(STAGES[stageIdx]); };
+$('#bMin').onclick = ()=>{ const m = $('#stage').classList.toggle('min'); $('#bMin').textContent = m?'▴':'▾'; $('#bMin').setAttribute('aria-expanded', !m); $('#bMin').setAttribute('aria-label', m?'Show the text':'Hide the text'); syncStageH(); goCam(STAGES[stageIdx].cam); };
+$('#bPrev').onclick = ()=>goStage(stageIdx-1);
+$('#bNext').onclick = ()=>goStage(stageIdx+1);
+$('#bAuto').onclick = ()=>setAuto(!autoTour);
+$('#bPlay').onclick = ()=>setPlaying(!playing);
+function setPlaying(on){ playing = on; $('#bPlay').textContent = on?'⏸':'▶'; $('#bPlay').setAttribute('aria-label', on?'Pause':'Play'); }
+spdEl.oninput = ()=>setSpeed(+spdEl.value/100);
+$('#mode').onchange = e=>{ setMode(e.target.value); $('#flowbox').hidden = false; };
+$('#cam').onchange = e=>goCam(e.target.value);
+$('#wall').onchange = e=>setWall(e.target.value);
+$('#bLabels').onclick = ()=>{ showAll=!showAll; $('#bLabels').setAttribute('aria-pressed', showAll); refreshLabels(); };
+$('#bFollow').onclick = ()=>{ setFollow(!followOn); if(followOn) goCam('overview'); };
+$('#followX').onclick = ()=>setFollow(false);
+
+/* panels */
+function openPanel(id){ closeAll(); $(id).classList.add('open'); if(id!=='#helpPop') $('#backdrop').classList.add('open'); const c=$(id).querySelector('[data-close]'); c && c.focus(); }
+function closeAll(){ document.querySelectorAll('.panel.open,#helpPop.open,.backdrop.open').forEach(e=>e.classList.remove('open')); }
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeAll);
+$('#backdrop').onclick = closeAll;
+$('#bLearn').onclick = ()=>openPanel('#pLearn');
+$('#bQuiz').onclick = ()=>openPanel('#pQuiz');
+$('#bHelp').onclick = ()=>{ $('#helpPop').classList.contains('open') ? closeAll() : openPanel('#helpPop'); };
+document.addEventListener('pointerdown', e=>{ const hp=$('#helpPop'); if(hp.classList.contains('open') && !hp.contains(e.target) && !$('#bHelp').contains(e.target)) hp.classList.remove('open'); });
+window.addEventListener('keydown', e=>{
+  if((e.target.tagName==='INPUT' || e.target.tagName==='SELECT') && e.key!=='Escape') return;
+  if(e.key==='Escape') return closeAll();
+  if(document.querySelector('.panel.open')) return;
+  if(e.key===' '){ e.preventDefault(); setPlaying(!playing); }
+  else if(e.key==='ArrowRight') goStage(stageIdx+1);
+  else if(e.key==='ArrowLeft') goStage(stageIdx-1);
+  else if(['1','2','3','4'].includes(e.key)) goCam(['overview','artery','capzoom','vein'][+e.key-1]);
+  else if(/^[rR]$/.test(e.key)) setMode('rest');
+  else if(/^[eE]$/.test(e.key)) setMode('exercise');
+  else if(/^[cC]$/.test(e.key)) setMode('cold');
+  else if(/^[lL]$/.test(e.key)) $('#bLabels').click();
+  else if(/^[fF]$/.test(e.key)) $('#bFollow').click();
+});
+
+$('#learnBody').innerHTML = `
+  <h3>By the end, you can…</h3><ol>${OUTCOMES.map(o=>`<li>${o}</li>`).join('')}</ol>
+  <h3>Common misconceptions</h3>
+  ${MISCON.map(m=>`<div class="mc"><div class="wrong"><b>✗ Wrong idea</b><br>${m[0]}</div><div class="right"><b>✓ Correct idea</b><br>${m[1]}</div></div>`).join('')}
+  <h3>Specification link</h3>
+  <p>Pearson BTEC Level 3 National Foundation Diploma in Sport (601/7220/4)<br>
+  Unit 1: Anatomy and Physiology (externally assessed)<br>
+  Topic D: The effects of sport and exercise performance on the cardiovascular system<br>
+  <b>D1 Structure of the cardiovascular system</b> and <b>D2 Function of the cardiovascular system</b></p>
+  ${SPEC_QUOTES.map(q=>`<p class="spec">“${q}”</p>`).join('')}
+  <p class="note">This is Part 2 of 4. Part 1 covered the heart. Parts 3 and 4 cover the cardiac cycle and how the heart responds to exercise. The vascular shunt is listed in the unit's key terms and builds on vasodilation and vasoconstriction. Check the wording against the current issue of the specification.</p>`;
+
+/* quiz */
+let answered = {};
+function renderQuiz(){
+  $('#quizBody').innerHTML = QUIZ.map((q,i)=>`
+    <div class="qcard" data-q="${i}"><p>${i+1}. ${q.q}</p>
+      ${q.o.map((o,k)=>`<button class="opt" data-k="${k}">${o}</button>`).join('')}
+      <div class="fb" aria-live="polite"></div>
+      <button class="btn showme" data-stage="${q.stage}">Show me ▶</button>
+    </div>`).join('') + `<p class="note">Tap an answer to check it. “Show me” jumps to the stage that answers the question.</p>`;
+  updateScore();
+}
+function updateScore(){ const n=Object.keys(answered).length, c=Object.values(answered).filter(Boolean).length; $('#score').textContent = n?`${c} / ${QUIZ.length}`:''; }
+$('#quizBody').addEventListener('click', e=>{
+  const opt = e.target.closest('.opt'), sm = e.target.closest('.showme');
+  if(sm){ closeAll(); goStage(+sm.dataset.stage); return; }
+  if(!opt) return;
+  const card = opt.closest('.qcard'), qi = +card.dataset.q, q = QUIZ[qi], k = +opt.dataset.k;
+  card.querySelectorAll('.opt').forEach(b=>b.classList.remove('correct','incorrect'));
+  const right = k===q.a; opt.classList.add(right?'correct':'incorrect');
+  if(answered[qi]===undefined) answered[qi] = right;
+  const fb = card.querySelector('.fb'); fb.classList.add('show');
+  fb.innerHTML = right ? `<b>Correct.</b> ${q.why}` : `<b>Not quite.</b> Try again, or tap “Show me”.`;
+  say(right ? 'Correct. ' + q.why : 'Not quite. Try again, or tap Show me.');
+  updateScore();
+  if(Object.keys(answered).length===QUIZ.length) window.simStats && simStats.once('quiz-complete');
+});
+renderQuiz();
+
+/* teacher notes */
+function teacherHTML(){ return `<p class="note">Only the teacher version shows these notes. Give students the student version, which has the same simulation without the answers.</p>
+
+<h3>Questions to ask the class</h3>
+<p class="q">1. Stage 2: point to the artery wall. Why does an artery need a thick, elastic wall?</p>
+<p class="a">Blood leaves the heart at high pressure. The thick muscle and elastic fibres stand up to that pressure, stretch with each beat and recoil to keep blood moving. That stretch is the pulse.</p>
+<p class="q">2. Stage 3: switch Body to Exercise. What happens to the arterioles going to the muscle and to the gut, and why?</p>
+<p class="a">Muscle arterioles vasodilate (smooth muscle relaxes, lumen widens) so more blood reaches the working muscle. Gut arterioles vasoconstrict so less blood goes there. Blood is redirected, not created.</p>
+<p class="q">3. Stage 4: give two features of a capillary that make exchange fast.</p>
+<p class="a">The wall is one cell thick (short distance). Red cells pass in single file and slowly (time for exchange). There are a great many capillaries, so a large surface area.</p>
+<p class="q">4. Stage 6: watch the pump. When the muscles squeeze, which valve opens and which shuts? What happens when they relax?</p>
+<p class="a">Squeeze: the valve on the heart side opens and the far valve shuts, so blood can only go towards the heart. Relax: the heart-side valve shuts to stop backflow and the far valve opens so the vein refills from below.</p>
+<p class="q">5. Why does a cool-down help after a long run? (Link to the muscle pump.)</p>
+<p class="a">Keeping the legs moving keeps the skeletal muscle pump working, which helps venous return. Stopping suddenly can let blood pool in the legs.</p>
+<p class="q">6. Stage 11: on a cold day, what happens to the skin arterioles, and why might a footballer's hands look pale?</p>
+<p class="a">They vasoconstrict, so less warm blood flows near the skin and heat is kept in the core. Less blood near the surface makes the skin look paler.</p>
+<p class="q">7. A spun blood sample shows a low red cell percentage. What effect could that have on endurance performance?</p>
+<p class="a">Fewer red cells means less haemoglobin to carry oxygen, so less oxygen reaches the muscles and endurance is likely to drop.</p>
+
+<h3>Quiz answer key</h3>
+<table>
+<tr><th>Q</th><th>Answer</th><th>Why</th></tr>
+<tr><td>1</td><td>Artery</td><td>High pressure needs a thick, muscular, elastic wall.</td></tr>
+<tr><td>2</td><td>To stop blood flowing backwards</td><td>Pressure in veins is low, so valves keep flow going one way, towards the heart.</td></tr>
+<tr><td>3</td><td>Their wall is one cell thick</td><td>Short distance for diffusion; slow single-file flow gives time.</td></tr>
+<tr><td>4</td><td>Red blood cells</td><td>Haemoglobin joins with oxygen in the lungs and releases it in the tissues.</td></tr>
+<tr><td>5</td><td>They vasodilate, so more blood flows</td><td>Part of the vascular shunt that sends more blood to working muscles.</td></tr>
+</table>
+
+<h3>Safety reminders</h3>
+<ul>
+<li>Do not take or handle real blood samples in a sports classroom. The spun tube in the model is a picture only.</li>
+<li>Some learners feel faint when talking about blood or cuts. Let anyone who feels unwell sit or lie down.</li>
+<li>If learners take a pulse, use two fingers on the wrist (radial) or neck (carotid), not the thumb, and press the neck gently on one side only.</li>
+<li>Any learner with a known heart or blood condition should not be singled out. Keep examples general.</li>
+</ul>
+
+<h3>Delivery tips</h3>
+<ul>
+<li>Run the guided tour on the projector first with sound on, then let learners explore on their own devices in pairs.</li>
+<li>Pause on Stage 2 and ask learners to find their own pulse. Link the pulse to the artery wall stretching in the model.</li>
+<li>On Stage 6, set Speed to its lowest and call out "squeeze" and "relax" with the class while they watch the valves.</li>
+<li>For the shunt, switch Body between At rest and Exercise a few times. Ask learners to predict the change before you switch.</li>
+<li>Use "Walls: see-through" to compare artery and vein side by side from the Overview, then "Walls: cut open" to compare wall thickness and lumen.</li>
+<li>Exam technique: when asked to "explain", learners should link a structure to its function (for example "one cell thick, so a short diffusion distance").</li>
+</ul>
+
+<h3>Extension ideas</h3>
+<ul>
+<li>Pre-capillary sphincters: small rings of muscle where capillaries branch off, which also help control flow into capillary beds.</li>
+<li>Why does blood pressure fall so much in the arterioles? Link to resistance and the many branches.</li>
+<li>Training adaptations: endurance training can increase the number of capillaries in trained muscle (capillarisation). This leads into Part 4.</li>
+<li>How altitude training aims to raise red cell numbers, and why the body takes weeks to respond.</li>
+</ul>
+
+<h3>Simplifications in the model</h3>
+<ul>
+<li>Nothing is to scale. Capillaries are drawn far bigger than real life, and so are the cells.</li>
+<li>Red and blue are a colour code. Real deoxygenated blood is dark red.</li>
+<li>Only three capillary beds are shown (skin, muscle, gut). The heart is a simple shape and the trip through the lungs is left out (see Part 1).</li>
+<li>Bed sizes and the number of cells going to each bed are illustrative. The readout uses the textbook figures: about 20% of cardiac output to the muscles at rest, up to about 80% in hard exercise, and cardiac output about 5 L/min at rest, up to about 20 L/min in hard exercise for an untrained young adult.</li>
+<li>The skeletal muscle pump is shown with one pair of muscles and two valves. In the body many muscles and valves work along each vein.</li>
+<li>Exchange in the capillary is shown as moving dots. In reality these are dissolved molecules diffusing across the wall.</li>
+</ul>
+
+<h3>Sources</h3>
+<ul>
+<li>Pearson BTEC L3 National Foundation Diploma in Sport, Unit 1 content wording, as reproduced in Callywith College's specification guide: callywith.ac.uk/downloads/Sport_1.pdf</li>
+<li>Cleveland Clinic, Blood: red cells about 45%, white cells and platelets under 1%, red cells live about 120 days. my.clevelandclinic.org/health/body/24836-blood</li>
+<li>OpenStax Biology 2e, 40.2 Components of the Blood: plasma about 55%, red cells from bone marrow, haemoglobin carries oxygen, platelets clot. openstax.org/books/biology-2e</li>
+<li>LibreTexts Anatomy and Physiology, Blood Flow in Skeletal Muscle: about 20% of cardiac output at rest, up to about 80% in exercise; skeletal muscle pump. med.libretexts.org</li>
+<li>Klabunde, CV Physiology, Skeletal Muscle Blood Flow: arterioles control flow; over 80% of cardiac output to muscles in strenuous exercise. cvphysiology.com</li>
+<li>Joyner and Casey (2015), Physiological Reviews, PMC4551211: cardiac output about 5 L/min at rest, about 20 L/min at maximum in untrained young men; flow to gut and kidneys reduced.</li>
+<li>Korthuis (2011), Skeletal Muscle Circulation, NCBI Bookshelf NBK57139: vasoconstriction in gut, kidney and inactive muscle during exercise.</li>
+</ul>
+`; }
+if(TEACHER){
+  $('#badge').hidden = false; $('#bTeacher').hidden = false;
+  document.title = 'Blood vessels and blood – Teacher version';
+  $('#teacherBody').innerHTML = teacherHTML();
+  $('#bTeacher').onclick = ()=>openPanel('#pTeacher');
+}
+
+/* hover and tap */
+const ray = new THREE.Raycaster(), mouse = new THREE.Vector2(), tip = $('#tip'); let downAt = null;
+function visibleChain(o){ while(o){ if(!o.visible) return false; o = o.parent; } return true; }
+function pickAt(x,y){
+  const r = canvas.getBoundingClientRect(); mouse.set(((x-r.left)/r.width)*2-1, -((y-r.top)/r.height)*2+1);
+  ray.setFromCamera(mouse, camera);
+  const hits = ray.intersectObjects(pick.filter(visibleChain), false);
+  for(const h of hits){ if(h.object.material && h.object.material.opacity < 0.2) continue; if(h.object.userData.part) return h.object.userData.part; }
+  return null;
+}
+function showTip(id,x,y){
+  if(!id || !PARTS[id]){ tip.style.display='none'; return; }
+  const P = PARTS[id]; tip.innerHTML = `<b>${P.name}</b>${P.job}`; tip.style.display='block';
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.min(innerWidth-w-8, Math.max(8, x+14))+'px'; tip.style.top = Math.min(innerHeight-h-8, Math.max(8, y+14))+'px';
+}
+canvas.addEventListener('pointermove', e=>{ if(e.pointerType!=='mouse' || e.buttons) return; const id = pickAt(e.clientX,e.clientY); if(id!==hoverId){ hoverId=id; refreshLabels(); } showTip(id,e.clientX,e.clientY); canvas.style.cursor = id?'pointer':'grab'; });
+canvas.addEventListener('pointerleave', ()=>{ hoverId=null; refreshLabels(); showTip(null); });
+canvas.addEventListener('pointerdown', e=>{ downAt=[e.clientX,e.clientY]; });
+canvas.addEventListener('pointerup', e=>{
+  if(!downAt || Math.hypot(e.clientX-downAt[0], e.clientY-downAt[1])>6){ downAt=null; return; }
+  downAt=null; const id = pickAt(e.clientX,e.clientY); hoverId=id; refreshLabels(); showTip(id,e.clientX,e.clientY);
+  if(id && PARTS[id]) say(PARTS[id].name + '. ' + PARTS[id].job);
+  if(e.pointerType!=='mouse'){ clearTimeout(showTip._t); showTip._t=setTimeout(()=>{ showTip(null); hoverId=null; refreshLabels(); }, 4000); }
+});
+
+function resize(){
+  const w=innerWidth, h=innerHeight; renderer.setSize(w,h,false); labelRenderer.setSize(w,h);
+  camera.aspect=w/h; camera.updateProjectionMatrix(); controls.maxDistance = 45*narrowFactor('overview'); syncStageH();
+}
+addEventListener('resize', resize);
+
+/* ================================================================ simulation step */
+function squeeze(){ return 0.5 - 0.5*Math.cos(pumpPhase*Math.PI*2); }
+let lastV1 = null, lastV2 = null;
+function step(dt){
+  // dt is simulation seconds
+  const M = MODES[modeId];
+  simTime += dt;
+  beat += dt*M.hr/60; U_BEAT.value = beat;
+  pumpPhase += dt*M.pump;
+  // arterioles ease towards their new width
+  for(const b of BEDS){ const target = M.dil[b.id]; dilNow[b.id] += (target - dilNow[b.id])*Math.min(1, dt*1.6); }
+  BEDS.forEach((b,i)=>{ arteriole[i].userData.U.uDil.value = dilNow[b.id]*0.085; });
+  for(const c of cells) stepCell(c, dt);
+  stepCell(follower, dt);
+  updateZoom(dt, simTime);
+  updateBench(simTime);
+}
+function applyVisuals(){
+  const bp = bump(beat); heartMesh.scale.set(1.15*(1-0.05*bp), 1.35*(1-0.05*bp), 0.95*(1-0.05*bp));
+  const sq = squeeze();
+  for(const m of pumpMuscles){ m.scale.set(1 + 0.32*sq, 1, 1 + 0.32*sq); m.position.y = -4.35 + m.userData.s*(1.2 - 0.14*sq); }
+  if(VALVES.length){
+    const o1 = smooth(0.35,0.6,sq), o2 = 1 - smooth(0.35,0.6,sq);
+    setValve(VALVES[0], o1); setValve(VALVES[1], o2);
+    for(let k=2;k<VALVES.length;k++) setValve(VALVES[k], 0.8 + 0.2*Math.sin(simTime*2 + k));
+    const v1 = o1>0.5, v2 = o2>0.5;
+    if(v1!==lastV1){ lastV1 = v1; const e=$('#fbV1'); e.textContent = v1?'OPEN':'SHUT'; e.className='state '+(v1?'open':'shut'); }
+    if(v2!==lastV2){ lastV2 = v2; const e=$('#fbV2'); e.textContent = v2?'OPEN':'SHUT'; e.className='state '+(v2?'open':'shut'); if(stageIdx===5) updateFlowSmall(); }
+  }
+  const heat = Math.max(0, dilNow.skin);
+  heatSprites.forEach((s,i)=>{ s.material.opacity = 0.85*heat; s.position.y = 6.45 + ((simTime*0.5 + i*0.33) % 1)*0.5; });
+  updateCellMeshes();
+}
+
+/* ================================================================ loop */
+let last = performance.now();
+function frame(now){
+  const dt = Math.min(0.1, (now-last)/1000); last = now;
+  if(playing){ step(dt*speed); }
+  applyVisuals();
+  if(followOn){ updateFollowPanel(); }
+  if(camAnim){ camAnim.k = Math.min(1, camAnim.k + dt/1.1); const e = camAnim.k<.5 ? 4*camAnim.k**3 : 1-(-2*camAnim.k+2)**3/2;
+    camera.position.lerpVectors(camAnim.p0, camAnim.p1, e); controls.target.lerpVectors(camAnim.t0, camAnim.t1, e); if(camAnim.k>=1) camAnim=null; }
+  setHighlight(now/1000);
+  controls.update();
+  renderer.render(scene, camera); labelRenderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+/* ================================================================ boot */
+function boot(){
+  buildLoop(); buildTissues(); buildPump();
+  buildValve(P3(-4.7,-4.35), 0, 0.6);   // heart side of the pump (flow goes left)
+  buildValve(P3(-0.8,-4.35), 0, 0.6);   // far side of the pump
+  buildValve(P3(3.6,-4.35), 0, 0.6);
+  buildValve(P3(7.8,0.2), Math.PI/2, 0.6); // flow goes down the column
+  buildPaths(); initCells();
+  buildZoom(); buildBench(); buildLabels();
+  resize();
+  setSpeed(qs.has('speed') ? +qs.get('speed') : 0.35);
+  setMode('rest');
+  for(let k=0;k<120;k++) step(0.05);   // let the blood settle
+  const st = qs.has('stage') ? (+qs.get('stage')) : 0;
+  goStage(st, false); goCam(STAGES[st].cam, true);
+  if(qs.has('mode')) setMode(qs.get('mode'));
+  if(qs.has('t')){ const T = +qs.get('t'); for(let k=0;k<T*30;k++) step(1/30); for(const b of BEDS) dilNow[b.id] = MODES[modeId].dil[b.id]; BEDS.forEach((b,i)=>{ arteriole[i].userData.U.uDil.value = dilNow[b.id]*0.085; }); setPlaying(false); }
+  if(qs.has('cam')) goCam(qs.get('cam'), true);
+  if(qs.has('wall')) setWall(qs.get('wall'));
+  if(qs.has('labels')){ showAll=true; refreshLabels(); }
+  if(qs.has('follow')) setFollow(true);
+  if(reduceMotion) setPlaying(false);
+  if(qs.has('panel')) openPanel('#'+qs.get('panel'));
+  if(qs.has('nohint')) $('#hint').style.display='none';
+  $('#loading').style.display='none';
+  requestAnimationFrame(frame);
+}
+window.__sim = {camera, controls, goCam, goStage, setMode, setWall};
+try{ boot(); }catch(err){ console.error(err); $('#loading').textContent = 'Sorry, the 3D model could not load on this device.'; }
+</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('../../sw.js',{scope:'../../'}).catch(function(){});</script>
+</body>
+</html>

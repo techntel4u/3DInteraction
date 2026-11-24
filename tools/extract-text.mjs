@@ -46,6 +46,13 @@ s = fs.readFileSync('sims/heart/student.html','utf8');
   out['heart'] = { sections:[{title:'Guided tour', items: grabArray(s,'STAGES').map(x=>({h:x.name, t:strip(x.text)}))},
     {title:'The parts', items: Object.values(P).map(p=>({h:p.name, t:strip(p.job)}))}],
     quiz: grabArray(s,'QUIZ').map(q=>({q:q.q, o:q.o})) }; }
+s = fs.readFileSync('sims/blood-vessels/student.html','utf8');
+{ const a = s.indexOf('{', s.search(/const\s+PARTS\s*=/)), b = s.indexOf('\n};', a) + 2;
+  const P = new Function('const Y0=-12.5, Y1=12.5; return ' + s.slice(a, b))();
+  out['blood-vessels'] = { sections:[{title:'Guided tour', items: grabArray(s,'STAGES').map(x=>({h:x.name, t:strip(x.text)}))},
+    {title:'The parts', items: Object.values(P).map(p=>({h:p.name, t:strip(p.job)}))},
+    {title:'Common mix-ups', items: grabArray(s,'MISCON').map(([w,r])=>({h:'Mix-up: '+w, t:'Right idea: '+r}))}],
+    quiz: grabArray(s,'QUIZ').map(q=>({q:q.q, o:q.o})) }; }
 for (const [id, file] of [['bonds-stretcher','sims/bonds-stretcher/student.html'],['bonds-english-flemish','sims/bonds-english-flemish/student.html']]) {
   const src = fs.readFileSync(file,'utf8');
   const a = src.indexOf('{', src.search(/const\s+PARTS\s*=/)), b = src.indexOf('\n}};', a) + 3;
