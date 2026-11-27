@@ -3,8 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Interactive 3D learning simulations from City of Wolverhampton College, by curriculum area and course.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="3D Learning Simulations">
+<meta property="og:description" content="Interactive 3D learning simulations from City of Wolverhampton College, by curriculum area and course.">
+<meta property="og:image" content="https://techntel4u.github.io/3DInteraction/icons/icon-512.png">
+<meta property="og:url" content="https://techntel4u.github.io/3DInteraction/area.html">
 <title>Curriculum area – 3D Learning Simulations</title>
-<link rel="stylesheet" href="assets/hub.css?v=26">
+<link rel="stylesheet" href="assets/hub.css?v=27">
 <script src="vendor/qrcode/qrcode.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#16325c">
@@ -29,7 +35,7 @@
 </main>
 <footer>Curriculum areas from <a href="https://www.wolvcoll.ac.uk/" target="_blank" rel="noopener">wolvcoll.ac.uk</a>.</footer>
 <script type="module">
-import {loadCatalog, qs, esc, simCard, wireShare, shareButtons, initStaff, abs, statsHtml, seriesBlock, seriesInArea, wireSeries} from './assets/hub.js?v=29';
+import {loadCatalog, qs, esc, simCard, wireShare, shareButtons, initStaff, abs, statsHtml, seriesBlock, seriesInArea, wireSeries} from './assets/hub.js?v=30';
 initStaff();
 const cat = await loadCatalog();
 const a = cat.areas.find(x => x.id === qs('id'));

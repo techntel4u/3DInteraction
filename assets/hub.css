@@ -32,6 +32,10 @@ h2{color:var(--navy);margin:26px 0 10px;font-size:21px}
 .btn:hover{border-color:var(--navy2)}
 .btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
 .btn.gc{background:#fff;border-color:#1e8e3e;color:#146c2e}
+.btn.ms{background:#fff;border-color:#5b5fc7;color:#3d3f99}
+.btn.ms svg{flex:none}
+/* Teams sharing only works in desktop Edge and Chrome */
+@media (hover:none),(pointer:coarse){.btn.ms{display:none}}
 .btn:focus-visible,.area:focus-visible,.course:focus-visible{outline:3px solid #ffb300;outline-offset:2px}
 .sharebar{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 .note{font-size:13.5px;color:var(--muted)}

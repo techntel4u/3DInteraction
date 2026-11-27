@@ -1,6 +1,6 @@
 // Shared helpers for the simulation hub. Data lives in data/catalog.json.
 export async function loadCatalog(){
-  const r = await fetch('data/catalog.json?v=29', {cache:'no-cache'});
+  const r = await fetch('data/catalog.json?v=30', {cache:'no-cache'});
   return r.json();
 }
 /* ---------- Staff sign-in (Google, college staff accounts only) ----------
@@ -72,6 +72,38 @@ export const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt
 export const classroomUrl = (url, title='', body='') => 'https://classroom.google.com/share?url=' + encodeURIComponent(url)
   + (title ? '&title=' + encodeURIComponent(title) : '') + (body ? '&body=' + encodeURIComponent(body) : '');
 
+// Microsoft Teams: the same share window Microsoft's launcher.js opens. Teachers in a class team
+// get "Create an assignment" with the title and instructions filled in. Teams caps the title
+// at 50 characters and the instructions at 200, so longer text is cut at a sentence or word.
+const fit = (t, max) => {
+  t = String(t || '').replace(/\s+/g, ' ').trim();
+  if (t.length <= max) return t;
+  const cut = t.slice(0, max), dot = cut.lastIndexOf('. ');
+  if (dot > max * 0.4) return cut.slice(0, dot + 1);
+  return cut.slice(0, cut.lastIndexOf(' ', max - 1)).replace(/[\s,;:–-]+$/, '') + '…';
+};
+const teamsTitle = t => {
+  t = String(t || '');
+  if (t.length > 50) t = t.replace(/\s*[–-]\s*3D [a-z ]*simulation( series)?/i, '').replace(/\s*\(3D simulation\)/i, '');
+  if (t.length > 50) t = t.replace(/\(([^()]*),\s*(Part \d+)\)/, '($2)');
+  return fit(t, 50);
+};
+export function teamsUrl(url, title='', body=''){
+  const shortTitle = teamsTitle(title);
+  const firstPara = String(body).split('\n')[0];
+  let instr = fit(firstPara, 200);
+  const tail = ' Follow the steps in the simulation.';
+  if (body.length > firstPara.length && instr.length + tail.length <= 200) instr += tail;
+  const q = new URLSearchParams({href: url, preview: 'true', referrer: location.host,
+    msgText: shortTitle, assignTitle: shortTitle, assignInstr: instr});
+  return 'https://teams.microsoft.com/share?' + q.toString();
+}
+export function openTeams(href){
+  const w = 700, h = 600, l = Math.max(0, (screen.width - w) / 2), t = Math.max(0, (screen.height - h) / 2);
+  const win = window.open(href, 'ms-teams-share', `width=${w},height=${h},left=${l},top=${t}`);
+  if (!win) location.href = href;   // pop-up blocked: open in this tab instead
+}
+
 export function toast(msg){
   let t = document.querySelector('.toast');
   if(!t){ t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role','status'); document.body.appendChild(t); }
@@ -90,12 +122,16 @@ export function showQR(url, title){
   d.querySelector('button').onclick = () => d.close();
   d.showModal();
 }
-// share buttons: copy link, Google Classroom, QR
-// The Classroom link opens in a new tab with the title and instructions filled in.
-export function shareButtons(url, title, body=''){
+// share buttons: copy link, Google Classroom, Microsoft Teams, QR
+// The Classroom and Teams links open with the title and instructions filled in.
+// Teams sharing only works in desktop Edge and Chrome, so the Teams button is hidden on touch devices.
+export function shareButtons(url, title, body='', tTitle=''){
   if (!staff()) return '';
   return `<button class="btn" data-copy="${esc(url)}">🔗 Copy link</button>
   <a class="btn gc" href="${esc(classroomUrl(url, title, body))}" target="_blank" rel="noopener">🎓 Share to Google Classroom</a>
+  <a class="btn ms" href="${esc(teamsUrl(url, tTitle || title, body))}" data-teams target="_blank" rel="noopener" title="Post to a Teams channel, or create an assignment in a class team">
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"><rect x="2" y="5" width="13" height="14" rx="2" fill="#5059c9"/><path fill="#fff" d="M5 8.5h7v1.8H9.4V16H7.6v-5.7H5z"/><circle cx="18.5" cy="6.5" r="2.5" fill="#7b83eb"/><path fill="#7b83eb" d="M16 10h5a1 1 0 0 1 1 1v4.5a3.5 3.5 0 0 1-6 2.4z"/></svg>
+    Assign in Microsoft Teams</a>
   <button class="btn" data-qr="${esc(url)}" data-title="${esc(title)}">▦ QR code</button>`;
 }
 // "Save for offline": shows ✓ when every file of a simulation is saved on this device
@@ -164,6 +200,7 @@ export function wireShare(root=document){
   wireUsage(root);
   root.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => copy(b.dataset.copy));
   root.querySelectorAll('[data-qr]').forEach(b => b.onclick = () => showQR(b.dataset.qr, b.dataset.title));
+  root.querySelectorAll('[data-teams]').forEach(a => a.onclick = e => { e.preventDefault(); openTeams(a.href); });
 }
 // "New" lasts 21 days from a simulation's added date; the home page shows at most NEW_MAX cards,
 // and several new parts of one series share a single card.
@@ -224,7 +261,7 @@ export function simCard(s, cat, compact=false){
         <a class="btn primary" href="${esc(s.student)}" data-open-id="${esc(s.id)}">▶ Open simulation</a>
         <button class="btn offl" data-offline="${esc(s.student)}" hidden>⬇ Save for offline</button>
         ${s.transcript?`<a class="btn" href="${esc(s.transcript)}" title="Everything the narrator says, as text">📄 Transcript</a>`:''}
-        ${shareButtons(url, s.classroomTitle||s.title, s.instructions||'')}
+        ${shareButtons(url, s.classroomTitle||s.title, s.instructions||'', s.teamsTitle||'')}
         ${s.worksheet&&staff()?`<a class="btn" href="${esc(s.worksheet)}" title="Printable worksheet with tasks and quiz questions">🖨 Worksheet</a>`:''}
         ${s.teacher&&staff()?`<a class="btn" href="${esc(s.teacher)}" title="Includes model answers and the quiz answer key">📋 Teacher version</a>`:''}
       </div>
